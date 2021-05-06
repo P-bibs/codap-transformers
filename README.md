@@ -1,3 +1,11 @@
+
+# Running with CODAP
+
+To launch the plugin in a local instance of CODAP, start both the plugin and [CODAP](https://github.com/concord-consortium/codap) and navigate in a browser to
+```
+http://localhost:4020/dg?di=http://localhost:3000
+```
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

@@ -9,6 +9,10 @@ export type Token =
   | { kind: "TIMES" }
   | { kind: "DIVIDE" };
 
+/**
+ * A list of tuples representing a regex to use to search for a token
+ * and a function to use to turn the resulting regex match string into a token
+ */
 let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^[a-z][a-zA-Z0-9]*/, (s) => ({ kind: "IDENTIFIER", content: s })],
   [/^[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
@@ -22,6 +26,9 @@ let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^[ \n\t]+/, null],
 ];
 
+/**
+ * Tokenize a string
+ */
 export function lex(source: string): Token[] {
   let buf = source;
   let tokens: Token[] = [];

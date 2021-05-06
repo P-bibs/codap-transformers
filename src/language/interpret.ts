@@ -1,9 +1,16 @@
 import { Ast, Operator, Value } from "./ast";
 
+/**
+ * An environment is a map from strings to Values
+ */
 type Env = {
   [indexer: string]: Value;
 };
 
+/**
+ * Interpret an AST to get a value. The second argument is optional
+ * and allows you to pre-fill values in the environment (like maybe row values)
+ */
 export function interpret(expr: Ast, env?: Env): Value {
   if (!env) {
     env = {};

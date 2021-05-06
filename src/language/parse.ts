@@ -58,6 +58,9 @@ function infixParseletMap(tok: Token): InfixParselet | null {
   }
 }
 
+/**
+ * Parse a list of tokens into an AST. The list of tokens is not mutated.
+ */
 export function parse(tokens: Token[]): Ast {
   // immutable reverse (so that tokens.pop() works as expected)
   tokens = tokens.slice().reverse();
@@ -105,7 +108,7 @@ export function parseExpr(tokens: Token[], currentBindingPower: number): Ast {
       continue;
     }
 
-    // TODO: this is where we could add postfix operators if we wanted
+    // TODO: this is where we could add postfix operators if we wanted. It would look like:
     // let postfixParselet = postfixParseletMap(nextToken);
     // if (postfixParselet) {
     //   ...

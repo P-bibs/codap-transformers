@@ -9,6 +9,7 @@ enum CodapComponent {
 enum CodapResource {
   DataContext = "dataContext",
   DataContextList = "dataContextList",
+  Component = "component",
 }
 
 enum CodapActions {
@@ -103,7 +104,7 @@ function caseFromContext(context: string) {
   return `dataContext[${context}].collection[${collectionName}].case`;
 }
 
-const getNewContextName = (function() {
+const getNewName = (function() {
   let count = 0;
   return () => {
     const name = `codapflow_${count}`;
@@ -149,7 +150,7 @@ export function getDataFromContext(context: string) {
 }
 
 function createBareDataset(label: string, attrs: CodapAttribute[]) {
-  const newName = getNewContextName();
+  const newName = getNewName();
   const newCollectionName = collectionNameFromContext(newName);
 
   return new Promise<DataSetDescription>((resolve, reject) =>
@@ -193,16 +194,41 @@ export async function createDataset(label: string, data: Object[]) {
   const newDatasetDescription = await createBareDataset(label, attrs);
 
   // return itemIDs
-  return new Promise<string[]>((resolve, reject) =>
+  return new Promise<DataSetDescription>((resolve, reject) =>
     phone.call<CodapResponseItemIDs>({
       action: CodapActions.Create,
       resource: itemFromContext(newDatasetDescription.name),
       values: data
     }, response => {
       if (response.success) {
-        resolve(response.itemIDs!);
+        resolve(newDatasetDescription);
       } else {
         reject(new Error("Failed to create dataset with data"));
+      }
+    }));
+}
+
+const DEFAULT_TABLE_WIDTH = 300;
+const DEFAULT_TABLE_HEIGHT = 300;
+export async function createTable(context: string) {
+  return new Promise<void>((resolve, reject) =>
+    phone.call({
+      action: CodapActions.Create,
+      resource: CodapResource.Component,
+      values: {
+        type: CodapComponent.Table,
+        name: getNewName(),
+        dimensions: {
+          width: DEFAULT_TABLE_WIDTH,
+          height: DEFAULT_TABLE_HEIGHT
+        },
+        dataContext: context
+      }
+    }, response => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to create table"));
       }
     }));
 }

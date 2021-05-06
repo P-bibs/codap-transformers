@@ -9,9 +9,15 @@ import Error from './Error'
  */
 function Transformation() {
 
+  /**
+   * The broad categories of transformations that can be applied
+   * to tables.
+   */
   enum TransformType {
-    Filter,
+    Filter = "Filter",
   }
+
+  const transformTypes = [TransformType.Filter];
 
   const [inputDataCtxt, setInputDataCtxt] = useState<string|null>(null);
   const [transformType, setTransformType] = useState<TransformType|null>(null);
@@ -23,11 +29,8 @@ function Transformation() {
     setErrMsg(null);
   }
 
-  function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    const nameToType : {[name: string] : TransformType} = {
-      "Filter": TransformType.Filter,
-    };
-    setTransformType(nameToType[event.target.value]);
+  function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {    
+    setTransformType(event.target.value as TransformType);
     setErrMsg(null);
   }
 
@@ -82,7 +85,9 @@ function Transformation() {
       <p>Transformation Type</p>
       <select id="transformType" onChange={typeChange}>
         <option selected disabled>Select a Transformation</option>
-        <option>Filter</option>
+        {transformTypes.map((type) => (
+          <option>{type}</option>
+        ))}
       </select>
 
       <p>How to Transform</p>

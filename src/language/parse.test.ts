@@ -1,0 +1,106 @@
+import { parse } from "./parse";
+import { Token } from "./lex";
+
+test("parses simple binary operation", () => {
+  let tokens: Token[] = [
+    { kind: "NUMBER", content: 1 },
+    { kind: "PLUS" },
+    { kind: "NUMBER", content: 2 },
+  ];
+  expect(parse(tokens)).toStrictEqual({
+    kind: "Binop",
+    op: "+",
+    op1: { kind: "Number", content: 1 },
+    op2: { kind: "Number", content: 2 },
+  });
+});
+
+test("parses equality correctly", () => {
+  // 1 + 2 * 3
+  let tokens: Token[] = [
+    { kind: "NUMBER", content: 1 },
+    { kind: "DOUBLE_EQUALS" },
+    { kind: "NUMBER", content: 2 },
+    { kind: "TIMES" },
+    { kind: "NUMBER", content: 3 },
+  ];
+  expect(parse(tokens)).toStrictEqual({
+    kind: "Binop",
+    op: "==",
+    op1: { kind: "Number", content: 1 },
+    op2: {
+      kind: "Binop",
+      op: "*",
+      op1: { kind: "Number", content: 2 },
+      op2: { kind: "Number", content: 3 },
+    },
+  });
+});
+
+test("parses associativity correctly", () => {
+  // 1 - 2 - 3
+  let tokens: Token[] = [
+    { kind: "NUMBER", content: 1 },
+    { kind: "MINUS" },
+    { kind: "NUMBER", content: 2 },
+    { kind: "MINUS" },
+    { kind: "NUMBER", content: 3 },
+  ];
+  expect(parse(tokens)).toStrictEqual({
+    kind: "Binop",
+    op: "-",
+    op1: {
+      kind: "Binop",
+      op: "-",
+      op1: { kind: "Number", content: 1 },
+      op2: { kind: "Number", content: 2 },
+    },
+    op2: { kind: "Number", content: 3 },
+  });
+});
+
+test("parses precedence correctly", () => {
+  // 1 + 2 * 3
+  let tokens: Token[] = [
+    { kind: "NUMBER", content: 1 },
+    { kind: "PLUS" },
+    { kind: "NUMBER", content: 2 },
+    { kind: "TIMES" },
+    { kind: "NUMBER", content: 3 },
+  ];
+  expect(parse(tokens)).toStrictEqual({
+    kind: "Binop",
+    op: "+",
+    op1: { kind: "Number", content: 1 },
+    op2: {
+      kind: "Binop",
+      op: "*",
+      op1: { kind: "Number", content: 2 },
+      op2: { kind: "Number", content: 3 },
+    },
+  });
+});
+
+test("parses parentheses correctly", () => {
+  // (1 + 2) * 3
+  let tokens: Token[] = [
+    { kind: "LPAREN" },
+    { kind: "NUMBER", content: 1 },
+    { kind: "PLUS" },
+    { kind: "NUMBER", content: 2 },
+    { kind: "RPAREN" },
+    { kind: "TIMES" },
+    { kind: "NUMBER", content: 3 },
+  ];
+  expect(parse(tokens)).toStrictEqual({
+    kind: "Binop",
+    op: "*",
+    op1: {
+      kind: "Binop",
+      op: "+",
+      op1: { kind: "Number", content: 1 },
+      op2: { kind: "Number", content: 2 },
+    },
+    op2: { kind: "Number", content: 3 },
+  });
+});

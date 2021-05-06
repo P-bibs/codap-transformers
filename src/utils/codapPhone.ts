@@ -1,4 +1,5 @@
 import { IframePhoneRpcEndpoint } from "iframe-phone";
+import { changeListeners } from "./codapListeners";
 
 enum CodapComponent {
   Graph = "graph",
@@ -42,9 +43,15 @@ type CodapPhone = {
   call<T extends CodapResponse>(r: CodapRequest, cb: (r: T) => any): void;
 }
 
+enum CodapInitiatedResource {
+  InteractiveState = "interactiveState",
+  UndoChangeNotice = "undoChangeNotice",
+  DocumentChangeNotice = "documentChangeNotice"
+}
+
 type CodapInitiatedCommand = {
   action: CodapActions;
-  resource: "interactiveState" | "undoChangeNotice" | "documentChangeNotice";
+  resource: CodapInitiatedResource;
   values?: any;
 }
 
@@ -113,12 +120,25 @@ const getNewName = (function() {
   };
 })();
 
+enum DocumentChangeOperations {
+  DataContextCountChanged = "dataContextCountChanged",
+}
+
 /**
- * Mock request handler for requests initiated by CODAP.
+ * Catch notifications from CODAP and call appropriate listeners
  */
 function codapRequestHandler(command: CodapInitiatedCommand,
-                             callback: (r: CodapResponse) => void) {
-  callback({ success: false });
+                             callback: (r: CodapResponse) => void): void {
+  if (command.action !== CodapActions.Notify) {
+    return;
+  }
+
+  if (command.resource === CodapInitiatedResource.DocumentChangeNotice
+      && command.values.operation === DocumentChangeOperations.DataContextCountChanged) {
+    for (const f of changeListeners) {
+      f();
+    }
+  }
 }
 
 export function getAllDataContexts() {
@@ -176,6 +196,10 @@ function createBareDataset(label: string, attrs: CodapAttribute[]) {
     }));
 }
 
+/**
+ * Make CODAP attributes from given list of objects. Assumes objects have
+ * the same fields
+ */
 function makeAttrsFromData(data: Object[]): CodapAttribute[] {
   if (data.length === 0) {
     return [];

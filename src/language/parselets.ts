@@ -24,7 +24,17 @@ function opToToken(op: Operator): Token {
     case "/":
       return { kind: "DIVIDE" };
     case "==":
-      return { kind: "DOUBLE_EQUALS" };
+      return { kind: "DOUBLE_EQUAL" };
+    case "!=":
+      return { kind: "NOT_EQUAL" };
+    case ">":
+      return { kind: "GREATER" };
+    case ">=":
+      return { kind: "GREATER_EQUAL" };
+    case "&&":
+      return { kind: "L_AND" };
+    case "||":
+      return { kind: "L_OR" };
   }
 }
 

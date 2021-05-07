@@ -13,12 +13,19 @@ import {
  * Get the binding power for operators
  */
 export function getBindingPower(op: Token): number {
-  if (op.kind === "DOUBLE_EQUALS") {
+  if (op.kind === "L_AND" || op.kind === "L_OR") {
     return 10;
-  } else if (op.kind === "PLUS" || op.kind === "MINUS") {
+  } else if (
+    op.kind === "DOUBLE_EQUAL" ||
+    op.kind === "NOT_EQUAL" ||
+    op.kind === "GREATER" ||
+    op.kind === "GREATER_EQUAL"
+  ) {
     return 20;
-  } else if (op.kind === "TIMES" || op.kind === "DIVIDE") {
+  } else if (op.kind === "PLUS" || op.kind === "MINUS") {
     return 30;
+  } else if (op.kind === "TIMES" || op.kind === "DIVIDE") {
+    return 40;
   } else {
     throw Error("Tried to get binding power for bad token");
   }
@@ -51,8 +58,18 @@ function infixParseletMap(tok: Token): InfixParselet | null {
     return new OperatorParselet("*", true);
   } else if (tok.kind === "DIVIDE") {
     return new OperatorParselet("/", true);
-  } else if (tok.kind === "DOUBLE_EQUALS") {
+  } else if (tok.kind === "DOUBLE_EQUAL") {
     return new OperatorParselet("==", true);
+  } else if (tok.kind === "NOT_EQUAL") {
+    return new OperatorParselet("!=", true);
+  } else if (tok.kind === "GREATER") {
+    return new OperatorParselet(">", true);
+  } else if (tok.kind === "GREATER_EQUAL") {
+    return new OperatorParselet(">=", true);
+  } else if (tok.kind === "L_AND") {
+    return new OperatorParselet("&&", true);
+  } else if (tok.kind === "L_OR") {
+    return new OperatorParselet("||", true);
   } else {
     return null;
   }
@@ -64,9 +81,7 @@ function infixParseletMap(tok: Token): InfixParselet | null {
 export function parse(tokens: Token[]): Ast {
   // immutable reverse (so that tokens.pop() works as expected)
   tokens = tokens.slice().reverse();
-  let l = parseExpr(tokens, 0);
-  console.log(l);
-  return l;
+  return parseExpr(tokens, 0);
 }
 
 export function parseExpr(tokens: Token[], currentBindingPower: number): Ast {

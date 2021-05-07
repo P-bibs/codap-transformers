@@ -3,26 +3,36 @@ export type Token =
   | { kind: "NUMBER"; content: number }
   | { kind: "LPAREN" }
   | { kind: "RPAREN" }
-  | { kind: "DOUBLE_EQUALS" }
+  | { kind: "DOUBLE_EQUAL" }
+  | { kind: "NOT_EQUAL" }
+  | { kind: "GREATER" }
+  | { kind: "GREATER_EQUAL" }
   | { kind: "PLUS" }
   | { kind: "MINUS" }
   | { kind: "TIMES" }
-  | { kind: "DIVIDE" };
+  | { kind: "DIVIDE" }
+  | { kind: "L_AND" }
+  | { kind: "L_OR" };
 
 /**
  * A list of tuples representing a regex to use to search for a token
  * and a function to use to turn the resulting regex match string into a token
  */
 let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
-  [/^[a-z][a-zA-Z0-9]*/, (s) => ({ kind: "IDENTIFIER", content: s })],
-  [/^[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
   [/^\(/, () => ({ kind: "LPAREN" })],
   [/^\)/, () => ({ kind: "RPAREN" })],
-  [/^==/, () => ({ kind: "DOUBLE_EQUALS" })],
+  [/^==/, () => ({ kind: "DOUBLE_EQUAL" })],
+  [/^!=/, () => ({ kind: "NOT_EQUAL" })],
+  [/^>=/, () => ({ kind: "GREATER_EQUAL" })],
+  [/^>/, () => ({ kind: "GREATER" })],
   [/^\+/, () => ({ kind: "PLUS" })],
   [/^-/, () => ({ kind: "MINUS" })],
   [/^\*/, () => ({ kind: "TIMES" })],
   [/^\//, () => ({ kind: "DIVIDE" })],
+  [/^(and|&&)/, () => ({ kind: "L_AND" })],
+  [/^(or|\|\|)/, () => ({ kind: "L_OR" })],
+  [/^[a-z][a-zA-Z0-9]*/, (s) => ({ kind: "IDENTIFIER", content: s })],
+  [/^[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
   [/^[ \n\t]+/, null],
 ];
 
@@ -53,7 +63,7 @@ export function lex(source: string): Token[] {
       }
     }
     // This only gets called if no regex matched
-    throw new Error("Found invalid token while lexing");
+    throw new Error(`Found invalid token while lexing ${buf}`);
   }
 
   return tokens;

@@ -3,7 +3,17 @@ export type Ast =
   | { kind: "Identifier"; content: string }
   | { kind: "Number"; content: number };
 
-export type Operator = "+" | "-" | "*" | "/" | "==";
+export type Operator =
+  | "+"
+  | "-"
+  | "*"
+  | "/"
+  | "=="
+  | "!="
+  | ">"
+  | ">="
+  | "&&"
+  | "||";
 
 export type Value =
   | { kind: "Num"; content: number }

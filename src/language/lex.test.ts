@@ -30,7 +30,7 @@ test("ignores whitespace", () => {
   ]);
 });
 
-test("ignores parentheses", () => {
+test("processes parentheses", () => {
   expect(lex("(1 + 2) * 3")).toStrictEqual([
     { kind: "LPAREN" },
     { kind: "NUMBER", content: 1 },
@@ -39,5 +39,32 @@ test("ignores parentheses", () => {
     { kind: "RPAREN" },
     { kind: "TIMES" },
     { kind: "NUMBER", content: 3 },
+  ]);
+});
+
+test("Pprses inequalities", () => {
+  expect(lex("1 >= 1 > 2")).toStrictEqual([
+    { kind: "NUMBER", content: 1 },
+    { kind: "GREATER_EQUAL" },
+    { kind: "NUMBER", content: 1 },
+    { kind: "GREATER" },
+    { kind: "NUMBER", content: 2 },
+  ]);
+});
+
+test("parses logical operators", () => {
+  expect(lex("and && or ||")).toStrictEqual([
+    { kind: "L_AND" },
+    { kind: "L_AND" },
+    { kind: "L_OR" },
+    { kind: "L_OR" },
+  ]);
+});
+
+test("parses not equals", () => {
+  expect(lex("1 != 2")).toStrictEqual([
+    { kind: "NUMBER", content: 1 },
+    { kind: "NOT_EQUAL" },
+    { kind: "NUMBER", content: 2 },
   ]);
 });

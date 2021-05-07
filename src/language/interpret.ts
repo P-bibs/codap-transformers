@@ -3,7 +3,7 @@ import { Ast, Operator, Value } from "./ast";
 /**
  * An environment is a map from strings to Values
  */
-type Env = {
+export type Env = {
   [indexer: string]: Value;
 };
 
@@ -33,8 +33,28 @@ function interpretBinop(op: Operator, op1: Ast, op2: Ast, env: Env): Value {
   let val1 = interpretExpr(op1, env);
   let val2 = interpretExpr(op2, env);
 
-  if (op === "==") {
-    return { kind: "Bool", content: val1.content === val2.content };
+  if (op === "==" || op === "!=") {
+    switch (op) {
+      case "==":
+        return { kind: "Bool", content: val1.content === val2.content };
+      case "!=":
+        return { kind: "Bool", content: val1.content !== val2.content };
+    }
+  } else if (op === "||" || op === "&&") {
+    if (
+      typeof val1.content !== "boolean" ||
+      typeof val2.content !== "boolean"
+    ) {
+      throw new Error(
+        "Tried logical binary operation with non-boolean operands"
+      );
+    }
+    switch (op) {
+      case "||":
+        return { kind: "Bool", content: val1.content && val2.content };
+      case "&&":
+        return { kind: "Bool", content: val1.content || val2.content };
+    }
   } else {
     if (typeof val1.content !== "number" || typeof val2.content !== "number") {
       throw new Error(
@@ -50,6 +70,10 @@ function interpretBinop(op: Operator, op1: Ast, op2: Ast, env: Env): Value {
         return { kind: "Num", content: val1.content * val2.content };
       case "/":
         return { kind: "Num", content: val1.content / val2.content };
+      case ">":
+        return { kind: "Bool", content: val1.content > val2.content };
+      case ">=":
+        return { kind: "Bool", content: val1.content >= val2.content };
     }
   }
 }

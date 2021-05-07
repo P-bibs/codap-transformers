@@ -25,3 +25,19 @@ test("correctly processes complex boolean expression (negative)", () => {
     content: false,
   });
 });
+
+test("correctly processes boolean expressions", () => {
+  let source = "1 == 1 and 2 == 3 or 1 != 0";
+  expect(interpret(parse(lex(source)))).toStrictEqual({
+    kind: "Bool",
+    content: true,
+  });
+});
+
+test("correctly processes inequality expressions", () => {
+  let source = "1 > 2 and 1 >= 1";
+  expect(interpret(parse(lex(source)))).toStrictEqual({
+    kind: "Bool",
+    content: true,
+  });
+});

@@ -1,7 +1,15 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Transformation.css';
 import Error from './Error'
+
+import {
+  getAllDataContexts,
+  getDataFromContext,
+  createDataset,
+  createTable,
+} from './utils/codapPhone';
+import { addCodapListener, removeCodapListener } from "./utils/codapListeners";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -23,6 +31,18 @@ function Transformation() {
   const [transformType, setTransformType] = useState<TransformType|null>(null);
   const [transformPgrm, setTransformPgrm] = useState("");
   const [errMsg, setErrMsg] = useState<string|null>(null);
+  const [dataContexts, setDataContexts] = useState<string[]|null>(null);
+
+  // Initial refresh to set up connection, then start listening
+  useEffect(() => {
+    refreshTables();
+    addCodapListener(refreshTables);
+    return () => removeCodapListener(refreshTables);
+  }, []);
+
+  async function refreshTables() {
+    setDataContexts(await getAllDataContexts());
+  }
 
   function inputChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setInputDataCtxt(event.target.value);
@@ -40,21 +60,10 @@ function Transformation() {
   }
 
   /**
-   * Retrieves a list of every data context in the CODAP window that 
-   * could be used as input to this transformation.
-   * 
-   * @returns list of data context names
-   */
-  function getPossibleInputs() : string[] {
-    // TODO: communicate with CODAP to get names of all current data contexts
-    return ["Table A", "Table B", "Table C"];
-  }
-
-  /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data. 
    */
-  function transform() {
+  async function transform() {
     if (inputDataCtxt === null) {
       setErrMsg('Please choose a valid data context to transform.');
       return;
@@ -70,6 +79,13 @@ function Transformation() {
     console.log(`Data context to transform: ${inputDataCtxt}`);
     console.log(`Transformation type: ${transformType}`);
     console.log(`Transformation to apply:\n${transformPgrm}`);
+
+    const data = await(getDataFromContext(inputDataCtxt));
+
+    // TODO: Do transformation here
+
+    const newContext = await(createDataset("Testing", data));
+    await createTable(newContext.name);
   }
 
   return (
@@ -77,8 +93,8 @@ function Transformation() {
       <p>Table to Transform</p>
       <select id="inputDataContext" onChange={inputChange}>
         <option selected disabled>Select a Data Context</option>
-        {getPossibleInputs().map((dataContextName) => (
-          <option>{dataContextName}</option>
+        {dataContexts && dataContexts.map((dataContextName) => (
+          <option key={dataContextName}>{dataContextName}</option>
         ))}
       </select>
 

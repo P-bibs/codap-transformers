@@ -6,6 +6,10 @@ import { Ast, Operator, Value } from "./ast";
 export type Env = {
   [indexer: string]: Value;
 };
+const INITIAL_ENVIRONMENT: Env = {
+  true: { kind: "Bool", content: true },
+  false: { kind: "Bool", content: false },
+};
 
 /**
  * Interpret an AST to get a value. The second argument is optional
@@ -15,6 +19,8 @@ export function interpret(expr: Ast, env?: Env): Value {
   if (!env) {
     env = {};
   }
+  // Add in our initial symbols
+  env = { ...env, ...INITIAL_ENVIRONMENT };
   return interpretExpr(expr, env);
 }
 
@@ -41,22 +47,19 @@ function interpretBinop(op: Operator, op1: Ast, op2: Ast, env: Env): Value {
         return { kind: "Bool", content: val1.content !== val2.content };
     }
   } else if (op === "||" || op === "&&") {
-    if (
-      typeof val1.content !== "boolean" ||
-      typeof val2.content !== "boolean"
-    ) {
+    if (val1.kind !== "Bool" || val2.kind !== "Bool") {
       throw new Error(
         "Tried logical binary operation with non-boolean operands"
       );
     }
     switch (op) {
       case "||":
-        return { kind: "Bool", content: val1.content && val2.content };
-      case "&&":
         return { kind: "Bool", content: val1.content || val2.content };
+      case "&&":
+        return { kind: "Bool", content: val1.content && val2.content };
     }
   } else {
-    if (typeof val1.content !== "number" || typeof val2.content !== "number") {
+    if (val1.kind !== "Num" || val2.kind !== "Num") {
       throw new Error(
         "Tried arithmetic binary operation with non-number operands"
       );

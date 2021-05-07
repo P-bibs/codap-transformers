@@ -35,7 +35,7 @@ test("correctly processes boolean expressions", () => {
 });
 
 test("correctly processes inequality expressions", () => {
-  let source = "1 > 2 and 1 >= 1";
+  let source = "2 > 1 and 1 >= 1";
   expect(interpret(parse(lex(source)))).toStrictEqual({
     kind: "Bool",
     content: true,

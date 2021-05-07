@@ -88,3 +88,14 @@ test("looks up identifiers in environment", () => {
   };
   expect(interpret(ast, env)).toStrictEqual({ kind: "Num", content: 2 });
 });
+
+test("allows boolean literals", () => {
+  // true or false
+  let ast: Ast = {
+    kind: "Binop",
+    op: "||",
+    op1: { kind: "Identifier", content: "true" },
+    op2: { kind: "Identifier", content: "false" },
+  };
+  expect(interpret(ast)).toStrictEqual({ kind: "Bool", content: true });
+});

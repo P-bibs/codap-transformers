@@ -1,0 +1,9 @@
+
+.Transformation {
+  padding: 15px;
+}
+
+.Transformation textarea {
+  width: 20em;
+  height: 7em;
+}

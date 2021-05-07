@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "CODAP Flow",
+  "name": "A CODAP plugin that enables data transformations like map, filter, and fold",
   "icons": [
     {
       "src": "favicon.ico",

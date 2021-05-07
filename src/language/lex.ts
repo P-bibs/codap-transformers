@@ -31,7 +31,7 @@ let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^\//, () => ({ kind: "DIVIDE" })],
   [/^(and|&&)/, () => ({ kind: "L_AND" })],
   [/^(or|\|\|)/, () => ({ kind: "L_OR" })],
-  [/^[a-z][a-zA-Z0-9]*/, (s) => ({ kind: "IDENTIFIER", content: s })],
+  [/^[a-zA-Z][a-zA-Z0-9]*/, (s) => ({ kind: "IDENTIFIER", content: s })],
   [/^[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
   [/^[ \n\t]+/, null],
 ];

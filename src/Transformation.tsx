@@ -98,18 +98,23 @@ function Transformation() {
 
     const data = await(getDataFromContext(inputDataCtxt));
 
-    const newData = data.filter(dataItem => {
-      const dataEnv = dataItemToEnv(dataItem);
-      const result = evaluate(transformPgrm, dataEnv);
-      if (result.kind !== "Bool") {
-        setErrMsg("Expected boolean output, instead got number.");
-        return false;
-      }
-      return result.content;
-    });
+    try {
+      const newData = data.filter(dataItem => {
+        const dataEnv = dataItemToEnv(dataItem);
+        const result = evaluate(transformPgrm, dataEnv);
+        if (result.kind !== "Bool") {
+          // XXX: I didn't want this to be TypeError, but Error() wasn't working for some reason
+          throw new TypeError("Expected boolean output, instead got number.");
+        }
+        return result.content;
+      });
 
-    const newContext = await(createDataset("Testing", newData));
-    await createTable(newContext.name);
+      const newContext = await(createDataset("Testing", newData));
+      await createTable(newContext.name);
+
+    } catch (e) {
+      setErrMsg(e.message);
+    }
   }
 
   return (

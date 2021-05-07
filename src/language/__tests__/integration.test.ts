@@ -1,6 +1,6 @@
-import { lex } from "./lex";
-import { parse } from "./parse";
-import { interpret } from "./interpret";
+import { lex } from "../lex";
+import { parse } from "../parse";
+import { interpret } from "../interpret";
 
 test("correctly processes complex arithmetic expression", () => {
   let source = "2 * (3 + 4) + 5 * 6";

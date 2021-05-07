@@ -1,5 +1,5 @@
-import { parse } from "./parse";
-import { Token } from "./lex";
+import { parse } from "../parse";
+import { Token } from "../lex";
 
 test("parses simple binary operation", () => {
   let tokens: Token[] = [

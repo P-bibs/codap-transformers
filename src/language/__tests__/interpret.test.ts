@@ -1,5 +1,5 @@
-import { interpret, Env } from "./interpret";
-import { Ast } from "./ast";
+import { interpret, Env } from "../interpret";
+import { Ast } from "../ast";
 
 test("interprets simple binary operation", () => {
   let ast: Ast = {

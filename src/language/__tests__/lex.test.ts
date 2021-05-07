@@ -1,4 +1,4 @@
-import { lex } from "./lex";
+import { lex } from "../lex";
 
 test("parses ops and numbers", () => {
   expect(lex("1 + 2 - 3 * 4 / 5")).toStrictEqual([

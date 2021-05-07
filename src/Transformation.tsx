@@ -2,14 +2,17 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import './Transformation.css';
 import Error from './Error'
-
 import {
   getAllDataContexts,
   getDataFromContext,
   createDataset,
   createTable,
 } from './utils/codapPhone';
-import { addCodapListener, removeCodapListener } from "./utils/codapListeners";
+import { addCodapListener, removeCodapListener } from './utils/codapListeners';
+import { Value } from './language/ast';
+import { Env } from './language/interpret';
+import { evaluate } from "./language";
+
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -60,6 +63,22 @@ function Transformation() {
   }
 
   /**
+   * Converts a data item object into an environment for our language. Only
+   * includes numeric values.
+   *
+   * @returns An environment from the fields of the data item.
+   */
+  function dataItemToEnv(dataItem: Object): Env {
+    return Object.fromEntries(
+      Object.entries(dataItem)
+        .map(([key, value]) =>
+          [key, { kind: "Num", content: Number(value) }]
+        )
+        .filter(([key, value]) => (value as Value).content !== NaN)
+    );
+  }
+
+  /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data. 
    */
@@ -73,18 +92,23 @@ function Transformation() {
       return;
     }
 
-    // TODO: get inputDataCtxt's actual data from CODAP, interpret the 
-    // transformPgrm and apply it to the data, and tell CODAP to create a 
-    // new table with the transformed data.
     console.log(`Data context to transform: ${inputDataCtxt}`);
     console.log(`Transformation type: ${transformType}`);
     console.log(`Transformation to apply:\n${transformPgrm}`);
 
     const data = await(getDataFromContext(inputDataCtxt));
 
-    // TODO: Do transformation here
+    const newData = data.filter(dataItem => {
+      const dataEnv = dataItemToEnv(dataItem);
+      const result = evaluate(transformPgrm, dataEnv);
+      if (result.kind !== "Bool") {
+        setErrMsg("Expected boolean output, instead got number.");
+        return false;
+      }
+      return result.content;
+    });
 
-    const newContext = await(createDataset("Testing", data));
+    const newContext = await(createDataset("Testing", newData));
     await createTable(newContext.name);
   }
 

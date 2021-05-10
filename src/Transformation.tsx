@@ -9,13 +9,11 @@ import {
   createDataset,
   createTable,
   setContextItems,
-} from "./utils/codapPhone";
-import {
   addNewContextListener,
   removeNewContextListener,
   addContextUpdateListener,
   removeContextUpdateListener,
-} from "./utils/codapListeners";
+} from "./utils/codapPhone";
 import { Value } from "./language/ast";
 import { Env } from "./language/interpret";
 import { evaluate } from "./language";

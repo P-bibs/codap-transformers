@@ -23,7 +23,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm test
+    - run: npm run test
   lint:
     runs-on: ubuntu-latest
     strategy:
@@ -37,7 +37,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm lint
+    - run: npm run lint
   check_format:
     runs-on: ubuntu-latest
     strategy:
@@ -51,4 +51,4 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm format:check
+    - run: npm run format:check

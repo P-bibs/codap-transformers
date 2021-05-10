@@ -25,5 +25,6 @@ module.exports = {
   rules: {
     "dot-notation": "off",
     "no-unused-vars": "warn",
+    "no-constant-condition": ["error", { "checkLoops": false }],
   },
 };

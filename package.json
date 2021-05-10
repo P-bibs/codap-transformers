@@ -23,6 +23,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write src/**/*.ts src/**/*.tsx",
     "format:check": "prettier --check src/**/*.ts src/**/*.tsx"
   },

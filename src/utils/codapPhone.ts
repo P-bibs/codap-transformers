@@ -78,7 +78,7 @@ type DataSetDescription = {
 interface BaseAttribute {
   name: string;
   title?: string;
-  colormap?: Object;
+  colormap?: Record<string, unknown>;
   description?: string;
   editable?: boolean;
   formula?: string;
@@ -208,7 +208,7 @@ export function getAllDataContexts() {
 }
 
 export function getDataFromContext(context: string) {
-  return new Promise<Object[]>((resolve, reject) =>
+  return new Promise<Record<string, unknown>[]>((resolve, reject) =>
     phone.call<CodapResponseValues>(
       {
         action: CodapActions.Get,
@@ -262,7 +262,7 @@ function createBareDataset(label: string, attrs: CodapAttribute[]) {
  * Make CODAP attributes from given list of objects. Assumes objects have
  * the same fields
  */
-function makeAttrsFromData(data: Object[]): CodapAttribute[] {
+function makeAttrsFromData(data: Record<string, unknown>[]): CodapAttribute[] {
   if (data.length === 0) {
     return [];
   }
@@ -270,7 +270,10 @@ function makeAttrsFromData(data: Object[]): CodapAttribute[] {
   return Object.keys(data[0]).map((key) => ({ name: key }));
 }
 
-export async function createDataset(label: string, data: Object[]) {
+export async function createDataset(
+  label: string,
+  data: Record<string, unknown>[]
+) {
   if (data.length === 0) {
     return await createBareDataset(label, []);
   }
@@ -298,7 +301,10 @@ export async function createDataset(label: string, data: Object[]) {
   );
 }
 
-export async function setContextItems(contextName: string, items: Object[]) {
+export async function setContextItems(
+  contextName: string,
+  items: Record<string, unknown>[]
+) {
   await deleteAllCases(contextName);
 
   return new Promise<void>((resolve, reject) =>

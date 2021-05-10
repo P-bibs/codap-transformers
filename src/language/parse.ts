@@ -116,6 +116,7 @@ export function parseExpr(tokens: Token[], currentBindingPower: number): Ast {
         break;
       }
 
+      // eslint-disable-next-line
       // @ts-ignore
       nextToken = tokens.pop();
       leftNode = infixParselet.parse(tokens, leftNode, nextToken);

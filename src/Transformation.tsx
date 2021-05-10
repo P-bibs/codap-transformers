@@ -1,3 +1,4 @@
+/* eslint use-isnan: 0 */
 import React from "react";
 import { useState, useEffect } from "react";
 import "./Transformation.css";
@@ -83,7 +84,7 @@ function Transformation() {
    *
    * @returns An environment from the fields of the data item.
    */
-  function dataItemToEnv(dataItem: Object): Env {
+  function dataItemToEnv(dataItem: Record<string, unknown>): Env {
     return Object.fromEntries(
       Object.entries(dataItem)
         .map(([key, value]) => [key, { kind: "Num", content: Number(value) }])
@@ -164,8 +165,8 @@ function Transformation() {
         <option selected disabled>
           Select a Transformation
         </option>
-        {transformTypes.map((type) => (
-          <option>{type}</option>
+        {transformTypes.map((type, i) => (
+          <option key={i}>{type}</option>
         ))}
       </select>
 

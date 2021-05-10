@@ -12,10 +12,10 @@ test("interprets simple binary operation", () => {
 });
 
 test("interprets equality correctly", () => {
-  // 1 == 2 * 3
+  // 1 = 2 * 3
   const ast: Ast = {
     kind: "Binop",
-    op: "==",
+    op: "=",
     op1: { kind: "Number", content: 1 },
     op2: {
       kind: "Binop",
@@ -99,3 +99,19 @@ test("allows boolean literals", () => {
   };
   expect(interpret(ast)).toStrictEqual({ kind: "Bool", content: true });
 });
+
+test("interprets logic correctly", () => {
+  const ast: Ast = {
+    kind: "Unop",
+    op: "not",
+    op1: {
+      kind: "Binop",
+      op: "&&",
+      op1: { kind: "Identifier", content: "true" },
+      op2: { kind: "Unop", op: "not", op1: {
+        kind: "Identifier", content: "false"
+      }}
+    }
+  };
+  expect(interpret(ast)).toStrictEqual({ kind: "Bool", content: false });
+})

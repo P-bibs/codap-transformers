@@ -86,9 +86,18 @@ function Transformation() {
    */
   function dataItemToEnv(dataItem: Record<string, unknown>): Env {
     return Object.fromEntries(
-      Object.entries(dataItem)
-        .map(([key, value]) => [key, { kind: "Num", content: Number(value) }])
-        .filter(([key, value]) => (value as Value).content !== NaN)
+      Object.entries(dataItem).map(([key, tableValue]) => {
+        let value;
+        // parse value from CODAP table data
+        if (tableValue === "true" || tableValue === "false") {
+          value = { kind: "Bool", content: tableValue === "true" };
+        } else if (!isNaN(Number(tableValue))) {
+          value = { kind: "Num", content: Number(tableValue) };
+        } else {
+          value = { kind: "String", content: tableValue };
+        }
+        return [key, value as Value];
+      })
     );
   }
 
@@ -120,7 +129,7 @@ function Transformation() {
         const result = evaluate(transformPgrm, dataEnv);
 
         if (result.kind !== "Bool") {
-          setErrMsg("Expected boolean output, instead got number.");
+          setErrMsg(`Expected boolean output, instead got ${result.kind}.`);
           return;
         }
         // include in filter if expression evaluated to true

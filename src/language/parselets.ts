@@ -1,5 +1,5 @@
 import { Token } from "./lex";
-import { Ast, Operator } from "./ast";
+import { Ast, Operator, UnaryOperator } from "./ast";
 import { getBindingPower, parseExpr } from "./parse";
 
 export interface PrefixParselet {
@@ -23,8 +23,8 @@ function opToToken(op: Operator): Token {
       return { kind: "TIMES" };
     case "/":
       return { kind: "DIVIDE" };
-    case "==":
-      return { kind: "DOUBLE_EQUAL" };
+    case "=":
+      return { kind: "EQUAL" };
     case "!=":
       return { kind: "NOT_EQUAL" };
     case ">":
@@ -48,6 +48,16 @@ export class NumberParselet implements PrefixParselet {
   }
 }
 
+export class StringParselet implements PrefixParselet {
+  parse(tokens: Token[], current_token: Token): Ast {
+    if (current_token.kind === "STRING") {
+      return { kind: "String", content: current_token.content };
+    } else {
+      throw Error("Tried to use StringParselet with non-string token");
+    }
+  }
+}
+
 export class IdentifierParselet implements PrefixParselet {
   parse(tokens: Token[], current_token: Token): Ast {
     if (current_token.kind === "IDENTIFIER") {
@@ -66,6 +76,18 @@ export class ParenthesisParselet implements PrefixParselet {
       throw new Error("Expected right paren to close expression");
     }
     return expr;
+  }
+}
+
+export class UnaryOperatorParselet implements PrefixParselet {
+  constructor(op: UnaryOperator) {
+    this.op = op;
+  }
+  op: UnaryOperator;
+
+  parse(tokens: Token[], current_token: Token): Ast {
+    const expr = parseExpr(tokens, 0);
+    return { kind: "Unop", op: this.op, op1: expr };
   }
 }
 

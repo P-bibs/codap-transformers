@@ -1,9 +1,10 @@
 export type Token =
   | { kind: "IDENTIFIER"; content: string }
   | { kind: "NUMBER"; content: number }
+  | { kind: "STRING"; content: string }
   | { kind: "LPAREN" }
   | { kind: "RPAREN" }
-  | { kind: "DOUBLE_EQUAL" }
+  | { kind: "EQUAL" }
   | { kind: "NOT_EQUAL" }
   | { kind: "GREATER" }
   | { kind: "GREATER_EQUAL" }
@@ -12,16 +13,18 @@ export type Token =
   | { kind: "TIMES" }
   | { kind: "DIVIDE" }
   | { kind: "L_AND" }
-  | { kind: "L_OR" };
+  | { kind: "L_OR" }
+  | { kind: "L_NOT" };
 
 /**
  * A list of tuples representing a regex to use to search for a token
  * and a function to use to turn the resulting regex match string into a token
  */
 const regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
+  [/^-?[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
   [/^\(/, () => ({ kind: "LPAREN" })],
   [/^\)/, () => ({ kind: "RPAREN" })],
-  [/^==/, () => ({ kind: "DOUBLE_EQUAL" })],
+  [/^=/, () => ({ kind: "EQUAL" })],
   [/^!=/, () => ({ kind: "NOT_EQUAL" })],
   [/^>=/, () => ({ kind: "GREATER_EQUAL" })],
   [/^>/, () => ({ kind: "GREATER" })],
@@ -31,8 +34,12 @@ const regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^\//, () => ({ kind: "DIVIDE" })],
   [/^(and|&&)/, () => ({ kind: "L_AND" })],
   [/^(or|\|\|)/, () => ({ kind: "L_OR" })],
+  [/^(not|!)/, () => ({ kind: "L_NOT" })],
   [/^[a-zA-Z][a-zA-Z0-9]*/, (s) => ({ kind: "IDENTIFIER", content: s })],
-  [/^[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
+  [
+    /^".*?"/,
+    (s) => ({ kind: "STRING", content: s.substring(1, s.length - 1) }),
+  ],
   [/^[ \n\t]+/, null],
 ];
 

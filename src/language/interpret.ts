@@ -1,4 +1,4 @@
-import { Ast, Operator, Value } from "./ast";
+import { Ast, Operator, UnaryOperator, Value } from "./ast";
 
 /**
  * An environment is a map from strings to Values
@@ -28,6 +28,8 @@ function interpretExpr(expr: Ast, env: Env): Value {
   switch (expr.kind) {
     case "Binop":
       return interpretBinop(expr.op, expr.op1, expr.op2, env);
+    case "Unop":
+      return interpretUnop(expr.op, expr.op1, env);
     case "Identifier":
       if (!env[expr.content]) {
         throw new Error(`Unknown column name: ${expr.content}`);
@@ -35,6 +37,8 @@ function interpretExpr(expr: Ast, env: Env): Value {
       return env[expr.content];
     case "Number":
       return { kind: "Num", content: expr.content };
+    case "String":
+      return { kind: "String", content: expr.content };
   }
 }
 
@@ -42,9 +46,9 @@ function interpretBinop(op: Operator, op1: Ast, op2: Ast, env: Env): Value {
   const val1 = interpretExpr(op1, env);
   const val2 = interpretExpr(op2, env);
 
-  if (op === "==" || op === "!=") {
+  if (op === "=" || op === "!=") {
     switch (op) {
-      case "==":
+      case "=":
         return { kind: "Bool", content: val1.content === val2.content };
       case "!=":
         return { kind: "Bool", content: val1.content !== val2.content };
@@ -81,5 +85,16 @@ function interpretBinop(op: Operator, op1: Ast, op2: Ast, env: Env): Value {
       case ">=":
         return { kind: "Bool", content: val1.content >= val2.content };
     }
+  }
+}
+
+function interpretUnop(op: UnaryOperator, op1: Ast, env: Env): Value {
+  const operand = interpretExpr(op1, env);
+  switch (op) {
+    case "not":
+      if (operand.kind !== "Bool") {
+        throw new Error("Tried logical not on non-boolean expression");
+      }
+      return { kind: "Bool", content: !operand.content };
   }
 }

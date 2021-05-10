@@ -29,6 +29,9 @@ function interpretExpr(expr: Ast, env: Env): Value {
     case "Binop":
       return interpretBinop(expr.op, expr.op1, expr.op2, env);
     case "Identifier":
+      if (!env[expr.content]) {
+        throw new Error(`Unknown column name: ${expr.content}`);
+      }
       return env[expr.content];
     case "Number":
       return { kind: "Num", content: expr.content };

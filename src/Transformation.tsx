@@ -1,7 +1,24 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Transformation.css';
 import Error from './Error'
+import {
+  getAllDataContexts,
+  getDataFromContext,
+  createDataset,
+  createTable,
+  setContextItems,
+} from './utils/codapPhone';
+import {
+  addNewContextListener,
+  removeNewContextListener,
+  addContextUpdateListener,
+  removeContextUpdateListener,
+} from './utils/codapListeners';
+import { Value } from './language/ast';
+import { Env } from './language/interpret';
+import { evaluate } from "./language";
+
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -23,6 +40,28 @@ function Transformation() {
   const [transformType, setTransformType] = useState<TransformType|null>(null);
   const [transformPgrm, setTransformPgrm] = useState("");
   const [errMsg, setErrMsg] = useState<string|null>(null);
+  const [dataContexts, setDataContexts] = useState<string[]|null>(null);
+  const [lastContextName, setLastContextName] = useState<string|null>(null);
+
+  // Initial refresh to set up connection, then start listening
+  useEffect(() => {
+    refreshTables();
+    addNewContextListener(refreshTables);
+    return () => removeNewContextListener(refreshTables);
+  }, []);
+
+  useEffect(() => {
+    if (inputDataCtxt !== null) {
+      addContextUpdateListener(inputDataCtxt, () => {
+        transform(true);
+      });
+      return () => removeContextUpdateListener(inputDataCtxt);
+    }
+  }, [inputDataCtxt, transformType, transformPgrm, lastContextName]);
+
+  async function refreshTables() {
+    setDataContexts(await getAllDataContexts());
+  }
 
   function inputChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setInputDataCtxt(event.target.value);
@@ -40,21 +79,26 @@ function Transformation() {
   }
 
   /**
-   * Retrieves a list of every data context in the CODAP window that 
-   * could be used as input to this transformation.
-   * 
-   * @returns list of data context names
+   * Converts a data item object into an environment for our language. Only
+   * includes numeric values.
+   *
+   * @returns An environment from the fields of the data item.
    */
-  function getPossibleInputs() : string[] {
-    // TODO: communicate with CODAP to get names of all current data contexts
-    return ["Table A", "Table B", "Table C"];
+  function dataItemToEnv(dataItem: Object): Env {
+    return Object.fromEntries(
+      Object.entries(dataItem)
+        .map(([key, value]) =>
+          [key, { kind: "Num", content: Number(value) }]
+        )
+        .filter(([key, value]) => (value as Value).content !== NaN)
+    );
   }
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data. 
    */
-  function transform() {
+  async function transform(doUpdate: boolean) {
     if (inputDataCtxt === null) {
       setErrMsg('Please choose a valid data context to transform.');
       return;
@@ -64,12 +108,46 @@ function Transformation() {
       return;
     }
 
-    // TODO: get inputDataCtxt's actual data from CODAP, interpret the 
-    // transformPgrm and apply it to the data, and tell CODAP to create a 
-    // new table with the transformed data.
     console.log(`Data context to transform: ${inputDataCtxt}`);
     console.log(`Transformation type: ${transformType}`);
     console.log(`Transformation to apply:\n${transformPgrm}`);
+
+    const data = await(getDataFromContext(inputDataCtxt));
+
+    try {
+      const newData = [];
+
+      for (const dataItem of data) {
+        const dataEnv = dataItemToEnv(dataItem);
+        const result = evaluate(transformPgrm, dataEnv);
+
+        if (result.kind !== "Bool") {
+          setErrMsg("Expected boolean output, instead got number.");
+          return;
+        }
+        // include in filter if expression evaluated to true
+        if (result.content) {
+          newData.push(dataItem);
+        }
+      }
+
+      // if doUpdate is true then we should update a previously created table
+      // rather than creating a new one
+      if (doUpdate) {
+        if (!lastContextName) {
+          setErrMsg("Please apply transformation to a new table first.");
+          return;
+        }
+        setContextItems(lastContextName, newData)
+      } else {
+        const newContext = await(createDataset("Testing", newData));
+        setLastContextName(newContext.name);
+        await createTable(newContext.name);
+      }
+
+    } catch (e) {
+      setErrMsg(e.message);
+    }
   }
 
   return (
@@ -77,8 +155,8 @@ function Transformation() {
       <p>Table to Transform</p>
       <select id="inputDataContext" onChange={inputChange}>
         <option selected disabled>Select a Data Context</option>
-        {getPossibleInputs().map((dataContextName) => (
-          <option>{dataContextName}</option>
+        {dataContexts && dataContexts.map((dataContextName) => (
+          <option key={dataContextName}>{dataContextName}</option>
         ))}
       </select>
 
@@ -94,7 +172,8 @@ function Transformation() {
       <textarea onChange={pgrmChange}></textarea>
 
       <br/>
-      <button onClick={transform}>Transform!</button>
+      <button onClick={() => transform(false)}>Create table with transformation</button>
+      <button onClick={() => transform(true)} disabled={!lastContextName} >Update previous table with transformation</button>
 
       <Error message={errMsg}/>
     </div>

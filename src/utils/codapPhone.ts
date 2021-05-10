@@ -1,5 +1,8 @@
 import { IframePhoneRpcEndpoint } from "iframe-phone";
-import { changeListeners } from "./codapListeners";
+import {
+  newContextListeners,
+  contextUpdateListeners,
+} from "./codapListeners";
 
 enum CodapComponent {
   Graph = "graph",
@@ -46,12 +49,26 @@ type CodapPhone = {
 enum CodapInitiatedResource {
   InteractiveState = "interactiveState",
   UndoChangeNotice = "undoChangeNotice",
-  DocumentChangeNotice = "documentChangeNotice"
+  DocumentChangeNotice = "documentChangeNotice",
+  DataContextChangeNotice = "dataContextChangeNotice",
 }
+
+enum ContextChangeOperation {
+  UpdateCases = "updateCases",
+  CreateCases = "createCases",
+  DeleteCases = "deleteCases",
+  SelectCases = "selectCases"
+}
+
+const mutatingOperations = [
+  ContextChangeOperation.UpdateCases,
+  ContextChangeOperation.CreateCases,
+  ContextChangeOperation.DeleteCases
+];
 
 type CodapInitiatedCommand = {
   action: CodapActions;
-  resource: CodapInitiatedResource;
+  resource: string;
   values?: any;
 }
 
@@ -111,6 +128,11 @@ function caseFromContext(context: string) {
   return `dataContext[${context}].collection[${collectionName}].case`;
 }
 
+function allCasesFromContext(context: string) {
+  const collectionName = collectionNameFromContext(context);
+  return `dataContext[${context}].collection[${collectionName}].allCases`;
+}
+
 const getNewName = (function() {
   let count = 0;
   return () => {
@@ -129,15 +151,33 @@ enum DocumentChangeOperations {
  */
 function codapRequestHandler(command: CodapInitiatedCommand,
                              callback: (r: CodapResponse) => void): void {
+  console.group("CODAP");
+  console.log(command);
+  console.groupEnd();
+
   if (command.action !== CodapActions.Notify) {
     return;
   }
 
   if (command.resource === CodapInitiatedResource.DocumentChangeNotice
       && command.values.operation === DocumentChangeOperations.DataContextCountChanged) {
-    for (const f of changeListeners) {
+    for (const f of newContextListeners) {
       f();
     }
+    return;
+  }
+
+  if (command.resource.startsWith(CodapInitiatedResource.DataContextChangeNotice)
+      && command.values.length > 0
+      && mutatingOperations.includes(command.values[0].operation)) {
+    const contextName = command.resource.slice(
+      command.resource.search("\\[") + 1,
+      command.resource.length - 1
+    );
+    if (contextUpdateListeners[contextName]) {
+      contextUpdateListeners[contextName]();
+    }
+    return;
   }
 }
 
@@ -228,6 +268,37 @@ export async function createDataset(label: string, data: Object[]) {
         resolve(newDatasetDescription);
       } else {
         reject(new Error("Failed to create dataset with data"));
+      }
+    }));
+}
+
+export async function setContextItems(contextName: string, items: Object[]) {
+  await deleteAllCases(contextName);
+
+  return new Promise<void>((resolve, reject) =>
+    phone.call({
+      action: CodapActions.Create,
+      resource: itemFromContext(contextName),
+      values: items,
+    }, response => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to update context with new items"));
+      }
+    }));
+}
+
+export async function deleteAllCases(context: string) {
+  return new Promise<void>((resolve, reject) =>
+    phone.call({
+      action: CodapActions.Delete,
+      resource: allCasesFromContext(context),
+    }, response => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to delete all cases"));
       }
     }));
 }

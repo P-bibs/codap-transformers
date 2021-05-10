@@ -101,15 +101,21 @@ function Transformation() {
     const data = await(getDataFromContext(inputDataCtxt));
 
     try {
-      const newData = data.filter(dataItem => {
+      const newData = [];
+
+      for (const dataItem of data) {
         const dataEnv = dataItemToEnv(dataItem);
         const result = evaluate(transformPgrm, dataEnv);
+
         if (result.kind !== "Bool") {
-          // XXX: I didn't want this to be TypeError, but Error() wasn't working for some reason
-          throw new TypeError("Expected boolean output, instead got number.");
+          setErrMsg("Expected boolean output, instead got number.");
+          return;
         }
-        return result.content;
-      });
+        // include in filter if expression evaluated to true
+        if (result.content) {
+          newData.push(dataItem);
+        }
+      }
 
       // if doUpdate is true then we should update a previously created table
       // rather than creating a new one

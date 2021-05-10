@@ -2,16 +2,18 @@ module.exports = {
   root: true,
   env: {
     browser: true,
+    node: true,
     es6: true,
     jest: true,
   },
   extends: [
     "eslint:recommended",
     'plugin:@typescript-eslint/recommended',
-    "prettier",
 
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended",    
+    "plugin:react-hooks/recommended",   
+     
+    "prettier",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
@@ -21,13 +23,6 @@ module.exports = {
   },
   plugins: ["react", "react-hooks", "@typescript-eslint"],
   rules: {
-    "prettier/prettier": [
-      2,
-      {
-        semi: true,
-        singleQuote: false,
-      },
-    ],
     "dot-notation": "off",
     "no-unused-vars": "warn",
   },

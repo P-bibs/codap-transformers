@@ -99,3 +99,19 @@ test("allows boolean literals", () => {
   };
   expect(interpret(ast)).toStrictEqual({ kind: "Bool", content: true });
 });
+
+test("interprets logic correctly", () => {
+  let ast: Ast = {
+    kind: "Unop",
+    op: "not",
+    op1: {
+      kind: "Binop",
+      op: "&&",
+      op1: { kind: "Identifier", content: "true" },
+      op2: { kind: "Unop", op: "not", op1: {
+        kind: "Identifier", content: "false"
+      }}
+    }
+  };
+  expect(interpret(ast)).toStrictEqual({ kind: "Bool", content: false });
+})

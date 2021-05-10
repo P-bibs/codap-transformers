@@ -5,6 +5,7 @@ import {
   NumberParselet,
   StringParselet,
   IdentifierParselet,
+  UnaryOperatorParselet,
   OperatorParselet,
   InfixParselet,
   ParenthesisParselet,
@@ -44,6 +45,8 @@ function prefixParseletMap(tok: Token): PrefixParselet | null {
     return new IdentifierParselet();
   } else if (tok.kind === "LPAREN") {
     return new ParenthesisParselet();
+  } else if (tok.kind === "L_NOT") {
+    return new UnaryOperatorParselet("not");
   } else {
     return null;
   }

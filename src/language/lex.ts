@@ -20,7 +20,7 @@ export type Token =
  * A list of tuples representing a regex to use to search for a token
  * and a function to use to turn the resulting regex match string into a token
  */
-let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
+const regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^-?[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
   [/^\(/, () => ({ kind: "LPAREN" })],
   [/^\)/, () => ({ kind: "RPAREN" })],
@@ -36,7 +36,10 @@ let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^(or|\|\|)/, () => ({ kind: "L_OR" })],
   [/^(not|!)/, () => ({ kind: "L_NOT" })],
   [/^[a-zA-Z][a-zA-Z0-9]*/, (s) => ({ kind: "IDENTIFIER", content: s })],
-  [/^\".*?\"/, (s) => ({ kind: "STRING", content: s.substring(1, s.length - 1)})],
+  [
+    /^".*?"/,
+    (s) => ({ kind: "STRING", content: s.substring(1, s.length - 1) }),
+  ],
   [/^[ \n\t]+/, null],
 ];
 

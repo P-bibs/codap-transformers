@@ -17,8 +17,7 @@ export type Operator =
   | "&&"
   | "||";
 
-export type UnaryOperator = 
-  | "not"
+export type UnaryOperator = "not";
 
 export type Value =
   | { kind: "Num"; content: number }

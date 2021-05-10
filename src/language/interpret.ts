@@ -89,7 +89,7 @@ function interpretBinop(op: Operator, op1: Ast, op2: Ast, env: Env): Value {
 }
 
 function interpretUnop(op: UnaryOperator, op1: Ast, env: Env): Value {
-  let operand = interpretExpr(op1, env);
+  const operand = interpretExpr(op1, env);
   switch (op) {
     case "not":
       if (operand.kind !== "Bool") {

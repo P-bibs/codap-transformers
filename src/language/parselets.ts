@@ -86,8 +86,8 @@ export class UnaryOperatorParselet implements PrefixParselet {
   op: UnaryOperator;
 
   parse(tokens: Token[], current_token: Token): Ast {
-    let expr = parseExpr(tokens, 0);
-    return { kind: "Unop", op: this.op, op1: expr }
+    const expr = parseExpr(tokens, 0);
+    return { kind: "Unop", op: this.op, op1: expr };
   }
 }
 

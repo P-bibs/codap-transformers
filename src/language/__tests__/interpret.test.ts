@@ -101,7 +101,7 @@ test("allows boolean literals", () => {
 });
 
 test("interprets logic correctly", () => {
-  let ast: Ast = {
+  const ast: Ast = {
     kind: "Unop",
     op: "not",
     op1: {

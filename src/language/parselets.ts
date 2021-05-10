@@ -1,5 +1,5 @@
 import { Token } from "./lex";
-import { Ast, Operator } from "./ast";
+import { Ast, Operator, UnaryOperator } from "./ast";
 import { getBindingPower, parseExpr } from "./parse";
 
 export interface PrefixParselet {
@@ -76,6 +76,18 @@ export class ParenthesisParselet implements PrefixParselet {
       throw new Error("Expected right paren to close expression");
     }
     return expr;
+  }
+}
+
+export class UnaryOperatorParselet implements PrefixParselet {
+  constructor(op: UnaryOperator) {
+    this.op = op;
+  }
+  op: UnaryOperator;
+
+  parse(tokens: Token[], current_token: Token): Ast {
+    let expr = parseExpr(tokens, 0);
+    return { kind: "Unop", op: this.op, op1: expr }
   }
 }
 

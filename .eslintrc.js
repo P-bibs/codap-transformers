@@ -6,13 +6,18 @@ module.exports = {
     es6: true,
     jest: true,
   },
+  settings: {
+    react: {
+      version: "detect",
+    },
+  },
   extends: [
     "eslint:recommended",
-    'plugin:@typescript-eslint/recommended',
+    "plugin:@typescript-eslint/recommended",
 
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended",   
-     
+    "plugin:react-hooks/recommended",
+
     "prettier",
   ],
   parser: "@typescript-eslint/parser",
@@ -25,6 +30,6 @@ module.exports = {
   rules: {
     "dot-notation": "off",
     "no-unused-vars": "warn",
-    "no-constant-condition": ["error", { "checkLoops": false }],
+    "no-constant-condition": ["error", { checkLoops: false }],
   },
 };

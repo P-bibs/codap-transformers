@@ -7,7 +7,7 @@ export function addNewContextListener(listener: () => void) {
 }
 
 export function removeNewContextListener(listener: () => void) {
-  newContextListeners = newContextListeners.filter(v => v !== listener);
+  newContextListeners = newContextListeners.filter((v) => v !== listener);
 }
 
 // Listen for data context updates

@@ -1,8 +1,5 @@
 import { IframePhoneRpcEndpoint } from "iframe-phone";
-import {
-  newContextListeners,
-  contextUpdateListeners,
-} from "./codapListeners";
+import { newContextListeners, contextUpdateListeners } from "./codapListeners";
 
 enum CodapComponent {
   Graph = "graph",
@@ -28,7 +25,7 @@ type CodapRequest = {
   action: CodapActions;
   resource: string;
   values?: any;
-}
+};
 
 interface CodapResponse {
   success: boolean;
@@ -44,7 +41,7 @@ interface CodapResponseItemIDs extends CodapResponse {
 
 type CodapPhone = {
   call<T extends CodapResponse>(r: CodapRequest, cb: (r: T) => any): void;
-}
+};
 
 enum CodapInitiatedResource {
   InteractiveState = "interactiveState",
@@ -57,26 +54,26 @@ enum ContextChangeOperation {
   UpdateCases = "updateCases",
   CreateCases = "createCases",
   DeleteCases = "deleteCases",
-  SelectCases = "selectCases"
+  SelectCases = "selectCases",
 }
 
 const mutatingOperations = [
   ContextChangeOperation.UpdateCases,
   ContextChangeOperation.CreateCases,
-  ContextChangeOperation.DeleteCases
+  ContextChangeOperation.DeleteCases,
 ];
 
 type CodapInitiatedCommand = {
   action: CodapActions;
   resource: string;
   values?: any;
-}
+};
 
 type DataSetDescription = {
   name: string;
   id: number;
   title: string;
-}
+};
 
 interface BaseAttribute {
   name: string;
@@ -100,11 +97,13 @@ interface NumericAttribute extends BaseAttribute {
 
 type CodapAttribute = BaseAttribute | CategoricalAttribute | NumericAttribute;
 
-const phone: CodapPhone = new IframePhoneRpcEndpoint(codapRequestHandler,
-                                                     "data-interactive",
-                                                     window.parent,
-                                                     null,
-                                                     null);
+const phone: CodapPhone = new IframePhoneRpcEndpoint(
+  codapRequestHandler,
+  "data-interactive",
+  window.parent,
+  null,
+  null
+);
 
 function resourceFromContext(context: string) {
   return `dataContext[${context}]`;
@@ -133,7 +132,7 @@ function allCasesFromContext(context: string) {
   return `dataContext[${context}].collection[${collectionName}].allCases`;
 }
 
-const getNewName = (function() {
+const getNewName = (function () {
   let count = 0;
   return () => {
     const name = `codapflow_${count}`;
@@ -149,8 +148,10 @@ enum DocumentChangeOperations {
 /**
  * Catch notifications from CODAP and call appropriate listeners
  */
-function codapRequestHandler(command: CodapInitiatedCommand,
-                             callback: (r: CodapResponse) => void): void {
+function codapRequestHandler(
+  command: CodapInitiatedCommand,
+  callback: (r: CodapResponse) => void
+): void {
   console.group("CODAP");
   console.log(command);
   console.groupEnd();
@@ -159,17 +160,24 @@ function codapRequestHandler(command: CodapInitiatedCommand,
     return;
   }
 
-  if (command.resource === CodapInitiatedResource.DocumentChangeNotice
-      && command.values.operation === DocumentChangeOperations.DataContextCountChanged) {
+  if (
+    command.resource === CodapInitiatedResource.DocumentChangeNotice &&
+    command.values.operation ===
+      DocumentChangeOperations.DataContextCountChanged
+  ) {
     for (const f of newContextListeners) {
       f();
     }
     return;
   }
 
-  if (command.resource.startsWith(CodapInitiatedResource.DataContextChangeNotice)
-      && command.values.length > 0
-      && mutatingOperations.includes(command.values[0].operation)) {
+  if (
+    command.resource.startsWith(
+      CodapInitiatedResource.DataContextChangeNotice
+    ) &&
+    command.values.length > 0 &&
+    mutatingOperations.includes(command.values[0].operation)
+  ) {
     const contextName = command.resource.slice(
       command.resource.search("\\[") + 1,
       command.resource.length - 1
@@ -183,30 +191,38 @@ function codapRequestHandler(command: CodapInitiatedCommand,
 
 export function getAllDataContexts() {
   return new Promise<string[]>((resolve, reject) =>
-    phone.call<CodapResponseValues>({
-      action: CodapActions.Get,
-      resource: CodapResource.DataContextList
-    }, response => {
-      if (Array.isArray(response.values)) {
-        resolve(response.values.map(v => v.name));
-      } else {
-        reject(new Error("Failed to get data contexts."));
+    phone.call<CodapResponseValues>(
+      {
+        action: CodapActions.Get,
+        resource: CodapResource.DataContextList,
+      },
+      (response) => {
+        if (Array.isArray(response.values)) {
+          resolve(response.values.map((v) => v.name));
+        } else {
+          reject(new Error("Failed to get data contexts."));
+        }
       }
-    }));
+    )
+  );
 }
 
 export function getDataFromContext(context: string) {
   return new Promise<Object[]>((resolve, reject) =>
-    phone.call<CodapResponseValues>({
-      action: CodapActions.Get,
-      resource: itemSearchAllFromContext(context)
-    }, response => {
-      if (Array.isArray(response.values)) {
-        resolve(response.values.map(v => v.values));
-      } else {
-        reject(new Error("Failed to get data items"));
+    phone.call<CodapResponseValues>(
+      {
+        action: CodapActions.Get,
+        resource: itemSearchAllFromContext(context),
+      },
+      (response) => {
+        if (Array.isArray(response.values)) {
+          resolve(response.values.map((v) => v.values));
+        } else {
+          reject(new Error("Failed to get data items"));
+        }
       }
-    }));
+    )
+  );
 }
 
 function createBareDataset(label: string, attrs: CodapAttribute[]) {
@@ -214,26 +230,32 @@ function createBareDataset(label: string, attrs: CodapAttribute[]) {
   const newCollectionName = collectionNameFromContext(newName);
 
   return new Promise<DataSetDescription>((resolve, reject) =>
-    phone.call<CodapResponseValues>({
-      action: CodapActions.Create,
-      resource: CodapResource.DataContext,
-      values: {
-        name: newName,
-        collections: [{
-          name: newCollectionName,
-          labels: {
-            singleCase: label
-          },
-          attrs: attrs
-        }]
+    phone.call<CodapResponseValues>(
+      {
+        action: CodapActions.Create,
+        resource: CodapResource.DataContext,
+        values: {
+          name: newName,
+          collections: [
+            {
+              name: newCollectionName,
+              labels: {
+                singleCase: label,
+              },
+              attrs: attrs,
+            },
+          ],
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve(response.values as DataSetDescription);
+        } else {
+          reject(new Error("Failed to create dataset"));
+        }
       }
-    }, response => {
-      if (response.success) {
-        resolve(response.values as DataSetDescription);
-      } else {
-        reject(new Error("Failed to create dataset"));
-      }
-    }));
+    )
+  );
 }
 
 /**
@@ -245,7 +267,7 @@ function makeAttrsFromData(data: Object[]): CodapAttribute[] {
     return [];
   }
 
-  return Object.keys(data[0]).map(key => ({ name: key }));
+  return Object.keys(data[0]).map((key) => ({ name: key }));
 }
 
 export async function createDataset(label: string, data: Object[]) {
@@ -259,71 +281,87 @@ export async function createDataset(label: string, data: Object[]) {
 
   // return itemIDs
   return new Promise<DataSetDescription>((resolve, reject) =>
-    phone.call<CodapResponseItemIDs>({
-      action: CodapActions.Create,
-      resource: itemFromContext(newDatasetDescription.name),
-      values: data
-    }, response => {
-      if (response.success) {
-        resolve(newDatasetDescription);
-      } else {
-        reject(new Error("Failed to create dataset with data"));
+    phone.call<CodapResponseItemIDs>(
+      {
+        action: CodapActions.Create,
+        resource: itemFromContext(newDatasetDescription.name),
+        values: data,
+      },
+      (response) => {
+        if (response.success) {
+          resolve(newDatasetDescription);
+        } else {
+          reject(new Error("Failed to create dataset with data"));
+        }
       }
-    }));
+    )
+  );
 }
 
 export async function setContextItems(contextName: string, items: Object[]) {
   await deleteAllCases(contextName);
 
   return new Promise<void>((resolve, reject) =>
-    phone.call({
-      action: CodapActions.Create,
-      resource: itemFromContext(contextName),
-      values: items,
-    }, response => {
-      if (response.success) {
-        resolve();
-      } else {
-        reject(new Error("Failed to update context with new items"));
+    phone.call(
+      {
+        action: CodapActions.Create,
+        resource: itemFromContext(contextName),
+        values: items,
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update context with new items"));
+        }
       }
-    }));
+    )
+  );
 }
 
 export async function deleteAllCases(context: string) {
   return new Promise<void>((resolve, reject) =>
-    phone.call({
-      action: CodapActions.Delete,
-      resource: allCasesFromContext(context),
-    }, response => {
-      if (response.success) {
-        resolve();
-      } else {
-        reject(new Error("Failed to delete all cases"));
+    phone.call(
+      {
+        action: CodapActions.Delete,
+        resource: allCasesFromContext(context),
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to delete all cases"));
+        }
       }
-    }));
+    )
+  );
 }
 
 const DEFAULT_TABLE_WIDTH = 300;
 const DEFAULT_TABLE_HEIGHT = 300;
 export async function createTable(context: string) {
   return new Promise<void>((resolve, reject) =>
-    phone.call({
-      action: CodapActions.Create,
-      resource: CodapResource.Component,
-      values: {
-        type: CodapComponent.Table,
-        name: getNewName(),
-        dimensions: {
-          width: DEFAULT_TABLE_WIDTH,
-          height: DEFAULT_TABLE_HEIGHT
+    phone.call(
+      {
+        action: CodapActions.Create,
+        resource: CodapResource.Component,
+        values: {
+          type: CodapComponent.Table,
+          name: getNewName(),
+          dimensions: {
+            width: DEFAULT_TABLE_WIDTH,
+            height: DEFAULT_TABLE_HEIGHT,
+          },
+          dataContext: context,
         },
-        dataContext: context
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to create table"));
+        }
       }
-    }, response => {
-      if (response.success) {
-        resolve();
-      } else {
-        reject(new Error("Failed to create table"));
-      }
-    }));
+    )
+  );
 }

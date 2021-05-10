@@ -1,31 +1,29 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
-import './Transformation.css';
-import Error from './Error'
+import React from "react";
+import { useState, useEffect } from "react";
+import "./Transformation.css";
+import Error from "./Error";
 import {
   getAllDataContexts,
   getDataFromContext,
   createDataset,
   createTable,
   setContextItems,
-} from './utils/codapPhone';
+} from "./utils/codapPhone";
 import {
   addNewContextListener,
   removeNewContextListener,
   addContextUpdateListener,
   removeContextUpdateListener,
-} from './utils/codapListeners';
-import { Value } from './language/ast';
-import { Env } from './language/interpret';
+} from "./utils/codapListeners";
+import { Value } from "./language/ast";
+import { Env } from "./language/interpret";
 import { evaluate } from "./language";
-
 
 /**
  * Transformation represents an instance of the plugin, which applies a
  * user-defined transformation to input data from CODAP to yield output data.
  */
 function Transformation() {
-
   /**
    * The broad categories of transformations that can be applied
    * to tables.
@@ -36,12 +34,13 @@ function Transformation() {
 
   const transformTypes = [TransformType.Filter];
 
-  const [inputDataCtxt, setInputDataCtxt] = useState<string|null>(null);
-  const [transformType, setTransformType] = useState<TransformType|null>(null);
+  const [inputDataCtxt, setInputDataCtxt] = useState<string | null>(null);
+  const [transformType, setTransformType] =
+    useState<TransformType | null>(null);
   const [transformPgrm, setTransformPgrm] = useState("");
-  const [errMsg, setErrMsg] = useState<string|null>(null);
-  const [dataContexts, setDataContexts] = useState<string[]|null>(null);
-  const [lastContextName, setLastContextName] = useState<string|null>(null);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [dataContexts, setDataContexts] = useState<string[] | null>(null);
+  const [lastContextName, setLastContextName] = useState<string | null>(null);
 
   // Initial refresh to set up connection, then start listening
   useEffect(() => {
@@ -68,7 +67,7 @@ function Transformation() {
     setErrMsg(null);
   }
 
-  function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {    
+  function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setTransformType(event.target.value as TransformType);
     setErrMsg(null);
   }
@@ -87,24 +86,22 @@ function Transformation() {
   function dataItemToEnv(dataItem: Object): Env {
     return Object.fromEntries(
       Object.entries(dataItem)
-        .map(([key, value]) =>
-          [key, { kind: "Num", content: Number(value) }]
-        )
+        .map(([key, value]) => [key, { kind: "Num", content: Number(value) }])
         .filter(([key, value]) => (value as Value).content !== NaN)
     );
   }
 
   /**
    * Applies the user-defined transformation to the indicated input data,
-   * and generates an output table into CODAP containing the transformed data. 
+   * and generates an output table into CODAP containing the transformed data.
    */
   async function transform(doUpdate: boolean) {
     if (inputDataCtxt === null) {
-      setErrMsg('Please choose a valid data context to transform.');
+      setErrMsg("Please choose a valid data context to transform.");
       return;
     }
     if (transformType === null) {
-      setErrMsg('Please choose a valid transformation type.');
+      setErrMsg("Please choose a valid transformation type.");
       return;
     }
 
@@ -112,7 +109,7 @@ function Transformation() {
     console.log(`Transformation type: ${transformType}`);
     console.log(`Transformation to apply:\n${transformPgrm}`);
 
-    const data = await(getDataFromContext(inputDataCtxt));
+    const data = await getDataFromContext(inputDataCtxt);
 
     try {
       const newData = [];
@@ -138,13 +135,12 @@ function Transformation() {
           setErrMsg("Please apply transformation to a new table first.");
           return;
         }
-        setContextItems(lastContextName, newData)
+        setContextItems(lastContextName, newData);
       } else {
-        const newContext = await(createDataset("Testing", newData));
+        const newContext = await createDataset("Testing", newData);
         setLastContextName(newContext.name);
         await createTable(newContext.name);
       }
-
     } catch (e) {
       setErrMsg(e.message);
     }
@@ -154,15 +150,20 @@ function Transformation() {
     <div className="Transformation">
       <p>Table to Transform</p>
       <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>Select a Data Context</option>
-        {dataContexts && dataContexts.map((dataContextName) => (
-          <option key={dataContextName}>{dataContextName}</option>
-        ))}
+        <option selected disabled>
+          Select a Data Context
+        </option>
+        {dataContexts &&
+          dataContexts.map((dataContextName) => (
+            <option key={dataContextName}>{dataContextName}</option>
+          ))}
       </select>
 
       <p>Transformation Type</p>
       <select id="transformType" onChange={typeChange}>
-        <option selected disabled>Select a Transformation</option>
+        <option selected disabled>
+          Select a Transformation
+        </option>
         {transformTypes.map((type) => (
           <option>{type}</option>
         ))}
@@ -171,11 +172,15 @@ function Transformation() {
       <p>How to Transform</p>
       <textarea onChange={pgrmChange}></textarea>
 
-      <br/>
-      <button onClick={() => transform(false)}>Create table with transformation</button>
-      <button onClick={() => transform(true)} disabled={!lastContextName} >Update previous table with transformation</button>
+      <br />
+      <button onClick={() => transform(false)}>
+        Create table with transformation
+      </button>
+      <button onClick={() => transform(true)} disabled={!lastContextName}>
+        Update previous table with transformation
+      </button>
 
-      <Error message={errMsg}/>
+      <Error message={errMsg} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   getDataFromContext,
   createDataset,
   createTable,
+  setContextItems,
 } from './utils/codapPhone';
 import { addCodapListener, removeCodapListener } from './utils/codapListeners';
 import { Value } from './language/ast';
@@ -78,11 +79,12 @@ function Transformation() {
     );
   }
 
+  const [lastContextName, setLastContextName] = useState<string|null>(null);
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data. 
    */
-  async function transform() {
+  async function transform(doUpdate: boolean) {
     if (inputDataCtxt === null) {
       setErrMsg('Please choose a valid data context to transform.');
       return;
@@ -109,8 +111,19 @@ function Transformation() {
         return result.content;
       });
 
-      const newContext = await(createDataset("Testing", newData));
-      await createTable(newContext.name);
+      // if doUpdate is true then we should update a previously created table
+      // rather than creating a new one
+      if (doUpdate) {
+        if (!lastContextName) {
+          setErrMsg("Please apply transformation to a new table first.");
+          return;
+        }
+        setContextItems(lastContextName, newData)
+      } else {
+        const newContext = await(createDataset("Testing", newData));
+        setLastContextName(newContext.name);
+        await createTable(newContext.name);
+      }
 
     } catch (e) {
       setErrMsg(e.message);
@@ -139,7 +152,8 @@ function Transformation() {
       <textarea onChange={pgrmChange}></textarea>
 
       <br/>
-      <button onClick={transform}>Transform!</button>
+      <button onClick={() => transform(false)}>Create table with transformation</button>
+      <button onClick={() => transform(true)} disabled={!lastContextName} >Update previous table with transformation</button>
 
       <Error message={errMsg}/>
     </div>

@@ -111,6 +111,11 @@ function caseFromContext(context: string) {
   return `dataContext[${context}].collection[${collectionName}].case`;
 }
 
+function allCasesFromContext(context: string) {
+  const collectionName = collectionNameFromContext(context);
+  return `dataContext[${context}].collection[${collectionName}].allCases`;
+}
+
 const getNewName = (function() {
   let count = 0;
   return () => {
@@ -228,6 +233,38 @@ export async function createDataset(label: string, data: Object[]) {
         resolve(newDatasetDescription);
       } else {
         reject(new Error("Failed to create dataset with data"));
+      }
+    }));
+}
+
+export async function setContextItems(contextName: string, items: Object[]) {
+  await deleteAllCases(contextName);
+
+  return new Promise<void>((resolve, reject) =>
+    phone.call({
+      action: CodapActions.Create,
+      resource: itemFromContext(contextName),
+      values: items,
+    }, response => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to update context with new items"));
+      }
+    }));
+  
+}
+
+export async function deleteAllCases(context: string) {
+  return new Promise<void>((resolve, reject) =>
+    phone.call({
+      action: CodapActions.Delete,
+      resource: allCasesFromContext(context),
+    }, response => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to delete all cases"));
       }
     }));
 }

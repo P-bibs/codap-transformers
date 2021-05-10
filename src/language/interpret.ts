@@ -35,6 +35,8 @@ function interpretExpr(expr: Ast, env: Env): Value {
       return env[expr.content];
     case "Number":
       return { kind: "Num", content: expr.content };
+    case "String":
+      return { kind: "String", content: expr.content };
   }
 }
 
@@ -42,9 +44,11 @@ function interpretBinop(op: Operator, op1: Ast, op2: Ast, env: Env): Value {
   let val1 = interpretExpr(op1, env);
   let val2 = interpretExpr(op2, env);
 
-  if (op === "==" || op === "!=") {
+  if (op === "=" || op === "!=") {
     switch (op) {
-      case "==":
+      case "=":
+        console.log(val1);
+        console.log(val2);
         return { kind: "Bool", content: val1.content === val2.content };
       case "!=":
         return { kind: "Bool", content: val1.content !== val2.content };

@@ -1,9 +1,10 @@
 export type Token =
   | { kind: "IDENTIFIER"; content: string }
   | { kind: "NUMBER"; content: number }
+  | { kind: "STRING"; content: string }
   | { kind: "LPAREN" }
   | { kind: "RPAREN" }
-  | { kind: "DOUBLE_EQUAL" }
+  | { kind: "EQUAL" }
   | { kind: "NOT_EQUAL" }
   | { kind: "GREATER" }
   | { kind: "GREATER_EQUAL" }
@@ -19,9 +20,10 @@ export type Token =
  * and a function to use to turn the resulting regex match string into a token
  */
 let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
+  [/^-?[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
   [/^\(/, () => ({ kind: "LPAREN" })],
   [/^\)/, () => ({ kind: "RPAREN" })],
-  [/^==/, () => ({ kind: "DOUBLE_EQUAL" })],
+  [/^=/, () => ({ kind: "EQUAL" })],
   [/^!=/, () => ({ kind: "NOT_EQUAL" })],
   [/^>=/, () => ({ kind: "GREATER_EQUAL" })],
   [/^>/, () => ({ kind: "GREATER" })],
@@ -32,7 +34,7 @@ let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^(and|&&)/, () => ({ kind: "L_AND" })],
   [/^(or|\|\|)/, () => ({ kind: "L_OR" })],
   [/^[a-zA-Z][a-zA-Z0-9]*/, (s) => ({ kind: "IDENTIFIER", content: s })],
-  [/^[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
+  [/^\".*?\"/, (s) => ({ kind: "STRING", content: s.substring(1, s.length - 1)})],
   [/^[ \n\t]+/, null],
 ];
 

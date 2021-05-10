@@ -11,7 +11,7 @@ test("correctly processes complex arithmetic expression", () => {
 });
 
 test("correctly processes complex boolean expression (positive)", () => {
-  let source = "1 + 2 * 3 == 1 + 3 * 2";
+  let source = "1 + 2 * 3 = 1 + 3 * 2";
   expect(interpret(parse(lex(source)))).toStrictEqual({
     kind: "Bool",
     content: true,
@@ -19,7 +19,7 @@ test("correctly processes complex boolean expression (positive)", () => {
 });
 
 test("correctly processes complex boolean expression (negative)", () => {
-  let source = "1 + 2 * 3 == 3 + 2 * 1";
+  let source = "1 + 2 * 3 = 3 + 2 * 1";
   expect(interpret(parse(lex(source)))).toStrictEqual({
     kind: "Bool",
     content: false,
@@ -27,7 +27,7 @@ test("correctly processes complex boolean expression (negative)", () => {
 });
 
 test("correctly processes boolean expressions", () => {
-  let source = "1 == 1 and 2 == 3 or 1 != 0";
+  let source = "1 = 1 and 2 = 3 or 1 != 0";
   expect(interpret(parse(lex(source)))).toStrictEqual({
     kind: "Bool",
     content: true,

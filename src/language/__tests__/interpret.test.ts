@@ -12,10 +12,10 @@ test("interprets simple binary operation", () => {
 });
 
 test("interprets equality correctly", () => {
-  // 1 == 2 * 3
+  // 1 = 2 * 3
   const ast: Ast = {
     kind: "Binop",
-    op: "==",
+    op: "=",
     op1: { kind: "Number", content: 1 },
     op2: {
       kind: "Binop",

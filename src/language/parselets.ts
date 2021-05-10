@@ -23,8 +23,8 @@ function opToToken(op: Operator): Token {
       return { kind: "TIMES" };
     case "/":
       return { kind: "DIVIDE" };
-    case "==":
-      return { kind: "DOUBLE_EQUAL" };
+    case "=":
+      return { kind: "EQUAL" };
     case "!=":
       return { kind: "NOT_EQUAL" };
     case ">":
@@ -44,6 +44,16 @@ export class NumberParselet implements PrefixParselet {
       return { kind: "Number", content: current_token.content };
     } else {
       throw Error("Tried to use NumberParselet with non-number token");
+    }
+  }
+}
+
+export class StringParselet implements PrefixParselet {
+  parse(tokens: Token[], current_token: Token): Ast {
+    if (current_token.kind === "STRING") {
+      return { kind: "String", content: current_token.content };
+    } else {
+      throw Error("Tried to use StringParselet with non-string token");
     }
   }
 }

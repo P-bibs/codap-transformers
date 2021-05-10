@@ -16,17 +16,17 @@ test("parses simple binary operation", () => {
 });
 
 test("parses equality correctly", () => {
-  // 1 + 2 * 3
+  // 1 = 2 * 3
   const tokens: Token[] = [
     { kind: "NUMBER", content: 1 },
-    { kind: "DOUBLE_EQUAL" },
+    { kind: "EQUAL" },
     { kind: "NUMBER", content: 2 },
     { kind: "TIMES" },
     { kind: "NUMBER", content: 3 },
   ];
   expect(parse(tokens)).toStrictEqual({
     kind: "Binop",
-    op: "==",
+    op: "=",
     op1: { kind: "Number", content: 1 },
     op2: {
       kind: "Binop",

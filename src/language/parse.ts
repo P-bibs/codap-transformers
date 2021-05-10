@@ -3,6 +3,7 @@ import { Ast } from "./ast";
 import {
   PrefixParselet,
   NumberParselet,
+  StringParselet,
   IdentifierParselet,
   OperatorParselet,
   InfixParselet,
@@ -16,7 +17,7 @@ export function getBindingPower(op: Token): number {
   if (op.kind === "L_AND" || op.kind === "L_OR") {
     return 10;
   } else if (
-    op.kind === "DOUBLE_EQUAL" ||
+    op.kind === "EQUAL" ||
     op.kind === "NOT_EQUAL" ||
     op.kind === "GREATER" ||
     op.kind === "GREATER_EQUAL"
@@ -37,6 +38,8 @@ export function getBindingPower(op: Token): number {
 function prefixParseletMap(tok: Token): PrefixParselet | null {
   if (tok.kind === "NUMBER") {
     return new NumberParselet();
+  } else if (tok.kind === "STRING") {
+    return new StringParselet();
   } else if (tok.kind === "IDENTIFIER") {
     return new IdentifierParselet();
   } else if (tok.kind === "LPAREN") {
@@ -58,8 +61,8 @@ function infixParseletMap(tok: Token): InfixParselet | null {
     return new OperatorParselet("*", true);
   } else if (tok.kind === "DIVIDE") {
     return new OperatorParselet("/", true);
-  } else if (tok.kind === "DOUBLE_EQUAL") {
-    return new OperatorParselet("==", true);
+  } else if (tok.kind === "EQUAL") {
+    return new OperatorParselet("=", true);
   } else if (tok.kind === "NOT_EQUAL") {
     return new OperatorParselet("!=", true);
   } else if (tok.kind === "GREATER") {

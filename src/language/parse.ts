@@ -86,13 +86,13 @@ export function parse(tokens: Token[]): Ast {
 
 export function parseExpr(tokens: Token[], currentBindingPower: number): Ast {
   // Pop a token
-  let initialToken = tokens.pop();
+  const initialToken = tokens.pop();
   if (!initialToken) {
     throw new Error("Unexpected end of token stream");
   }
 
   // Find the parselet that corresponds to the intial token
-  let initialParselet = prefixParseletMap(initialToken);
+  const initialParselet = prefixParseletMap(initialToken);
   if (!initialParselet) {
     throw new Error(`Unexpected token: ${initialToken}`);
   }
@@ -109,13 +109,14 @@ export function parseExpr(tokens: Token[], currentBindingPower: number): Ast {
     }
 
     // See if this token is valid as an infix operator
-    let infixParselet = infixParseletMap(nextToken);
+    const infixParselet = infixParseletMap(nextToken);
     if (infixParselet !== null) {
       // Only continue if this token binds more tightly than current token
       if (getBindingPower(nextToken) <= currentBindingPower) {
         break;
       }
 
+      // eslint-disable-next-line
       // @ts-ignore
       nextToken = tokens.pop();
       leftNode = infixParselet.parse(tokens, leftNode, nextToken);

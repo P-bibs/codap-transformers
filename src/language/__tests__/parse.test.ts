@@ -2,7 +2,7 @@ import { parse } from "../parse";
 import { Token } from "../lex";
 
 test("parses simple binary operation", () => {
-  let tokens: Token[] = [
+  const tokens: Token[] = [
     { kind: "NUMBER", content: 1 },
     { kind: "PLUS" },
     { kind: "NUMBER", content: 2 },
@@ -17,7 +17,7 @@ test("parses simple binary operation", () => {
 
 test("parses equality correctly", () => {
   // 1 + 2 * 3
-  let tokens: Token[] = [
+  const tokens: Token[] = [
     { kind: "NUMBER", content: 1 },
     { kind: "DOUBLE_EQUAL" },
     { kind: "NUMBER", content: 2 },
@@ -39,7 +39,7 @@ test("parses equality correctly", () => {
 
 test("parses associativity correctly", () => {
   // 1 - 2 - 3
-  let tokens: Token[] = [
+  const tokens: Token[] = [
     { kind: "NUMBER", content: 1 },
     { kind: "MINUS" },
     { kind: "NUMBER", content: 2 },
@@ -61,7 +61,7 @@ test("parses associativity correctly", () => {
 
 test("parses precedence correctly", () => {
   // 1 + 2 * 3
-  let tokens: Token[] = [
+  const tokens: Token[] = [
     { kind: "NUMBER", content: 1 },
     { kind: "PLUS" },
     { kind: "NUMBER", content: 2 },
@@ -83,7 +83,7 @@ test("parses precedence correctly", () => {
 
 test("parses parentheses correctly", () => {
   // (1 + 2) * 3
-  let tokens: Token[] = [
+  const tokens: Token[] = [
     { kind: "LPAREN" },
     { kind: "NUMBER", content: 1 },
     { kind: "PLUS" },
@@ -107,7 +107,7 @@ test("parses parentheses correctly", () => {
 
 test("parses inequalities correctly", () => {
   // 1 > 2 >= 3
-  let tokens: Token[] = [
+  const tokens: Token[] = [
     { kind: "NUMBER", content: 1 },
     { kind: "GREATER" },
     { kind: "NUMBER", content: 2 },
@@ -129,7 +129,7 @@ test("parses inequalities correctly", () => {
 
 test("parses not equals correctly", () => {
   // 1 != 2 + 3
-  let tokens: Token[] = [
+  const tokens: Token[] = [
     { kind: "NUMBER", content: 1 },
     { kind: "NOT_EQUAL" },
     { kind: "NUMBER", content: 2 },
@@ -151,7 +151,7 @@ test("parses not equals correctly", () => {
 
 test("parses boolean operations correctly", () => {
   // 1 && 2 || 3
-  let tokens: Token[] = [
+  const tokens: Token[] = [
     { kind: "NUMBER", content: 1 },
     { kind: "L_AND" },
     { kind: "NUMBER", content: 2 },
@@ -173,7 +173,7 @@ test("parses boolean operations correctly", () => {
 
 test("parses identifers correctly", () => {
   // x
-  let tokens: Token[] = [{ kind: "IDENTIFIER", content: "x" }];
+  const tokens: Token[] = [{ kind: "IDENTIFIER", content: "x" }];
   expect(parse(tokens)).toStrictEqual({
     kind: "Identifier",
     content: "x",

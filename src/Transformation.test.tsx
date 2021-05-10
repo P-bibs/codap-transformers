@@ -1,9 +1,9 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import Transformation from './Transformation';
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import Transformation from "./Transformation";
 
-test('renders transform!', () => {
+test("renders transform!", () => {
   render(<Transformation />);
-  const transform = screen.getByText(/transform!/i);
-  expect(transform).toBeInTheDocument();
+  const transform = screen.getAllByText(/transform/i);
+  expect(transform[0]).toBeInTheDocument();
 });

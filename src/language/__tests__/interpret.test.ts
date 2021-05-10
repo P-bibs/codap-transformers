@@ -2,7 +2,7 @@ import { interpret, Env } from "../interpret";
 import { Ast } from "../ast";
 
 test("interprets simple binary operation", () => {
-  let ast: Ast = {
+  const ast: Ast = {
     kind: "Binop",
     op: "+",
     op1: { kind: "Number", content: 1 },
@@ -13,7 +13,7 @@ test("interprets simple binary operation", () => {
 
 test("interprets equality correctly", () => {
   // 1 == 2 * 3
-  let ast: Ast = {
+  const ast: Ast = {
     kind: "Binop",
     op: "==",
     op1: { kind: "Number", content: 1 },
@@ -29,7 +29,7 @@ test("interprets equality correctly", () => {
 
 test("interprets associativity correctly", () => {
   // 1 - 2 - 3
-  let ast: Ast = {
+  const ast: Ast = {
     kind: "Binop",
     op: "-",
     op1: {
@@ -45,7 +45,7 @@ test("interprets associativity correctly", () => {
 
 test("interprets precedence correctly", () => {
   // 1 + 2 * 3
-  let ast: Ast = {
+  const ast: Ast = {
     kind: "Binop",
     op: "+",
     op1: { kind: "Number", content: 1 },
@@ -61,7 +61,7 @@ test("interprets precedence correctly", () => {
 
 test("interprets parentheses correctly", () => {
   // (1 + 2) * 3
-  let ast: Ast = {
+  const ast: Ast = {
     kind: "Binop",
     op: "*",
     op1: {
@@ -77,13 +77,13 @@ test("interprets parentheses correctly", () => {
 
 test("looks up identifiers in environment", () => {
   // 1 + x
-  let ast: Ast = {
+  const ast: Ast = {
     kind: "Binop",
     op: "+",
     op1: { kind: "Number", content: 1 },
     op2: { kind: "Identifier", content: "x" },
   };
-  let env: Env = {
+  const env: Env = {
     x: { kind: "Num", content: 1 },
   };
   expect(interpret(ast, env)).toStrictEqual({ kind: "Num", content: 2 });
@@ -91,7 +91,7 @@ test("looks up identifiers in environment", () => {
 
 test("allows boolean literals", () => {
   // true or false
-  let ast: Ast = {
+  const ast: Ast = {
     kind: "Binop",
     op: "||",
     op1: { kind: "Identifier", content: "true" },

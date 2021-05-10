@@ -18,7 +18,7 @@ export type Token =
  * A list of tuples representing a regex to use to search for a token
  * and a function to use to turn the resulting regex match string into a token
  */
-let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
+const regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^\(/, () => ({ kind: "LPAREN" })],
   [/^\)/, () => ({ kind: "RPAREN" })],
   [/^==/, () => ({ kind: "DOUBLE_EQUAL" })],
@@ -41,13 +41,13 @@ let regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
  */
 export function lex(source: string): Token[] {
   let buf = source;
-  let tokens: Token[] = [];
+  const tokens: Token[] = [];
 
   outerLoop: while (buf.length > 0) {
     for (const [regex, callback] of regexTable) {
-      let match = regex.exec(buf);
+      const match = regex.exec(buf);
       if (match) {
-        let matchedString = match[0];
+        const matchedString = match[0];
         // See what kind of match we had
         if (callback === null) {
           // Null means skip this token (whitespace)

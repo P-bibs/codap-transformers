@@ -39,8 +39,8 @@ function interpretExpr(expr: Ast, env: Env): Value {
 }
 
 function interpretBinop(op: Operator, op1: Ast, op2: Ast, env: Env): Value {
-  let val1 = interpretExpr(op1, env);
-  let val2 = interpretExpr(op2, env);
+  const val1 = interpretExpr(op1, env);
+  const val2 = interpretExpr(op2, env);
 
   if (op === "==" || op === "!=") {
     switch (op) {

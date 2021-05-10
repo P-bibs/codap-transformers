@@ -60,8 +60,8 @@ export class IdentifierParselet implements PrefixParselet {
 
 export class ParenthesisParselet implements PrefixParselet {
   parse(tokens: Token[], current_token: Token): Ast {
-    let expr = parseExpr(tokens, 0);
-    let next = tokens.pop();
+    const expr = parseExpr(tokens, 0);
+    const next = tokens.pop();
     if (!next || next.kind !== "RPAREN") {
       throw new Error("Expected right paren to close expression");
     }
@@ -78,8 +78,8 @@ export class OperatorParselet implements InfixParselet {
   isLeftAssociative: boolean;
 
   parse(tokens: Token[], left_node: Ast, current_token: Token): Ast {
-    let bindingPower = getBindingPower(opToToken(this.op));
-    let rightNode = parseExpr(
+    const bindingPower = getBindingPower(opToToken(this.op));
+    const rightNode = parseExpr(
       tokens,
       this.isLeftAssociative ? bindingPower : bindingPower - 1
     );

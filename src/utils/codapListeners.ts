@@ -12,7 +12,8 @@ export function removeNewContextListener(listener: () => void) {
 
 // Listen for data context updates
 
-export const contextUpdateListeners: Record<string, () => void | undefined> = {};
+export const contextUpdateListeners: Record<string, () => void | undefined> =
+  {};
 
 export function addContextUpdateListener(
   context: string,

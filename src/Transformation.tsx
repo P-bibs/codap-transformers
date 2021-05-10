@@ -9,7 +9,12 @@ import {
   createTable,
   setContextItems,
 } from './utils/codapPhone';
-import { addCodapListener, removeCodapListener } from './utils/codapListeners';
+import {
+  addNewContextListener,
+  removeNewContextListener,
+  addContextUpdateListener,
+  removeContextUpdateListener,
+} from './utils/codapListeners';
 import { Value } from './language/ast';
 import { Env } from './language/interpret';
 import { evaluate } from "./language";
@@ -36,13 +41,23 @@ function Transformation() {
   const [transformPgrm, setTransformPgrm] = useState("");
   const [errMsg, setErrMsg] = useState<string|null>(null);
   const [dataContexts, setDataContexts] = useState<string[]|null>(null);
+  const [lastContextName, setLastContextName] = useState<string|null>(null);
 
   // Initial refresh to set up connection, then start listening
   useEffect(() => {
     refreshTables();
-    addCodapListener(refreshTables);
-    return () => removeCodapListener(refreshTables);
+    addNewContextListener(refreshTables);
+    return () => removeNewContextListener(refreshTables);
   }, []);
+
+  useEffect(() => {
+    if (inputDataCtxt !== null) {
+      addContextUpdateListener(inputDataCtxt, () => {
+        transform(true);
+      });
+      return () => removeContextUpdateListener(inputDataCtxt);
+    }
+  }, [inputDataCtxt, transformType, transformPgrm, lastContextName]);
 
   async function refreshTables() {
     setDataContexts(await getAllDataContexts());
@@ -79,7 +94,6 @@ function Transformation() {
     );
   }
 
-  const [lastContextName, setLastContextName] = useState<string|null>(null);
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data. 

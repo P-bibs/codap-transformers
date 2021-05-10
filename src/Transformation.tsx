@@ -1,6 +1,6 @@
 /* eslint use-isnan: 0 */
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import "./Transformation.css";
 import Error from "./Error";
 import {
@@ -48,15 +48,6 @@ function Transformation() {
     return () => removeNewContextListener(refreshTables);
   }, []);
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [inputDataCtxt, transformType, transformPgrm, lastContextName]);
-
   async function refreshTables() {
     setDataContexts(await getAllDataContexts());
   }
@@ -103,7 +94,7 @@ function Transformation() {
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  async function transform(doUpdate: boolean) {
+  const transform = useCallback(async (doUpdate: boolean) => {
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid data context to transform.");
       return;
@@ -152,7 +143,16 @@ function Transformation() {
     } catch (e) {
       setErrMsg(e.message);
     }
-  }
+  }, [inputDataCtxt, transformType, transformPgrm, lastContextName]);
+
+  useEffect(() => {
+    if (inputDataCtxt !== null) {
+      addContextUpdateListener(inputDataCtxt, () => {
+        transform(true);
+      });
+      return () => removeContextUpdateListener(inputDataCtxt);
+    }
+  }, [transform, inputDataCtxt]);
 
   return (
     <div className="Transformation">

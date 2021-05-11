@@ -4,6 +4,7 @@ export type Token =
   | { kind: "STRING"; content: string }
   | { kind: "LPAREN" }
   | { kind: "RPAREN" }
+  | { kind: "COMMA" }
   | { kind: "EQUAL" }
   | { kind: "NOT_EQUAL" }
   | { kind: "GREATER" }
@@ -24,6 +25,7 @@ const regexTable: Array<[RegExp, null | ((s: string) => Token)]> = [
   [/^-?[0-9]+/, (s) => ({ kind: "NUMBER", content: parseInt(s) })],
   [/^\(/, () => ({ kind: "LPAREN" })],
   [/^\)/, () => ({ kind: "RPAREN" })],
+  [/^,/, () => ({ kind: "COMMA" })],
   [/^=/, () => ({ kind: "EQUAL" })],
   [/^!=/, () => ({ kind: "NOT_EQUAL" })],
   [/^>=/, () => ({ kind: "GREATER_EQUAL" })],

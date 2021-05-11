@@ -1,5 +1,5 @@
 import { Token } from "./lex";
-import { Ast, Operator, UnaryOperator } from "./ast";
+import { Ast, Operator, UnaryOperator, Builtin } from "./ast";
 import { getBindingPower, parseExpr } from "./parse";
 
 export interface PrefixParselet {
@@ -107,5 +107,53 @@ export class OperatorParselet implements InfixParselet {
     );
 
     return { kind: "Binop", op: this.op, op1: left_node, op2: rightNode };
+  }
+}
+
+export class BuiltinParselet implements PrefixParselet {
+  parse(tokens: Token[], current_token: Token): Ast {
+    if (current_token.kind != "IDENTIFIER") {
+      throw new Error("Tried to use BuiltinParselet on non-identifier");
+    }
+    const name = current_token.content as Builtin;
+
+    const lparen = tokens.pop();
+    if (!lparen || lparen.kind !== "LPAREN") {
+      throw new Error(`Expected parenthesis after built-in "${name}"`);
+    }
+
+    const args = [];
+    let next;
+    while (true) {
+      // peek next token
+      next = tokens[tokens.length - 1];
+
+      if (!next) {
+        throw new Error(
+          `Unexpected end of argument list for built-in "${name}"`
+        );
+      }
+      if (next.kind === "RPAREN") {
+        break;
+      }
+
+      // parse an argument expression
+      args.push(parseExpr(tokens, 0));
+
+      next = tokens[tokens.length - 1];
+      if (next.kind !== "COMMA") {
+        break;
+      }
+      tokens.pop(); // consume the comma
+    }
+
+    const rparen = tokens.pop();
+    if (!rparen || rparen.kind !== "RPAREN") {
+      throw new Error(
+        `Expected closing parenthesis after arguments to built-in "${name}"`
+      );
+    }
+
+    return { kind: "Builtin", name, args };
   }
 }

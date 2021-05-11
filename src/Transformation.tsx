@@ -1,6 +1,6 @@
 /* eslint use-isnan: 0 */
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./Transformation.css";
 import Error from "./Error";
 import {
@@ -9,16 +9,31 @@ import {
   createDataset,
   createTable,
   setContextItems,
-} from "./utils/codapPhone";
-import {
   addNewContextListener,
   removeNewContextListener,
   addContextUpdateListener,
   removeContextUpdateListener,
-} from "./utils/codapListeners";
+} from "./utils/codapPhone";
 import { Value } from "./language/ast";
 import { Env } from "./language/interpret";
 import { evaluate } from "./language";
+
+function useDataContexts() {
+  const [dataContexts, setDataContexts] = useState<string[]>([]);
+
+  async function refreshTables() {
+    setDataContexts(await getAllDataContexts());
+  }
+
+  // Initial refresh to set up connection, then start listening
+  useEffect(() => {
+    refreshTables();
+    addNewContextListener(refreshTables);
+    return () => removeNewContextListener(refreshTables);
+  }, []);
+
+  return dataContexts;
+}
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -40,28 +55,8 @@ function Transformation() {
     useState<TransformType | null>(null);
   const [transformPgrm, setTransformPgrm] = useState("");
   const [errMsg, setErrMsg] = useState<string | null>(null);
-  const [dataContexts, setDataContexts] = useState<string[] | null>(null);
+  const dataContexts = useDataContexts();
   const [lastContextName, setLastContextName] = useState<string | null>(null);
-
-  // Initial refresh to set up connection, then start listening
-  useEffect(() => {
-    refreshTables();
-    addNewContextListener(refreshTables);
-    return () => removeNewContextListener(refreshTables);
-  }, []);
-
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [inputDataCtxt, transformType, transformPgrm, lastContextName]);
-
-  async function refreshTables() {
-    setDataContexts(await getAllDataContexts());
-  }
 
   function inputChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setInputDataCtxt(event.target.value);
@@ -113,56 +108,68 @@ function Transformation() {
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  async function transform(doUpdate: boolean) {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
-    if (transformType === null) {
-      setErrMsg("Please choose a valid transformation type.");
-      return;
-    }
-
-    console.log(`Data context to transform: ${inputDataCtxt}`);
-    console.log(`Transformation type: ${transformType}`);
-    console.log(`Transformation to apply:\n${transformPgrm}`);
-
-    const data = await getDataFromContext(inputDataCtxt);
-
-    try {
-      const newData = [];
-
-      for (const dataItem of data) {
-        const dataEnv = dataItemToEnv(dataItem);
-        const result = evaluate(transformPgrm, dataEnv);
-
-        if (result.kind !== "Bool") {
-          setErrMsg(`Expected boolean output, instead got ${result.kind}.`);
-          return;
-        }
-        // include in filter if expression evaluated to true
-        if (result.content) {
-          newData.push(dataItem);
-        }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
+      if (transformType === null) {
+        setErrMsg("Please choose a valid transformation type.");
+        return;
       }
 
-      // if doUpdate is true then we should update a previously created table
-      // rather than creating a new one
-      if (doUpdate) {
-        if (!lastContextName) {
-          setErrMsg("Please apply transformation to a new table first.");
-          return;
+      console.log(`Data context to transform: ${inputDataCtxt}`);
+      console.log(`Transformation type: ${transformType}`);
+      console.log(`Transformation to apply:\n${transformPgrm}`);
+
+      const data = await getDataFromContext(inputDataCtxt);
+
+      try {
+        const newData = [];
+
+        for (const dataItem of data) {
+          const dataEnv = dataItemToEnv(dataItem);
+          const result = evaluate(transformPgrm, dataEnv);
+
+          if (result.kind !== "Bool") {
+            setErrMsg(`Expected boolean output, instead got ${result.kind}.`);
+            return;
+          }
+          // include in filter if expression evaluated to true
+          if (result.content) {
+            newData.push(dataItem);
+          }
         }
-        setContextItems(lastContextName, newData);
-      } else {
-        const newContext = await createDataset("Testing", newData);
-        setLastContextName(newContext.name);
-        await createTable(newContext.name);
+
+        // if doUpdate is true then we should update a previously created table
+        // rather than creating a new one
+        if (doUpdate) {
+          if (!lastContextName) {
+            setErrMsg("Please apply transformation to a new table first.");
+            return;
+          }
+          setContextItems(lastContextName, newData);
+        } else {
+          const newContext = await createDataset("Testing", newData);
+          setLastContextName(newContext.name);
+          await createTable(newContext.name);
+        }
+      } catch (e) {
+        setErrMsg(e.message);
       }
-    } catch (e) {
-      setErrMsg(e.message);
+    },
+    [inputDataCtxt, transformType, transformPgrm, lastContextName]
+  );
+
+  useEffect(() => {
+    if (inputDataCtxt !== null) {
+      addContextUpdateListener(inputDataCtxt, () => {
+        transform(true);
+      });
+      return () => removeContextUpdateListener(inputDataCtxt);
     }
-  }
+  }, [transform, inputDataCtxt]);
 
   return (
     <div className="Transformation">
@@ -171,10 +178,9 @@ function Transformation() {
         <option selected disabled>
           Select a Data Context
         </option>
-        {dataContexts &&
-          dataContexts.map((dataContextName) => (
-            <option key={dataContextName}>{dataContextName}</option>
-          ))}
+        {dataContexts.map((dataContextName) => (
+          <option key={dataContextName}>{dataContextName}</option>
+        ))}
       </select>
 
       <p>Transformation Type</p>

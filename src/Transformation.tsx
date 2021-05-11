@@ -84,8 +84,16 @@ function Transformation() {
       Object.entries(dataItem).map(([key, tableValue]) => {
         let value;
         // parse value from CODAP table data
-        if (tableValue === "true" || tableValue === "false") {
-          value = { kind: "Bool", content: tableValue === "true" };
+        if (
+          tableValue === "true" ||
+          tableValue === "false" ||
+          tableValue === true ||
+          tableValue === false
+        ) {
+          value = {
+            kind: "Bool",
+            content: tableValue === "true" || tableValue === true,
+          };
         } else if (!isNaN(Number(tableValue))) {
           value = { kind: "Num", content: Number(tableValue) };
         } else {

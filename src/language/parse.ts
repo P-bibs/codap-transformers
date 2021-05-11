@@ -9,6 +9,7 @@ import {
   OperatorParselet,
   InfixParselet,
   ParenthesisParselet,
+  BuiltinParselet,
 } from "./parselets";
 
 /**
@@ -34,6 +35,14 @@ export function getBindingPower(op: Token): number {
 }
 
 /**
+ * Determine if a given name is the name of a built-in.
+ */
+function isBuiltin(name: string): boolean {
+  // ... add built-in names here as we extend
+  return ["row"].includes(name);
+}
+
+/**
  * Map tokens to prefix parselets
  */
 function prefixParseletMap(tok: Token): PrefixParselet | null {
@@ -42,7 +51,11 @@ function prefixParseletMap(tok: Token): PrefixParselet | null {
   } else if (tok.kind === "STRING") {
     return new StringParselet();
   } else if (tok.kind === "IDENTIFIER") {
-    return new IdentifierParselet();
+    if (isBuiltin(tok.content)) {
+      return new BuiltinParselet();
+    } else {
+      return new IdentifierParselet();
+    }
   } else if (tok.kind === "LPAREN") {
     return new ParenthesisParselet();
   } else if (tok.kind === "L_NOT") {

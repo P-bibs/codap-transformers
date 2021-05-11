@@ -1,5 +1,5 @@
 import { Token } from "./lex";
-import { Ast, Operator, UnaryOperator } from "./ast";
+import { Ast, Operator, UnaryOperator, Builtin } from "./ast";
 import { getBindingPower, parseExpr } from "./parse";
 
 export interface PrefixParselet {
@@ -8,6 +8,31 @@ export interface PrefixParselet {
 
 export interface InfixParselet {
   parse(tokens: Token[], left_node: Ast, current_token: Token): Ast;
+}
+
+/**
+ * Expect that a token of a given kind is at the end of the stream, and pop
+ * it off and return it. Error otherwise, possibly with a custom message.
+ *
+ * @param kind the type of token to expect
+ * @param errorMsg a custom error message, if provided
+ * @returns the token successfully consumed
+ */
+function expect_consume(
+  tokens: Token[],
+  kind: string,
+  errorMsg?: string
+): Token {
+  if (!errorMsg) {
+    errorMsg = `Unexpected token, expected ${kind}`;
+  }
+
+  const next = tokens.pop();
+  if (!next || next.kind !== kind) {
+    throw new Error(errorMsg);
+  }
+
+  return next;
 }
 
 /**
@@ -71,10 +96,11 @@ export class IdentifierParselet implements PrefixParselet {
 export class ParenthesisParselet implements PrefixParselet {
   parse(tokens: Token[], current_token: Token): Ast {
     const expr = parseExpr(tokens, 0);
-    const next = tokens.pop();
-    if (!next || next.kind !== "RPAREN") {
-      throw new Error("Expected right paren to close expression");
-    }
+    const next = expect_consume(
+      tokens,
+      "RPAREN",
+      "Expected right paren to close expression"
+    );
     return expr;
   }
 }
@@ -107,5 +133,51 @@ export class OperatorParselet implements InfixParselet {
     );
 
     return { kind: "Binop", op: this.op, op1: left_node, op2: rightNode };
+  }
+}
+
+export class BuiltinParselet implements PrefixParselet {
+  parse(tokens: Token[], current_token: Token): Ast {
+    if (current_token.kind != "IDENTIFIER") {
+      throw new Error("Tried to use BuiltinParselet on non-identifier");
+    }
+    const name = current_token.content as Builtin;
+    const lparen = expect_consume(
+      tokens,
+      "LPAREN",
+      `Expected parenthesis after built-in "${name}"`
+    );
+
+    const args = [];
+    let next;
+    while (true) {
+      // peek next token
+      next = tokens[tokens.length - 1];
+
+      if (!next) {
+        throw new Error(
+          `Unexpected end of argument list for built-in "${name}"`
+        );
+      }
+      if (next.kind === "RPAREN") {
+        break;
+      }
+
+      // parse an argument expression
+      args.push(parseExpr(tokens, 0));
+
+      next = tokens[tokens.length - 1];
+      if (next.kind !== "COMMA") {
+        break;
+      }
+      tokens.pop(); // consume the comma
+    }
+    const rparen = expect_consume(
+      tokens,
+      "RPAREN",
+      `Expected closing parenthesis after arguments to built-in "${name}"`
+    );
+
+    return { kind: "Builtin", name, args };
   }
 }

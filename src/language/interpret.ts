@@ -1,4 +1,4 @@
-import { Ast, Operator, UnaryOperator, Value } from "./ast";
+import { Ast, Operator, UnaryOperator, Builtin, Value } from "./ast";
 
 /**
  * An environment is a map from strings to Values
@@ -26,6 +26,8 @@ export function interpret(expr: Ast, env?: Env): Value {
 
 function interpretExpr(expr: Ast, env: Env): Value {
   switch (expr.kind) {
+    case "Builtin":
+      return interpretBuiltin(expr.name, expr.args, env);
     case "Binop":
       return interpretBinop(expr.op, expr.op1, expr.op2, env);
     case "Unop":
@@ -96,5 +98,25 @@ function interpretUnop(op: UnaryOperator, op1: Ast, env: Env): Value {
         throw new Error("Tried logical not on non-boolean expression");
       }
       return { kind: "Bool", content: !operand.content };
+  }
+}
+
+function interpretBuiltin(name: Builtin, args: Ast[], env: Env): Value {
+  switch (name) {
+    case "row": {
+      if (args.length != 1) {
+        throw new Error("row() expects exactly 1 argument (a column name)");
+      }
+      const attr = args[0];
+      if (attr.kind !== "String") {
+        throw new Error(`Expected a column name given to row()`);
+      }
+      if (!env[attr.content]) {
+        throw new Error(`Unknown column name "${attr.content}" given to row()`);
+      }
+
+      // lookup column name in environment
+      return env[attr.content];
+    }
   }
 }

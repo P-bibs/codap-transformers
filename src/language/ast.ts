@@ -1,4 +1,5 @@
 export type Ast =
+  | { kind: "Builtin"; name: Builtin; args: Ast[] }
   | { kind: "Binop"; op: Operator; op1: Ast; op2: Ast }
   | { kind: "Unop"; op: UnaryOperator; op1: Ast }
   | { kind: "Identifier"; content: string }
@@ -18,6 +19,8 @@ export type Operator =
   | "||";
 
 export type UnaryOperator = "not";
+
+export type Builtin = "row";
 
 export type Value =
   | { kind: "Num"; content: number }

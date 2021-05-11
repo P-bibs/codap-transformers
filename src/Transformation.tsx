@@ -19,7 +19,6 @@ import {
 import { Value } from "./language/ast";
 import { Env } from "./language/interpret";
 import { evaluate } from "./language";
-import { table } from "console";
 
 /**
  * Transformation represents an instance of the plugin, which applies a

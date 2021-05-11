@@ -11,14 +11,18 @@ export interface InfixParselet {
 }
 
 /**
- * Expect that a token of a given kind is at the end of the stream, and pop 
+ * Expect that a token of a given kind is at the end of the stream, and pop
  * it off and return it. Error otherwise, possibly with a custom message.
- * 
+ *
  * @param kind the type of token to expect
  * @param errorMsg a custom error message, if provided
  * @returns the token successfully consumed
  */
-function expect_consume(tokens: Token[], kind: string, errorMsg?: string): Token {
+function expect_consume(
+  tokens: Token[],
+  kind: string,
+  errorMsg?: string
+): Token {
   if (!errorMsg) {
     errorMsg = `Unexpected token, expected ${kind}`;
   }
@@ -92,7 +96,11 @@ export class IdentifierParselet implements PrefixParselet {
 export class ParenthesisParselet implements PrefixParselet {
   parse(tokens: Token[], current_token: Token): Ast {
     const expr = parseExpr(tokens, 0);
-    const next = expect_consume(tokens, "RPAREN", "Expected right paren to close expression");
+    const next = expect_consume(
+      tokens,
+      "RPAREN",
+      "Expected right paren to close expression"
+    );
     return expr;
   }
 }
@@ -134,7 +142,11 @@ export class BuiltinParselet implements PrefixParselet {
       throw new Error("Tried to use BuiltinParselet on non-identifier");
     }
     const name = current_token.content as Builtin;
-    const lparen = expect_consume(tokens, "LPAREN", `Expected parenthesis after built-in "${name}"`);
+    const lparen = expect_consume(
+      tokens,
+      "LPAREN",
+      `Expected parenthesis after built-in "${name}"`
+    );
 
     const args = [];
     let next;
@@ -160,7 +172,11 @@ export class BuiltinParselet implements PrefixParselet {
       }
       tokens.pop(); // consume the comma
     }
-    const rparen = expect_consume(tokens, "RPAREN", `Expected closing parenthesis after arguments to built-in "${name}"`);
+    const rparen = expect_consume(
+      tokens,
+      "RPAREN",
+      `Expected closing parenthesis after arguments to built-in "${name}"`
+    );
 
     return { kind: "Builtin", name, args };
   }

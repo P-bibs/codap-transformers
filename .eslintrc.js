@@ -29,7 +29,7 @@ module.exports = {
   plugins: ["react", "react-hooks", "@typescript-eslint"],
   rules: {
     "dot-notation": "off",
-    "no-unused-vars": "warn",
+    "no-unused-vars": "off",
     "no-constant-condition": ["error", { checkLoops: false }],
   },
 };

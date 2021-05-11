@@ -108,10 +108,15 @@ test("interprets logic correctly", () => {
       kind: "Binop",
       op: "&&",
       op1: { kind: "Identifier", content: "true" },
-      op2: { kind: "Unop", op: "not", op1: {
-        kind: "Identifier", content: "false"
-      }}
-    }
+      op2: {
+        kind: "Unop",
+        op: "not",
+        op1: {
+          kind: "Identifier",
+          content: "false",
+        },
+      },
+    },
   };
   expect(interpret(ast)).toStrictEqual({ kind: "Bool", content: false });
-})
+});

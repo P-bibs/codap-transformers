@@ -15,10 +15,7 @@ import {
   DataSetDescription,
   CodapAttribute,
 } from "./types";
-import {
-  newContextListeners,
-  contextUpdateListeners,
-} from "./listeners";
+import { newContextListeners, contextUpdateListeners } from "./listeners";
 
 export {
   addNewContextListener,

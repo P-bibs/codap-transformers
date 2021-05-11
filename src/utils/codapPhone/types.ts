@@ -22,7 +22,7 @@ export type CodapRequest = {
   action: CodapActions;
   resource: string;
   values?: any;
-}
+};
 
 export interface CodapResponse {
   success: boolean;
@@ -38,7 +38,7 @@ export interface CodapResponseItemIDs extends CodapResponse {
 
 export type CodapPhone = {
   call<T extends CodapResponse>(r: CodapRequest, cb: (r: T) => any): void;
-}
+};
 
 export enum CodapInitiatedResource {
   InteractiveState = "interactiveState",
@@ -51,26 +51,26 @@ export enum ContextChangeOperation {
   UpdateCases = "updateCases",
   CreateCases = "createCases",
   DeleteCases = "deleteCases",
-  SelectCases = "selectCases"
+  SelectCases = "selectCases",
 }
 
 export const mutatingOperations = [
   ContextChangeOperation.UpdateCases,
   ContextChangeOperation.CreateCases,
-  ContextChangeOperation.DeleteCases
+  ContextChangeOperation.DeleteCases,
 ];
 
 export type CodapInitiatedCommand = {
   action: CodapActions;
   resource: string;
   values?: any;
-}
+};
 
 export type DataSetDescription = {
   name: string;
   id: number;
   title: string;
-}
+};
 
 interface BaseAttribute {
   name: string;
@@ -92,4 +92,7 @@ interface NumericAttribute extends BaseAttribute {
   unit?: string;
 }
 
-export type CodapAttribute = BaseAttribute | CategoricalAttribute | NumericAttribute;
+export type CodapAttribute =
+  | BaseAttribute
+  | CategoricalAttribute
+  | NumericAttribute;

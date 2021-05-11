@@ -1,101 +1,31 @@
 import { IframePhoneRpcEndpoint } from "iframe-phone";
-import { newContextListeners, contextUpdateListeners } from "./codapListeners";
+import {
+  CodapComponent,
+  CodapResource,
+  CodapActions,
+  CodapRequest,
+  CodapResponse,
+  CodapResponseValues,
+  CodapResponseItemIDs,
+  CodapPhone,
+  CodapInitiatedResource,
+  ContextChangeOperation,
+  mutatingOperations,
+  CodapInitiatedCommand,
+  DataSetDescription,
+  CodapAttribute,
+} from "./types";
+import {
+  newContextListeners,
+  contextUpdateListeners,
+} from "./listeners";
 
-enum CodapComponent {
-  Graph = "graph",
-  Table = "caseTable",
-  Map = "map",
-}
-
-enum CodapResource {
-  DataContext = "dataContext",
-  DataContextList = "dataContextList",
-  Component = "component",
-}
-
-enum CodapActions {
-  Create = "create",
-  Update = "update",
-  Delete = "delete",
-  Get = "get",
-  Notify = "notify",
-}
-
-type CodapRequest = {
-  action: CodapActions;
-  resource: string;
-  values?: any;
-};
-
-interface CodapResponse {
-  success: boolean;
-}
-
-interface CodapResponseValues extends CodapResponse {
-  values?: any;
-}
-
-interface CodapResponseItemIDs extends CodapResponse {
-  itemIDs?: string[];
-}
-
-type CodapPhone = {
-  call<T extends CodapResponse>(r: CodapRequest, cb: (r: T) => any): void;
-};
-
-enum CodapInitiatedResource {
-  InteractiveState = "interactiveState",
-  UndoChangeNotice = "undoChangeNotice",
-  DocumentChangeNotice = "documentChangeNotice",
-  DataContextChangeNotice = "dataContextChangeNotice",
-}
-
-enum ContextChangeOperation {
-  UpdateCases = "updateCases",
-  CreateCases = "createCases",
-  DeleteCases = "deleteCases",
-  SelectCases = "selectCases",
-}
-
-const mutatingOperations = [
-  ContextChangeOperation.UpdateCases,
-  ContextChangeOperation.CreateCases,
-  ContextChangeOperation.DeleteCases,
-];
-
-type CodapInitiatedCommand = {
-  action: CodapActions;
-  resource: string;
-  values?: any;
-};
-
-type DataSetDescription = {
-  name: string;
-  id: number;
-  title: string;
-};
-
-interface BaseAttribute {
-  name: string;
-  title?: string;
-  colormap?: Record<string, unknown>;
-  description?: string;
-  editable?: boolean;
-  formula?: string;
-  hidden?: boolean;
-}
-
-interface CategoricalAttribute extends BaseAttribute {
-  type: "categorical";
-}
-
-interface NumericAttribute extends BaseAttribute {
-  type: "numeric";
-  precision?: number;
-  unit?: string;
-}
-
-type CodapAttribute = BaseAttribute | CategoricalAttribute | NumericAttribute;
+export {
+  addNewContextListener,
+  removeNewContextListener,
+  addContextUpdateListener,
+  removeContextUpdateListener,
+} from "./listeners";
 
 const phone: CodapPhone = new IframePhoneRpcEndpoint(
   codapRequestHandler,

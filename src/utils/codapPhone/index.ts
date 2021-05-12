@@ -3,13 +3,11 @@ import {
   CodapComponentType,
   CodapResource,
   CodapActions,
-  CodapRequest,
   CodapResponse,
   CodapResponseValues,
   CodapResponseItemIDs,
   CodapPhone,
   CodapInitiatedResource,
-  ContextChangeOperation,
   mutatingOperations,
   CodapInitiatedCommand,
   DataContext,
@@ -116,8 +114,8 @@ function codapRequestHandler(
   }
 }
 
-export function getAllDataContexts() {
-  return new Promise<string[]>((resolve, reject) =>
+export function getAllDataContexts(): Promise<DataContext[]> {
+  return new Promise<DataContext[]>((resolve, reject) =>
     phone.call<CodapResponseValues>(
       {
         action: CodapActions.Get,
@@ -125,7 +123,7 @@ export function getAllDataContexts() {
       },
       (response) => {
         if (Array.isArray(response.values)) {
-          resolve(response.values.map((v) => v.name));
+          resolve(response.values);
         } else {
           reject(new Error("Failed to get data contexts."));
         }
@@ -134,7 +132,9 @@ export function getAllDataContexts() {
   );
 }
 
-export function getDataFromContext(context: string) {
+export function getDataFromContext(
+  context: string
+): Promise<Record<string, unknown>[]> {
   return new Promise<Record<string, unknown>[]>((resolve, reject) =>
     phone.call<CodapResponseValues>(
       {
@@ -152,7 +152,10 @@ export function getDataFromContext(context: string) {
   );
 }
 
-function createBareDataset(label: string, attrs: CodapAttribute[]) {
+function createBareDataset(
+  label: string,
+  attrs: CodapAttribute[]
+): Promise<DataContext> {
   const newName = getNewName();
   const newCollectionName = collectionNameFromContext(newName);
 
@@ -200,7 +203,7 @@ function makeAttrsFromData(data: Record<string, unknown>[]): CodapAttribute[] {
 export async function createDataset(
   label: string,
   data: Record<string, unknown>[]
-) {
+): Promise<DataContext> {
   if (data.length === 0) {
     return await createBareDataset(label, []);
   }
@@ -231,7 +234,7 @@ export async function createDataset(
 export async function setContextItems(
   contextName: string,
   items: Record<string, unknown>[]
-) {
+): Promise<void> {
   await deleteAllCases(contextName);
 
   return new Promise<void>((resolve, reject) =>
@@ -252,7 +255,7 @@ export async function setContextItems(
   );
 }
 
-export async function deleteAllCases(context: string) {
+export async function deleteAllCases(context: string): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {
@@ -272,7 +275,7 @@ export async function deleteAllCases(context: string) {
 
 const DEFAULT_TABLE_WIDTH = 300;
 const DEFAULT_TABLE_HEIGHT = 300;
-export async function createTable(context: string) {
+export async function createTable(context: string): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {

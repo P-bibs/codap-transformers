@@ -24,7 +24,7 @@ type GetContextListRequest = {
   resource: CodapResource.DataContextList;
 };
 
-type GetDataRequest = {
+type GetRequest = {
   action: CodapActions.Get;
   resource: string;
 };
@@ -75,6 +75,10 @@ interface GetDataResponse extends CodapResponse {
   }[];
 }
 
+export interface GetContextResponse extends CodapResponse {
+  values: DataContext;
+}
+
 interface TableResponse extends CodapResponse {
   values: CaseTable;
 }
@@ -82,8 +86,8 @@ interface TableResponse extends CodapResponse {
 export type CodapPhone = {
   call(r: GetContextListRequest, cb: (r: GetListResponse) => void): void;
   call(r: GetListRequest, cb: (r: GetListResponse) => void): void;
-  call(r: GetDataRequest, cb: (r: GetDataResponse) => void): void;
-  call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetContextResponse) => void): void;
   call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
   call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;

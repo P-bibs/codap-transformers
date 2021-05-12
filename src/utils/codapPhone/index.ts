@@ -8,6 +8,7 @@ import {
   CodapResponseItemIDs,
   CodapPhone,
   CodapInitiatedResource,
+  ContextChangeOperation,
   mutatingOperations,
   CodapInitiatedCommand,
   DataSetDescription,
@@ -16,7 +17,11 @@ import {
   CodapComponent,
   CaseTable,
 } from "./types";
-import { newContextListeners, contextUpdateListeners } from "./listeners";
+import {
+  newContextListeners,
+  contextUpdateListeners,
+  callAllContextListeners,
+} from "./listeners";
 
 export {
   addNewContextListener,
@@ -93,9 +98,7 @@ function codapRequestHandler(
     command.values.operation ===
       DocumentChangeOperations.DataContextCountChanged
   ) {
-    for (const f of newContextListeners) {
-      f();
-    }
+    callAllContextListeners();
     return;
   }
 
@@ -103,17 +106,22 @@ function codapRequestHandler(
     command.resource.startsWith(
       CodapInitiatedResource.DataContextChangeNotice
     ) &&
-    command.values.length > 0 &&
-    mutatingOperations.includes(command.values[0].operation)
+    command.values.length > 0
   ) {
-    const contextName = command.resource.slice(
-      command.resource.search("\\[") + 1,
-      command.resource.length - 1
-    );
-    if (contextUpdateListeners[contextName]) {
-      contextUpdateListeners[contextName]();
+    if (mutatingOperations.includes(command.values[0].operation)) {
+      const contextName = command.resource.slice(
+        command.resource.search("\\[") + 1,
+        command.resource.length - 1
+      );
+      if (contextUpdateListeners[contextName]) {
+        contextUpdateListeners[contextName]();
+      }
+      return;
     }
-    return;
+    if (command.values[0].operation === ContextChangeOperation.UpdateContext) {
+      callAllContextListeners();
+      return;
+    }
   }
 }
 

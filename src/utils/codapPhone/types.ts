@@ -57,6 +57,7 @@ export enum ContextChangeOperation {
   CreateCases = "createCases",
   DeleteCases = "deleteCases",
   SelectCases = "selectCases",
+  UpdateContext = "updateDataContext",
 }
 
 export const mutatingOperations = [

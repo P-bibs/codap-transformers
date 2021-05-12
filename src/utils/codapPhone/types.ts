@@ -72,7 +72,7 @@ export interface DataContext {
   name: string;
   title?: string;
   description?: string;
-  collections: Collection[];
+  collections?: Collection[];
 }
 
 export interface Collection {

@@ -143,7 +143,9 @@ export function getAllDataContexts(): Promise<DataContext[]> {
   );
 }
 
-export function getDataFromContext(context: string) {
+export function getDataFromContext(
+  context: string
+): Promise<Record<string, unknown>[]> {
   return new Promise<Record<string, unknown>[]>((resolve, reject) =>
     phone.call<CodapResponseValues>(
       {
@@ -161,7 +163,10 @@ export function getDataFromContext(context: string) {
   );
 }
 
-function createBareDataset(name: string, attrs: CodapAttribute[]) {
+function createBareDataset(
+  name: string,
+  attrs: CodapAttribute[]
+): Promise<DataContext> {
   const newCollectionName = collectionNameFromContext(name);
 
   return new Promise<DataContext>((resolve, reject) =>
@@ -208,7 +213,7 @@ function makeAttrsFromData(data: Record<string, unknown>[]): CodapAttribute[] {
 export async function createDataset(
   label: string,
   data: Record<string, unknown>[]
-) {
+): Promise<DataContext> {
   if (data.length === 0) {
     return await createBareDataset(label, []);
   }
@@ -239,7 +244,7 @@ export async function createDataset(
 export async function setContextItems(
   contextName: string,
   items: Record<string, unknown>[]
-) {
+): Promise<void> {
   await deleteAllCases(contextName);
 
   return new Promise<void>((resolve, reject) =>
@@ -260,7 +265,7 @@ export async function setContextItems(
   );
 }
 
-export async function deleteAllCases(context: string) {
+export async function deleteAllCases(context: string): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {

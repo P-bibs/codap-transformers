@@ -96,7 +96,7 @@ export class IdentifierParselet implements PrefixParselet {
 export class ParenthesisParselet implements PrefixParselet {
   parse(tokens: Token[], current_token: Token): Ast {
     const expr = parseExpr(tokens, 0);
-    const next = expect_consume(
+    expect_consume(
       tokens,
       "RPAREN",
       "Expected right paren to close expression"
@@ -142,7 +142,7 @@ export class BuiltinParselet implements PrefixParselet {
       throw new Error("Tried to use BuiltinParselet on non-identifier");
     }
     const name = current_token.content as Builtin;
-    const lparen = expect_consume(
+    expect_consume(
       tokens,
       "LPAREN",
       `Expected parenthesis after built-in "${name}"`
@@ -172,7 +172,7 @@ export class BuiltinParselet implements PrefixParselet {
       }
       tokens.pop(); // consume the comma
     }
-    const rparen = expect_consume(
+    expect_consume(
       tokens,
       "RPAREN",
       `Expected closing parenthesis after arguments to built-in "${name}"`

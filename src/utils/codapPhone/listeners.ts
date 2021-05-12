@@ -2,11 +2,11 @@
 
 export let newContextListeners: Array<() => void> = [];
 
-export function addNewContextListener(listener: () => void) {
+export function addNewContextListener(listener: () => void): void {
   newContextListeners.push(listener);
 }
 
-export function removeNewContextListener(listener: () => void) {
+export function removeNewContextListener(listener: () => void): void {
   newContextListeners = newContextListeners.filter((v) => v !== listener);
 }
 
@@ -18,10 +18,10 @@ export const contextUpdateListeners: Record<string, () => void | undefined> =
 export function addContextUpdateListener(
   context: string,
   listener: () => void
-) {
+): void {
   contextUpdateListeners[context] = listener;
 }
 
-export function removeContextUpdateListener(context: string) {
+export function removeContextUpdateListener(context: string): void {
   delete contextUpdateListeners[context];
 }

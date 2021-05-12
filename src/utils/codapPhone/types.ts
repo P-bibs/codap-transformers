@@ -22,7 +22,7 @@ export enum CodapActions {
 export type CodapRequest = {
   action: CodapActions;
   resource: string;
-  values?: any;
+  values?: unknown;
 };
 
 export interface CodapResponse {
@@ -30,7 +30,7 @@ export interface CodapResponse {
 }
 
 export interface CodapResponseValues extends CodapResponse {
-  values?: any;
+  values?: unknown;
 }
 
 export interface CodapResponseItemIDs extends CodapResponse {
@@ -38,7 +38,7 @@ export interface CodapResponseItemIDs extends CodapResponse {
 }
 
 export type CodapPhone = {
-  call<T extends CodapResponse>(r: CodapRequest, cb: (r: T) => any): void;
+  call<T extends CodapResponse>(r: CodapRequest, cb: (r: T) => unknown): void;
 };
 
 export enum CodapInitiatedResource {

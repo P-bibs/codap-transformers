@@ -1,5 +1,5 @@
 /* eslint use-isnan: 0 */
-import React from "react";
+import React, { ReactElement } from "react";
 import { useState, useEffect, useCallback } from "react";
 import "./Transformation.css";
 import Error from "./Error";
@@ -39,7 +39,7 @@ function useDataContexts() {
  * Transformation represents an instance of the plugin, which applies a
  * user-defined transformation to input data from CODAP to yield output data.
  */
-function Transformation() {
+function Transformation(): ReactElement {
   /**
    * The broad categories of transformations that can be applied
    * to tables.

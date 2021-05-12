@@ -4,11 +4,10 @@ import {
   CodapResource,
   CodapActions,
   CodapResponse,
-  CodapResponseValues,
-  CodapResponseItemIDs,
   CodapPhone,
   CodapInitiatedResource,
   mutatingOperations,
+  DocumentChangeOperations,
   CodapInitiatedCommand,
   DataContext,
   CodapAttribute,
@@ -66,10 +65,6 @@ const getNewName = (function () {
   };
 })();
 
-enum DocumentChangeOperations {
-  DataContextCountChanged = "dataContextCountChanged",
-}
-
 /**
  * Catch notifications from CODAP and call appropriate listeners
  */
@@ -100,6 +95,7 @@ function codapRequestHandler(
     command.resource.startsWith(
       CodapInitiatedResource.DataContextChangeNotice
     ) &&
+    Array.isArray(command.values) &&
     command.values.length > 0 &&
     mutatingOperations.includes(command.values[0].operation)
   ) {
@@ -116,7 +112,7 @@ function codapRequestHandler(
 
 export function getAllDataContexts(): Promise<DataContext[]> {
   return new Promise<DataContext[]>((resolve, reject) =>
-    phone.call<CodapResponseValues>(
+    phone.call(
       {
         action: CodapActions.Get,
         resource: CodapResource.DataContextList,
@@ -136,7 +132,7 @@ export function getDataFromContext(
   context: string
 ): Promise<Record<string, unknown>[]> {
   return new Promise<Record<string, unknown>[]>((resolve, reject) =>
-    phone.call<CodapResponseValues>(
+    phone.call(
       {
         action: CodapActions.Get,
         resource: itemSearchAllFromContext(context),
@@ -160,7 +156,7 @@ function createBareDataset(
   const newCollectionName = collectionNameFromContext(newName);
 
   return new Promise<DataContext>((resolve, reject) =>
-    phone.call<CodapResponseValues>(
+    phone.call(
       {
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
@@ -179,7 +175,7 @@ function createBareDataset(
       },
       (response) => {
         if (response.success) {
-          resolve(response.values as DataContext);
+          resolve(response.values);
         } else {
           reject(new Error("Failed to create dataset"));
         }
@@ -214,7 +210,7 @@ export async function createDataset(
 
   // return itemIDs
   return new Promise<DataContext>((resolve, reject) =>
-    phone.call<CodapResponseItemIDs>(
+    phone.call(
       {
         action: CodapActions.Create,
         resource: itemFromContext(newDatasetDescription.name),

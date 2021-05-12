@@ -6,20 +6,21 @@ import Error from "./Error";
 import {
   getAllDataContexts,
   getDataFromContext,
-  createDataset,
   createTable,
   setContextItems,
   addNewContextListener,
   removeNewContextListener,
   addContextUpdateListener,
   removeContextUpdateListener,
+  createTableWithData,
 } from "./utils/codapPhone";
 import { Value } from "./language/ast";
 import { Env } from "./language/interpret";
 import { evaluate } from "./language";
+import { DataSetDescription } from "./utils/codapPhone/types";
 
 function useDataContexts() {
-  const [dataContexts, setDataContexts] = useState<string[]>([]);
+  const [dataContexts, setDataContexts] = useState<DataSetDescription[]>([]);
 
   async function refreshTables() {
     setDataContexts(await getAllDataContexts());
@@ -151,9 +152,8 @@ function Transformation() {
           }
           setContextItems(lastContextName, newData);
         } else {
-          const newContext = await createDataset("Testing", newData);
+          const [newContext, _newTable] = await createTableWithData(newData);
           setLastContextName(newContext.name);
-          await createTable(newContext.name);
         }
       } catch (e) {
         setErrMsg(e.message);
@@ -178,8 +178,10 @@ function Transformation() {
         <option selected disabled>
           Select a Data Context
         </option>
-        {dataContexts.map((dataContextName) => (
-          <option key={dataContextName}>{dataContextName}</option>
+        {dataContexts.map((dataContext) => (
+          <option key={dataContext.name} value={dataContext.name}>
+            {dataContext.title} ({dataContext.name})
+          </option>
         ))}
       </select>
 

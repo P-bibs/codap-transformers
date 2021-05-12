@@ -1,6 +1,6 @@
 import { IframePhoneRpcEndpoint } from "iframe-phone";
 import {
-  CodapComponent,
+  CodapComponentType,
   CodapResource,
   CodapActions,
   CodapRequest,
@@ -14,6 +14,9 @@ import {
   CodapInitiatedCommand,
   DataSetDescription,
   CodapAttribute,
+  CodapListResource,
+  CodapComponent,
+  CaseTable,
 } from "./types";
 import { newContextListeners, contextUpdateListeners } from "./listeners";
 
@@ -62,7 +65,7 @@ function allCasesFromContext(context: string) {
 const getNewName = (function () {
   let count = 0;
   return () => {
-    const name = `codapflow_${count}`;
+    const name = `CodapFlow_${count}`;
     count += 1;
     return name;
   };
@@ -116,8 +119,8 @@ function codapRequestHandler(
   }
 }
 
-export function getAllDataContexts() {
-  return new Promise<string[]>((resolve, reject) =>
+export function getAllDataContexts(): Promise<DataSetDescription[]> {
+  return new Promise<DataSetDescription[]>((resolve, reject) =>
     phone.call<CodapResponseValues>(
       {
         action: CodapActions.Get,
@@ -125,7 +128,7 @@ export function getAllDataContexts() {
       },
       (response) => {
         if (Array.isArray(response.values)) {
-          resolve(response.values.map((v) => v.name));
+          resolve(response.values);
         } else {
           reject(new Error("Failed to get data contexts."));
         }
@@ -152,9 +155,8 @@ export function getDataFromContext(context: string) {
   );
 }
 
-function createBareDataset(label: string, attrs: CodapAttribute[]) {
-  const newName = getNewName();
-  const newCollectionName = collectionNameFromContext(newName);
+function createBareDataset(name: string, attrs: CodapAttribute[]) {
+  const newCollectionName = collectionNameFromContext(name);
 
   return new Promise<DataSetDescription>((resolve, reject) =>
     phone.call<CodapResponseValues>(
@@ -162,12 +164,12 @@ function createBareDataset(label: string, attrs: CodapAttribute[]) {
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
         values: {
-          name: newName,
+          name: name,
           collections: [
             {
               name: newCollectionName,
               labels: {
-                singleCase: label,
+                singleCase: name,
               },
               attrs: attrs,
             },
@@ -272,15 +274,18 @@ export async function deleteAllCases(context: string) {
 
 const DEFAULT_TABLE_WIDTH = 300;
 const DEFAULT_TABLE_HEIGHT = 300;
-export async function createTable(context: string) {
-  return new Promise<void>((resolve, reject) =>
-    phone.call(
+export async function createTable(
+  name: string,
+  context: string
+): Promise<CaseTable> {
+  return new Promise<CaseTable>((resolve, reject) =>
+    phone.call<CodapResponseValues>(
       {
         action: CodapActions.Create,
         resource: CodapResource.Component,
         values: {
-          type: CodapComponent.Table,
-          name: getNewName(),
+          type: CodapComponentType.Table,
+          name: name,
           dimensions: {
             width: DEFAULT_TABLE_WIDTH,
             height: DEFAULT_TABLE_HEIGHT,
@@ -290,11 +295,81 @@ export async function createTable(context: string) {
       },
       (response) => {
         if (response.success) {
-          resolve();
+          resolve(response.values);
         } else {
           reject(new Error("Failed to create table"));
         }
       }
     )
   );
+}
+
+async function ensureUniqueName(
+  name: string,
+  resourceType: CodapListResource
+): Promise<string> {
+  // Find list of existing resources of the relevant type
+  const resourceList: CodapComponent[] = await new Promise<CodapComponent[]>(
+    (resolve, reject) =>
+      phone.call<CodapResponseValues>(
+        {
+          action: CodapActions.Get,
+          resource: resourceType,
+        },
+        (response) => {
+          if (response.success) {
+            resolve(response.values);
+          } else {
+            reject(
+              new Error(`Failed to fetch list of existing ${resourceType}`)
+            );
+          }
+        }
+      )
+  );
+
+  const names = resourceList.map((x) => x.name);
+
+  // If the name doesn't already exist we can return it as is
+  if (!names.includes(name)) {
+    return name;
+  }
+
+  // Otherwise find a suffix for the name that makes it unique
+  let i = 1;
+  while (names.includes(`${name}_(${i})`)) {
+    i += 1;
+  }
+  return `${name}_(${i})`;
+}
+
+export async function createTableWithData(
+  data: Record<string, unknown>[],
+  name?: string
+): Promise<[DataSetDescription, CaseTable]> {
+  let baseName;
+  if (!name) {
+    baseName = getNewName();
+  } else {
+    baseName = name;
+  }
+
+  // Generate names
+  let contextName = `${baseName}_context`;
+  let tableName = `${baseName}_table`;
+
+  // Ensure names are unique
+  contextName = await ensureUniqueName(
+    contextName,
+    CodapListResource.DataContextList
+  );
+  tableName = await ensureUniqueName(
+    tableName,
+    CodapListResource.ComponentList
+  );
+
+  // Create context and table;
+  const newContext = await createDataset(contextName, data);
+  const newTable = await createTable(tableName, contextName);
+  return [newContext, newTable];
 }

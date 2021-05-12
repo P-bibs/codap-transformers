@@ -11,6 +11,8 @@ import {
   mutatingOperations,
   DocumentChangeOperations,
   CodapInitiatedCommand,
+  Collection,
+  ReturnedCollection,
   DataContext,
   CodapListResource,
   CodapIdentifyingInfo,
@@ -48,15 +50,6 @@ function itemFromContext(context: string) {
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-item-get-by-search
 function itemSearchAllFromContext(context: string) {
   return `${resourceFromContext(context)}.itemSearch[*]`;
-}
-
-function collectionNameFromContext(context: string) {
-  return `${context}_collection`;
-}
-
-function caseFromContext(context: string) {
-  const collectionName = collectionNameFromContext(context);
-  return `dataContext[${context}].collection[${collectionName}].case`;
 }
 
 // This only works for delete
@@ -164,6 +157,11 @@ export function getDataFromContext(
   );
 }
 
+// export async function getAllCasesFromContext(contextName: string) {
+//   const context = await getDataContext(contextName);
+//   return new Promise<unknown>((resolve, reject) => phone.call);
+// }
+
 function getDataContext(contextName: string): Promise<DataContext> {
   return new Promise<DataContext>((resolve, reject) =>
     phone.call(
@@ -182,6 +180,28 @@ function getDataContext(contextName: string): Promise<DataContext> {
   );
 }
 
+// In the returned collections, parents show up as numeric ids, so before
+// reusing, we need to look up the names of the parent collections.
+function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
+  const normalized = [];
+  for (const c of collections) {
+    let newParent;
+    if (c.parent) {
+      newParent = collections.find(
+        (collection) => collection.id === c.parent
+      )?.name;
+    }
+    normalized.push({
+      name: c.name,
+      title: c.title,
+      attrs: c.attrs,
+      labels: c.labels,
+      parent: newParent,
+    });
+  }
+  return normalized;
+}
+
 async function cloneDataContext(
   newContextName: string,
   oldContextName: string
@@ -196,10 +216,10 @@ async function cloneDataContext(
         values: {
           name: newContextName,
 
-          // It's okay to reuse collection objects since the collection names
+          // It's okay to reuse collections since the collection names
           // need only be unique within a data context
           // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-collection-create
-          collections: oldContext.collections,
+          collections: normalizeParentNames(oldContext.collections),
         },
       },
       (response) => {

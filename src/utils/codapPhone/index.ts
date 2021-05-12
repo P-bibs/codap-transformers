@@ -4,24 +4,20 @@ import {
   CodapResource,
   CodapActions,
   CodapResponse,
-  CodapResponseValues,
-  CodapResponseItemIDs,
   CodapPhone,
   CodapInitiatedResource,
   ContextChangeOperation,
   mutatingOperations,
+  DocumentChangeOperations,
   CodapInitiatedCommand,
   DataContext,
   CodapAttribute,
   CodapListResource,
+  CodapIdentifyingInfo,
   CodapComponent,
   CaseTable,
 } from "./types";
-import {
-  newContextListeners,
-  contextUpdateListeners,
-  callAllContextListeners,
-} from "./listeners";
+import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 
 export {
   addNewContextListener,
@@ -74,10 +70,6 @@ const getNewName = (function () {
   };
 })();
 
-enum DocumentChangeOperations {
-  DataContextCountChanged = "dataContextCountChanged",
-}
-
 /**
  * Catch notifications from CODAP and call appropriate listeners
  */
@@ -106,6 +98,7 @@ function codapRequestHandler(
     command.resource.startsWith(
       CodapInitiatedResource.DataContextChangeNotice
     ) &&
+    Array.isArray(command.values) &&
     command.values.length > 0
   ) {
     if (mutatingOperations.includes(command.values[0].operation)) {
@@ -127,7 +120,7 @@ function codapRequestHandler(
 
 export function getAllDataContexts(): Promise<DataContext[]> {
   return new Promise<DataContext[]>((resolve, reject) =>
-    phone.call<CodapResponseValues>(
+    phone.call(
       {
         action: CodapActions.Get,
         resource: CodapResource.DataContextList,
@@ -147,7 +140,7 @@ export function getDataFromContext(
   context: string
 ): Promise<Record<string, unknown>[]> {
   return new Promise<Record<string, unknown>[]>((resolve, reject) =>
-    phone.call<CodapResponseValues>(
+    phone.call(
       {
         action: CodapActions.Get,
         resource: itemSearchAllFromContext(context),
@@ -170,7 +163,7 @@ function createBareDataset(
   const newCollectionName = collectionNameFromContext(name);
 
   return new Promise<DataContext>((resolve, reject) =>
-    phone.call<CodapResponseValues>(
+    phone.call(
       {
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
@@ -189,7 +182,7 @@ function createBareDataset(
       },
       (response) => {
         if (response.success) {
-          resolve(response.values as DataContext);
+          resolve(response.values);
         } else {
           reject(new Error("Failed to create dataset"));
         }
@@ -224,7 +217,7 @@ export async function createDataset(
 
   // return itemIDs
   return new Promise<DataContext>((resolve, reject) =>
-    phone.call<CodapResponseItemIDs>(
+    phone.call(
       {
         action: CodapActions.Create,
         resource: itemFromContext(newDatasetDescription.name),
@@ -290,7 +283,7 @@ export async function createTable(
   context: string
 ): Promise<CaseTable> {
   return new Promise<CaseTable>((resolve, reject) =>
-    phone.call<CodapResponseValues>(
+    phone.call(
       {
         action: CodapActions.Create,
         resource: CodapResource.Component,
@@ -320,23 +313,22 @@ async function ensureUniqueName(
   resourceType: CodapListResource
 ): Promise<string> {
   // Find list of existing resources of the relevant type
-  const resourceList: CodapComponent[] = await new Promise<CodapComponent[]>(
-    (resolve, reject) =>
-      phone.call<CodapResponseValues>(
-        {
-          action: CodapActions.Get,
-          resource: resourceType,
-        },
-        (response) => {
-          if (response.success) {
-            resolve(response.values);
-          } else {
-            reject(
-              new Error(`Failed to fetch list of existing ${resourceType}`)
-            );
-          }
+  const resourceList: CodapIdentifyingInfo[] = await new Promise<
+    CodapIdentifyingInfo[]
+  >((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: resourceType,
+      },
+      (response) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error(`Failed to fetch list of existing ${resourceType}`));
         }
-      )
+      }
+    )
   );
 
   const names = resourceList.map((x) => x.name);

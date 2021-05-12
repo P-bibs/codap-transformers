@@ -16,10 +16,10 @@ import {
 import { Value } from "./language/ast";
 import { Env } from "./language/interpret";
 import { evaluate } from "./language";
-import { DataContext } from "./utils/codapPhone/types";
+import { CodapIdentifyingInfo } from "./utils/codapPhone/types";
 
 function useDataContexts() {
-  const [dataContexts, setDataContexts] = useState<DataContext[]>([]);
+  const [dataContexts, setDataContexts] = useState<CodapIdentifyingInfo[]>([]);
 
   async function refreshTables() {
     setDataContexts(await getAllDataContexts());

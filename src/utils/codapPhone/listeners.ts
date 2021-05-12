@@ -10,7 +10,7 @@ export function removeNewContextListener(listener: () => void): void {
   newContextListeners = newContextListeners.filter((v) => v !== listener);
 }
 
-export function callAllContextListeners() {
+export function callAllContextListeners(): void {
   for (const f of newContextListeners) {
     f();
   }

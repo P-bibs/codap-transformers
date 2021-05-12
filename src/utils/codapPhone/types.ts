@@ -37,7 +37,11 @@ type GetListRequest = {
 type CreateContextRequest = {
   action: CodapActions.Create;
   resource: CodapResource.DataContext;
-  values: DataContext;
+  values: {
+    name: string;
+    title?: string;
+    collections: Collection[];
+  };
 };
 
 type CreateDataItemsRequest = {
@@ -75,6 +79,10 @@ interface GetDataResponse extends CodapResponse {
   }[];
 }
 
+export interface GetCasesResponse extends CodapResponse {
+  values: Case[];
+}
+
 export interface GetContextResponse extends CodapResponse {
   values: DataContext;
 }
@@ -88,6 +96,7 @@ export type CodapPhone = {
   call(r: GetListRequest, cb: (r: GetListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
   call(r: GetRequest, cb: (r: GetContextResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetCasesResponse) => void): void;
   call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
   call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
@@ -153,7 +162,7 @@ export interface DataContext {
   name: string;
   title?: string;
   description?: string;
-  collections: Collection[];
+  collections: ReturnedCollection[];
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#collections
@@ -170,6 +179,11 @@ export interface Collection {
     setOfCases?: string;
     setOfCasesWithArticle?: string;
   };
+}
+
+export interface ReturnedCollection extends Omit<Collection, "parent"> {
+  id: number;
+  parent?: number;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributes

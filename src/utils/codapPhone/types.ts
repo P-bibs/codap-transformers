@@ -148,7 +148,7 @@ export interface DataContext {
   name: string;
   title?: string;
   description?: string;
-  collections?: Collection[];
+  collections: Collection[];
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#collections

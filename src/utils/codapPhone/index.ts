@@ -118,8 +118,8 @@ function codapRequestHandler(
   }
 }
 
-export function getAllDataContexts(): Promise<DataContext[]> {
-  return new Promise<DataContext[]>((resolve, reject) =>
+export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {
+  return new Promise<CodapIdentifyingInfo[]>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Get,

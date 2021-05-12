@@ -62,6 +62,7 @@ export type CodapInitiatedCommand = {
   values?: any;
 };
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#datacontexts
 export interface DataContext {
   name: string;
   title?: string;
@@ -69,6 +70,7 @@ export interface DataContext {
   collections?: Collection[];
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#collections
 export interface Collection {
   name: string;
   title?: string;
@@ -83,6 +85,12 @@ export interface Collection {
     setOfCasesWithArticle?: string;
   };
 }
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributes
+export type CodapAttribute =
+  | BaseAttribute
+  | CategoricalAttribute
+  | NumericAttribute;
 
 export interface BaseAttribute {
   name: string;
@@ -117,16 +125,13 @@ export interface NumericAttribute extends BaseAttribute {
   };
 }
 
-export type CodapAttribute =
-  | BaseAttribute
-  | CategoricalAttribute
-  | NumericAttribute;
-
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributelocations
 export interface AttributeLocation {
   collection: string;
   position: number;
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#cases
 export interface Case {
   id: number;
   parent?: string;
@@ -134,8 +139,10 @@ export interface Case {
   values: Record<string, unknown>[];
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#selectionlists
 export type SelectionList = number[];
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#components
 export enum CodapComponentType {
   Graph = "graph",
   CaseTable = "caseTable",
@@ -158,6 +165,7 @@ export interface CodapComponent {
   position: "top" | "bottom" | { left: number; top: number };
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-graph-object
 export interface Graph extends CodapComponent {
   type: CodapComponentType.Graph;
   cannotClose: boolean;
@@ -170,6 +178,7 @@ export interface Graph extends CodapComponent {
   numberToggleLastMode: boolean;
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-casetable-object
 export interface CaseTable extends CodapComponent {
   type: CodapComponentType.CaseTable;
   cannotClose: boolean;
@@ -178,6 +187,7 @@ export interface CaseTable extends CodapComponent {
   isIndexHidden: boolean;
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-map-object
 export interface Map extends CodapComponent {
   type: CodapComponentType.Map;
   cannotClose: boolean;
@@ -187,6 +197,7 @@ export interface Map extends CodapComponent {
   zoom: number;
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-slider-object
 export interface Slider extends CodapComponent {
   type: CodapComponentType.Slider;
   cannotClose: boolean;
@@ -197,23 +208,27 @@ export interface Slider extends CodapComponent {
   upperBound: number;
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-calculator-object
 export interface Calculator extends CodapComponent {
   type: CodapComponentType.Calculator;
   cannotClose: boolean;
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-text-object
 export interface Text extends CodapComponent {
   type: CodapComponentType.Text;
   cannotClose: boolean;
   text: string;
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-webview-object
 export interface WebView extends CodapComponent {
   type: CodapComponentType.WebView;
   cannotClose: boolean;
   URL: string;
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-guide-object
 export interface Guide extends CodapComponent {
   type: CodapComponentType.Guide;
   cannotClose: boolean;

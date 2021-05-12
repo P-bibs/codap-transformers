@@ -66,36 +66,70 @@ export type CodapInitiatedCommand = {
   values?: any;
 };
 
-export type DataSetDescription = {
-  name: string;
-  id: number;
-  title: string;
-};
-
-interface BaseAttribute {
+export interface DataContext {
   name: string;
   title?: string;
-  colormap?: Record<string, string | undefined>;
+  description?: string;
+  collections: Collection[];
+}
+
+export interface Collection {
+  name: string;
+  title?: string;
+  description?: string;
+  parent: string;
+  attrs?: BaseAttribute[];
+  labels: {
+    singleCase?: string;
+    pluralCase?: string;
+    singleCaseWithArticle?: string;
+    setOfCases?: string;
+    setOfCasesWithArticle?: string;
+  };
+}
+
+export interface BaseAttribute {
+  name: string;
+  title?: string;
+  type?: "numeric" | "categorical";
+  colormap?:
+    | Record<string, string>
+    | {
+        "high-attribute-color": string;
+        "low-attribute-color": string;
+        "attribute-color": string;
+      };
   description?: string;
   editable?: boolean;
   formula?: string;
   hidden?: boolean;
 }
 
-interface CategoricalAttribute extends BaseAttribute {
+export interface CategoricalAttribute extends BaseAttribute {
   type: "categorical";
+  colormap?: Record<string, string>;
 }
 
-interface NumericAttribute extends BaseAttribute {
+export interface NumericAttribute extends BaseAttribute {
   type: "numeric";
   precision?: number;
   unit?: string;
+  colormap?: {
+    "high-attribute-color": string;
+    "low-attribute-color": string;
+    "attribute-color": string;
+  };
 }
 
 export type CodapAttribute =
   | BaseAttribute
   | CategoricalAttribute
   | NumericAttribute;
+
+export interface AttributeLocation {
+  collection: string;
+  position: number;
+}
 
 export enum CodapComponentType {
   Graph = "graph",

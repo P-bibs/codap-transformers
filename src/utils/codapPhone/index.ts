@@ -11,7 +11,7 @@ import {
   ContextChangeOperation,
   mutatingOperations,
   CodapInitiatedCommand,
-  DataSetDescription,
+  DataContext,
   CodapAttribute,
   CodapListResource,
   CodapComponent,
@@ -125,8 +125,8 @@ function codapRequestHandler(
   }
 }
 
-export function getAllDataContexts(): Promise<DataSetDescription[]> {
-  return new Promise<DataSetDescription[]>((resolve, reject) =>
+export function getAllDataContexts(): Promise<DataContext[]> {
+  return new Promise<DataContext[]>((resolve, reject) =>
     phone.call<CodapResponseValues>(
       {
         action: CodapActions.Get,
@@ -164,7 +164,7 @@ export function getDataFromContext(context: string) {
 function createBareDataset(name: string, attrs: CodapAttribute[]) {
   const newCollectionName = collectionNameFromContext(name);
 
-  return new Promise<DataSetDescription>((resolve, reject) =>
+  return new Promise<DataContext>((resolve, reject) =>
     phone.call<CodapResponseValues>(
       {
         action: CodapActions.Create,
@@ -184,7 +184,7 @@ function createBareDataset(name: string, attrs: CodapAttribute[]) {
       },
       (response) => {
         if (response.success) {
-          resolve(response.values as DataSetDescription);
+          resolve(response.values as DataContext);
         } else {
           reject(new Error("Failed to create dataset"));
         }
@@ -218,7 +218,7 @@ export async function createDataset(
   const newDatasetDescription = await createBareDataset(label, attrs);
 
   // return itemIDs
-  return new Promise<DataSetDescription>((resolve, reject) =>
+  return new Promise<DataContext>((resolve, reject) =>
     phone.call<CodapResponseItemIDs>(
       {
         action: CodapActions.Create,
@@ -290,7 +290,7 @@ export async function createTable(
         action: CodapActions.Create,
         resource: CodapResource.Component,
         values: {
-          type: CodapComponentType.Table,
+          type: CodapComponentType.CaseTable,
           name: name,
           dimensions: {
             width: DEFAULT_TABLE_WIDTH,
@@ -352,7 +352,7 @@ async function ensureUniqueName(
 export async function createTableWithData(
   data: Record<string, unknown>[],
   name?: string
-): Promise<[DataSetDescription, CaseTable]> {
+): Promise<[DataContext, CaseTable]> {
   let baseName;
   if (!name) {
     baseName = getNewName();

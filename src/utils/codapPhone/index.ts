@@ -4,6 +4,7 @@ import {
   CodapResource,
   CodapActions,
   CodapResponse,
+  GetContextResponse,
   CodapPhone,
   CodapInitiatedResource,
   ContextChangeOperation,
@@ -11,10 +12,8 @@ import {
   DocumentChangeOperations,
   CodapInitiatedCommand,
   DataContext,
-  CodapAttribute,
   CodapListResource,
   CodapIdentifyingInfo,
-  CodapComponent,
   CaseTable,
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
@@ -82,6 +81,7 @@ function codapRequestHandler(
   console.groupEnd();
 
   if (command.action !== CodapActions.Notify) {
+    callback({ success: true });
     return;
   }
 
@@ -91,6 +91,7 @@ function codapRequestHandler(
       DocumentChangeOperations.DataContextCountChanged
   ) {
     callAllContextListeners();
+    callback({ success: true });
     return;
   }
 
@@ -109,10 +110,12 @@ function codapRequestHandler(
       if (contextUpdateListeners[contextName]) {
         contextUpdateListeners[contextName]();
       }
+      callback({ success: true });
       return;
     }
     if (command.values[0].operation === ContextChangeOperation.UpdateContext) {
       callAllContextListeners();
+      callback({ success: true });
       return;
     }
   }
@@ -156,11 +159,29 @@ export function getDataFromContext(
   );
 }
 
-function createBareDataset(
-  name: string,
-  attrs: CodapAttribute[]
+function getDataContext(contextName: string): Promise<DataContext> {
+  return new Promise<DataContext>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: resourceFromContext(contextName),
+      },
+      (response: GetContextResponse) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error(`Failed to get context ${contextName}`));
+        }
+      }
+    )
+  );
+}
+
+async function cloneDataContext(
+  newContextName: string,
+  oldContextName: string
 ): Promise<DataContext> {
-  const newCollectionName = collectionNameFromContext(name);
+  const oldContext: DataContext = await getDataContext(oldContextName);
 
   return new Promise<DataContext>((resolve, reject) =>
     phone.call(
@@ -168,16 +189,12 @@ function createBareDataset(
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
         values: {
-          name: name,
-          collections: [
-            {
-              name: newCollectionName,
-              labels: {
-                singleCase: name,
-              },
-              attrs: attrs,
-            },
-          ],
+          name: newContextName,
+
+          // It's okay to reuse collection objects since the collection names
+          // need only be unique within a data context
+          // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-collection-create
+          collections: oldContext.collections,
         },
       },
       (response) => {
@@ -191,29 +208,13 @@ function createBareDataset(
   );
 }
 
-/**
- * Make CODAP attributes from given list of objects. Assumes objects have
- * the same fields
- */
-function makeAttrsFromData(data: Record<string, unknown>[]): CodapAttribute[] {
-  if (data.length === 0) {
-    return [];
-  }
-
-  return Object.keys(data[0]).map((key) => ({ name: key }));
-}
-
-export async function createDataset(
+export async function createContextWithData(
   label: string,
+  oldContextName: string,
   data: Record<string, unknown>[]
 ): Promise<DataContext> {
-  if (data.length === 0) {
-    return await createBareDataset(label, []);
-  }
-
   // Create a bare dataset and insert given data into it
-  const attrs = makeAttrsFromData(data);
-  const newDatasetDescription = await createBareDataset(label, attrs);
+  const newDatasetDescription = await cloneDataContext(label, oldContextName);
 
   // return itemIDs
   return new Promise<DataContext>((resolve, reject) =>
@@ -347,6 +348,7 @@ async function ensureUniqueName(
 }
 
 export async function createTableWithData(
+  inputContextName: string,
   data: Record<string, unknown>[],
   name?: string
 ): Promise<[DataContext, CaseTable]> {
@@ -372,7 +374,11 @@ export async function createTableWithData(
   );
 
   // Create context and table;
-  const newContext = await createDataset(contextName, data);
+  const newContext = await createContextWithData(
+    contextName,
+    inputContextName,
+    data
+  );
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];
 }

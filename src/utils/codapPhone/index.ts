@@ -1,6 +1,6 @@
 import { IframePhoneRpcEndpoint } from "iframe-phone";
 import {
-  CodapComponent,
+  CodapComponentType,
   CodapResource,
   CodapActions,
   CodapRequest,
@@ -12,7 +12,7 @@ import {
   ContextChangeOperation,
   mutatingOperations,
   CodapInitiatedCommand,
-  DataSetDescription,
+  DataContext,
   CodapAttribute,
 } from "./types";
 import { newContextListeners, contextUpdateListeners } from "./listeners";
@@ -156,7 +156,7 @@ function createBareDataset(label: string, attrs: CodapAttribute[]) {
   const newName = getNewName();
   const newCollectionName = collectionNameFromContext(newName);
 
-  return new Promise<DataSetDescription>((resolve, reject) =>
+  return new Promise<DataContext>((resolve, reject) =>
     phone.call<CodapResponseValues>(
       {
         action: CodapActions.Create,
@@ -176,7 +176,7 @@ function createBareDataset(label: string, attrs: CodapAttribute[]) {
       },
       (response) => {
         if (response.success) {
-          resolve(response.values as DataSetDescription);
+          resolve(response.values as DataContext);
         } else {
           reject(new Error("Failed to create dataset"));
         }
@@ -210,7 +210,7 @@ export async function createDataset(
   const newDatasetDescription = await createBareDataset(label, attrs);
 
   // return itemIDs
-  return new Promise<DataSetDescription>((resolve, reject) =>
+  return new Promise<DataContext>((resolve, reject) =>
     phone.call<CodapResponseItemIDs>(
       {
         action: CodapActions.Create,
@@ -279,7 +279,7 @@ export async function createTable(context: string) {
         action: CodapActions.Create,
         resource: CodapResource.Component,
         values: {
-          type: CodapComponent.Table,
+          type: CodapComponentType.CaseTable,
           name: getNewName(),
           dimensions: {
             width: DEFAULT_TABLE_WIDTH,

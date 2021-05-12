@@ -37,13 +37,17 @@ function resourceFromContext(context: string) {
   return `dataContext[${context}]`;
 }
 
+function resourceFromCollection(collection: string) {
+  return `collection[${collection}]`;
+}
+
 function itemFromContext(context: string) {
-  return `dataContext[${context}].item`;
+  return `${resourceFromContext(context)}.item`;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-item-get-by-search
 function itemSearchAllFromContext(context: string) {
-  return `dataContext[${context}].itemSearch[*]`;
+  return `${resourceFromContext(context)}.itemSearch[*]`;
 }
 
 function collectionNameFromContext(context: string) {
@@ -55,9 +59,10 @@ function caseFromContext(context: string) {
   return `dataContext[${context}].collection[${collectionName}].case`;
 }
 
-function allCasesFromContext(context: string) {
-  const collectionName = collectionNameFromContext(context);
-  return `dataContext[${context}].collection[${collectionName}].allCases`;
+// This only works for delete
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#cases
+function allCases(context: string, collection: string) {
+  return `dataContext[${context}].collection[${collection}].allCases`;
 }
 
 const getNewName = (function () {
@@ -239,7 +244,10 @@ export async function setContextItems(
   contextName: string,
   items: Record<string, unknown>[]
 ): Promise<void> {
-  await deleteAllCases(contextName);
+  const context = await getDataContext(contextName);
+  for (const collection of context.collections) {
+    await deleteAllCases(contextName, collection.name);
+  }
 
   return new Promise<void>((resolve, reject) =>
     phone.call(
@@ -259,12 +267,15 @@ export async function setContextItems(
   );
 }
 
-export async function deleteAllCases(context: string): Promise<void> {
+export async function deleteAllCases(
+  context: string,
+  collection: string
+): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Delete,
-        resource: allCasesFromContext(context),
+        resource: allCases(context, collection),
       },
       (response) => {
         if (response.success) {

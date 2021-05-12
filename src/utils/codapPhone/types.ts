@@ -2,6 +2,8 @@ export enum CodapResource {
   DataContext = "dataContext",
   DataContextList = "dataContextList",
   Component = "component",
+  Collection = "collection",
+  CollectionList = "collectionList",
 }
 
 export enum CodapActions {
@@ -124,6 +126,15 @@ export interface AttributeLocation {
   collection: string;
   position: number;
 }
+
+export interface Case {
+  id: number;
+  parent?: string;
+  collection?: Collection;
+  values: Record<string, unknown>[];
+}
+
+export type SelectionList = number[];
 
 export enum CodapComponentType {
   Graph = "graph",

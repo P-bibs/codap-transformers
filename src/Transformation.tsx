@@ -6,7 +6,6 @@ import Error from "./Error";
 import {
   getAllDataContexts,
   getDataFromContext,
-  createTable,
   setContextItems,
   addNewContextListener,
   removeNewContextListener,

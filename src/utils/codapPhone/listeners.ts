@@ -10,6 +10,12 @@ export function removeNewContextListener(listener: () => void) {
   newContextListeners = newContextListeners.filter((v) => v !== listener);
 }
 
+export function callAllContextListeners() {
+  for (const f of newContextListeners) {
+    f();
+  }
+}
+
 // Listen for data context updates
 
 export const contextUpdateListeners: Record<string, () => void | undefined> =

@@ -1,4 +1,4 @@
-export enum CodapComponent {
+export enum CodapComponentType {
   Graph = "graph",
   Table = "caseTable",
   Map = "map",
@@ -8,6 +8,11 @@ export enum CodapResource {
   DataContext = "dataContext",
   DataContextList = "dataContextList",
   Component = "component",
+}
+
+export enum CodapListResource {
+  DataContextList = "dataContextList",
+  ComponentList = "componentList",
 }
 
 export enum CodapActions {
@@ -52,6 +57,7 @@ export enum ContextChangeOperation {
   CreateCases = "createCases",
   DeleteCases = "deleteCases",
   SelectCases = "selectCases",
+  UpdateContext = "updateDataContext",
 }
 
 export const mutatingOperations = [
@@ -96,3 +102,22 @@ export type CodapAttribute =
   | BaseAttribute
   | CategoricalAttribute
   | NumericAttribute;
+
+// There are many possible component types, but they all have these fields in common
+export interface CodapComponent {
+  type: string;
+  name: string;
+  title?: string;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+}
+export interface CaseTable extends CodapComponent {
+  type: "caseTable";
+  position?: string;
+  cannotClose?: boolean;
+  dataContext: string;
+  horizontalScrollOffset?: number;
+  isIndexHidden?: boolean;
+}

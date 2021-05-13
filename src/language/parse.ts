@@ -39,7 +39,7 @@ export function getBindingPower(op: Token): number {
  */
 function isBuiltin(name: string): boolean {
   // ... add built-in names here as we extend
-  return ["row"].includes(name);
+  return ["attr"].includes(name);
 }
 
 /**
@@ -113,7 +113,7 @@ export function parseExpr(tokens: Token[], currentBindingPower: number): Ast {
   // Find the parselet that corresponds to the intial token
   const initialParselet = prefixParseletMap(initialToken);
   if (!initialParselet) {
-    throw new Error(`Unexpected token: ${initialToken}`);
+    throw new Error(`Unexpected token: ${initialToken.kind}`);
   }
 
   // Invoke the initial parselet

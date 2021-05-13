@@ -121,10 +121,10 @@ test("interprets logic correctly", () => {
   expect(interpret(ast)).toStrictEqual({ kind: "Bool", content: false });
 });
 
-test("uses row built-in to access non-identifier attribute names in env", () => {
+test("uses attr() built-in to access non-identifier attribute names in env", () => {
   const ast: Ast = {
     kind: "Builtin",
-    name: "row",
+    name: "attr",
     args: [{ kind: "String", content: "Attribute name with spaces" }],
   };
 

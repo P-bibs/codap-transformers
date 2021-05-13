@@ -34,7 +34,7 @@ function interpretExpr(expr: Ast, env: Env): Value {
       return interpretUnop(expr.op, expr.op1, env);
     case "Identifier":
       if (!env[expr.content]) {
-        throw new Error(`Unknown column name: ${expr.content}`);
+        throw new Error(`Unknown attribute name: ${expr.content}`);
       }
       return env[expr.content];
     case "Number":
@@ -103,19 +103,23 @@ function interpretUnop(op: UnaryOperator, op1: Ast, env: Env): Value {
 
 function interpretBuiltin(name: Builtin, args: Ast[], env: Env): Value {
   switch (name) {
-    case "row": {
+    case "attr": {
       if (args.length != 1) {
-        throw new Error("row() expects exactly 1 argument (a column name)");
+        throw new Error(
+          "attr() expects exactly 1 argument (an attribute name)"
+        );
       }
       const attr = args[0];
       if (attr.kind !== "String") {
-        throw new Error(`Expected a column name given to row()`);
+        throw new Error(`Expected an attribute name given to attr()`);
       }
       if (!env[attr.content]) {
-        throw new Error(`Unknown column name "${attr.content}" given to row()`);
+        throw new Error(
+          `Unknown attribute name "${attr.content}" given to attr()`
+        );
       }
 
-      // lookup column name in environment
+      // lookup attribute name in environment
       return env[attr.content];
     }
   }

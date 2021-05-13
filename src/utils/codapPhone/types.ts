@@ -207,6 +207,8 @@ export interface BaseAttribute {
   editable?: boolean;
   formula?: string;
   hidden?: boolean;
+  precision?: number;
+  unit?: string;
 }
 
 export interface CategoricalAttribute extends BaseAttribute {

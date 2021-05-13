@@ -192,14 +192,20 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
       )?.name;
     }
 
-    // Include only name, title, and type of the collection's attributes
+    // Only copy the non-internal fields from the collection's attributes
     // In particular, exclude `cid` from attributes
     const attrs = c.attrs?.map((attr) => {
       return {
         name: attr.name,
         title: attr.title,
         type: attr.type,
+        colormap: attr.colormap,
+        description: attr.description,
+        editable: attr.editable,
         formula: attr.formula,
+        hidden: attr.hidden,
+        precision: attr.precision,
+        unit: attr.unit,
       };
     });
 

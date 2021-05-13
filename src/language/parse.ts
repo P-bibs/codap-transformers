@@ -39,7 +39,7 @@ export function getBindingPower(op: Token): number {
  */
 function isBuiltin(name: string): boolean {
   // ... add built-in names here as we extend
-  return ["attr"].includes(name);
+  return ["isNegative"].includes(name);
 }
 
 /**

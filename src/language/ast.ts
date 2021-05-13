@@ -20,7 +20,7 @@ export type Operator =
 
 export type UnaryOperator = "not";
 
-export type Builtin = "attr";
+export type Builtin = "isNegative";
 
 export type Value =
   | { kind: "Num"; content: number }

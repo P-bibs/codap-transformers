@@ -103,24 +103,37 @@ function interpretUnop(op: UnaryOperator, op1: Ast, env: Env): Value {
 
 function interpretBuiltin(name: Builtin, args: Ast[], env: Env): Value {
   switch (name) {
-    case "attr": {
+    case "isNegative": {
       if (args.length != 1) {
-        throw new Error(
-          "attr() expects exactly 1 argument (an attribute name)"
-        );
-      }
-      const attr = args[0];
-      if (attr.kind !== "String") {
-        throw new Error(`Expected an attribute name given to attr()`);
-      }
-      if (!env[attr.content]) {
-        throw new Error(
-          `Unknown attribute name "${attr.content}" given to attr()`
-        );
+        throw new Error("isNegative expects exactly 1 argument");
       }
 
-      // lookup attribute name in environment
-      return env[attr.content];
+      const argValue = interpretExpr(args[0], env);
+      if (argValue.kind !== "Num") {
+        throw new Error(`isNegative expected a number, got a ${argValue.kind}`);
+      }
+
+      return { kind: "Bool", content: argValue.content < 0 };
     }
+
+    // case "attr": {
+    //   if (args.length != 1) {
+    //     throw new Error(
+    //       "attr() expects exactly 1 argument (an attribute name)"
+    //     );
+    //   }
+    //   const attr = args[0];
+    //   if (attr.kind !== "String") {
+    //     throw new Error(`Expected an attribute name given to attr()`);
+    //   }
+    //   if (!env[attr.content]) {
+    //     throw new Error(
+    //       `Unknown attribute name "${attr.content}" given to attr()`
+    //     );
+    //   }
+
+    //   // lookup attribute name in environment
+    //   return env[attr.content];
+    // }
   }
 }

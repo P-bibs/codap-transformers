@@ -192,6 +192,7 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
       )?.name;
     }
     normalized.push({
+      id: c.id,
       name: c.name,
       title: c.title,
       attrs: c.attrs,

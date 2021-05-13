@@ -199,7 +199,8 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
         name: attr.name,
         title: attr.title,
         type: attr.type,
-      }
+        formula: attr.formula,
+      };
     });
 
     normalized.push({

@@ -22,6 +22,12 @@ test("parses identifiers", () => {
   ]);
 });
 
+test("parses long/non-alphanumeric identifiers within backticks", () => {
+  expect(lex("`this is a long attribute name !@*#&$`")).toStrictEqual([
+    { kind: "IDENTIFIER", content: "this is a long attribute name !@*#&$" },
+  ]);
+});
+
 test("ignores whitespace", () => {
   expect(lex("1 +             2")).toStrictEqual([
     { kind: "NUMBER", content: 1 },

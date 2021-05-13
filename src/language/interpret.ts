@@ -115,25 +115,5 @@ function interpretBuiltin(name: Builtin, args: Ast[], env: Env): Value {
 
       return { kind: "Bool", content: argValue.content < 0 };
     }
-
-    // case "attr": {
-    //   if (args.length != 1) {
-    //     throw new Error(
-    //       "attr() expects exactly 1 argument (an attribute name)"
-    //     );
-    //   }
-    //   const attr = args[0];
-    //   if (attr.kind !== "String") {
-    //     throw new Error(`Expected an attribute name given to attr()`);
-    //   }
-    //   if (!env[attr.content]) {
-    //     throw new Error(
-    //       `Unknown attribute name "${attr.content}" given to attr()`
-    //     );
-    //   }
-
-    //   // lookup attribute name in environment
-    //   return env[attr.content];
-    // }
   }
 }

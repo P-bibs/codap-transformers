@@ -191,14 +191,26 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
         (collection) => collection.id === c.parent
       )?.name;
     }
+
+    // Include only name, title, and type of the collection's attributes
+    // In particular, exclude `cid` from attributes
+    const attrs = c.attrs?.map((attr) => {
+      return {
+        name: attr.name,
+        title: attr.title,
+        type: attr.type,
+      }
+    });
+
     normalized.push({
       name: c.name,
       title: c.title,
-      attrs: c.attrs,
+      attrs,
       labels: c.labels,
       parent: newParent,
     });
   }
+
   return normalized;
 }
 
@@ -410,6 +422,7 @@ export async function createTableWithData(
     inputContextName,
     data
   );
+
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];
 }

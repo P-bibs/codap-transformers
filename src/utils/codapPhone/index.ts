@@ -204,8 +204,8 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
         editable: attr.editable,
         formula: attr.formula,
         hidden: attr.hidden,
-        precision: attr.precision,
-        unit: attr.unit,
+        precision: attr.type === "numeric" ? attr.precision : undefined,
+        unit: attr.type === "numeric" ? attr.unit : undefined,
       };
     });
 
@@ -218,7 +218,7 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
     });
   }
 
-  return normalized;
+  return normalized as Collection[];
 }
 
 async function cloneDataContext(

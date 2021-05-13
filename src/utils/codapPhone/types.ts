@@ -171,7 +171,7 @@ export interface Collection {
   title?: string;
   description?: string;
   parent?: string;
-  attrs?: BaseAttribute[];
+  attrs?: CodapAttribute[];
   labels: {
     singleCase?: string;
     pluralCase?: string;
@@ -192,10 +192,9 @@ export type CodapAttribute =
   | CategoricalAttribute
   | NumericAttribute;
 
-export interface BaseAttribute {
+export interface RawAttribute {
   name: string;
   title?: string;
-  type?: "numeric" | "categorical";
   colormap?:
     | Record<string, string>
     | {
@@ -207,17 +206,19 @@ export interface BaseAttribute {
   editable?: boolean;
   formula?: string;
   hidden?: boolean;
-  precision?: number;
-  unit?: string;
 }
 
-export interface CategoricalAttribute extends BaseAttribute {
-  type: "categorical";
+export interface BaseAttribute extends RawAttribute {
+  type?: undefined;
+}
+
+export interface CategoricalAttribute extends RawAttribute {
+  type?: "categorical";
   colormap?: Record<string, string>;
 }
 
-export interface NumericAttribute extends BaseAttribute {
-  type: "numeric";
+export interface NumericAttribute extends RawAttribute {
+  type?: "numeric";
   precision?: number;
   unit?: string;
   colormap?: {

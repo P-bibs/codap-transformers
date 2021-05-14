@@ -151,7 +151,10 @@ function Transformation(): ReactElement {
           }
           setContextItems(lastContextName, newData);
         } else {
-          const [newContext, _newTable] = await createTableWithData(newData);
+          const [newContext, _newTable] = await createTableWithData(
+            inputDataCtxt,
+            newData
+          );
           setLastContextName(newContext.name);
         }
       } catch (e) {

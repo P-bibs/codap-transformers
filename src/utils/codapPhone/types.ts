@@ -24,7 +24,7 @@ type GetContextListRequest = {
   resource: CodapResource.DataContextList;
 };
 
-type GetDataRequest = {
+type GetRequest = {
   action: CodapActions.Get;
   resource: string;
 };
@@ -37,7 +37,11 @@ type GetListRequest = {
 type CreateContextRequest = {
   action: CodapActions.Create;
   resource: CodapResource.DataContext;
-  values: DataContext;
+  values: {
+    name: string;
+    title?: string;
+    collections: Collection[];
+  };
 };
 
 type CreateDataItemsRequest = {
@@ -75,6 +79,14 @@ interface GetDataResponse extends CodapResponse {
   }[];
 }
 
+export interface GetCasesResponse extends CodapResponse {
+  values: Case[];
+}
+
+export interface GetContextResponse extends CodapResponse {
+  values: DataContext;
+}
+
 interface TableResponse extends CodapResponse {
   values: CaseTable;
 }
@@ -82,7 +94,9 @@ interface TableResponse extends CodapResponse {
 export type CodapPhone = {
   call(r: GetContextListRequest, cb: (r: GetListResponse) => void): void;
   call(r: GetListRequest, cb: (r: GetListResponse) => void): void;
-  call(r: GetDataRequest, cb: (r: GetDataResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetContextResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetCasesResponse) => void): void;
   call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
   call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
@@ -148,7 +162,7 @@ export interface DataContext {
   name: string;
   title?: string;
   description?: string;
-  collections: Collection[];
+  collections: ReturnedCollection[];
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#collections
@@ -157,7 +171,7 @@ export interface Collection {
   title?: string;
   description?: string;
   parent?: string;
-  attrs?: BaseAttribute[];
+  attrs?: CodapAttribute[];
   labels: {
     singleCase?: string;
     pluralCase?: string;
@@ -167,16 +181,20 @@ export interface Collection {
   };
 }
 
+export interface ReturnedCollection extends Omit<Collection, "parent"> {
+  id: number;
+  parent?: number;
+}
+
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributes
 export type CodapAttribute =
   | BaseAttribute
   | CategoricalAttribute
   | NumericAttribute;
 
-export interface BaseAttribute {
+export interface RawAttribute {
   name: string;
   title?: string;
-  type?: "numeric" | "categorical";
   colormap?:
     | Record<string, string>
     | {
@@ -190,13 +208,17 @@ export interface BaseAttribute {
   hidden?: boolean;
 }
 
-export interface CategoricalAttribute extends BaseAttribute {
-  type: "categorical";
+export interface BaseAttribute extends RawAttribute {
+  type?: undefined;
+}
+
+export interface CategoricalAttribute extends RawAttribute {
+  type?: "categorical";
   colormap?: Record<string, string>;
 }
 
-export interface NumericAttribute extends BaseAttribute {
-  type: "numeric";
+export interface NumericAttribute extends RawAttribute {
+  type?: "numeric";
   precision?: number;
   unit?: string;
   colormap?: {

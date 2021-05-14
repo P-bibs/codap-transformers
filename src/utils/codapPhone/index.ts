@@ -4,12 +4,15 @@ import {
   CodapResource,
   CodapActions,
   CodapResponse,
+  GetContextResponse,
   CodapPhone,
   CodapInitiatedResource,
   ContextChangeOperation,
   mutatingOperations,
   DocumentChangeOperations,
   CodapInitiatedCommand,
+  Collection,
+  ReturnedCollection,
   DataContext,
   CodapAttribute,
   CodapListResource,
@@ -38,27 +41,23 @@ function resourceFromContext(context: string) {
   return `dataContext[${context}]`;
 }
 
+function resourceFromCollection(collection: string) {
+  return `collection[${collection}]`;
+}
+
 function itemFromContext(context: string) {
-  return `dataContext[${context}].item`;
+  return `${resourceFromContext(context)}.item`;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-item-get-by-search
 function itemSearchAllFromContext(context: string) {
-  return `dataContext[${context}].itemSearch[*]`;
+  return `${resourceFromContext(context)}.itemSearch[*]`;
 }
 
-function collectionNameFromContext(context: string) {
-  return `${context}_collection`;
-}
-
-function caseFromContext(context: string) {
-  const collectionName = collectionNameFromContext(context);
-  return `dataContext[${context}].collection[${collectionName}].case`;
-}
-
-function allCasesFromContext(context: string) {
-  const collectionName = collectionNameFromContext(context);
-  return `dataContext[${context}].collection[${collectionName}].allCases`;
+// This only works for delete
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#cases
+function allCases(context: string, collection: string) {
+  return `dataContext[${context}].collection[${collection}].allCases`;
 }
 
 const getNewName = (function () {
@@ -82,6 +81,7 @@ function codapRequestHandler(
   console.groupEnd();
 
   if (command.action !== CodapActions.Notify) {
+    callback({ success: true });
     return;
   }
 
@@ -91,6 +91,7 @@ function codapRequestHandler(
       DocumentChangeOperations.DataContextCountChanged
   ) {
     callAllContextListeners();
+    callback({ success: true });
     return;
   }
 
@@ -109,10 +110,12 @@ function codapRequestHandler(
       if (contextUpdateListeners[contextName]) {
         contextUpdateListeners[contextName]();
       }
+      callback({ success: true });
       return;
     }
     if (command.values[0].operation === ContextChangeOperation.UpdateContext) {
       callAllContextListeners();
+      callback({ success: true });
       return;
     }
   }
@@ -156,11 +159,75 @@ export function getDataFromContext(
   );
 }
 
-function createBareDataset(
-  name: string,
-  attrs: CodapAttribute[]
+// export async function getAllCasesFromContext(contextName: string) {
+//   const context = await getDataContext(contextName);
+//   return new Promise<unknown>((resolve, reject) => phone.call);
+// }
+
+function getDataContext(contextName: string): Promise<DataContext> {
+  return new Promise<DataContext>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: resourceFromContext(contextName),
+      },
+      (response: GetContextResponse) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error(`Failed to get context ${contextName}`));
+        }
+      }
+    )
+  );
+}
+
+// In the returned collections, parents show up as numeric ids, so before
+// reusing, we need to look up the names of the parent collections.
+function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
+  const normalized = [];
+  for (const c of collections) {
+    let newParent;
+    if (c.parent) {
+      newParent = collections.find(
+        (collection) => collection.id === c.parent
+      )?.name;
+    }
+
+    // Only copy the non-internal fields from the collection's attributes
+    // In particular, exclude `cid` from attributes
+    const attrs = c.attrs?.map((attr) => {
+      return {
+        name: attr.name,
+        title: attr.title,
+        type: attr.type,
+        colormap: attr.colormap,
+        description: attr.description,
+        editable: attr.editable,
+        formula: attr.formula,
+        hidden: attr.hidden,
+        precision: attr.type === "numeric" ? attr.precision : undefined,
+        unit: attr.type === "numeric" ? attr.unit : undefined,
+      };
+    });
+
+    normalized.push({
+      name: c.name,
+      title: c.title,
+      attrs,
+      labels: c.labels,
+      parent: newParent,
+    });
+  }
+
+  return normalized as Collection[];
+}
+
+async function cloneDataContext(
+  newContextName: string,
+  oldContextName: string
 ): Promise<DataContext> {
-  const newCollectionName = collectionNameFromContext(name);
+  const oldContext: DataContext = await getDataContext(oldContextName);
 
   return new Promise<DataContext>((resolve, reject) =>
     phone.call(
@@ -168,16 +235,12 @@ function createBareDataset(
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
         values: {
-          name: name,
-          collections: [
-            {
-              name: newCollectionName,
-              labels: {
-                singleCase: name,
-              },
-              attrs: attrs,
-            },
-          ],
+          name: newContextName,
+
+          // It's okay to reuse collections since the collection names
+          // need only be unique within a data context
+          // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-collection-create
+          collections: normalizeParentNames(oldContext.collections),
         },
       },
       (response) => {
@@ -191,29 +254,13 @@ function createBareDataset(
   );
 }
 
-/**
- * Make CODAP attributes from given list of objects. Assumes objects have
- * the same fields
- */
-function makeAttrsFromData(data: Record<string, unknown>[]): CodapAttribute[] {
-  if (data.length === 0) {
-    return [];
-  }
-
-  return Object.keys(data[0]).map((key) => ({ name: key }));
-}
-
-export async function createDataset(
+export async function createContextWithData(
   label: string,
+  oldContextName: string,
   data: Record<string, unknown>[]
 ): Promise<DataContext> {
-  if (data.length === 0) {
-    return await createBareDataset(label, []);
-  }
-
   // Create a bare dataset and insert given data into it
-  const attrs = makeAttrsFromData(data);
-  const newDatasetDescription = await createBareDataset(label, attrs);
+  const newDatasetDescription = await cloneDataContext(label, oldContextName);
 
   // return itemIDs
   return new Promise<DataContext>((resolve, reject) =>
@@ -238,7 +285,10 @@ export async function setContextItems(
   contextName: string,
   items: Record<string, unknown>[]
 ): Promise<void> {
-  await deleteAllCases(contextName);
+  const context = await getDataContext(contextName);
+  for (const collection of context.collections) {
+    await deleteAllCases(contextName, collection.name);
+  }
 
   return new Promise<void>((resolve, reject) =>
     phone.call(
@@ -258,12 +308,15 @@ export async function setContextItems(
   );
 }
 
-export async function deleteAllCases(context: string): Promise<void> {
+export async function deleteAllCases(
+  context: string,
+  collection: string
+): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Delete,
-        resource: allCasesFromContext(context),
+        resource: allCases(context, collection),
       },
       (response) => {
         if (response.success) {
@@ -347,6 +400,7 @@ async function ensureUniqueName(
 }
 
 export async function createTableWithData(
+  inputContextName: string,
   data: Record<string, unknown>[],
   name?: string
 ): Promise<[DataContext, CaseTable]> {
@@ -372,7 +426,12 @@ export async function createTableWithData(
   );
 
   // Create context and table;
-  const newContext = await createDataset(contextName, data);
+  const newContext = await createContextWithData(
+    contextName,
+    inputContextName,
+    data
+  );
+
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];
 }

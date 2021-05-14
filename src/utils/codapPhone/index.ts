@@ -164,7 +164,7 @@ export function getDataFromContext(
 //   return new Promise<unknown>((resolve, reject) => phone.call);
 // }
 
-function getDataContext(contextName: string): Promise<DataContext> {
+export function getDataContext(contextName: string): Promise<DataContext> {
   return new Promise<DataContext>((resolve, reject) =>
     phone.call(
       {

@@ -1,13 +1,9 @@
-export enum CodapComponentType {
-  Graph = "graph",
-  Table = "caseTable",
-  Map = "map",
-}
-
 export enum CodapResource {
   DataContext = "dataContext",
   DataContextList = "dataContextList",
   Component = "component",
+  Collection = "collection",
+  CollectionList = "collectionList",
 }
 
 export enum CodapListResource {
@@ -23,26 +19,74 @@ export enum CodapActions {
   Notify = "notify",
 }
 
-export type CodapRequest = {
-  action: CodapActions;
+type GetContextListRequest = {
+  action: CodapActions.Get;
+  resource: CodapResource.DataContextList;
+};
+
+type GetDataRequest = {
+  action: CodapActions.Get;
   resource: string;
-  values?: any;
+};
+
+type GetListRequest = {
+  action: CodapActions.Get;
+  resource: CodapListResource;
+};
+
+type CreateContextRequest = {
+  action: CodapActions.Create;
+  resource: CodapResource.DataContext;
+  values: DataContext;
+};
+
+type CreateDataItemsRequest = {
+  action: CodapActions.Create;
+  resource: string;
+  values: Record<string, unknown>[];
+};
+
+type DeleteRequest = {
+  action: CodapActions.Delete;
+  resource: string;
+};
+
+type CreateTableRequest = {
+  action: CodapActions.Create;
+  resource: CodapResource.Component;
+  values: CaseTable;
 };
 
 export interface CodapResponse {
   success: boolean;
 }
 
-export interface CodapResponseValues extends CodapResponse {
-  values?: any;
+interface CreateContextResponse extends CodapResponse {
+  values: DataContext;
 }
 
-export interface CodapResponseItemIDs extends CodapResponse {
-  itemIDs?: string[];
+interface GetListResponse extends CodapResponse {
+  values: CodapIdentifyingInfo[];
+}
+
+interface GetDataResponse extends CodapResponse {
+  values: {
+    values: Record<string, unknown>;
+  }[];
+}
+
+interface TableResponse extends CodapResponse {
+  values: CaseTable;
 }
 
 export type CodapPhone = {
-  call<T extends CodapResponse>(r: CodapRequest, cb: (r: T) => any): void;
+  call(r: GetContextListRequest, cb: (r: GetListResponse) => void): void;
+  call(r: GetListRequest, cb: (r: GetListResponse) => void): void;
+  call(r: GetDataRequest, cb: (r: GetDataResponse) => void): void;
+  call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
+  call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;
+  call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
+  call(r: CreateTableRequest, cb: (r: TableResponse) => void): void;
 };
 
 export enum CodapInitiatedResource {
@@ -66,58 +110,223 @@ export const mutatingOperations = [
   ContextChangeOperation.DeleteCases,
 ];
 
-export type CodapInitiatedCommand = {
-  action: CodapActions;
-  resource: string;
-  values?: any;
-};
+export enum DocumentChangeOperations {
+  DataContextCountChanged = "dataContextCountChanged",
+}
 
-export type DataSetDescription = {
-  name: string;
-  id: number;
-  title: string;
-};
+export type CodapInitiatedCommand =
+  | {
+      action: CodapActions.Get;
+      resource: CodapInitiatedResource.InteractiveState;
+    }
+  | {
+      action: CodapActions.Notify;
+      resource: CodapInitiatedResource.UndoChangeNotice;
+      values: {
+        operation: string;
+        canUndo: boolean;
+        canRedo: boolean;
+      };
+    }
+  | {
+      action: CodapActions.Notify;
+      resource: CodapInitiatedResource.DocumentChangeNotice;
+      values: {
+        operation: DocumentChangeOperations;
+      };
+    }
+  | {
+      action: CodapActions.Notify;
+      resource: CodapInitiatedResource.DataContextChangeNotice;
+      values: {
+        operation: ContextChangeOperation;
+      }[];
+    };
 
-interface BaseAttribute {
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#datacontexts
+export interface DataContext {
   name: string;
   title?: string;
-  colormap?: Record<string, string | undefined>;
+  description?: string;
+  collections: Collection[];
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#collections
+export interface Collection {
+  name: string;
+  title?: string;
+  description?: string;
+  parent?: string;
+  attrs?: BaseAttribute[];
+  labels: {
+    singleCase?: string;
+    pluralCase?: string;
+    singleCaseWithArticle?: string;
+    setOfCases?: string;
+    setOfCasesWithArticle?: string;
+  };
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributes
+export type CodapAttribute =
+  | BaseAttribute
+  | CategoricalAttribute
+  | NumericAttribute;
+
+export interface BaseAttribute {
+  name: string;
+  title?: string;
+  type?: "numeric" | "categorical";
+  colormap?:
+    | Record<string, string>
+    | {
+        "high-attribute-color": string;
+        "low-attribute-color": string;
+        "attribute-color": string;
+      };
   description?: string;
   editable?: boolean;
   formula?: string;
   hidden?: boolean;
 }
 
-interface CategoricalAttribute extends BaseAttribute {
+export interface CategoricalAttribute extends BaseAttribute {
   type: "categorical";
+  colormap?: Record<string, string>;
 }
 
-interface NumericAttribute extends BaseAttribute {
+export interface NumericAttribute extends BaseAttribute {
   type: "numeric";
   precision?: number;
   unit?: string;
+  colormap?: {
+    "high-attribute-color": string;
+    "low-attribute-color": string;
+    "attribute-color": string;
+  };
 }
 
-export type CodapAttribute =
-  | BaseAttribute
-  | CategoricalAttribute
-  | NumericAttribute;
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributelocations
+export interface AttributeLocation {
+  collection: string;
+  position: number;
+}
 
-// There are many possible component types, but they all have these fields in common
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#cases
+export interface Case {
+  id: number;
+  parent?: string;
+  collection?: Collection;
+  values: Record<string, unknown>[];
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#selectionlists
+export type SelectionList = number[];
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#components
+export enum CodapComponentType {
+  Graph = "graph",
+  CaseTable = "caseTable",
+  Map = "map",
+  Slider = "slider",
+  Calculator = "calculator",
+  Text = "text",
+  WebView = "webView",
+  Guide = "guideView",
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-collection-list-get
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-get-data-context-list
+export type CodapIdentifyingInfo = {
+  id: number;
+  name: string;
+  title: string;
+};
+
+type CodapPosition = "top" | "bottom" | { left: number; top: number };
+
 export interface CodapComponent {
-  type: string;
+  type: CodapComponentType;
   name: string;
   title?: string;
   dimensions: {
     width: number;
     height: number;
   };
+  position?: CodapPosition;
 }
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-graph-object
+export interface Graph extends CodapComponent {
+  type: CodapComponentType.Graph;
+  cannotClose: boolean;
+  dataContext: string;
+  xAttributeName: string;
+  yAttributeName: string;
+  y2AttributeName: string;
+  legendAttributeName: string;
+  enableNumberToggle: boolean;
+  numberToggleLastMode: boolean;
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-casetable-object
 export interface CaseTable extends CodapComponent {
-  type: "caseTable";
-  position?: string;
+  type: CodapComponentType.CaseTable;
   cannotClose?: boolean;
   dataContext: string;
   horizontalScrollOffset?: number;
   isIndexHidden?: boolean;
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-map-object
+export interface Map extends CodapComponent {
+  type: CodapComponentType.Map;
+  cannotClose: boolean;
+  dataContext: string;
+  legendAttributeName: string;
+  center: [number, number];
+  zoom: number;
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-slider-object
+export interface Slider extends CodapComponent {
+  type: CodapComponentType.Slider;
+  cannotClose: boolean;
+  globalValueName: string;
+  animationDirection: number;
+  animationMode: number;
+  lowerBound: number;
+  upperBound: number;
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-calculator-object
+export interface Calculator extends CodapComponent {
+  type: CodapComponentType.Calculator;
+  cannotClose: boolean;
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-text-object
+export interface Text extends CodapComponent {
+  type: CodapComponentType.Text;
+  cannotClose: boolean;
+  text: string;
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-webview-object
+export interface WebView extends CodapComponent {
+  type: CodapComponentType.WebView;
+  cannotClose: boolean;
+  URL: string;
+}
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-guide-object
+export interface Guide extends CodapComponent {
+  type: CodapComponentType.Guide;
+  cannotClose: boolean;
+  isVisible: boolean;
+  currentItemIndex: number;
+  items: {
+    itemTitle: string;
+    url: string;
+  }[];
 }

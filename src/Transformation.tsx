@@ -133,7 +133,9 @@ function Transformation(): ReactElement {
           const result = evaluate(transformPgrm, dataEnv);
 
           if (result.kind !== "Bool") {
-            setErrMsg(`Expected boolean output, instead got ${result.kind}.`);
+            setErrMsg(
+              `Expected filter condition to evaluate to true/false, instead got a ${result.kind}`
+            );
             return;
           }
           // include in filter if expression evaluated to true

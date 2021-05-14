@@ -34,7 +34,7 @@ function interpretExpr(expr: Ast, env: Env): Value {
       return interpretUnop(expr.op, expr.op1, env);
     case "Identifier":
       if (!env[expr.content]) {
-        throw new Error(`Unknown column name: ${expr.content}`);
+        throw new Error(`Unknown attribute name: ${expr.content}`);
       }
       return env[expr.content];
     case "Number":
@@ -103,20 +103,17 @@ function interpretUnop(op: UnaryOperator, op1: Ast, env: Env): Value {
 
 function interpretBuiltin(name: Builtin, args: Ast[], env: Env): Value {
   switch (name) {
-    case "row": {
+    case "isNegative": {
       if (args.length != 1) {
-        throw new Error("row() expects exactly 1 argument (a column name)");
-      }
-      const attr = args[0];
-      if (attr.kind !== "String") {
-        throw new Error(`Expected a column name given to row()`);
-      }
-      if (!env[attr.content]) {
-        throw new Error(`Unknown column name "${attr.content}" given to row()`);
+        throw new Error("isNegative expects exactly 1 argument");
       }
 
-      // lookup column name in environment
-      return env[attr.content];
+      const argValue = interpretExpr(args[0], env);
+      if (argValue.kind !== "Num") {
+        throw new Error(`isNegative expected a number, got a ${argValue.kind}`);
+      }
+
+      return { kind: "Bool", content: argValue.content < 0 };
     }
   }
 }

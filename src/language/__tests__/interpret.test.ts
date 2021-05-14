@@ -121,16 +121,19 @@ test("interprets logic correctly", () => {
   expect(interpret(ast)).toStrictEqual({ kind: "Bool", content: false });
 });
 
-test("uses row built-in to access non-identifier attribute names in env", () => {
+test("interprets built-ins", () => {
   const ast: Ast = {
     kind: "Builtin",
-    name: "row",
-    args: [{ kind: "String", content: "Attribute name with spaces" }],
+    name: "isNegative",
+    args: [
+      {
+        kind: "Binop",
+        op: "+",
+        op1: { kind: "Number", content: 7 },
+        op2: { kind: "Number", content: -150 },
+      },
+    ],
   };
 
-  const env: Env = {
-    "Attribute name with spaces": { kind: "Num", content: 17 },
-  };
-
-  expect(interpret(ast, env)).toStrictEqual({ kind: "Num", content: 17 });
+  expect(interpret(ast, {})).toStrictEqual({ kind: "Bool", content: true });
 });

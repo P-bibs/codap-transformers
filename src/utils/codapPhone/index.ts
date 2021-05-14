@@ -14,8 +14,10 @@ import {
   Collection,
   ReturnedCollection,
   DataContext,
+  CodapAttribute,
   CodapListResource,
   CodapIdentifyingInfo,
+  CodapComponent,
   CaseTable,
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";

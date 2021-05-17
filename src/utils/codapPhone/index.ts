@@ -20,6 +20,8 @@ import {
   CodapIdentifyingInfo,
   CodapComponent,
   CaseTable,
+  GetDataListResponse,
+  GetAttributeListResponse,
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
@@ -68,6 +70,13 @@ function resourceFromContext(context: string) {
 
 function resourceFromCollection(collection: string) {
   return `collection[${collection}]`;
+}
+function collectionListFromContext(context: string) {
+  return `dataContext[${context}].collectionList`;
+}
+
+function attributeListFromCollection(context: string, collection: string) {
+  return `dataContext[${context}].collection[${collection}].attributeList`;
 }
 
 function itemFromContext(context: string) {
@@ -158,6 +167,47 @@ export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {
           resolve(response.values);
         } else {
           reject(new Error("Failed to get data contexts."));
+        }
+      }
+    )
+  );
+}
+
+export function getAllCollections(
+  context: string
+): Promise<CodapIdentifyingInfo[]> {
+  return new Promise<CodapIdentifyingInfo[]>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: collectionListFromContext(context),
+      },
+      (response: GetDataListResponse) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get collections."));
+        }
+      }
+    )
+  );
+}
+
+export function getAllAttributes(
+  context: string,
+  collection: string
+): Promise<string[]> {
+  return new Promise<string[]>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: attributeListFromCollection(context, collection),
+      },
+      (response: GetAttributeListResponse) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get attributes."));
         }
       }
     )

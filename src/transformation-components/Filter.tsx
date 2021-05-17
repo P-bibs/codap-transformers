@@ -4,7 +4,7 @@ import {
   setContextItems,
   addContextUpdateListener,
   removeContextUpdateListener,
-  createTableWithData,
+  createTableWithDataSet,
   getDataContext,
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
@@ -57,10 +57,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
           }
           setContextItems(lastContextName, filtered.records);
         } else {
-          const [newContext] = await createTableWithData(
-            inputDataCtxt,
-            filtered.records
-          );
+          const [newContext] = await createTableWithDataSet(filtered);
           setLastContextName(newContext.name);
         }
       } catch (e) {

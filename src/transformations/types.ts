@@ -5,6 +5,6 @@ import { Collection } from "../utils/codapPhone/types";
  * contained within it.
  */
 export type DataSet = {
-  collections: Pick<Collection, "attrs" | "labels">[];
+  collections: Collection[];
   records: Record<string, unknown>[];
 };

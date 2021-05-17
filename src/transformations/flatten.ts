@@ -10,6 +10,10 @@ export function flatten(dataset: DataSet): DataSet {
   // flatten attributes of all collections into single list of attributes
   const attrs = dataset.collections.map((collection) => copyAttrs(collection.attrs) || []).flat();
 
+  // TODO: needs new definition of Dataset
+  // create combined name for collection
+  // const collectionName = dataset.collections.map((c) => c.name).join(" + ");
+
   // single collection that includes flattened attributes, no labels
   const collection = {
     attrs,

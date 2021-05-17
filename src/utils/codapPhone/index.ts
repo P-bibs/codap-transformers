@@ -186,7 +186,9 @@ export function getDataContext(contextName: string): Promise<DataContext> {
 
 // Copies a list of attributes, only copying the fields relevant to our
 // representation of attributes and omitting any extra fields (cid, etc).
-export function copyAttrs(attrs: CodapAttribute[]|undefined): CodapAttribute[]|undefined {
+export function copyAttrs(
+  attrs: CodapAttribute[] | undefined
+): CodapAttribute[] | undefined {
   return attrs?.map((attr) => {
     return {
       name: attr.name,

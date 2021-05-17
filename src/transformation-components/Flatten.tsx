@@ -4,7 +4,7 @@ import {
   setContextItems,
   addContextUpdateListener,
   removeContextUpdateListener,
-  createTableWithData,
+  createTableWithDataSet,
   getDataContext,
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
@@ -46,8 +46,6 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
         console.log("original", dataset);
         console.log("flat", flat);
 
-        // TODO: use "create context from dataset" instead below
-
         // if doUpdate is true then we should update a previously created table
         // rather than creating a new one
         if (doUpdate) {
@@ -57,10 +55,7 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
           }
           setContextItems(lastContextName, flat.records);
         } else {
-          const [newContext] = await createTableWithData(
-            inputDataCtxt,
-            flat.records
-          );
+          const [newContext] = await createTableWithDataSet(flat);
           setLastContextName(newContext.name);
         }
       } catch (e) {

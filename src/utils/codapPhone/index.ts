@@ -14,6 +14,7 @@ import {
   Collection,
   ReturnedCollection,
   DataContext,
+  ReturnedDataContext,
   CodapAttribute,
   CodapListResource,
   CodapIdentifyingInfo,
@@ -21,6 +22,7 @@ import {
   CaseTable,
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
+import { DataSet } from "../../transformations/types";
 
 export {
   addNewContextListener,
@@ -173,7 +175,7 @@ export function getDataContext(contextName: string): Promise<DataContext> {
       },
       (response: GetContextResponse) => {
         if (response.success) {
-          resolve(response.values);
+          resolve(normalizeDataContext(response.values));
         } else {
           reject(new Error(`Failed to get context ${contextName}`));
         }
@@ -223,24 +225,29 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
   return normalized as Collection[];
 }
 
-async function cloneDataContext(
-  newContextName: string,
-  oldContextName: string
-): Promise<DataContext> {
-  const oldContext: DataContext = await getDataContext(oldContextName);
+function normalizeDataContext(context: ReturnedDataContext): DataContext {
+  return {
+    name: context.name,
+    title: context.title,
+    description: context.description,
+    collections: normalizeParentNames(context.collections),
+  };
+}
 
-  return new Promise<DataContext>((resolve, reject) =>
+async function createDataContext(
+  name: string,
+  collections: Collection[],
+  title?: string
+): Promise<CodapIdentifyingInfo> {
+  return new Promise<CodapIdentifyingInfo>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
         values: {
-          name: newContextName,
-
-          // It's okay to reuse collections since the collection names
-          // need only be unique within a data context
-          // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-collection-create
-          collections: normalizeParentNames(oldContext.collections),
+          name: name,
+          title: title,
+          collections: collections,
         },
       },
       (response) => {
@@ -254,25 +261,35 @@ async function cloneDataContext(
   );
 }
 
-export async function createContextWithData(
-  label: string,
-  oldContextName: string,
-  data: Record<string, unknown>[]
-): Promise<DataContext> {
-  // Create a bare dataset and insert given data into it
-  const newDatasetDescription = await cloneDataContext(label, oldContextName);
+export async function createContextWithDataSet(
+  dataset: DataSet,
+  name: string,
+  title?: string
+): Promise<CodapIdentifyingInfo> {
+  const newDatasetDescription = await createDataContext(
+    name,
+    dataset.collections,
+    title
+  );
 
-  // return itemIDs
-  return new Promise<DataContext>((resolve, reject) =>
+  await insertDataItems(newDatasetDescription.name, dataset.records);
+  return newDatasetDescription;
+}
+
+export function insertDataItems(
+  contextName: string,
+  data: Record<string, unknown>[]
+): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Create,
-        resource: itemFromContext(newDatasetDescription.name),
+        resource: itemFromContext(contextName),
         values: data,
       },
       (response) => {
         if (response.success) {
-          resolve(newDatasetDescription);
+          resolve();
         } else {
           reject(new Error("Failed to create dataset with data"));
         }
@@ -399,11 +416,10 @@ async function ensureUniqueName(
   return `${name}_(${i})`;
 }
 
-export async function createTableWithData(
-  inputContextName: string,
-  data: Record<string, unknown>[],
+export async function createTableWithDataSet(
+  dataset: DataSet,
   name?: string
-): Promise<[DataContext, CaseTable]> {
+): Promise<[CodapIdentifyingInfo, CaseTable]> {
   let baseName;
   if (!name) {
     baseName = getNewName();
@@ -426,11 +442,7 @@ export async function createTableWithData(
   );
 
   // Create context and table;
-  const newContext = await createContextWithData(
-    contextName,
-    inputContextName,
-    data
-  );
+  const newContext = await createContextWithDataSet(dataset, contextName);
 
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];

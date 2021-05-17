@@ -1,11 +1,11 @@
-import { DataContext } from "../utils/codapPhone/types";
+import { Collection } from "../utils/codapPhone/types";
 
 /**
  * DataSet represents a data context and all of the actual data
  * contained within it.
  */
 export type DataSet = {
-  context: DataContext;
+  collections: Pick<Collection, "attrs" | "labels">[];
   records: Record<string, unknown>[];
 };
 

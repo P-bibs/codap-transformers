@@ -3,18 +3,10 @@ import { dataItemToEnv } from "./util";
 import { evaluate } from "../language";
 
 /**
- * Filter requires a predicate string from our expression language.
- */
-type FilterExtra = {
-  predicate: string;
-};
-
-/**
  * Filter produces a dataset with certain records excluded
  * depending on a given predicate.
  */
-export function filter(dataset: DataSet, extra: unknown): DataSet {
-  const { predicate } = extra as FilterExtra;
+export function filter(dataset: DataSet, predicate: string): DataSet {
   const filteredRecords = [];
 
   for (const dataItem of dataset.records) {
@@ -37,7 +29,7 @@ export function filter(dataset: DataSet, extra: unknown): DataSet {
 
   // dataset with same context but filtered records
   return {
-    context: { ...dataset.context },
+    collections: dataset.collections.slice(),
     records: filteredRecords,
   };
 }

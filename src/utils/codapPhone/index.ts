@@ -5,12 +5,15 @@ import {
   CodapActions,
   CodapResponse,
   GetContextResponse,
+  GetCasesResponse,
+  GetCaseResponse,
   CodapPhone,
   CodapInitiatedResource,
   ContextChangeOperation,
   mutatingOperations,
   DocumentChangeOperations,
   CodapInitiatedCommand,
+  ReturnedCase,
   Collection,
   ReturnedCollection,
   DataContext,
@@ -90,6 +93,17 @@ function itemSearchAllFromContext(context: string) {
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#cases
 function allCases(context: string, collection: string) {
   return `dataContext[${context}].collection[${collection}].allCases`;
+}
+
+// Resource for getting all cases in a collection
+function allCasesWithSearch(context: string, collection: string) {
+  const contextResource = resourceFromContext(context);
+  const collectionResource = resourceFromCollection(collection);
+  return `${contextResource}.${collectionResource}.caseFormulaSearch[true]`;
+}
+
+function caseById(context: string, id: number) {
+  return `${resourceFromContext(context)}.caseByID[${id}]`;
 }
 
 const getNewName = (function () {
@@ -191,6 +205,24 @@ export function getAllCollections(
   );
 }
 
+function getCaseById(context: string, id: number): Promise<ReturnedCase> {
+  return new Promise<ReturnedCase>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: caseById(context, id),
+      },
+      (response: GetCaseResponse) => {
+        if (response.success) {
+          resolve(response.values.case);
+        } else {
+          reject(new Error(`Failed to get case in ${context} with id ${id}`));
+        }
+      }
+    )
+  );
+}
+
 export async function getAllAttributes(
   context: string
 ): Promise<CodapIdentifyingInfo[]> {
@@ -227,18 +259,54 @@ export async function getAllAttributes(
   return attributes.flat();
 }
 
-export function getDataFromContext(
+/**
+ * Get data from a data context
+ *
+ * @param context - The name of the data context
+ * @returns An array of the data rows where each row is an object
+ */
+export async function getDataFromContext(
   context: string
 ): Promise<Record<string, unknown>[]> {
+  const getCaseByIdCached = (function () {
+    const caseMap: Record<number, ReturnedCase> = {};
+    return async (id: number) => {
+      if (caseMap[id] !== undefined) {
+        return caseMap[id];
+      }
+      const result = await getCaseById(context, id);
+      caseMap[id] = result;
+      return result;
+    };
+  })();
+
+  async function dataItemFromChildCase(
+    c: ReturnedCase
+  ): Promise<Record<string, unknown>> {
+    if (c.parent === null || c.parent === undefined) {
+      return c.values;
+    }
+    const parent = await getCaseByIdCached(c.parent);
+    const results = {
+      ...c.values,
+      ...(await dataItemFromChildCase(parent)),
+    };
+
+    return results;
+  }
+
+  const collections = (await getDataContext(context)).collections;
+  const childCollection = collections[collections.length - 1];
+
   return new Promise<Record<string, unknown>[]>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Get,
-        resource: itemSearchAllFromContext(context),
+        resource: allCasesWithSearch(context, childCollection.name),
       },
-      (response) => {
-        if (Array.isArray(response.values)) {
-          resolve(response.values.map((v) => v.values));
+      (response: GetCasesResponse) => {
+        if (response.success) {
+          resolve(Promise.all(response.values.map(dataItemFromChildCase)));
         } else {
           reject(new Error("Failed to get data items"));
         }
@@ -246,11 +314,6 @@ export function getDataFromContext(
     )
   );
 }
-
-// export async function getAllCasesFromContext(contextName: string) {
-//   const context = await getDataContext(contextName);
-//   return new Promise<unknown>((resolve, reject) => phone.call);
-// }
 
 export function getDataContext(contextName: string): Promise<DataContext> {
   return new Promise<DataContext>((resolve, reject) =>

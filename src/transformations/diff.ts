@@ -1,10 +1,11 @@
 import { DataSet } from "./types";
-import { dataItemToEnv } from "./util";
-import { evaluate } from "../language";
-import { CodapAttribute, Collection } from "../utils/codapPhone/types";
+import { Collection } from "../utils/codapPhone/types";
+import { diffArrays } from "diff";
 
 const DIFF_COLUMN_NAME = "Diff Status";
 const GREEN = "rgb(0,255,0)";
+const RED = "rgb(255,0,0)";
+const GREY = "rgb(100,100,100)";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -62,21 +63,38 @@ export function diff(
   const values1 = dataset1.records.map((record) => record[attributeName1]);
   const values2 = dataset2.records.map((record) => record[attributeName2]);
 
-  const length = Math.max(values1.length, values2.length);
+  const changeObjects = diffArrays(values1, values2);
 
   const records = [];
-  for (let i = 0; i < length; i++) {
-    records.push({
-      [attributeName1]: values1[i],
-      [attributeName2]: values2[i],
-      [DIFF_COLUMN_NAME]: "rgb(100,100,100)",
-    });
+  for (let i = 0; i < changeObjects.length; i++) {
+    const change = changeObjects[i];
+    if (!change.count) {
+      console.error("CONTINUED");
+      continue;
+    }
+    for (let j = 0; j < change.count; j++) {
+      if (change.removed) {
+        records.push({
+          [attributeName1]: change.value[j],
+          [attributeName2]: "",
+          [DIFF_COLUMN_NAME]: RED,
+        });
+      } else if (change.added) {
+        records.push({
+          [attributeName1]: "",
+          [attributeName2]: change.value[j],
+          [DIFF_COLUMN_NAME]: GREEN,
+        });
+      } else {
+        records.push({
+          [attributeName1]: change.value[j],
+          [attributeName2]: change.value[j],
+          [DIFF_COLUMN_NAME]: "",
+        });
+      }
+    }
   }
 
-  console.group("OUTPUT");
-  console.log(collections);
-  console.log(records);
-  console.groupEnd();
   return {
     collections,
     records,

@@ -25,39 +25,19 @@ export function useDataContexts(): CodapIdentifyingInfo[] {
   return dataContexts;
 }
 
-export function useCollections(context: string | null): CodapIdentifyingInfo[] {
-  const [collections, setCollections] = useState<CodapIdentifyingInfo[]>([]);
+export function useAttributes(context: string | null): CodapIdentifyingInfo[] {
+  const [collections, setAttributes] = useState<CodapIdentifyingInfo[]>([]);
 
-  async function refreshCollections(context: string) {
-    setCollections(await getAllCollections(context));
+  async function refreshAttributes(context: string) {
+    setAttributes(await getAllAttributes(context));
   }
 
   // Update if context changes
   useEffect(() => {
     if (context) {
-      refreshCollections(context);
+      refreshAttributes(context);
     }
   }, [context]);
-
-  return collections;
-}
-
-export function useAttributes(
-  context: string | null,
-  collection: string | null
-): string[] {
-  const [collections, setAttributes] = useState<string[]>([]);
-
-  async function refreshAttributes(context: string, collection: string) {
-    setAttributes(await getAllAttributes(context, collection));
-  }
-
-  // Update if context changes
-  useEffect(() => {
-    if (context && collection) {
-      refreshAttributes(context, collection);
-    }
-  }, [context, collection]);
 
   return collections;
 }

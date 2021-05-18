@@ -7,6 +7,7 @@ import { Filter } from "./transformation-components/Filter";
 import { SelectAttributes } from "./transformation-components/SelectAttributes";
 import { Count } from "./transformation-components/Count";
 import { Flatten } from "./transformation-components/Flatten";
+import { Diff } from "./transformation-components/Diff";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -22,6 +23,7 @@ function Transformation(): ReactElement {
     SelectAttributes = "SelectAttributes",
     Count = "Count",
     Flatten = "Flatten",
+    Diff = "Diff",
   }
 
   const transformTypes = [
@@ -29,6 +31,7 @@ function Transformation(): ReactElement {
     TransformType.Flatten,
     TransformType.Count,
     TransformType.SelectAttributes,
+    TransformType.Diff,
   ];
 
   const [transformType, setTransformType] =
@@ -40,6 +43,7 @@ function Transformation(): ReactElement {
     SelectAttributes: <SelectAttributes setErrMsg={setErrMsg} />,
     Count: <Count setErrMsg={setErrMsg} />,
     Flatten: <Flatten setErrMsg={setErrMsg} />,
+    Diff: <Diff setErrMsg={setErrMsg} />,
   };
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {

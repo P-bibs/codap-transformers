@@ -1,59 +1,109 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, { useState, useCallback, ReactElement } from "react";
 import {
   getDataFromContext,
   setContextItems,
-  addContextUpdateListener,
-  removeContextUpdateListener,
-  createTableWithData,
+  createTableWithDataSet,
   getDataContext,
 } from "../utils/codapPhone";
-import { useAttributes, useCollections, useDataContexts } from "../utils/hooks";
+import { useAttributes, useDataContexts } from "../utils/hooks";
 import { diff } from "../transformations/diff";
 
 interface FilterProps {
   setErrMsg: (s: string | null) => void;
 }
 
-export function Filter({ setErrMsg }: FilterProps): ReactElement {
-  const [inputDataContext, setInputDataContext] = useState<null | string>(null);
-  const [inputCollection, setInputCollection] = useState<null | string>(null);
+export function Diff({ setErrMsg }: FilterProps): ReactElement {
+  const [inputDataContext1, setInputDataContext1] =
+    useState<null | string>(null);
+  const [inputDataContext2, setInputDataContext2] =
+    useState<null | string>(null);
   const [inputAttribute1, setInputAttribute1] = useState<null | string>(null);
   const [inputAttribute2, setInputAttribute2] = useState<null | string>(null);
 
   const dataContexts = useDataContexts();
-  const collections = useCollections(inputDataContext);
-  const attributes = useAttributes(inputDataContext, inputCollection);
+  const attributes1 = useAttributes(inputDataContext1);
+  const attributes2 = useAttributes(inputDataContext2);
 
-  const transform = useCallback(async () => {
-    if (inputDataContext === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
-    console.log(`Data context to filter: ${inputDataContext}`);
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (
+        !inputDataContext1 ||
+        !inputDataContext2 ||
+        !inputAttribute1 ||
+        !inputAttribute2
+      ) {
+        setErrMsg("Please choose two contexts and two attributes");
+        return;
+      }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataContext)).collections,
-      records: await getDataFromContext(inputDataContext),
-    };
+      const dataset1 = {
+        collections: (await getDataContext(inputDataContext1)).collections,
+        records: await getDataFromContext(inputDataContext1),
+      };
+      const dataset2 = {
+        collections: (await getDataContext(inputDataContext2)).collections,
+        records: await getDataFromContext(inputDataContext2),
+      };
 
-    // TODO: NOT YET IMPLEMENTED
-  }, [
-    inputDataContext,
-    inputCollection,
-    inputAttribute1,
-    inputAttribute2,
-    setErrMsg,
-  ]);
+      try {
+        const diffed = diff(
+          dataset1,
+          dataset2,
+          inputAttribute1,
+          inputAttribute2
+        );
+
+        // if doUpdate is true then we should update a previously created table
+        // rather than creating a new one
+        if (doUpdate) {
+          if (!lastContextName) {
+            setErrMsg("Please apply transformation to a new table first.");
+            return;
+          }
+          setContextItems(lastContextName, diffed.records);
+        } else {
+          const [newContext] = await createTableWithDataSet(diffed);
+          setLastContextName(newContext.name);
+        }
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [
+      inputDataContext1,
+      inputDataContext2,
+      inputAttribute1,
+      inputAttribute2,
+      setErrMsg,
+    ]
+  );
 
   return (
     <>
-      <p>Table to Diff</p>
+      <p>Table to Diff 1</p>
       <select
-        id="inputDataContext"
-        onChange={(e) => setInputDataContext(e.target.value)}
+        id="inputDataContext1"
+        onChange={(e) => setInputDataContext1(e.target.value)}
+        defaultValue="default"
       >
-        <option selected disabled>
+        <option disabled value="default">
+          Select a Data Context
+        </option>
+        {dataContexts.map((dataContext) => (
+          <option key={dataContext.name} value={dataContext.name}>
+            {dataContext.title} ({dataContext.name})
+          </option>
+        ))}
+      </select>
+      <p>Table to Diff 2</p>
+      <select
+        id="inputDataContext2"
+        onChange={(e) => setInputDataContext2(e.target.value)}
+        defaultValue="default"
+      >
+        <option disabled value="default">
           Select a Data Context
         </option>
         {dataContexts.map((dataContext) => (
@@ -63,32 +113,18 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
         ))}
       </select>
 
-      <p>Collection to Diff</p>
-      <select
-        id="inputCollection"
-        onChange={(e) => setInputCollection(e.target.value)}
-      >
-        <option selected disabled>
-          Select a collection
-        </option>
-        {collections.map((collection) => (
-          <option key={collection.name} value={collection.name}>
-            {collection.title} ({collection.name})
-          </option>
-        ))}
-      </select>
-
       <p>First attribute to Diff</p>
       <select
         id="inputAttribute1"
         onChange={(e) => setInputAttribute1(e.target.value)}
+        defaultValue="default"
       >
-        <option selected disabled>
+        <option disabled value="default">
           Select a attribute
         </option>
-        {attributes.map((attribute) => (
-          <option key={attribute} value={attribute}>
-            {attribute}
+        {attributes1.map((attribute) => (
+          <option key={attribute.name} value={attribute.name}>
+            {attribute.title} ({attribute.name})
           </option>
         ))}
       </select>
@@ -97,13 +133,14 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       <select
         id="inputAttribute2"
         onChange={(e) => setInputAttribute2(e.target.value)}
+        defaultValue="default"
       >
-        <option selected disabled>
+        <option disabled value="default">
           Select a attribute
         </option>
-        {attributes.map((attribute) => (
-          <option key={attribute} value={attribute}>
-            {attribute}
+        {attributes2.map((attribute) => (
+          <option key={attribute.name} value={attribute.name}>
+            {attribute.title} ({attribute.name})
           </option>
         ))}
       </select>

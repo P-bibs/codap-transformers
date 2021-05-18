@@ -21,7 +21,6 @@ import {
   CodapComponent,
   CaseTable,
   GetDataListResponse,
-  GetAttributeListResponse,
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
@@ -193,25 +192,40 @@ export function getAllCollections(
   );
 }
 
-export function getAllAttributes(
-  context: string,
-  collection: string
-): Promise<string[]> {
-  return new Promise<string[]>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Get,
-        resource: attributeListFromCollection(context, collection),
-      },
-      (response: GetAttributeListResponse) => {
-        if (response.success) {
-          resolve(response.values);
-        } else {
-          reject(new Error("Failed to get attributes."));
-        }
-      }
-    )
+export async function getAllAttributes(
+  context: string
+): Promise<CodapIdentifyingInfo[]> {
+  // Get the name (as a string) of each collection in the context
+  const collections = (await getAllCollections(context)).map(
+    (collection) => collection.name
   );
+
+  // Make a request to get the attributes for each collection
+  const promises = collections.map(
+    (collectionName) =>
+      new Promise<CodapIdentifyingInfo[]>((resolve, reject) =>
+        phone.call(
+          {
+            action: CodapActions.Get,
+            resource: attributeListFromCollection(context, collectionName),
+          },
+          (response: GetDataListResponse) => {
+            if (response.success) {
+              resolve(response.values);
+            } else {
+              reject(new Error("Failed to get attributes."));
+            }
+          }
+        )
+      )
+  );
+
+  // Wait for all promises to return
+  const attributes = await Promise.all(promises);
+
+  // flatten and return the set of attributes
+  // return attributes.reduce((acc, elt) => [...acc, ...elt]);
+  return attributes.flat();
 }
 
 export function getDataFromContext(

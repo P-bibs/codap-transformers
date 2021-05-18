@@ -79,8 +79,12 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
   return (
     <>
       <p>Table to Filter</p>
-      <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>
+      <select
+        id="inputDataContext"
+        onChange={inputChange}
+        defaultValue="default"
+      >
+        <option disabled value="default">
           Select a Data Context
         </option>
         {dataContexts.map((dataContext) => (

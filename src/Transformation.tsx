@@ -4,6 +4,7 @@ import { useState } from "react";
 import "./Transformation.css";
 import Error from "./Error";
 import { Filter } from "./transformation-components/Filter";
+import { GroupBy } from "./transformation-components/GroupBy";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -16,9 +17,10 @@ function Transformation(): ReactElement {
    */
   enum TransformType {
     Filter = "Filter",
+    GroupBy = "GroupBy",
   }
 
-  const transformTypes = [TransformType.Filter];
+  const transformTypes = [TransformType.Filter, TransformType.GroupBy];
 
   const [transformType, setTransformType] =
     useState<TransformType | null>(null);
@@ -26,6 +28,7 @@ function Transformation(): ReactElement {
 
   const transformComponents = {
     Filter: <Filter setErrMsg={setErrMsg} />,
+    GroupBy: <GroupBy setErrMsg={setErrMsg} />,
   };
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {

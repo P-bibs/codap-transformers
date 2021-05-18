@@ -66,7 +66,7 @@ export interface CodapResponse {
 }
 
 interface CreateContextResponse extends CodapResponse {
-  values: DataContext;
+  values: CodapIdentifyingInfo;
 }
 
 interface GetListResponse extends CodapResponse {
@@ -84,7 +84,7 @@ export interface GetCasesResponse extends CodapResponse {
 }
 
 export interface GetContextResponse extends CodapResponse {
-  values: DataContext;
+  values: ReturnedDataContext;
 }
 
 interface TableResponse extends CodapResponse {
@@ -162,6 +162,10 @@ export interface DataContext {
   name: string;
   title?: string;
   description?: string;
+  collections: Collection[];
+}
+
+export interface ReturnedDataContext extends Omit<DataContext, "collections"> {
   collections: ReturnedCollection[];
 }
 

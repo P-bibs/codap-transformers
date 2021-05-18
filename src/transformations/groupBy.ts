@@ -21,16 +21,19 @@ export function groupBy(
   let collections = dataset.collections.slice();
 
   // extract attributes from collections into a list
-  for (const attrName of attrNames) {
+  attrLoop: for (const attrName of attrNames) {
     for (const coll of collections) {
       const attr = coll.attrs?.find((attr) => attr.name === attrName);
 
       if (attr !== undefined) {
         groupedAttrs.push(attr);
         coll.attrs?.splice(coll.attrs?.indexOf(attr), 1);
-        break;
+        continue attrLoop;
       }
     }
+
+    // attribute was not found in any collection
+    throw new Error(`bad attribute name: ${attrName}`);
   }
 
   // remove any collections with no attributes after the group,

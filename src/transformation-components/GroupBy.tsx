@@ -48,8 +48,8 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
         records: await getDataFromContext(inputDataCtxt),
       };
 
-      // TODO: make this work for multi-word identifiers
-      const attributeNames = attributes.split(",");
+      // extract attribute names from user's text
+      const attributeNames = attributes.split("\n").map((s) => s.trim());
 
       try {
         console.log("attribute names:", attributeNames);

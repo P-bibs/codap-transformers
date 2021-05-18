@@ -26,6 +26,8 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
+  const [isCategorical, setIsCategorical] = useState<boolean>(false);
+
   const transform = useCallback(
     async (doUpdate: boolean) => {
       if (
@@ -52,7 +54,8 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
           dataset1,
           dataset2,
           inputAttribute1,
-          inputAttribute2
+          inputAttribute2,
+          isCategorical
         );
 
         // if doUpdate is true then we should update a previously created table
@@ -77,6 +80,7 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
       inputAttribute1,
       inputAttribute2,
       lastContextName,
+      isCategorical,
       setErrMsg,
     ]
   );
@@ -145,9 +149,26 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
           </option>
         ))}
       </select>
+      <p>What kind of Diff?</p>
+      <select
+        id="isCategorical"
+        onChange={(e) =>
+          e.target.value === "categorical"
+            ? setIsCategorical(true)
+            : setIsCategorical(false)
+        }
+        defaultValue="numeric"
+      >
+        <option value="categorical">Categorical</option>
+        <option value="numeric">Numeric</option>
+      </select>
 
       <br />
       <button onClick={() => transform(false)}>Create Diff</button>
+      <br />
+      <button onClick={() => transform(true)}>
+        Update Previous Table With Diff
+      </button>
     </>
   );
 }

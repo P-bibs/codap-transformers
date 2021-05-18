@@ -8,6 +8,7 @@ import { SelectAttributes } from "./transformation-components/SelectAttributes";
 import { Count } from "./transformation-components/Count";
 import { Flatten } from "./transformation-components/Flatten";
 import { Compare } from "./transformation-components/Compare";
+import { RunningSum } from "./transformation-components/RunningSum";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -24,6 +25,7 @@ function Transformation(): ReactElement {
     Count = "Count",
     Flatten = "Flatten",
     Compare = "Compare",
+    RunningSum = "RunningSum",
   }
 
   const transformTypes = [
@@ -32,6 +34,7 @@ function Transformation(): ReactElement {
     TransformType.Count,
     TransformType.SelectAttributes,
     TransformType.Compare,
+    TransformType.RunningSum,
   ];
 
   const [transformType, setTransformType] =
@@ -44,6 +47,7 @@ function Transformation(): ReactElement {
     Count: <Count setErrMsg={setErrMsg} />,
     Flatten: <Flatten setErrMsg={setErrMsg} />,
     Compare: <Compare setErrMsg={setErrMsg} />,
+    RunningSum: <RunningSum setErrMsg={setErrMsg} />,
   };
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {

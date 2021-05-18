@@ -18,7 +18,7 @@ export function groupBy(
   newParentName: string
 ): DataSet {
   const groupedAttrs: CodapAttribute[] = [];
-  const collections = dataset.collections.slice();
+  let collections = dataset.collections.slice();
 
   // extract attributes from collections into a list
   for (const attrName of attrNames) {
@@ -35,14 +35,22 @@ export function groupBy(
 
   // remove any collections with no attributes after the group,
   // and reparent collections that referenced them.
-  const nonEmptyColls = [];
-  for (const coll of collections) {
-    if (coll.attrs !== undefined && coll.attrs.length === 0) {
-      reparent(collections, coll);
-    } else {
-      nonEmptyColls.push(coll);
-    }
-  }
+  collections = collections
+    .map((coll) => {
+      // make topmost parent collection child of the new parent
+      if (coll.parent === undefined) {
+        coll.parent = newParentName;
+      }
+      return coll;
+    })
+    .filter((coll) => {
+      // remove any collections that now lack attributes
+      const keep = coll.attrs === undefined || coll.attrs.length > 0;
+      if (!keep) {
+        reparent(collections, coll);
+      }
+      return keep;
+    });
 
   const collection: Collection = {
     name: newParentName,
@@ -50,11 +58,8 @@ export function groupBy(
     labels: {},
   };
 
-  // XXX: WHY does putting the collection at the end put it at the front?
-  nonEmptyColls.push(collection);
-
   return {
-    collections: nonEmptyColls,
+    collections: [collection].concat(collections),
     records: dataset.records,
   };
 }

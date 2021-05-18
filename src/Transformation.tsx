@@ -36,12 +36,14 @@ function Transformation(): ReactElement {
   return (
     <div className="Transformation">
       <p>Transformation Type</p>
-      <select id="transformType" onChange={typeChange}>
-        <option selected disabled>
+      <select id="transformType" onChange={typeChange} defaultValue="default">
+        <option disabled value="default">
           Select a Transformation
         </option>
         {transformTypes.map((type, i) => (
-          <option key={i}>{type}</option>
+          <option key={i} value={type}>
+            {type}
+          </option>
         ))}
       </select>
       {transformType && transformComponents[transformType]}

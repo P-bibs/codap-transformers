@@ -1,6 +1,6 @@
+import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { Collection } from "../utils/codapPhone/types";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -46,4 +46,47 @@ export function reparent(collections: Collection[], parent: Collection): void {
       coll.parent = parent.parent;
     }
   }
+}
+
+/**
+ * Inserts a new column into the given collection.
+ *
+ * @param collection - Collection to insert into
+ * @param attr - Attribute to insert
+ * @returns A copy of `collection` with `attr` inserted
+ */
+export function insertColumn(
+  collection: Collection,
+  attr: CodapAttribute
+): Collection {
+  let newAttrs;
+  if (collection.attrs) {
+    newAttrs = [...collection.attrs, attr];
+  } else {
+    newAttrs = [attr];
+  }
+  return {
+    ...collection,
+    attrs: newAttrs,
+  };
+}
+
+/**
+ * Inserts a new column in the last collection of the given collection array.
+ *
+ * @param collections - Array of collections
+ * @param attr - Attribute to insert
+ * @returns A copy of `collections` with `attr` inserted
+ */
+export function insertColumnInLastCollection(
+  collections: Collection[],
+  attr: CodapAttribute
+): Collection[] {
+  const newCollections = collections.slice();
+  const lastCollection = newCollections[newCollections.length - 1];
+  newCollections[newCollections.length - 1] = insertColumn(
+    lastCollection,
+    attr
+  );
+  return newCollections;
 }

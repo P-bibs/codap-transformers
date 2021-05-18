@@ -76,6 +76,7 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
       inputDataContext2,
       inputAttribute1,
       inputAttribute2,
+      lastContextName,
       setErrMsg,
     ]
   );
@@ -146,7 +147,7 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
       </select>
 
       <br />
-      <button onClick={() => 1}>Create Diff</button>
+      <button onClick={() => transform(false)}>Create Diff</button>
     </>
   );
 }

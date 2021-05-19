@@ -44,6 +44,12 @@ type CreateContextRequest = {
   };
 };
 
+type CreateCollectionsRequest = {
+  action: CodapActions.Create;
+  resource: string;
+  values: Collection[];
+};
+
 type CreateDataItemsRequest = {
   action: CodapActions.Create;
   resource: string;
@@ -69,7 +75,7 @@ interface CreateContextResponse extends CodapResponse {
   values: CodapIdentifyingInfo;
 }
 
-interface GetListResponse extends CodapResponse {
+interface ListResponse extends CodapResponse {
   values: CodapIdentifyingInfo[];
 }
 
@@ -92,13 +98,14 @@ interface TableResponse extends CodapResponse {
 }
 
 export type CodapPhone = {
-  call(r: GetContextListRequest, cb: (r: GetListResponse) => void): void;
-  call(r: GetListRequest, cb: (r: GetListResponse) => void): void;
+  call(r: GetContextListRequest, cb: (r: ListResponse) => void): void;
+  call(r: GetListRequest, cb: (r: ListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
   call(r: GetRequest, cb: (r: GetContextResponse) => void): void;
   call(r: GetRequest, cb: (r: GetCasesResponse) => void): void;
   call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
   call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;
+  call(r: CreateCollectionsRequest, cb: (r: ListResponse) => void): void;
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
   call(r: CreateTableRequest, cb: (r: TableResponse) => void): void;
 };
@@ -110,18 +117,36 @@ export enum CodapInitiatedResource {
   DataContextChangeNotice = "dataContextChangeNotice",
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#case-change-notifications
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-collection-delete
 export enum ContextChangeOperation {
   UpdateCases = "updateCases",
   CreateCases = "createCases",
   DeleteCases = "deleteCases",
   SelectCases = "selectCases",
   UpdateContext = "updateDataContext",
+
+  // Despite the documentation, the first three of these are plural, while the
+  // last is singular
+  CreateAttribute = "createAttributes",
+  UpdateAttribute = "updateAttributes",
+  DeleteAttribute = "deleteAttributes",
+  MoveAttribute = "moveAttribute",
+
+  // Not sure where this is documented, but it is triggered when a collection
+  // is renamed, for example
+  UpdateCollection = "updateCollection",
 }
 
 export const mutatingOperations = [
   ContextChangeOperation.UpdateCases,
   ContextChangeOperation.CreateCases,
   ContextChangeOperation.DeleteCases,
+  ContextChangeOperation.CreateAttribute,
+  ContextChangeOperation.UpdateAttribute,
+  ContextChangeOperation.DeleteAttribute,
+  ContextChangeOperation.MoveAttribute,
+  ContextChangeOperation.UpdateCollection,
 ];
 
 export enum DocumentChangeOperations {

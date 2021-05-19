@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, { useEffect, useCallback, ReactElement } from "react";
 import {
   getDataFromContext,
-  setContextItems,
   addContextUpdateListener,
   removeContextUpdateListener,
   createTableWithDataSet,
@@ -20,55 +19,34 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
   const dataContexts = useDataContexts();
-  const [lastContextName, setLastContextName] = useState<string | null>(null);
 
   /**
    * Applies the flatten transformation to the input data context,
    * producing an output table in CODAP.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to flatten.");
-        return;
-      }
+  const transform = useCallback(async () => {
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to flatten.");
+      return;
+    }
 
-      console.log(`Data context to flatten: ${inputDataCtxt}`);
+    const dataset = {
+      collections: (await getDataContext(inputDataCtxt)).collections,
+      records: await getDataFromContext(inputDataCtxt),
+    };
 
-      const dataset = {
-        collections: (await getDataContext(inputDataCtxt)).collections,
-        records: await getDataFromContext(inputDataCtxt),
-      };
-
-      try {
-        const flat = flatten(dataset);
-
-        console.log("original", dataset);
-        console.log("flat", flat);
-
-        // if doUpdate is true then we should update a previously created table
-        // rather than creating a new one
-        if (doUpdate) {
-          if (!lastContextName) {
-            setErrMsg("Please apply transformation to a new table first.");
-            return;
-          }
-          setContextItems(lastContextName, flat.records);
-        } else {
-          const [newContext] = await createTableWithDataSet(flat);
-          setLastContextName(newContext.name);
-        }
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [inputDataCtxt, lastContextName, setErrMsg]
-  );
+    try {
+      const flat = flatten(dataset);
+      await createTableWithDataSet(flat);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [inputDataCtxt, setErrMsg]);
 
   useEffect(() => {
     if (inputDataCtxt !== null) {
       addContextUpdateListener(inputDataCtxt, () => {
-        transform(true);
+        transform();
       });
       return () => removeContextUpdateListener(inputDataCtxt);
     }
@@ -89,10 +67,7 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
       </select>
 
       <br />
-      <button onClick={() => transform(false)}>Create flattened table</button>
-      <button onClick={() => transform(true)} disabled={!lastContextName}>
-        Update previous flattened table
-      </button>
+      <button onClick={transform}>Create flattened table</button>
     </>
   );
 }

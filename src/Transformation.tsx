@@ -10,6 +10,7 @@ import { Flatten } from "./transformation-components/Flatten";
 import { Compare } from "./transformation-components/Compare";
 import { Fold } from "./transformation-components/Fold";
 import { DifferenceFrom } from "./transformation-components/DifferenceFrom";
+import { Sort } from "./transformation-components/Sort";
 import {
   runningSum,
   runningMean,
@@ -51,6 +52,7 @@ function Transformation(): ReactElement {
       <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
     ),
     DifferenceFrom: <DifferenceFrom setErrMsg={setErrMsg} />,
+    Sort: <Sort setErrMsg={setErrMsg} />,
   };
 
   type TransformType = keyof typeof transformComponents;

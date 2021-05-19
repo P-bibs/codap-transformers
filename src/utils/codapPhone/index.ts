@@ -85,6 +85,16 @@ function itemFromContext(context: string) {
   return `${resourceFromContext(context)}.item`;
 }
 
+function collectionFromContext(context: string) {
+  return `${resourceFromContext(context)}.collection`;
+}
+
+function collectionOfContext(context: string, collection: string) {
+  return `${resourceFromContext(context)}.${resourceFromCollection(
+    collection
+  )}`;
+}
+
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-item-get-by-search
 function itemSearchAllFromContext(context: string) {
   return `${resourceFromContext(context)}.itemSearch[*]`;
@@ -470,27 +480,54 @@ export function insertDataItems(
   );
 }
 
-export async function setContextItems(
+export async function updateContextWithDataSet(
   contextName: string,
-  items: Record<string, unknown>[]
+  dataset: DataSet
 ): Promise<void> {
   const context = await getDataContext(contextName);
   for (const collection of context.collections) {
     await deleteAllCases(contextName, collection.name);
   }
 
+  await insertDataItems(contextName, dataset.records);
+}
+
+function createCollections(
+  context: string,
+  collections: Collection[]
+): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Create,
-        resource: itemFromContext(contextName),
-        values: items,
+        resource: collectionFromContext(context),
+        values: collections,
       },
       (response) => {
         if (response.success) {
           resolve();
         } else {
-          reject(new Error("Failed to update context with new items"));
+          reject(new Error(`Failed to create collections in ${context}`));
+        }
+      }
+    )
+  );
+}
+
+function deleteCollection(context: string, collection: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Delete,
+        resource: collectionOfContext(context, collection),
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(
+            new Error(`Failed to delete collection ${collection} in ${context}`)
+          );
         }
       }
     )

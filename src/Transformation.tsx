@@ -4,6 +4,7 @@ import { useState } from "react";
 import "./Transformation.css";
 import Error from "./Error";
 import { Filter } from "./transformation-components/Filter";
+import { SelectAttributes } from "./transformation-components/SelectAttributes";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -16,9 +17,10 @@ function Transformation(): ReactElement {
    */
   enum TransformType {
     Filter = "Filter",
+    SelectAttributes = "SelectAttributes",
   }
 
-  const transformTypes = [TransformType.Filter];
+  const transformTypes = [TransformType.Filter, TransformType.SelectAttributes];
 
   const [transformType, setTransformType] =
     useState<TransformType | null>(null);
@@ -26,6 +28,7 @@ function Transformation(): ReactElement {
 
   const transformComponents = {
     Filter: <Filter setErrMsg={setErrMsg} />,
+    SelectAttributes: <SelectAttributes setErrMsg={setErrMsg} />,
   };
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {

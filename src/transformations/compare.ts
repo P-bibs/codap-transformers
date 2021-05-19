@@ -43,6 +43,8 @@ export function compare(
     );
   }
 
+  // Make sure that the two attributes don't have the same name by adding a
+  // suffix to attribute 2 if necessary
   const safeAttributeName2 =
     attributeName1 === attributeName2 ? attributeName2 + "(1)" : attributeName2;
 
@@ -53,6 +55,7 @@ export function compare(
       attrs: [attributeData1, { ...attributeData2, name: safeAttributeName2 }],
     },
   ];
+  // Only add this attribute if this is a categorical diff
   if (!isCategorical) {
     collections[0].attrs?.push({
       name: COMPARE_VALUE_COLUMN_NAME,

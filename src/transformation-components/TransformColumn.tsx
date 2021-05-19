@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import {
   getDataFromContext,
-  setContextItems,
+  updateContextWithDataSet,
   addContextUpdateListener,
   removeContextUpdateListener,
   createTableWithDataSet,
@@ -66,7 +66,7 @@ export function TransformColumn({
             setErrMsg("Please apply transformation to a new table first.");
             return;
           }
-          setContextItems(lastContextName, transformed.records);
+          updateContextWithDataSet(lastContextName, transformed);
         } else {
           const [newContext] = await createTableWithDataSet(transformed);
           setLastContextName(newContext.name);

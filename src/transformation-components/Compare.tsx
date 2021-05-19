@@ -1,7 +1,7 @@
 import React, { useState, useCallback, ReactElement, useEffect } from "react";
 import {
   getDataFromContext,
-  setContextItems,
+  updateContextWithDataSet,
   createTableWithDataSet,
   getDataContext,
   addContextUpdateListener,
@@ -77,7 +77,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
             setErrMsg("Please apply transformation to a new table first.");
             return;
           }
-          setContextItems(lastContextName, compared.records);
+          updateContextWithDataSet(lastContextName, compared);
         } else {
           const [newContext] = await createTableWithDataSet(compared);
           setLastContextName(newContext.name);

@@ -6,7 +6,6 @@ const DIFF_STATUS_COLUMN_NAME = "Diff Status";
 const DIFF_VALUE_COLUMN_NAME = "Difference";
 const GREEN = "rgb(0,255,0)";
 const RED = "rgb(255,0,0)";
-const GREY = "rgb(100,100,100)";
 
 /**
  * Filter produces a dataset with certain records excluded

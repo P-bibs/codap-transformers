@@ -90,3 +90,21 @@ export function insertColumnInLastCollection(
   );
   return newCollections;
 }
+
+/**
+ * Immutably insert a new property into the given object
+ *
+ * @param newProp - Name of the new property
+ * @param newValue - New value to insert
+ * @param row - Object to insert into
+ * @returns A copy of `row` with `newValue` inserted
+ */
+export function insertInRow(
+  row: Record<string, unknown>,
+  newProp: string,
+  newValue: unknown
+): Record<string, unknown> {
+  const newRow = { ...row };
+  newRow[newProp] = newValue;
+  return newRow;
+}

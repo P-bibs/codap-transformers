@@ -6,9 +6,11 @@ import {
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
-import { runningSum } from "../transformations/fold";
+import { differenceFrom } from "../transformations/fold";
 
-export function RunningSum({ setErrMsg }: TransformationProps): ReactElement {
+export function DifferenceFrom({
+  setErrMsg,
+}: TransformationProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -24,6 +26,11 @@ export function RunningSum({ setErrMsg }: TransformationProps): ReactElement {
     HTMLInputElement
   >("", () => setErrMsg(null));
 
+  const [startingValue, startingValueChange] = useInput<
+    string,
+    HTMLInputElement
+  >("0", () => setErrMsg(null));
+
   const dataContexts = useDataContexts();
 
   const transform = useCallback(async () => {
@@ -37,22 +44,40 @@ export function RunningSum({ setErrMsg }: TransformationProps): ReactElement {
       return;
     }
 
+    const differenceStartingValue = Number(startingValue);
+    if (isNaN(differenceStartingValue)) {
+      setErrMsg(
+        `Expected numeric starting value, instead got ${startingValue}`
+      );
+    }
+
     const dataset = {
       collections: (await getDataContext(inputDataCtxt)).collections,
       records: await getDataFromContext(inputDataCtxt),
     };
 
     try {
-      const result = runningSum(dataset, inputColumnName, resultColumnName);
+      const result = differenceFrom(
+        dataset,
+        inputColumnName,
+        resultColumnName,
+        differenceStartingValue
+      );
       await createTableWithDataSet(result);
     } catch (e) {
       setErrMsg(e.message);
     }
-  }, [inputDataCtxt, inputColumnName, resultColumnName, setErrMsg]);
+  }, [
+    inputDataCtxt,
+    inputColumnName,
+    resultColumnName,
+    setErrMsg,
+    startingValue,
+  ]);
 
   return (
     <>
-      <p>Table to calculate running sum on</p>
+      <p>Table to calculate difference on</p>
       <select id="inputDataContext" onChange={inputChange}>
         <option selected disabled>
           Select a Data Context
@@ -75,8 +100,10 @@ export function RunningSum({ setErrMsg }: TransformationProps): ReactElement {
         value={resultColumnName}
         onChange={resultColumnNameChange}
       />
+      <p>Starting value for difference</p>
+      <input type="text" value={startingValue} onChange={startingValueChange} />
       <br />
-      <button onClick={transform}>Create table with running sum</button>
+      <button onClick={transform}>Create table with difference</button>
     </>
   );
 }

@@ -108,11 +108,11 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
         ))}
       </select>
 
-      <p>Attributes to Group By</p>
+      <p>Attributes to Group By (1 per line)</p>
       <textarea onChange={attributesChange}></textarea>
 
       <p>Name of New Parent Collection</p>
-      <input type="text" onChange={parentNameChange}></input>
+      <input type="text" onChange={parentNameChange} defaultValue="Parent" />
 
       <br />
       <button onClick={() => transform(false)}>Create grouped table</button>

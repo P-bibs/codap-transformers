@@ -6,6 +6,7 @@ const COMPARE_STATUS_COLUMN_NAME = "Compare Status";
 const COMPARE_VALUE_COLUMN_NAME = "Difference";
 const GREEN = "rgb(0,255,0)";
 const RED = "rgb(255,0,0)";
+const GREY = "rgb(100,100,100)";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -127,7 +128,7 @@ function compareRecordsCategorical(
         records.push({
           [attributeName1]: change.value[j],
           [attributeName2]: change.value[j],
-          [COMPARE_STATUS_COLUMN_NAME]: "",
+          [COMPARE_STATUS_COLUMN_NAME]: GREY,
         });
       }
     }
@@ -178,7 +179,7 @@ function compareRecordsNumerical(
       [attributeName2]: values2[i],
       [COMPARE_VALUE_COLUMN_NAME]: difference,
       [COMPARE_STATUS_COLUMN_NAME]:
-        difference > 0 ? GREEN : difference < 0 ? RED : "",
+        difference > 0 ? GREEN : difference < 0 ? RED : GREY,
     });
   }
 

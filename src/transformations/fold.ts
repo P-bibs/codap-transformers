@@ -17,7 +17,7 @@ export function runningSum(
       return result;
     } else {
       throw new Error(
-        "Unsupported value for running sum ${row[inputColumnName]}"
+        `Unsupported value for running sum: ${row[inputColumnName]}`
       );
     }
   });

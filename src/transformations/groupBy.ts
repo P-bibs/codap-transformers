@@ -1,5 +1,6 @@
 import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
+import { reparent } from "./util";
 
 /**
  * Groups a dataset by the indicated attributes, by removing them from
@@ -65,19 +66,4 @@ export function groupBy(
     collections: [collection].concat(collections),
     records: dataset.records,
   };
-}
-
-/**
- * Reparents any collections that have the given parent, to the
- * parent's parent. This allows the parent to be eliminated.
- *
- * @param collections the collections to reparent
- * @param parent the parent collection being removed
- */
-function reparent(collections: Collection[], parent: Collection) {
-  for (const coll of collections) {
-    if (coll.parent === parent.name) {
-      coll.parent = parent.parent;
-    }
-  }
 }

@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, { useEffect, useCallback, ReactElement } from "react";
 import {
   getDataFromContext,
-  setContextItems,
   addContextUpdateListener,
   removeContextUpdateListener,
   createTableWithDataSet,
@@ -28,64 +27,36 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
     () => setErrMsg(null)
   );
   const dataContexts = useDataContexts();
-  const [lastContextName, setLastContextName] = useState<string | null>(null);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
+  const transform = useCallback(async () => {
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
 
-      console.log(`Data context to group: ${inputDataCtxt}`);
+    const dataset = {
+      collections: (await getDataContext(inputDataCtxt)).collections,
+      records: await getDataFromContext(inputDataCtxt),
+    };
 
-      const dataset = {
-        collections: (await getDataContext(inputDataCtxt)).collections,
-        records: await getDataFromContext(inputDataCtxt),
-      };
+    // extract attribute names from user's text
+    const attributeNames = attributes.split("\n").map((s) => s.trim());
 
-      // extract attribute names from user's text
-      const attributeNames = attributes.split("\n").map((s) => s.trim());
-
-      try {
-        console.log("attribute names:", attributeNames);
-        console.log("parent name:", parentName);
-
-        const grouped = groupBy(dataset, attributeNames, parentName);
-
-        console.log("grouped dataset:", grouped);
-
-        // if doUpdate is true then we should update a previously created table
-        // rather than creating a new one
-        if (doUpdate) {
-          if (!lastContextName) {
-            setErrMsg("Please apply transformation to a new table first.");
-            return;
-          }
-
-          // TODO: this doesn't update the data context, only the records.
-          // no good for group by which is structural change
-          setContextItems(lastContextName, grouped.records);
-        } else {
-          const [newContext] = await createTableWithDataSet(grouped);
-          setLastContextName(newContext.name);
-        }
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [inputDataCtxt, attributes, parentName, lastContextName, setErrMsg]
-  );
+    try {
+      const grouped = groupBy(dataset, attributeNames, parentName);
+      await createTableWithDataSet(grouped);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [inputDataCtxt, attributes, parentName, setErrMsg]);
 
   useEffect(() => {
     if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, () => {
-        transform(true);
-      });
+      addContextUpdateListener(inputDataCtxt, transform);
       return () => removeContextUpdateListener(inputDataCtxt);
     }
   }, [transform, inputDataCtxt]);
@@ -115,10 +86,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
       <input type="text" onChange={parentNameChange} defaultValue="Parent" />
 
       <br />
-      <button onClick={() => transform(false)}>Create grouped table</button>
-      <button onClick={() => transform(true)} disabled={!lastContextName}>
-        Update previous grouped table
-      </button>
+      <button onClick={() => transform()}>Create grouped table</button>
     </>
   );
 }

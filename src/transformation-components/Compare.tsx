@@ -8,13 +8,13 @@ import {
   removeContextUpdateListener,
 } from "../utils/codapPhone";
 import { useAttributes, useDataContexts, useInput } from "../utils/hooks";
-import { diff } from "../transformations/diff";
+import { compare } from "../transformations/compare";
 
-interface DiffProps {
+interface CompareProps {
   setErrMsg: (s: string | null) => void;
 }
 
-export function Diff({ setErrMsg }: DiffProps): ReactElement {
+export function Compare({ setErrMsg }: CompareProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string,
     HTMLSelectElement
@@ -62,7 +62,7 @@ export function Diff({ setErrMsg }: DiffProps): ReactElement {
       };
 
       try {
-        const diffed = diff(
+        const compared = compare(
           dataset1,
           dataset2,
           inputAttribute1,
@@ -77,9 +77,9 @@ export function Diff({ setErrMsg }: DiffProps): ReactElement {
             setErrMsg("Please apply transformation to a new table first.");
             return;
           }
-          setContextItems(lastContextName, diffed.records);
+          setContextItems(lastContextName, compared.records);
         } else {
-          const [newContext] = await createTableWithDataSet(diffed);
+          const [newContext] = await createTableWithDataSet(compared);
           setLastContextName(newContext.name);
         }
       } catch (e) {
@@ -119,7 +119,7 @@ export function Diff({ setErrMsg }: DiffProps): ReactElement {
 
   return (
     <>
-      <p>Table to Diff 1</p>
+      <p>Table to Compare 1</p>
       <select
         id="inputDataContext1"
         onChange={inputDataContext1OnChange}
@@ -134,7 +134,7 @@ export function Diff({ setErrMsg }: DiffProps): ReactElement {
           </option>
         ))}
       </select>
-      <p>Table to Diff 2</p>
+      <p>Table to Compare 2</p>
       <select
         id="inputDataContext2"
         onChange={inputDataContext2OnChange}
@@ -150,7 +150,7 @@ export function Diff({ setErrMsg }: DiffProps): ReactElement {
         ))}
       </select>
 
-      <p>First attribute to Diff</p>
+      <p>First attribute to Compare</p>
       <select
         id="inputAttribute1"
         onChange={inputAttribute1OnChange}
@@ -166,7 +166,7 @@ export function Diff({ setErrMsg }: DiffProps): ReactElement {
         ))}
       </select>
 
-      <p>Second attribute to Diff</p>
+      <p>Second attribute to Compare</p>
       <select
         id="inputAttribute2"
         onChange={inputAttribute2OnChange}
@@ -181,7 +181,7 @@ export function Diff({ setErrMsg }: DiffProps): ReactElement {
           </option>
         ))}
       </select>
-      <p>What kind of Diff?</p>
+      <p>What kind of Comparison?</p>
       <select
         id="isCategorical"
         onChange={(e) =>
@@ -196,10 +196,12 @@ export function Diff({ setErrMsg }: DiffProps): ReactElement {
       </select>
 
       <br />
-      <button onClick={() => transform(false)}>Create Table with Diff</button>
+      <button onClick={() => transform(false)}>
+        Create Table with Comparison
+      </button>
       <br />
       <button onClick={() => transform(true)}>
-        Update Previous Table With Diff
+        Update Previous Table With Comparison
       </button>
     </>
   );

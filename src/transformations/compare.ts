@@ -2,8 +2,8 @@ import { DataSet } from "./types";
 import { Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
 
-const DIFF_STATUS_COLUMN_NAME = "Diff Status";
-const DIFF_VALUE_COLUMN_NAME = "Difference";
+const COMPARE_STATUS_COLUMN_NAME = "Compare Status";
+const COMPARE_VALUE_COLUMN_NAME = "Difference";
 const GREEN = "rgb(0,255,0)";
 const RED = "rgb(255,0,0)";
 
@@ -11,7 +11,7 @@ const RED = "rgb(255,0,0)";
  * Filter produces a dataset with certain records excluded
  * depending on a given predicate.
  */
-export function diff(
+export function compare(
   dataset1: DataSet,
   dataset2: DataSet,
   attributeName1: string,
@@ -45,14 +45,14 @@ export function diff(
 
   const collections: Collection[] = [
     {
-      name: `Diff of ${attributeName1} and ${attributeName2}`,
+      name: `Comparison of ${attributeName1} and ${attributeName2}`,
       labels: {},
       attrs: [attributeData1, attributeData2],
     },
   ];
   if (!isCategorical) {
     collections[0].attrs?.push({
-      name: DIFF_VALUE_COLUMN_NAME,
+      name: COMPARE_VALUE_COLUMN_NAME,
       description: "",
       editable: true,
       hidden: false,
@@ -60,7 +60,7 @@ export function diff(
     });
   }
   collections[0].attrs?.push({
-    name: DIFF_STATUS_COLUMN_NAME,
+    name: COMPARE_STATUS_COLUMN_NAME,
     description: "",
     editable: true,
     hidden: false,
@@ -71,8 +71,13 @@ export function diff(
   const values2 = dataset2.records.map((record) => record[attributeName2]);
 
   const records = isCategorical
-    ? diffRecordsCategorical(attributeName1, attributeName2, values1, values2)
-    : diffRecordsNumerical(attributeName1, attributeName2, values1, values2);
+    ? compareRecordsCategorical(
+        attributeName1,
+        attributeName2,
+        values1,
+        values2
+      )
+    : compareRecordsNumerical(attributeName1, attributeName2, values1, values2);
 
   return {
     collections,
@@ -80,7 +85,7 @@ export function diff(
   };
 }
 
-function diffRecordsCategorical(
+function compareRecordsCategorical(
   attributeName1: string,
   attributeName2: string,
   values1: unknown[],
@@ -99,19 +104,19 @@ function diffRecordsCategorical(
         records.push({
           [attributeName1]: change.value[j],
           [attributeName2]: "",
-          [DIFF_STATUS_COLUMN_NAME]: RED,
+          [COMPARE_STATUS_COLUMN_NAME]: RED,
         });
       } else if (change.added) {
         records.push({
           [attributeName1]: "",
           [attributeName2]: change.value[j],
-          [DIFF_STATUS_COLUMN_NAME]: GREEN,
+          [COMPARE_STATUS_COLUMN_NAME]: GREEN,
         });
       } else {
         records.push({
           [attributeName1]: change.value[j],
           [attributeName2]: change.value[j],
-          [DIFF_STATUS_COLUMN_NAME]: "",
+          [COMPARE_STATUS_COLUMN_NAME]: "",
         });
       }
     }
@@ -120,7 +125,7 @@ function diffRecordsCategorical(
   return records;
 }
 
-function diffRecordsNumerical(
+function compareRecordsNumerical(
   attributeName1: string,
   attributeName2: string,
   values1: unknown[],
@@ -136,8 +141,8 @@ function diffRecordsNumerical(
       records.push({
         [attributeName1]: values1[i],
         [attributeName2]: values2[i],
-        [DIFF_VALUE_COLUMN_NAME]: "",
-        [DIFF_STATUS_COLUMN_NAME]: "",
+        [COMPARE_VALUE_COLUMN_NAME]: "",
+        [COMPARE_STATUS_COLUMN_NAME]: "",
       });
       continue;
     }
@@ -150,8 +155,8 @@ function diffRecordsNumerical(
       records.push({
         [attributeName1]: values1[i],
         [attributeName2]: values2[i],
-        [DIFF_VALUE_COLUMN_NAME]: "",
-        [DIFF_STATUS_COLUMN_NAME]: "",
+        [COMPARE_VALUE_COLUMN_NAME]: "",
+        [COMPARE_STATUS_COLUMN_NAME]: "",
       });
       continue;
     }
@@ -160,8 +165,8 @@ function diffRecordsNumerical(
     records.push({
       [attributeName1]: values1[i],
       [attributeName2]: values2[i],
-      [DIFF_VALUE_COLUMN_NAME]: difference,
-      [DIFF_STATUS_COLUMN_NAME]:
+      [COMPARE_VALUE_COLUMN_NAME]: difference,
+      [COMPARE_STATUS_COLUMN_NAME]:
         difference > 0 ? GREEN : difference < 0 ? RED : "",
     });
   }

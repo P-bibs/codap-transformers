@@ -43,11 +43,14 @@ export function compare(
     );
   }
 
+  const safeAttributeName2 =
+    attributeName1 === attributeName2 ? attributeName2 + "(1)" : attributeName2;
+
   const collections: Collection[] = [
     {
       name: `Comparison of ${attributeName1} and ${attributeName2}`,
       labels: {},
-      attrs: [attributeData1, attributeData2],
+      attrs: [attributeData1, { ...attributeData2, name: safeAttributeName2 }],
     },
   ];
   if (!isCategorical) {
@@ -73,11 +76,16 @@ export function compare(
   const records = isCategorical
     ? compareRecordsCategorical(
         attributeName1,
-        attributeName2,
+        safeAttributeName2,
         values1,
         values2
       )
-    : compareRecordsNumerical(attributeName1, attributeName2, values1, values2);
+    : compareRecordsNumerical(
+        attributeName1,
+        safeAttributeName2,
+        values1,
+        values2
+      );
 
   return {
     collections,

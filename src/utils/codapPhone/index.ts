@@ -15,10 +15,8 @@ import {
   ReturnedCollection,
   DataContext,
   ReturnedDataContext,
-  CodapAttribute,
   CodapListResource,
   CodapIdentifyingInfo,
-  CodapComponent,
   CaseTable,
   GetDataListResponse,
 } from "./types";

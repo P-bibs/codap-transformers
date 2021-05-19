@@ -3,7 +3,6 @@ import {
   getAllDataContexts,
   addNewContextListener,
   removeNewContextListener,
-  getAllCollections,
   getAllAttributes,
 } from "./codapPhone";
 import { CodapIdentifyingInfo } from "./codapPhone/types";

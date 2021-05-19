@@ -1,24 +1,36 @@
-import React, { useState, useCallback, ReactElement } from "react";
+import React, { useState, useCallback, ReactElement, useEffect } from "react";
 import {
   getDataFromContext,
   setContextItems,
   createTableWithDataSet,
   getDataContext,
+  addContextUpdateListener,
+  removeContextUpdateListener,
 } from "../utils/codapPhone";
-import { useAttributes, useDataContexts } from "../utils/hooks";
+import { useAttributes, useDataContexts, useInput } from "../utils/hooks";
 import { diff } from "../transformations/diff";
 
-interface FilterProps {
+interface DiffProps {
   setErrMsg: (s: string | null) => void;
 }
 
-export function Diff({ setErrMsg }: FilterProps): ReactElement {
-  const [inputDataContext1, setInputDataContext1] =
-    useState<null | string>(null);
-  const [inputDataContext2, setInputDataContext2] =
-    useState<null | string>(null);
-  const [inputAttribute1, setInputAttribute1] = useState<null | string>(null);
-  const [inputAttribute2, setInputAttribute2] = useState<null | string>(null);
+export function Diff({ setErrMsg }: DiffProps): ReactElement {
+  const [inputDataContext1, inputDataContext1OnChange] = useInput<
+    string,
+    HTMLSelectElement
+  >("", () => setErrMsg(null));
+  const [inputDataContext2, inputDataContext2OnChange] = useInput<
+    string,
+    HTMLSelectElement
+  >("", () => setErrMsg(null));
+  const [inputAttribute1, inputAttribute1OnChange] = useInput<
+    string,
+    HTMLSelectElement
+  >("", () => setErrMsg(null));
+  const [inputAttribute2, inputAttribute2OnChange] = useInput<
+    string,
+    HTMLSelectElement
+  >("", () => setErrMsg(null));
 
   const dataContexts = useDataContexts();
   const attributes1 = useAttributes(inputDataContext1);
@@ -85,12 +97,32 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
     ]
   );
 
+  // Listen for updates to first data context
+  useEffect(() => {
+    if (inputDataContext1 !== null) {
+      addContextUpdateListener(inputDataContext1, () => {
+        transform(true);
+      });
+      return () => removeContextUpdateListener(inputDataContext1);
+    }
+  }, [transform, inputDataContext1]);
+
+  // Listen for updates to second data context
+  useEffect(() => {
+    if (inputDataContext2 !== null) {
+      addContextUpdateListener(inputDataContext2, () => {
+        transform(true);
+      });
+      return () => removeContextUpdateListener(inputDataContext2);
+    }
+  }, [transform, inputDataContext2]);
+
   return (
     <>
       <p>Table to Diff 1</p>
       <select
         id="inputDataContext1"
-        onChange={(e) => setInputDataContext1(e.target.value)}
+        onChange={inputDataContext1OnChange}
         defaultValue="default"
       >
         <option disabled value="default">
@@ -105,7 +137,7 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
       <p>Table to Diff 2</p>
       <select
         id="inputDataContext2"
-        onChange={(e) => setInputDataContext2(e.target.value)}
+        onChange={inputDataContext2OnChange}
         defaultValue="default"
       >
         <option disabled value="default">
@@ -121,7 +153,7 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
       <p>First attribute to Diff</p>
       <select
         id="inputAttribute1"
-        onChange={(e) => setInputAttribute1(e.target.value)}
+        onChange={inputAttribute1OnChange}
         defaultValue="default"
       >
         <option disabled value="default">
@@ -137,7 +169,7 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
       <p>Second attribute to Diff</p>
       <select
         id="inputAttribute2"
-        onChange={(e) => setInputAttribute2(e.target.value)}
+        onChange={inputAttribute2OnChange}
         defaultValue="default"
       >
         <option disabled value="default">
@@ -164,7 +196,7 @@ export function Diff({ setErrMsg }: FilterProps): ReactElement {
       </select>
 
       <br />
-      <button onClick={() => transform(false)}>Create Diff</button>
+      <button onClick={() => transform(false)}>Create Table with Diff</button>
       <br />
       <button onClick={() => transform(true)}>
         Update Previous Table With Diff

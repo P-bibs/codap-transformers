@@ -128,14 +128,35 @@ function diffRecordsNumerical(
 ): Record<string, unknown>[] {
   const records = [];
   for (let i = 0; i < Math.max(values1.length, values2.length); i++) {
-    const parsed1: number | null = values1[i]
-      ? parseFloat(`${values1[i]}`)
-      : null;
-    const parsed2: number | null = values1[i]
-      ? parseFloat(`${values2[i]}`)
-      : null;
+    const v1 = values1[i];
+    const v2 = values2[i];
 
-    const difference = parsed1 && parsed2 ? parsed1 - parsed2 : "";
+    // If either is null/undefined, skip and continue
+    if (v1 === null || v2 === null || v1 === undefined || v2 === undefined) {
+      records.push({
+        [attributeName1]: values1[i],
+        [attributeName2]: values2[i],
+        [DIFF_VALUE_COLUMN_NAME]: "",
+        [DIFF_STATUS_COLUMN_NAME]: "",
+      });
+      continue;
+    }
+
+    const parsed1: number = parseFloat(`${values1[i]}`);
+    const parsed2: number = parseFloat(`${values2[i]}`);
+
+    // If either is not a number, skip and continue
+    if (isNaN(parsed1) || isNaN(parsed2)) {
+      records.push({
+        [attributeName1]: values1[i],
+        [attributeName2]: values2[i],
+        [DIFF_VALUE_COLUMN_NAME]: "",
+        [DIFF_STATUS_COLUMN_NAME]: "",
+      });
+      continue;
+    }
+
+    const difference = parsed1 - parsed2;
     records.push({
       [attributeName1]: values1[i],
       [attributeName2]: values2[i],

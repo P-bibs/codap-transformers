@@ -1,5 +1,6 @@
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
+import { Collection } from "../utils/codapPhone/types";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -30,4 +31,19 @@ export function dataItemToEnv(dataItem: Record<string, unknown>): Env {
       return [key, value as Value];
     })
   );
+}
+
+/**
+ * Reparents any collections that have the given parent, to the
+ * parent's parent. This allows the parent to be eliminated.
+ *
+ * @param collections the collections to reparent
+ * @param parent the parent collection being removed
+ */
+export function reparent(collections: Collection[], parent: Collection): void {
+  for (const coll of collections) {
+    if (coll.parent === parent.name) {
+      coll.parent = parent.parent;
+    }
+  }
 }

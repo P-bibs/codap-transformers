@@ -24,7 +24,12 @@ function Transformation(): ReactElement {
     Flatten = "Flatten",
   }
 
-  const transformTypes = [TransformType.Filter, TransformType.Flatten, TransformType.Count, TransformType.SelectAttributes];
+  const transformTypes = [
+    TransformType.Filter,
+    TransformType.Flatten,
+    TransformType.Count,
+    TransformType.SelectAttributes,
+  ];
 
   const [transformType, setTransformType] =
     useState<TransformType | null>(null);

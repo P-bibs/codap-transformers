@@ -4,6 +4,7 @@ import { useState } from "react";
 import "./Transformation.css";
 import Error from "./Error";
 import { Filter } from "./transformation-components/Filter";
+import { Count } from "./transformation-components/Count";
 import { Flatten } from "./transformation-components/Flatten";
 
 /**
@@ -17,10 +18,11 @@ function Transformation(): ReactElement {
    */
   enum TransformType {
     Filter = "Filter",
+    Count = "Count",
     Flatten = "Flatten",
   }
 
-  const transformTypes = [TransformType.Filter, TransformType.Flatten];
+  const transformTypes = [TransformType.Filter, TransformType.Flatten, TransformType.Count];
 
   const [transformType, setTransformType] =
     useState<TransformType | null>(null);
@@ -28,6 +30,7 @@ function Transformation(): ReactElement {
 
   const transformComponents = {
     Filter: <Filter setErrMsg={setErrMsg} />,
+    Count: <Count setErrMsg={setErrMsg} />,
     Flatten: <Flatten setErrMsg={setErrMsg} />,
   };
 

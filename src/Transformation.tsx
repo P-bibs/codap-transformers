@@ -5,6 +5,8 @@ import "./Transformation.css";
 import Error from "./Error";
 import { Filter } from "./transformation-components/Filter";
 import { SelectAttributes } from "./transformation-components/SelectAttributes";
+import { Count } from "./transformation-components/Count";
+import { Flatten } from "./transformation-components/Flatten";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -18,9 +20,11 @@ function Transformation(): ReactElement {
   enum TransformType {
     Filter = "Filter",
     SelectAttributes = "SelectAttributes",
+    Count = "Count",
+    Flatten = "Flatten",
   }
 
-  const transformTypes = [TransformType.Filter, TransformType.SelectAttributes];
+  const transformTypes = [TransformType.Filter, TransformType.Flatten, TransformType.Count, TransformType.SelectAttributes];
 
   const [transformType, setTransformType] =
     useState<TransformType | null>(null);
@@ -29,6 +33,8 @@ function Transformation(): ReactElement {
   const transformComponents = {
     Filter: <Filter setErrMsg={setErrMsg} />,
     SelectAttributes: <SelectAttributes setErrMsg={setErrMsg} />,
+    Count: <Count setErrMsg={setErrMsg} />,
+    Flatten: <Flatten setErrMsg={setErrMsg} />,
   };
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {

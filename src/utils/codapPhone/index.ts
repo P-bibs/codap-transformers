@@ -39,6 +39,29 @@ const phone: CodapPhone = new IframePhoneRpcEndpoint(
   null
 );
 
+const DEFAULT_PLUGIN_WIDTH = 300;
+const DEFAULT_PLUGIN_HEIGHT = 320;
+
+// Initialize
+phone.call(
+  {
+    action: CodapActions.Update,
+    resource: CodapResource.InteractiveFrame,
+    values: {
+      title: "CODAP Flow",
+      dimensions: {
+        width: DEFAULT_PLUGIN_WIDTH,
+        height: DEFAULT_PLUGIN_HEIGHT,
+      },
+    },
+  },
+  (response) => {
+    if (!response.success) {
+      throw new Error("Failed to update CODAP interactive frame");
+    }
+  }
+);
+
 function resourceFromContext(context: string) {
   return `dataContext[${context}]`;
 }
@@ -184,6 +207,27 @@ export function getDataContext(contextName: string): Promise<DataContext> {
   );
 }
 
+// Copies a list of attributes, only copying the fields relevant to our
+// representation of attributes and omitting any extra fields (cid, etc).
+export function copyAttrs(
+  attrs: CodapAttribute[] | undefined
+): CodapAttribute[] | undefined {
+  return attrs?.map((attr) => {
+    return {
+      name: attr.name,
+      title: attr.title,
+      type: attr.type,
+      colormap: attr.colormap,
+      description: attr.description,
+      editable: attr.editable,
+      formula: attr.formula,
+      hidden: attr.hidden,
+      precision: attr.type === "numeric" ? attr.precision : undefined,
+      unit: attr.type === "numeric" ? attr.unit : undefined,
+    };
+  }) as CodapAttribute[];
+}
+
 // In the returned collections, parents show up as numeric ids, so before
 // reusing, we need to look up the names of the parent collections.
 function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
@@ -196,27 +240,10 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
       )?.name;
     }
 
-    // Only copy the non-internal fields from the collection's attributes
-    // In particular, exclude `cid` from attributes
-    const attrs = c.attrs?.map((attr) => {
-      return {
-        name: attr.name,
-        title: attr.title,
-        type: attr.type,
-        colormap: attr.colormap,
-        description: attr.description,
-        editable: attr.editable,
-        formula: attr.formula,
-        hidden: attr.hidden,
-        precision: attr.type === "numeric" ? attr.precision : undefined,
-        unit: attr.type === "numeric" ? attr.unit : undefined,
-      };
-    });
-
     normalized.push({
       name: c.name,
       title: c.title,
-      attrs,
+      attrs: copyAttrs(c.attrs),
       labels: c.labels,
       parent: newParent,
     });

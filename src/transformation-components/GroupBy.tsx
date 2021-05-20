@@ -13,8 +13,6 @@ interface GroupByProps {
   setErrMsg: (s: string | null) => void;
 }
 
-const DEFAULT_PARENT_NAME = "Parent";
-
 export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -22,10 +20,6 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
   >(null, () => setErrMsg(null));
   const [attributes, attributesChange] = useInput<string, HTMLTextAreaElement>(
     "",
-    () => setErrMsg(null)
-  );
-  const [parentName, parentNameChange] = useInput<string, HTMLInputElement>(
-    DEFAULT_PARENT_NAME,
     () => setErrMsg(null)
   );
   const dataContexts = useDataContexts();
@@ -43,10 +37,6 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
       setErrMsg("Please choose at least one attribute to group by");
       return;
     }
-    if (parentName === "") {
-      setErrMsg("Please choose a non-empty name for parent collection");
-      return;
-    }
 
     const dataset = {
       collections: (await getDataContext(inputDataCtxt)).collections,
@@ -55,6 +45,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
 
     // extract attribute names from user's text
     const attributeNames = attributes.split("\n").map((s) => s.trim());
+    const parentName = `Grouped by ${attributeNames.join(", ")}`;
 
     try {
       const grouped = groupBy(dataset, attributeNames, parentName);
@@ -62,7 +53,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
     } catch (e) {
       setErrMsg(e.message);
     }
-  }, [inputDataCtxt, attributes, parentName, setErrMsg]);
+  }, [inputDataCtxt, attributes, setErrMsg]);
 
   useEffect(() => {
     if (inputDataCtxt !== null) {
@@ -91,13 +82,6 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
 
       <p>Attributes to Group By (1 per line)</p>
       <textarea onChange={attributesChange}></textarea>
-
-      <p>Name of New Parent Collection</p>
-      <input
-        type="text"
-        onChange={parentNameChange}
-        defaultValue={DEFAULT_PARENT_NAME}
-      />
 
       <br />
       <button onClick={() => transform()}>Create grouped table</button>

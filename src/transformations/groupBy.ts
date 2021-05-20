@@ -33,9 +33,10 @@ export function groupBy(
     for (const coll of collections) {
       const attr = coll.attrs?.find((attr) => attr.name === attrName);
 
+      // attribute was found in this collection
       if (attr !== undefined) {
-        groupedAttrs.push(attr);
-        coll.attrs?.splice(coll.attrs?.indexOf(attr), 1);
+        // copy and rename grouped attribute
+        groupedAttrs.push({...attr, name: groupedAttrName(attr.name)});
         continue attrLoop;
       }
     }
@@ -69,8 +70,26 @@ export function groupBy(
     labels: {},
   };
 
+  const records = dataset.records.slice();
+  for (const record of records) {
+    for (const attrName of attrNames) {
+      // make copy of record data from original attr into grouped attr
+      record[groupedAttrName(attrName)] = record[attrName];
+    }
+  }
+
   return {
     collections: [collection].concat(collections),
-    records: dataset.records,
+    records,
   };
+}
+
+/**
+ * Constructs the name of the copy of the original attribute that 
+ * appears in the collection everything is grouped by.
+ * @param attr original attribute
+ * @returns grouped attribute name
+ */
+function groupedAttrName(attrName: string): string {
+  return `${attrName} Group`;
 }

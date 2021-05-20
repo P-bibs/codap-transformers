@@ -14,15 +14,17 @@ interface TransformColumnProps {
   setErrMsg: (s: string | null) => void;
 }
 
-export function TransformColumn({ setErrMsg }: TransformColumnProps): ReactElement {
+export function TransformColumn({
+  setErrMsg,
+}: TransformColumnProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributeName, attributeNameChange] = useInput<string, HTMLInputElement>(
-    "",
-    () => setErrMsg(null)
-  );
+  const [attributeName, attributeNameChange] = useInput<
+    string,
+    HTMLInputElement
+  >("", () => setErrMsg(null));
   const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
     "",
     () => setErrMsg(null)
@@ -104,7 +106,7 @@ export function TransformColumn({ setErrMsg }: TransformColumnProps): ReactEleme
       </select>
 
       <p>Attribute to Transform</p>
-      <input type="text" onChange={attributeNameChange}/>
+      <input type="text" onChange={attributeNameChange} />
 
       <p>How to Transform Column</p>
       <textarea onChange={expressionChange}></textarea>

@@ -36,7 +36,7 @@ export function groupBy(
       // attribute was found in this collection
       if (attr !== undefined) {
         // copy and rename grouped attribute
-        groupedAttrs.push({...attr, name: groupedAttrName(attr.name)});
+        groupedAttrs.push({ ...attr, name: groupedAttrName(attr.name) });
         continue attrLoop;
       }
     }
@@ -85,7 +85,7 @@ export function groupBy(
 }
 
 /**
- * Constructs the name of the copy of the original attribute that 
+ * Constructs the name of the copy of the original attribute that
  * appears in the collection everything is grouped by.
  * @param attr original attribute
  * @returns grouped attribute name

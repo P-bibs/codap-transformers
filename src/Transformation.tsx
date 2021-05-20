@@ -8,6 +8,15 @@ import { SelectAttributes } from "./transformation-components/SelectAttributes";
 import { Count } from "./transformation-components/Count";
 import { Flatten } from "./transformation-components/Flatten";
 import { Compare } from "./transformation-components/Compare";
+import { Fold } from "./transformation-components/Fold";
+import { DifferenceFrom } from "./transformation-components/DifferenceFrom";
+import {
+  runningSum,
+  runningMean,
+  runningMin,
+  runningMax,
+  difference,
+} from "./transformations/fold";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -18,24 +27,6 @@ function Transformation(): ReactElement {
    * The broad categories of transformations that can be applied
    * to tables.
    */
-  enum TransformType {
-    Filter = "Filter",
-    SelectAttributes = "SelectAttributes",
-    Count = "Count",
-    Flatten = "Flatten",
-    Compare = "Compare",
-  }
-
-  const transformTypes = [
-    TransformType.Filter,
-    TransformType.Flatten,
-    TransformType.Count,
-    TransformType.SelectAttributes,
-    TransformType.Compare,
-  ];
-
-  const [transformType, setTransformType] =
-    useState<TransformType | null>(null);
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
   const transformComponents = {
@@ -44,7 +35,28 @@ function Transformation(): ReactElement {
     Count: <Count setErrMsg={setErrMsg} />,
     Flatten: <Flatten setErrMsg={setErrMsg} />,
     Compare: <Compare setErrMsg={setErrMsg} />,
+    RunningSum: (
+      <Fold setErrMsg={setErrMsg} label="running sum" foldFunc={runningSum} />
+    ),
+    RunningMean: (
+      <Fold setErrMsg={setErrMsg} label="running mean" foldFunc={runningMean} />
+    ),
+    RunningMin: (
+      <Fold setErrMsg={setErrMsg} label="running min" foldFunc={runningMin} />
+    ),
+    RunningMax: (
+      <Fold setErrMsg={setErrMsg} label="running max" foldFunc={runningMax} />
+    ),
+    RunningDifference: (
+      <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
+    ),
+    DifferenceFrom: <DifferenceFrom setErrMsg={setErrMsg} />,
   };
+
+  type TransformType = keyof typeof transformComponents;
+
+  const [transformType, setTransformType] =
+    useState<TransformType | null>(null);
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setTransformType(event.target.value as TransformType);
@@ -58,10 +70,8 @@ function Transformation(): ReactElement {
         <option disabled value="default">
           Select a Transformation
         </option>
-        {transformTypes.map((type, i) => (
-          <option key={i} value={type}>
-            {type}
-          </option>
+        {Object.keys(transformComponents).map((type, i) => (
+          <option key={i}>{type}</option>
         ))}
       </select>
       {transformType && transformComponents[transformType]}

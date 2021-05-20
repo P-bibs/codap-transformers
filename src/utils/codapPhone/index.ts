@@ -19,6 +19,7 @@ import {
   CodapIdentifyingInfo,
   CaseTable,
   GetDataListResponse,
+  CodapAttribute,
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";

@@ -88,6 +88,10 @@ interface GetDataResponse extends CodapResponse {
   }[];
 }
 
+export interface GetDataListResponse extends CodapResponse {
+  values: CodapIdentifyingInfo[];
+}
+
 export interface GetCasesResponse extends CodapResponse {
   values: Case[];
 }
@@ -106,6 +110,7 @@ export type CodapPhone = {
   call(r: GetListRequest, cb: (r: GetListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
   call(r: GetRequest, cb: (r: GetContextResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetDataListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetCasesResponse) => void): void;
   call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
   call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;

@@ -15,11 +15,11 @@ import {
   ReturnedCollection,
   DataContext,
   ReturnedDataContext,
-  CodapAttribute,
   CodapListResource,
   CodapIdentifyingInfo,
-  CodapComponent,
   CaseTable,
+  GetDataListResponse,
+  CodapAttribute,
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
@@ -68,6 +68,13 @@ function resourceFromContext(context: string) {
 
 function resourceFromCollection(collection: string) {
   return `collection[${collection}]`;
+}
+function collectionListFromContext(context: string) {
+  return `dataContext[${context}].collectionList`;
+}
+
+function attributeListFromCollection(context: string, collection: string) {
+  return `dataContext[${context}].collection[${collection}].attributeList`;
 }
 
 function itemFromContext(context: string) {
@@ -162,6 +169,62 @@ export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {
       }
     )
   );
+}
+
+export function getAllCollections(
+  context: string
+): Promise<CodapIdentifyingInfo[]> {
+  return new Promise<CodapIdentifyingInfo[]>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: collectionListFromContext(context),
+      },
+      (response: GetDataListResponse) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get collections."));
+        }
+      }
+    )
+  );
+}
+
+export async function getAllAttributes(
+  context: string
+): Promise<CodapIdentifyingInfo[]> {
+  // Get the name (as a string) of each collection in the context
+  const collections = (await getAllCollections(context)).map(
+    (collection) => collection.name
+  );
+
+  // Make a request to get the attributes for each collection
+  const promises = collections.map(
+    (collectionName) =>
+      new Promise<CodapIdentifyingInfo[]>((resolve, reject) =>
+        phone.call(
+          {
+            action: CodapActions.Get,
+            resource: attributeListFromCollection(context, collectionName),
+          },
+          (response: GetDataListResponse) => {
+            if (response.success) {
+              resolve(response.values);
+            } else {
+              reject(new Error("Failed to get attributes."));
+            }
+          }
+        )
+      )
+  );
+
+  // Wait for all promises to return
+  const attributes = await Promise.all(promises);
+
+  // flatten and return the set of attributes
+  // return attributes.reduce((acc, elt) => [...acc, ...elt]);
+  return attributes.flat();
 }
 
 export function getDataFromContext(

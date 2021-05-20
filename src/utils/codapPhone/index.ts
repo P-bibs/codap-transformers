@@ -207,6 +207,27 @@ export function getDataContext(contextName: string): Promise<DataContext> {
   );
 }
 
+// Copies a list of attributes, only copying the fields relevant to our
+// representation of attributes and omitting any extra fields (cid, etc).
+export function copyAttrs(
+  attrs: CodapAttribute[] | undefined
+): CodapAttribute[] | undefined {
+  return attrs?.map((attr) => {
+    return {
+      name: attr.name,
+      title: attr.title,
+      type: attr.type,
+      colormap: attr.colormap,
+      description: attr.description,
+      editable: attr.editable,
+      formula: attr.formula,
+      hidden: attr.hidden,
+      precision: attr.type === "numeric" ? attr.precision : undefined,
+      unit: attr.type === "numeric" ? attr.unit : undefined,
+    };
+  }) as CodapAttribute[];
+}
+
 // In the returned collections, parents show up as numeric ids, so before
 // reusing, we need to look up the names of the parent collections.
 function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
@@ -219,27 +240,10 @@ function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
       )?.name;
     }
 
-    // Only copy the non-internal fields from the collection's attributes
-    // In particular, exclude `cid` from attributes
-    const attrs = c.attrs?.map((attr) => {
-      return {
-        name: attr.name,
-        title: attr.title,
-        type: attr.type,
-        colormap: attr.colormap,
-        description: attr.description,
-        editable: attr.editable,
-        formula: attr.formula,
-        hidden: attr.hidden,
-        precision: attr.type === "numeric" ? attr.precision : undefined,
-        unit: attr.type === "numeric" ? attr.unit : undefined,
-      };
-    });
-
     normalized.push({
       name: c.name,
       title: c.title,
-      attrs,
+      attrs: copyAttrs(c.attrs),
       labels: c.labels,
       parent: newParent,
     });

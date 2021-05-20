@@ -13,6 +13,8 @@ interface GroupByProps {
   setErrMsg: (s: string | null) => void;
 }
 
+const DEFAULT_PARENT_NAME = "Parent";
+
 export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -23,7 +25,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
     () => setErrMsg(null)
   );
   const [parentName, parentNameChange] = useInput<string, HTMLInputElement>(
-    "",
+    DEFAULT_PARENT_NAME,
     () => setErrMsg(null)
   );
   const dataContexts = useDataContexts();
@@ -35,6 +37,14 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
   const transform = useCallback(async () => {
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (attributes === "") {
+      setErrMsg("Please choose at least one attribute to group by");
+      return;
+    }
+    if (parentName === "") {
+      setErrMsg("Please choose a non-empty name for parent collection");
       return;
     }
 
@@ -83,7 +93,11 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
       <textarea onChange={attributesChange}></textarea>
 
       <p>Name of New Parent Collection</p>
-      <input type="text" onChange={parentNameChange} defaultValue="Parent" />
+      <input
+        type="text"
+        onChange={parentNameChange}
+        defaultValue={DEFAULT_PARENT_NAME}
+      />
 
       <br />
       <button onClick={() => transform()}>Create grouped table</button>

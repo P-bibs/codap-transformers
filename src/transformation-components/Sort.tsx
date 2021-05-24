@@ -1,11 +1,15 @@
-import React, { useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
 import {
   getDataFromContext,
   createTableWithDataSet,
   getDataContext,
   getDataSet,
 } from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+import {
+  useContextUpdateListenerWithFlowEffect,
+  useDataContexts,
+  useInput,
+} from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { sort } from "../transformations/sort";
 import {
@@ -27,6 +31,8 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
 
   const dataContexts = useDataContexts();
 
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
+
   const transform = useCallback(async () => {
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid data context to transform.");
@@ -47,6 +53,15 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
       setErrMsg(e.message);
     }
   }, [inputDataCtxt, setErrMsg, keyExpression]);
+
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform();
+    },
+    [transform]
+  );
 
   return (
     <>

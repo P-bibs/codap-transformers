@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, { useEffect, useCallback, ReactElement, useState } from "react";
 import {
   getDataFromContext,
   setContextItems,
@@ -8,7 +8,11 @@ import {
   getDataContext,
   getDataSet,
 } from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+import {
+  useContextUpdateListenerWithFlowEffect,
+  useDataContexts,
+  useInput,
+} from "../utils/hooks";
 import { filter } from "../transformations/filter";
 import {
   CodapFlowSelect,
@@ -68,6 +72,15 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       }
     },
     [inputDataCtxt, transformPgrm, lastContextName, setErrMsg]
+  );
+
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
   );
 
   useEffect(() => {

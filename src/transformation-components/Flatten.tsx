@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, ReactElement } from "react";
+import React, { useEffect, useCallback, ReactElement, useState } from "react";
 import {
   getDataFromContext,
   addContextUpdateListener,
@@ -7,7 +7,11 @@ import {
   getDataContext,
   getDataSet,
 } from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+import {
+  useContextUpdateListenerWithFlowEffect,
+  useDataContexts,
+  useInput,
+} from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
 import { CodapFlowSelect, TransformationSubmitButtons } from "../ui-components";
 
@@ -21,6 +25,8 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
   const dataContexts = useDataContexts();
+
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
    * Applies the flatten transformation to the input data context,
@@ -42,14 +48,14 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
     }
   }, [inputDataCtxt, setErrMsg]);
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, () => {
-        transform();
-      });
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform();
+    },
+    [transform]
+  );
 
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, ReactElement } from "react";
+import React, { useEffect, useCallback, ReactElement, useState } from "react";
 import {
   getDataFromContext,
   addContextUpdateListener,
@@ -7,7 +7,11 @@ import {
   getDataContext,
   getDataSet,
 } from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+import {
+  useContextUpdateListenerWithFlowEffect,
+  useDataContexts,
+  useInput,
+} from "../utils/hooks";
 import { selectAttributes } from "../transformations/selectAttributes";
 import {
   CodapFlowSelect,
@@ -32,6 +36,8 @@ export function SelectAttributes({
   );
   const dataContexts = useDataContexts();
 
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
+
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
@@ -55,12 +61,14 @@ export function SelectAttributes({
     }
   }, [inputDataCtxt, attributes, setErrMsg]);
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, transform);
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform();
+    },
+    [transform]
+  );
 
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, ReactElement } from "react";
+import React, { useEffect, useCallback, ReactElement, useState } from "react";
 import {
   getDataFromContext,
   addContextUpdateListener,
@@ -7,7 +7,11 @@ import {
   getDataContext,
   getDataSet,
 } from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+import {
+  useContextUpdateListenerWithFlowEffect,
+  useDataContexts,
+  useInput,
+} from "../utils/hooks";
 import { count } from "../transformations/count";
 import {
   CodapFlowTextInput,
@@ -29,6 +33,8 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
     HTMLInputElement
   >("", () => setErrMsg(null));
   const dataContexts = useDataContexts();
+
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -56,6 +62,15 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       return () => removeContextUpdateListener(inputDataCtxt);
     }
   }, [transform, inputDataCtxt]);
+
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform();
+    },
+    [transform]
+  );
 
   return (
     <>

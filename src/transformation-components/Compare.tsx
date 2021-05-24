@@ -8,7 +8,13 @@ import {
   removeContextUpdateListener,
   getDataSet,
 } from "../utils/codapPhone";
-import { useAttributes, useDataContexts, useInput } from "../utils/hooks";
+import {
+  useAttributes,
+  useContextUpdateListener,
+  useContextUpdateListenerWithFlowEffect,
+  useDataContexts,
+  useInput,
+} from "../utils/hooks";
 import { compare } from "../transformations/compare";
 import { CodapFlowSelect, TransformationSubmitButtons } from "../ui-components";
 
@@ -18,21 +24,21 @@ interface CompareProps {
 
 export function Compare({ setErrMsg }: CompareProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
-    string,
+    string | null,
     HTMLSelectElement
-  >("", () => setErrMsg(null));
+  >(null, () => setErrMsg(null));
   const [inputDataContext2, inputDataContext2OnChange] = useInput<
-    string,
+    string | null,
     HTMLSelectElement
-  >("", () => setErrMsg(null));
+  >(null, () => setErrMsg(null));
   const [inputAttribute1, inputAttribute1OnChange] = useInput<
-    string,
+    string | null,
     HTMLSelectElement
-  >("", () => setErrMsg(null));
+  >(null, () => setErrMsg(null));
   const [inputAttribute2, inputAttribute2OnChange] = useInput<
-    string,
+    string | null,
     HTMLSelectElement
-  >("", () => setErrMsg(null));
+  >(null, () => setErrMsg(null));
 
   const dataContexts = useDataContexts();
   const attributes1 = useAttributes(inputDataContext1);
@@ -93,26 +99,23 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
     ]
   );
 
-  // FIXME: can we find a way to make these update listeners more automatic?
-  // Listen for updates to first data context
-  useEffect(() => {
-    if (inputDataContext1 !== null) {
-      addContextUpdateListener(inputDataContext1, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataContext1);
-    }
-  }, [transform, inputDataContext1]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataContext1,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
-  // Listen for updates to second data context
-  useEffect(() => {
-    if (inputDataContext2 !== null) {
-      addContextUpdateListener(inputDataContext2, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataContext2);
-    }
-  }, [transform, inputDataContext2]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataContext2,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>

@@ -1,11 +1,15 @@
-import React, { useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
 import {
   getDataFromContext,
   createTableWithDataSet,
   getDataContext,
   getDataSet,
 } from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+import {
+  useContextUpdateListenerWithFlowEffect,
+  useDataContexts,
+  useInput,
+} from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { differenceFrom } from "../transformations/fold";
 import {
@@ -38,6 +42,8 @@ export function DifferenceFrom({
   >("0", () => setErrMsg(null));
 
   const dataContexts = useDataContexts();
+
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   const transform = useCallback(async () => {
     if (inputDataCtxt === null) {
@@ -77,6 +83,15 @@ export function DifferenceFrom({
     setErrMsg,
     startingValue,
   ]);
+
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform();
+    },
+    [transform]
+  );
 
   return (
     <>

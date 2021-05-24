@@ -2,15 +2,14 @@ import React, { useCallback, ReactElement, useState } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
-  useDataContexts,
   useInput,
 } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { DataSet } from "../transformations/types";
 import {
   CodapFlowTextInput,
-  CodapFlowSelect,
   TransformationSubmitButtons,
+  ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
 
@@ -38,8 +37,6 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     string,
     HTMLInputElement
   >("", () => setErrMsg(null));
-
-  const dataContexts = useDataContexts();
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -92,15 +89,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
   return (
     <>
       <p>Table to calculate {label} on</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
       <p>Input Column Name:</p>
       <CodapFlowTextInput
         value={inputColumnName}

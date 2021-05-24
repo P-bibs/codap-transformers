@@ -1,7 +1,6 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
-  useDataContexts,
   useInput,
   useContextUpdateListenerWithFlowEffect,
 } from "../utils/hooks";
@@ -9,8 +8,8 @@ import { groupBy } from "../transformations/groupBy";
 import { applyNewDataSet } from "./util";
 import {
   CodapFlowTextArea,
-  CodapFlowSelect,
   TransformationSubmitButtons,
+  ContextSelector,
 } from "../ui-components";
 
 interface GroupByProps {
@@ -26,7 +25,6 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
     "",
     () => setErrMsg(null)
   );
-  const dataContexts = useDataContexts();
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -79,15 +77,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
   return (
     <>
       <p>Table to Group</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
       <p>Attributes to Group By (1 per line)</p>
       <CodapFlowTextArea value={attributes} onChange={attributesChange} />
 

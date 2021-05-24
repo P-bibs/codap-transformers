@@ -2,14 +2,13 @@ import React, { useCallback, ReactElement, useState } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
-  useDataContexts,
   useInput,
 } from "../utils/hooks";
 import { count } from "../transformations/count";
 import {
-  CodapFlowTextInput,
-  CodapFlowSelect,
   TransformationSubmitButtons,
+  ContextSelector,
+  AttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
 
@@ -24,9 +23,8 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
   >(null, () => setErrMsg(null));
   const [attributeName, attributeNameChange] = useInput<
     string,
-    HTMLInputElement
+    HTMLSelectElement
   >("", () => setErrMsg(null));
-  const dataContexts = useDataContexts();
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -71,18 +69,11 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
   return (
     <>
       <p>Table to Count</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Attribute to Count</p>
-      <CodapFlowTextInput
+      <AttributeSelector
+        context={inputDataCtxt}
         value={attributeName}
         onChange={attributeNameChange}
       />

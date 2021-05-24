@@ -1,13 +1,16 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
-  useAttributes,
   useContextUpdateListenerWithFlowEffect,
-  useDataContexts,
   useInput,
 } from "../utils/hooks";
 import { compare } from "../transformations/compare";
-import { CodapFlowSelect, TransformationSubmitButtons } from "../ui-components";
+import {
+  CodapFlowSelect,
+  AttributeSelector,
+  ContextSelector,
+  TransformationSubmitButtons,
+} from "../ui-components";
 import { applyNewDataSet } from "./util";
 
 interface CompareProps {
@@ -31,10 +34,6 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-
-  const dataContexts = useDataContexts();
-  const attributes1 = useAttributes(inputDataContext1);
-  const attributes2 = useAttributes(inputDataContext2);
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -106,46 +105,28 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
   return (
     <>
       <p>Table to Compare 1</p>
-      <CodapFlowSelect
-        onChange={inputDataContext1OnChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
+      <ContextSelector
         value={inputDataContext1}
-        defaultValue="Select a Data Context"
+        onChange={inputDataContext1OnChange}
       />
       <p>Table to Compare 2</p>
-      <CodapFlowSelect
-        onChange={inputDataContext2OnChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
+      <ContextSelector
         value={inputDataContext2}
-        defaultValue="Select a Data Context"
+        onChange={inputDataContext2OnChange}
       />
 
       <p>First attribute to Compare</p>
-      <CodapFlowSelect
+      <AttributeSelector
         onChange={inputAttribute1OnChange}
-        options={attributes1.map((attribute) => ({
-          value: attribute.name,
-          title: `${attribute.title} (${attribute.name})`,
-        }))}
         value={inputAttribute1}
-        defaultValue="Select an attribute"
+        context={inputDataContext1}
       />
 
       <p>Second attribute to Compare</p>
-      <CodapFlowSelect
+      <AttributeSelector
         onChange={inputAttribute2OnChange}
-        options={attributes2.map((attribute) => ({
-          value: attribute.name,
-          title: `${attribute.title} (${attribute.name})`,
-        }))}
         value={inputAttribute2}
-        defaultValue="Select an attribute"
+        context={inputDataContext2}
       />
 
       <p>What kind of Comparison?</p>

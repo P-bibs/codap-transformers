@@ -6,14 +6,13 @@ import {
 } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
-  useDataContexts,
   useInput,
 } from "../utils/hooks";
 import { filter } from "../transformations/filter";
 import {
-  CodapFlowSelect,
   TransformationSubmitButtons,
   CodapFlowTextArea,
+  ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
 
@@ -30,7 +29,6 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
     "",
     () => setErrMsg(null)
   );
-  const dataContexts = useDataContexts();
   const [lastContextName, setLastContextName] = useState<string | null>(null);
 
   /**
@@ -86,15 +84,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
   return (
     <>
       <p>Table to Filter</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>How to Filter</p>
       <CodapFlowTextArea onChange={pgrmChange} value={transformPgrm} />

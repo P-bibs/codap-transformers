@@ -3,6 +3,7 @@ import {
   getDataFromContext,
   createTableWithDataSet,
   getDataContext,
+  getDataSet,
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
@@ -37,10 +38,7 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
       return;
     }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+    const dataset = await getDataSet(inputDataCtxt);
 
     try {
       const result = sort(dataset, keyExpression);

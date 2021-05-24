@@ -5,6 +5,7 @@ import {
   removeContextUpdateListener,
   createTableWithDataSet,
   getDataContext,
+  getDataSet,
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { selectAttributes } from "../transformations/selectAttributes";
@@ -41,10 +42,7 @@ export function SelectAttributes({
       return;
     }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+    const dataset = await getDataSet(inputDataCtxt);
 
     // extract attribute names from user's text
     const attributeNames = attributes.split("\n").map((s) => s.trim());

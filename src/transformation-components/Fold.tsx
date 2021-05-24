@@ -3,6 +3,7 @@ import {
   getDataFromContext,
   createTableWithDataSet,
   getDataContext,
+  getDataSet,
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
@@ -51,10 +52,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       return;
     }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+    const dataset = await getDataSet(inputDataCtxt);
 
     try {
       const result = foldFunc(dataset, inputColumnName, resultColumnName);

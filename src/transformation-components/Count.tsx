@@ -5,6 +5,7 @@ import {
   removeContextUpdateListener,
   createTableWithDataSet,
   getDataContext,
+  getDataSet,
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { count } from "../transformations/count";
@@ -39,10 +40,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       return;
     }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+    const dataset = await getDataSet(inputDataCtxt);
 
     try {
       const counted = count(dataset, attributeName);

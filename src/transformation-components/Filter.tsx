@@ -6,6 +6,7 @@ import {
   removeContextUpdateListener,
   createTableWithDataSet,
   getDataContext,
+  getDataSet,
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { filter } from "../transformations/filter";
@@ -45,10 +46,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       console.log(`Data context to filter: ${inputDataCtxt}`);
       console.log(`Filter predicate to apply:\n${transformPgrm}`);
 
-      const dataset = {
-        collections: (await getDataContext(inputDataCtxt)).collections,
-        records: await getDataFromContext(inputDataCtxt),
-      };
+      const dataset = await getDataSet(inputDataCtxt);
 
       try {
         const filtered = filter(dataset, transformPgrm);

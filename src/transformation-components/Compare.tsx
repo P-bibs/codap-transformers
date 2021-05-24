@@ -6,6 +6,7 @@ import {
   getDataContext,
   addContextUpdateListener,
   removeContextUpdateListener,
+  getDataSet,
 } from "../utils/codapPhone";
 import { useAttributes, useDataContexts, useInput } from "../utils/hooks";
 import { compare } from "../transformations/compare";
@@ -53,15 +54,8 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         return;
       }
 
-      // FIXME: perhaps a wrapper function for making a dataset from a context name?
-      const dataset1 = {
-        collections: (await getDataContext(inputDataContext1)).collections,
-        records: await getDataFromContext(inputDataContext1),
-      };
-      const dataset2 = {
-        collections: (await getDataContext(inputDataContext2)).collections,
-        records: await getDataFromContext(inputDataContext2),
-      };
+      const dataset1 = await getDataSet(inputDataContext1);
+      const dataset2 = await getDataSet(inputDataContext2);
 
       const compared = compare(
         dataset1,

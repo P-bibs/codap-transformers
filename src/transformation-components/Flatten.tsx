@@ -5,6 +5,7 @@ import {
   removeContextUpdateListener,
   createTableWithDataSet,
   getDataContext,
+  getDataSet,
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
@@ -31,10 +32,7 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
       return;
     }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+    const dataset = await getDataSet(inputDataCtxt);
 
     try {
       const flat = flatten(dataset);

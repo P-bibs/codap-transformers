@@ -1,10 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import {
-  getDataFromContext,
-  createTableWithDataSet,
-  getDataContext,
-  getDataSet,
-} from "../utils/codapPhone";
+import { getDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useDataContexts,

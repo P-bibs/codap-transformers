@@ -8,9 +8,11 @@ import {
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { count } from "../transformations/count";
-import { CodapFlowTextInput } from "../ui-components/CodapFlowTextInput";
-import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
-import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
+import {
+  CodapFlowTextInput,
+  CodapFlowSelect,
+  TransformationSubmitButtons,
+} from "../ui-components";
 
 interface CountProps {
   setErrMsg: (s: string | null) => void;

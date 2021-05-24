@@ -5,7 +5,7 @@ interface CodapFlowTextInputProps {
   value: string;
 }
 
-export function CodapFlowTextInput({
+export default function CodapFlowTextInput({
   onChange,
   value,
 }: CodapFlowTextInputProps): ReactElement {

@@ -6,7 +6,7 @@ interface TransformationSubmitButtonsProps {
   updateDisabled: boolean;
 }
 
-export function TransformationSubmitButtons({
+export default function TransformationSubmitButtons({
   onCreate,
   onUpdate,
   updateDisabled,

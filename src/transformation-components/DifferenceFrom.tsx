@@ -7,9 +7,11 @@ import {
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { differenceFrom } from "../transformations/fold";
-import { CodapFlowTextInput } from "../ui-components/CodapFlowTextInput";
-import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
-import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
+import {
+  CodapFlowTextInput,
+  CodapFlowSelect,
+  TransformationSubmitButtons,
+} from "../ui-components";
 
 export function DifferenceFrom({
   setErrMsg,

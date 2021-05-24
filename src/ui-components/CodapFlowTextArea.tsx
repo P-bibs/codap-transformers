@@ -5,7 +5,7 @@ interface CodapFlowTextAreaProps {
   value: string;
 }
 
-export function CodapFlowTextArea({
+export default function CodapFlowTextArea({
   onChange,
   value,
 }: CodapFlowTextAreaProps): ReactElement {

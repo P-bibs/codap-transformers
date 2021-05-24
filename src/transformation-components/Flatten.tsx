@@ -8,8 +8,7 @@ import {
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
-import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
-import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
+import { CodapFlowSelect, TransformationSubmitButtons } from "../ui-components";
 
 interface FlattenProps {
   setErrMsg: (s: string | null) => void;

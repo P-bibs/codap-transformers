@@ -9,8 +9,7 @@ import {
 } from "../utils/codapPhone";
 import { useAttributes, useDataContexts, useInput } from "../utils/hooks";
 import { compare } from "../transformations/compare";
-import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
-import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
+import { CodapFlowSelect, TransformationSubmitButtons } from "../ui-components";
 
 interface CompareProps {
   setErrMsg: (s: string | null) => void;

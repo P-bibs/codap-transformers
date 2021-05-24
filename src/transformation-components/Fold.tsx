@@ -7,9 +7,11 @@ import {
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { DataSet } from "../transformations/types";
-import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
-import { CodapFlowTextInput } from "../ui-components/CodapFlowTextInput";
-import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
+import {
+  CodapFlowTextInput,
+  CodapFlowSelect,
+  TransformationSubmitButtons,
+} from "../ui-components";
 
 interface FoldProps extends TransformationProps {
   label: string;

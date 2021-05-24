@@ -7,9 +7,11 @@ import {
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { sort } from "../transformations/sort";
-import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
-import { CodapFlowTextArea } from "../ui-components/CodapFlowTextArea";
-import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
+import {
+  CodapFlowSelect,
+  TransformationSubmitButtons,
+  CodapFlowTextArea,
+} from "../ui-components";
 
 export function Sort({ setErrMsg }: TransformationProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<

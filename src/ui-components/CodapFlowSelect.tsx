@@ -10,7 +10,7 @@ interface CodapFlowSelectProps<T extends string | number> {
   }[];
 }
 
-export function CodapFlowSelect<T extends string | number>({
+export default function CodapFlowSelect<T extends string | number>({
   onChange,
   value,
   defaultValue,

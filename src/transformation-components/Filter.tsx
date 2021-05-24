@@ -9,9 +9,11 @@ import {
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { filter } from "../transformations/filter";
-import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
-import { CodapFlowTextArea } from "../ui-components/CodapFlowTextArea";
-import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
+import {
+  CodapFlowSelect,
+  TransformationSubmitButtons,
+  CodapFlowTextArea,
+} from "../ui-components";
 
 interface FilterProps {
   setErrMsg: (s: string | null) => void;

@@ -110,7 +110,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         onChange={inputDataContext1OnChange}
         options={dataContexts.map((dataContext) => ({
           value: dataContext.name,
-          title: `${dataContext.title} (${dataContext.name})`,
+          title: dataContext.title,
         }))}
         value={inputDataContext1}
         defaultValue="Select a Data Context"
@@ -120,7 +120,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         onChange={inputDataContext2OnChange}
         options={dataContexts.map((dataContext) => ({
           value: dataContext.name,
-          title: `${dataContext.title} (${dataContext.name})`,
+          title: dataContext.title,
         }))}
         value={inputDataContext2}
         defaultValue="Select a Data Context"

@@ -86,7 +86,7 @@ export function TransformColumn({
         onChange={inputChange}
         options={dataContexts.map((dataContext) => ({
           value: dataContext.name,
-          title: `${dataContext.title} (${dataContext.name})`,
+          title: dataContext.title,
         }))}
         value={inputDataCtxt}
         defaultValue="Select a Data Context"

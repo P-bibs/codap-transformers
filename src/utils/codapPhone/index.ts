@@ -461,35 +461,107 @@ export function insertDataItems(
   );
 }
 
+function shallowEqual(a: any, b: any): boolean {
+  if (a === b) {
+    return true;
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+
+  for (const key of keysA) {
+    if (!Object.prototype.hasOwnProperty.call(b, key) || a[key] !== b[key]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function attributesEqual(
+  attributes1?: CodapAttribute[],
+  attributes2?: CodapAttribute[]
+): boolean {
+  if (attributes1 === undefined || attributes2 === undefined) {
+    return attributes1 === attributes2;
+  }
+  return listEqual(attributes1, attributes2, shallowEqual);
+}
+
+function collectionEqual(c1: Collection, c2: Collection): boolean {
+  return (
+    c1.name === c2.name &&
+    c1.title === c2.title &&
+    c1.description === c2.description &&
+    shallowEqual(c1.labels, c2.labels) &&
+    attributesEqual(c1.attrs, c2.attrs)
+  );
+}
+
+function listEqual<T>(
+  l1: T[],
+  l2: T[],
+  equalityFunc: (a: T, b: T) => boolean
+): boolean {
+  if (l1.length !== l2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < l1.length; i++) {
+    if (!equalityFunc(l1[i], l2[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function collectionsEqual(
+  collections1: Collection[],
+  collections2: Collection[]
+) {
+  return listEqual(collections1, collections2, collectionEqual);
+}
+
 export async function updateContextWithDataSet(
   contextName: string,
   dataset: DataSet
 ): Promise<void> {
   const context = await getDataContext(contextName);
-  const concatNames = (nameAcc: string, collection: Collection) =>
-    nameAcc + collection.name;
-  const uniqueName =
-    context.collections.reduce(concatNames, "") +
-    dataset.collections.reduce(concatNames, "");
 
-  // Create placeholder empty collection, since data contexts must have at least
-  // one collection
-  await createCollections(contextName, [
-    {
-      name: uniqueName,
-      labels: {},
-    },
-  ]);
-
-  // Delete old collections
   for (const collection of context.collections) {
     await deleteAllCases(contextName, collection.name);
-    await deleteCollection(contextName, collection.name);
   }
 
-  // Insert new collections and delete placeholder
-  await createCollections(contextName, dataset.collections);
-  await deleteCollection(contextName, uniqueName);
+  if (!collectionsEqual(context.collections, dataset.collections)) {
+    const concatNames = (nameAcc: string, collection: Collection) =>
+      nameAcc + collection.name;
+    const uniqueName =
+      context.collections.reduce(concatNames, "") +
+      dataset.collections.reduce(concatNames, "");
+
+    // Create placeholder empty collection, since data contexts must have at least
+    // one collection
+    await createCollections(contextName, [
+      {
+        name: uniqueName,
+        labels: {},
+      },
+    ]);
+
+    // Delete old collections
+    for (const collection of context.collections) {
+      await deleteCollection(contextName, collection.name);
+    }
+
+    // Insert new collections and delete placeholder
+    await createCollections(contextName, dataset.collections);
+    await deleteCollection(contextName, uniqueName);
+  }
 
   await insertDataItems(contextName, dataset.records);
 }
@@ -524,14 +596,13 @@ function deleteCollection(context: string, collection: string): Promise<void> {
         resource: collectionOfContext(context, collection),
       },
       (response) => {
-        // if (response.success) {
-        //   resolve();
-        // } else {
-        //   reject(
-        //     new Error(`Failed to delete collection ${collection} in ${context}`)
-        //   );
-        // }
-        resolve();
+        if (response.success) {
+          resolve();
+        } else {
+          reject(
+            new Error(`Failed to delete collection ${collection} in ${context}`)
+          );
+        }
       }
     )
   );

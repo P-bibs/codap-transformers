@@ -70,7 +70,14 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         setErrMsg(e.message);
       }
     },
-    [inputDataCtxt, inputColumnName, resultColumnName, setErrMsg, foldFunc]
+    [
+      inputDataCtxt,
+      inputColumnName,
+      resultColumnName,
+      setErrMsg,
+      foldFunc,
+      lastContextName,
+    ]
   );
 
   useContextUpdateListenerWithFlowEffect(

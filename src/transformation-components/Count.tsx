@@ -56,7 +56,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         setErrMsg(e.message);
       }
     },
-    [inputDataCtxt, attributeName, setErrMsg]
+    [inputDataCtxt, attributeName, setErrMsg, lastContextName]
   );
 
   useContextUpdateListenerWithFlowEffect(

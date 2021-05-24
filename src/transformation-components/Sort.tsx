@@ -56,7 +56,7 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
         setErrMsg(e.message);
       }
     },
-    [inputDataCtxt, setErrMsg, keyExpression]
+    [inputDataCtxt, setErrMsg, keyExpression, lastContextName]
   );
 
   useContextUpdateListenerWithFlowEffect(

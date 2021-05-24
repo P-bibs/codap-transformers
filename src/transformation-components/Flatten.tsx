@@ -48,7 +48,7 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
         setErrMsg(e.message);
       }
     },
-    [inputDataCtxt, setErrMsg]
+    [inputDataCtxt, setErrMsg, lastContextName]
   );
 
   useContextUpdateListenerWithFlowEffect(

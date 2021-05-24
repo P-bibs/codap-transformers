@@ -1,10 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import {
-  getDataFromContext,
-  createTableWithDataSet,
-  getDataContext,
-  getDataSet,
-} from "../utils/codapPhone";
+import { getDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useDataContexts,
@@ -85,7 +80,14 @@ export function DifferenceFrom({
         setErrMsg(e.message);
       }
     },
-    [inputDataCtxt, inputColumnName, resultColumnName, setErrMsg, startingValue]
+    [
+      inputDataCtxt,
+      inputColumnName,
+      resultColumnName,
+      setErrMsg,
+      startingValue,
+      lastContextName,
+    ]
   );
 
   useContextUpdateListenerWithFlowEffect(

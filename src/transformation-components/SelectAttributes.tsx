@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, ReactElement, useState } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
@@ -61,7 +61,7 @@ export function SelectAttributes({
         setErrMsg(e.message);
       }
     },
-    [inputDataCtxt, attributes, setErrMsg]
+    [inputDataCtxt, attributes, setErrMsg, lastContextName]
   );
 
   useContextUpdateListenerWithFlowEffect(

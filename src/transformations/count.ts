@@ -31,13 +31,13 @@ export function count(dataset: DataSet, attribute: string): DataSet {
 
   // isolate values under this attribute
   const values = dataset.records.map((record) => record[attribute]);
-  const distinctValues = Array.from(new Set(values));
+  const uniqueValues = unique(values);
 
   // count occurrences of each distinct value under this attribute
-  const records: Record<string, unknown>[] = distinctValues.map((value) => {
+  const records: Record<string, unknown>[] = uniqueValues.map((value) => {
     const record: Record<string, unknown> = {};
     record[attribute] = value;
-    record["count"] = values.filter((v) => v === value).length;
+    record["count"] = values.filter((v) => valueEquals(v, value)).length;
     return record;
   });
 
@@ -48,7 +48,10 @@ export function count(dataset: DataSet, attribute: string): DataSet {
       labels: {},
       attrs: [
         // first attribute is a copy of the original
-        { ...attr },
+        // NOTE: formulas are not copied: a formula-based attribute being
+        // counted will be removed from its dependencies in the output
+        // which makes the formula invalid.
+        { ...attr, formula: undefined },
         // second attribute is "count", containing all counts
         { name: "count" },
       ],
@@ -59,4 +62,35 @@ export function count(dataset: DataSet, attribute: string): DataSet {
     collections,
     records,
   };
+}
+
+/**
+ * Determines whether or not two values from the same attribute are
+ * equivalent for the purposes of counting. Attributes may consist
+ * of objects so this can't just be == or ===.
+ */
+function valueEquals(left: unknown, right: unknown): boolean {
+  // FIXME: this is SUPER slow for boundary objects
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+/**
+ * Produces a version of the input list without duplicate elements.
+ * @param values list to de-duplicate
+ * @returns list without duplicates
+ */
+function unique(values: unknown[]): unknown[] {
+  const soFar: unknown[] = [];
+
+  outer: for (const v of values) {
+    for (const already of soFar) {
+      if (valueEquals(v, already)) {
+        continue outer;
+      }
+    }
+
+    soFar.push(v);
+  }
+
+  return soFar;
 }

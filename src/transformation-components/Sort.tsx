@@ -17,6 +17,7 @@ import {
   TransformationSubmitButtons,
   CodapFlowTextArea,
 } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 export function Sort({ setErrMsg }: TransformationProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
@@ -33,32 +34,41 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    if (keyExpression === "") {
-      setErrMsg("Key expression cannot be empty.");
-      return;
-    }
+      if (keyExpression === "") {
+        setErrMsg("Key expression cannot be empty.");
+        return;
+      }
 
-    const dataset = await getDataSet(inputDataCtxt);
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const result = sort(dataset, keyExpression);
-      await createTableWithDataSet(result);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, setErrMsg, keyExpression]);
+      try {
+        const result = sort(dataset, keyExpression);
+        await applyNewDataSet(
+          result,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, setErrMsg, keyExpression]
+  );
 
   useContextUpdateListenerWithFlowEffect(
     inputDataCtxt,
     lastContextName,
     () => {
-      transform();
+      transform(true);
     },
     [transform]
   );
@@ -80,8 +90,8 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
       <CodapFlowTextArea value={keyExpression} onChange={keyExpressionChange} />
       <br />
       <TransformationSubmitButtons
-        onCreate={() => transform()}
-        onUpdate={() => transform()}
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
         updateDisabled={true}
       />
     </>

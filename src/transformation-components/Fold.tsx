@@ -17,6 +17,7 @@ import {
   CodapFlowSelect,
   TransformationSubmitButtons,
 } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface FoldProps extends TransformationProps {
   label: string;
@@ -47,32 +48,41 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    if (resultColumnName === "") {
-      setErrMsg("Please choose a non-empty result column name.");
-      return;
-    }
+      if (resultColumnName === "") {
+        setErrMsg("Please choose a non-empty result column name.");
+        return;
+      }
 
-    const dataset = await getDataSet(inputDataCtxt);
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const result = foldFunc(dataset, inputColumnName, resultColumnName);
-      await createTableWithDataSet(result);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, inputColumnName, resultColumnName, setErrMsg, foldFunc]);
+      try {
+        const result = foldFunc(dataset, inputColumnName, resultColumnName);
+        await applyNewDataSet(
+          result,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, inputColumnName, resultColumnName, setErrMsg, foldFunc]
+  );
 
   useContextUpdateListenerWithFlowEffect(
     inputDataCtxt,
     lastContextName,
     () => {
-      transform();
+      transform(true);
     },
     [transform]
   );
@@ -101,8 +111,8 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       />
       <br />
       <TransformationSubmitButtons
-        onCreate={() => transform()}
-        onUpdate={() => transform()}
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
         updateDisabled={true}
       />
     </>

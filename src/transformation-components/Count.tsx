@@ -18,6 +18,7 @@ import {
   CodapFlowSelect,
   TransformationSubmitButtons,
 } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface CountProps {
   setErrMsg: (s: string | null) => void;
@@ -40,34 +41,36 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    const dataset = await getDataSet(inputDataCtxt);
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const counted = count(dataset, attributeName);
-      await createTableWithDataSet(counted);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, attributeName, setErrMsg]);
-
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, transform);
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
+      try {
+        const counted = count(dataset, attributeName);
+        await applyNewDataSet(
+          counted,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, attributeName, setErrMsg]
+  );
 
   useContextUpdateListenerWithFlowEffect(
     inputDataCtxt,
     lastContextName,
     () => {
-      transform();
+      transform(true);
     },
     [transform]
   );
@@ -93,8 +96,8 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons
-        onCreate={() => transform()}
-        onUpdate={() => transform()}
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
         updateDisabled={true}
       />
     </>

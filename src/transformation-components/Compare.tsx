@@ -17,6 +17,7 @@ import {
 } from "../utils/hooks";
 import { compare } from "../transformations/compare";
 import { CodapFlowSelect, TransformationSubmitButtons } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface CompareProps {
   setErrMsg: (s: string | null) => void;
@@ -70,23 +71,13 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         inputAttribute2,
         isCategorical
       );
-      try {
-        // FIXME: wrap up this update vs. create logic in a function
-        // if doUpdate is true then we should update a previously created table
-        // rather than creating a new one
-        if (doUpdate) {
-          if (!lastContextName) {
-            setErrMsg("Please apply transformation to a new table first.");
-            return;
-          }
-          setContextItems(lastContextName, compared.records);
-        } else {
-          const [newContext] = await createTableWithDataSet(compared);
-          setLastContextName(newContext.name);
-        }
-      } catch (e) {
-        setErrMsg(e.message);
-      }
+      await applyNewDataSet(
+        compared,
+        doUpdate,
+        lastContextName,
+        setLastContextName,
+        setErrMsg
+      );
     },
     [
       inputDataContext1,

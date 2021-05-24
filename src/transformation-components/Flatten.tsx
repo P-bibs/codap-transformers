@@ -14,6 +14,7 @@ import {
 } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
 import { CodapFlowSelect, TransformationSubmitButtons } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface FlattenProps {
   setErrMsg: (s: string | null) => void;
@@ -32,27 +33,36 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
    * Applies the flatten transformation to the input data context,
    * producing an output table in CODAP.
    */
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to flatten.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to flatten.");
+        return;
+      }
 
-    const dataset = await getDataSet(inputDataCtxt);
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const flat = flatten(dataset);
-      await createTableWithDataSet(flat);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, setErrMsg]);
+      try {
+        const flat = flatten(dataset);
+        await applyNewDataSet(
+          flat,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, setErrMsg]
+  );
 
   useContextUpdateListenerWithFlowEffect(
     inputDataCtxt,
     lastContextName,
     () => {
-      transform();
+      transform(true);
     },
     [transform]
   );
@@ -72,8 +82,8 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons
-        onCreate={() => transform()}
-        onUpdate={() => transform()}
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
         updateDisabled={true}
       />
     </>

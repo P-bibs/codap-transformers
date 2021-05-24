@@ -18,6 +18,7 @@ import {
   TransformationSubmitButtons,
   CodapFlowTextArea,
 } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface SelectAttributesProps {
   setErrMsg: (s: string | null) => void;
@@ -42,30 +43,39 @@ export function SelectAttributes({
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    const dataset = await getDataSet(inputDataCtxt);
+      const dataset = await getDataSet(inputDataCtxt);
 
-    // extract attribute names from user's text
-    const attributeNames = attributes.split("\n").map((s) => s.trim());
+      // extract attribute names from user's text
+      const attributeNames = attributes.split("\n").map((s) => s.trim());
 
-    try {
-      const selected = selectAttributes(dataset, attributeNames);
-      await createTableWithDataSet(selected);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, attributes, setErrMsg]);
+      try {
+        const selected = selectAttributes(dataset, attributeNames);
+        await applyNewDataSet(
+          selected,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, attributes, setErrMsg]
+  );
 
   useContextUpdateListenerWithFlowEffect(
     inputDataCtxt,
     lastContextName,
     () => {
-      transform();
+      transform(true);
     },
     [transform]
   );
@@ -88,8 +98,8 @@ export function SelectAttributes({
 
       <br />
       <TransformationSubmitButtons
-        onCreate={() => transform()}
-        onUpdate={() => transform()}
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
         updateDisabled={true}
       />
     </>

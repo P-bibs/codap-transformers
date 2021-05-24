@@ -19,6 +19,7 @@ import {
   TransformationSubmitButtons,
   CodapFlowTextArea,
 } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface FilterProps {
   setErrMsg: (s: string | null) => void;
@@ -54,19 +55,13 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
 
       try {
         const filtered = filter(dataset, transformPgrm);
-
-        // if doUpdate is true then we should update a previously created table
-        // rather than creating a new one
-        if (doUpdate) {
-          if (!lastContextName) {
-            setErrMsg("Please apply transformation to a new table first.");
-            return;
-          }
-          setContextItems(lastContextName, filtered.records);
-        } else {
-          const [newContext] = await createTableWithDataSet(filtered);
-          setLastContextName(newContext.name);
-        }
+        await applyNewDataSet(
+          filtered,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
       } catch (e) {
         setErrMsg(e.message);
       }

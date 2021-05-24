@@ -17,6 +17,7 @@ import {
   CodapFlowSelect,
   TransformationSubmitButtons,
 } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 export function DifferenceFrom({
   setErrMsg,
@@ -45,50 +46,53 @@ export function DifferenceFrom({
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    if (resultColumnName === "") {
-      setErrMsg("Please choose a non-empty result column name.");
-      return;
-    }
+      if (resultColumnName === "") {
+        setErrMsg("Please choose a non-empty result column name.");
+        return;
+      }
 
-    const differenceStartingValue = Number(startingValue);
-    if (isNaN(differenceStartingValue)) {
-      setErrMsg(
-        `Expected numeric starting value, instead got ${startingValue}`
-      );
-    }
+      const differenceStartingValue = Number(startingValue);
+      if (isNaN(differenceStartingValue)) {
+        setErrMsg(
+          `Expected numeric starting value, instead got ${startingValue}`
+        );
+      }
 
-    const dataset = await getDataSet(inputDataCtxt);
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const result = differenceFrom(
-        dataset,
-        inputColumnName,
-        resultColumnName,
-        differenceStartingValue
-      );
-      await createTableWithDataSet(result);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [
-    inputDataCtxt,
-    inputColumnName,
-    resultColumnName,
-    setErrMsg,
-    startingValue,
-  ]);
+      try {
+        const result = differenceFrom(
+          dataset,
+          inputColumnName,
+          resultColumnName,
+          differenceStartingValue
+        );
+        await applyNewDataSet(
+          result,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, inputColumnName, resultColumnName, setErrMsg, startingValue]
+  );
 
   useContextUpdateListenerWithFlowEffect(
     inputDataCtxt,
     lastContextName,
     () => {
-      transform();
+      transform(true);
     },
     [transform]
   );
@@ -122,8 +126,8 @@ export function DifferenceFrom({
       />
       <br />
       <TransformationSubmitButtons
-        onCreate={() => transform()}
-        onUpdate={() => transform()}
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
         updateDisabled={true}
       />
     </>

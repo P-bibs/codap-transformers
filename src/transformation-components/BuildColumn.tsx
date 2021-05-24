@@ -1,13 +1,18 @@
-import React, { useEffect, useCallback, ReactElement } from "react";
+import React, { useState, useCallback, ReactElement } from "react";
+import { getDataSet } from "../utils/codapPhone";
 import {
-  getDataFromContext,
-  addContextUpdateListener,
-  removeContextUpdateListener,
-  createTableWithDataSet,
-  getDataContext,
-} from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+  useDataContexts,
+  useInput,
+  useContextUpdateListenerWithFlowEffect,
+} from "../utils/hooks";
 import { buildColumn } from "../transformations/buildColumn";
+import { applyNewDataSet } from "./util";
+import {
+  CodapFlowTextArea,
+  CodapFlowTextInput,
+  CodapFlowSelect,
+  TransformationSubmitButtons,
+} from "../ui-components";
 
 interface BuildColumnProps {
   setErrMsg: (s: string | null) => void;
@@ -32,82 +37,103 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
   );
   const dataContexts = useDataContexts();
 
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
+
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
-    if (attributeName === "") {
-      setErrMsg("Please enter a non-empty name for the new attribute");
-      return;
-    }
-    if (collectionName === "") {
-      setErrMsg("Please enter a non-empty collection name to add to");
-      return;
-    }
-    if (expression === "") {
-      setErrMsg("Please enter a non-empty expression");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
+      if (attributeName === "") {
+        setErrMsg("Please enter a non-empty name for the new attribute");
+        return;
+      }
+      if (collectionName === "") {
+        setErrMsg("Please enter a non-empty collection name to add to");
+        return;
+      }
+      if (expression === "") {
+        setErrMsg("Please enter a non-empty expression");
+        return;
+      }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const built = buildColumn(
-        dataset,
-        attributeName,
-        collectionName,
-        expression
-      );
-      await createTableWithDataSet(built);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, attributeName, collectionName, expression, setErrMsg]);
+      try {
+        const built = buildColumn(
+          dataset,
+          attributeName,
+          collectionName,
+          expression
+        );
+        await applyNewDataSet(
+          built,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [
+      inputDataCtxt,
+      attributeName,
+      collectionName,
+      expression,
+      setErrMsg,
+      lastContextName,
+    ]
+  );
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, transform);
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>
       <p>Table to Add Attribute To</p>
-      <select
-        id="inputDataContext"
+      <CodapFlowSelect
         onChange={inputChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
-
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: `${dataContext.title} (${dataContext.name})`,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
       <p>Name of New Attribute</p>
-      <input type="text" onChange={attributeNameChange} />
+      <CodapFlowTextInput
+        value={attributeName}
+        onChange={attributeNameChange}
+      />
 
       <p>Collection to Add To</p>
-      <input type="text" onChange={collectionNameChange} />
+      <CodapFlowTextInput
+        value={collectionName}
+        onChange={collectionNameChange}
+      />
 
       <p>Formula for Attribute Values</p>
-      <textarea onChange={expressionChange}></textarea>
+      <CodapFlowTextArea value={expression} onChange={expressionChange} />
 
       <br />
-      <button onClick={transform}>Create table with attribute added</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={!lastContextName}
+      />
     </>
   );
 }

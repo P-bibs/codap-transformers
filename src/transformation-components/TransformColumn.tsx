@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
-import {
-  getDataFromContext,
-  setContextItems,
-  addContextUpdateListener,
-  removeContextUpdateListener,
-  createTableWithDataSet,
-  getDataContext,
-} from "../utils/codapPhone";
+import React, { useState, useCallback, ReactElement } from "react";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { transformColumn } from "../transformations/transformColumn";
+import { applyNewDataSet } from "./util";
+import {
+  CodapFlowTextArea,
+  CodapFlowTextInput,
+  CodapFlowSelect,
+  TransformationSubmitButtons,
+} from "../ui-components";
+import { useContextUpdateListenerWithFlowEffect } from "../utils/hooks";
+import { getDataSet } from "../utils/codapPhone";
 
 interface TransformColumnProps {
   setErrMsg: (s: string | null) => void;
@@ -51,26 +52,17 @@ export function TransformColumn({
         return;
       }
 
-      const dataset = {
-        collections: (await getDataContext(inputDataCtxt)).collections,
-        records: await getDataFromContext(inputDataCtxt),
-      };
+      const dataset = await getDataSet(inputDataCtxt);
 
       try {
         const transformed = transformColumn(dataset, attributeName, expression);
-
-        // if doUpdate is true then we should update a previously created table
-        // rather than creating a new one
-        if (doUpdate) {
-          if (!lastContextName) {
-            setErrMsg("Please apply transformation to a new table first.");
-            return;
-          }
-          setContextItems(lastContextName, transformed.records);
-        } else {
-          const [newContext] = await createTableWithDataSet(transformed);
-          setLastContextName(newContext.name);
-        }
+        await applyNewDataSet(
+          transformed,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
       } catch (e) {
         setErrMsg(e.message);
       }
@@ -78,44 +70,43 @@ export function TransformColumn({
     [inputDataCtxt, attributeName, expression, lastContextName, setErrMsg]
   );
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>
       <p>Table to TransformColumn</p>
-      <select
-        id="inputDataContext"
+      <CodapFlowSelect
         onChange={inputChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: `${dataContext.title} (${dataContext.name})`,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
 
       <p>Attribute to Transform</p>
-      <input type="text" onChange={attributeNameChange} />
+      <CodapFlowTextInput
+        value={attributeName}
+        onChange={attributeNameChange}
+      />
 
       <p>How to Transform Column</p>
-      <textarea onChange={expressionChange}></textarea>
+      <CodapFlowTextArea value={expression} onChange={expressionChange} />
 
       <br />
-      <button onClick={() => transform(false)}>Create transformed table</button>
-      <button onClick={() => transform(true)} disabled={!lastContextName}>
-        Update previous transformed table
-      </button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={!lastContextName}
+      />
     </>
   );
 }

@@ -55,20 +55,24 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
       const dataset1 = await getDataSet(inputDataContext1);
       const dataset2 = await getDataSet(inputDataContext2);
 
-      const compared = compare(
-        dataset1,
-        dataset2,
-        inputAttribute1,
-        inputAttribute2,
-        isCategorical
-      );
-      await applyNewDataSet(
-        compared,
-        doUpdate,
-        lastContextName,
-        setLastContextName,
-        setErrMsg
-      );
+      try {
+        const compared = compare(
+          dataset1,
+          dataset2,
+          inputAttribute1,
+          inputAttribute2,
+          isCategorical
+        );
+        await applyNewDataSet(
+          compared,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
     },
     [
       inputDataContext1,

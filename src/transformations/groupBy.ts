@@ -36,7 +36,16 @@ export function groupBy(
       // attribute was found in this collection
       if (attr !== undefined) {
         // copy and rename grouped attribute
-        groupedAttrs.push({ ...attr, name: groupedAttrName(attr.name) });
+        // NOTE: formulas cannot be safely copied into a parent collection.
+        // This is because formulas might reference child attributes, which
+        // causes an error in CODAP. Instead, we copy values of the formula
+        // in the original attribute, and group by these values in the copied
+        // attribute.
+        groupedAttrs.push({
+          ...attr,
+          name: groupedAttrName(attr.name), // rename attribute uniquely
+          formula: undefined, // do not copy formulas
+        });
         continue attrLoop;
       }
     }

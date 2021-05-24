@@ -7,7 +7,11 @@ import { evaluate } from "../language";
  * to be the result of evaluating the given expression in the context
  * of each case.
  */
-export function transformColumn(dataset: DataSet, attributeName: string, expression: string): DataSet {
+export function transformColumn(
+  dataset: DataSet,
+  attributeName: string,
+  expression: string
+): DataSet {
   const records = dataset.records.slice();
   for (const record of records) {
     if (record[attributeName] === undefined) {

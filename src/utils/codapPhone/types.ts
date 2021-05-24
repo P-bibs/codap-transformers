@@ -1,4 +1,5 @@
 export enum CodapResource {
+  InteractiveFrame = "interactiveFrame",
   DataContext = "dataContext",
   DataContextList = "dataContextList",
   Component = "component",
@@ -18,6 +19,14 @@ export enum CodapActions {
   Get = "get",
   Notify = "notify",
 }
+
+type UpdateInteractiveFrameRequest = {
+  action: CodapActions.Update;
+  resource: CodapResource.InteractiveFrame;
+
+  // We are not allowed to set interactiveState
+  values: Partial<Omit<InteractiveFrame, "interactiveState">>;
+};
 
 type GetContextListRequest = {
   action: CodapActions.Get;
@@ -79,8 +88,18 @@ interface GetDataResponse extends CodapResponse {
   }[];
 }
 
+export interface GetDataListResponse extends CodapResponse {
+  values: CodapIdentifyingInfo[];
+}
+
 export interface GetCasesResponse extends CodapResponse {
-  values: Case[];
+  values: ReturnedCase[];
+}
+
+export interface GetCaseResponse extends CodapResponse {
+  values: {
+    case: ReturnedCase;
+  };
 }
 
 export interface GetContextResponse extends CodapResponse {
@@ -92,11 +111,14 @@ interface TableResponse extends CodapResponse {
 }
 
 export type CodapPhone = {
+  call(r: UpdateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
   call(r: GetContextListRequest, cb: (r: GetListResponse) => void): void;
   call(r: GetListRequest, cb: (r: GetListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
   call(r: GetRequest, cb: (r: GetContextResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetDataListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetCasesResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetCaseResponse) => void): void;
   call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
   call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
@@ -243,7 +265,11 @@ export interface Case {
   id: number;
   parent?: string;
   collection?: Collection;
-  values: Record<string, unknown>[];
+  values: Record<string, unknown>;
+}
+
+export interface ReturnedCase extends Omit<Case, "parent"> {
+  parent?: number | null;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#selectionlists
@@ -356,3 +382,24 @@ export interface Guide extends CodapComponent {
     url: string;
   }[];
 }
+
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-interactiveframe-object
+type InteractiveFrame = {
+  name: string;
+  title: string;
+  version: string;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+  preventBringToFront: boolean;
+  preventDataContextReorg: boolean;
+  externalUndoAvailable: boolean;
+  standaloneUndoModeAvailable: boolean;
+  cannotClose: boolean;
+  isResizable: {
+    width: boolean;
+    height: boolean;
+  };
+  savedState: Record<string, unknown>;
+};

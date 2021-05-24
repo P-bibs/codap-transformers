@@ -1,5 +1,4 @@
 import { DataSet } from "./types";
-import { copyAttrs } from "../utils/codapPhone";
 
 /**
  * Flatten produces an identical dataset with all hierarchical relationships
@@ -9,7 +8,7 @@ import { copyAttrs } from "../utils/codapPhone";
 export function flatten(dataset: DataSet): DataSet {
   // flatten attributes of all collections into single list of attributes
   const attrs = dataset.collections
-    .map((collection) => copyAttrs(collection.attrs) || [])
+    .map((collection) => collection.attrs?.slice() || [])
     .flat();
 
   // create combined name for collection

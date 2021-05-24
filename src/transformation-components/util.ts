@@ -1,6 +1,10 @@
 import { DataSet } from "../transformations/types";
 import { createTableWithDataSet, setContextItems } from "../utils/codapPhone";
 
+/**
+ * This function takes a dataset as well as a `doUpdate` flag and either
+ * creates a new table for the dataset or updates an existing one accordingly.
+ */
 export async function applyNewDataSet(
   dataSet: DataSet,
   doUpdate: boolean,

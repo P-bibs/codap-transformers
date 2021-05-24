@@ -7,6 +7,9 @@ import {
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { DataSet } from "../transformations/types";
+import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
+import { CodapFlowTextInput } from "../ui-components/CodapFlowTextInput";
+import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
 
 interface FoldProps extends TransformationProps {
   label: string;
@@ -62,30 +65,31 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
   return (
     <>
       <p>Table to calculate {label} on</p>
-      <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <CodapFlowSelect
+        onChange={inputChange}
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: dataContext.title,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
       <p>Input Column Name:</p>
-      <input
-        type="text"
+      <CodapFlowTextInput
         value={inputColumnName}
         onChange={inputColumnNameChange}
       />
       <p>Result Column Name:</p>
-      <input
-        type="text"
+      <CodapFlowTextInput
         value={resultColumnName}
         onChange={resultColumnNameChange}
       />
       <br />
-      <button onClick={transform}>Create table with {label}</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform()}
+        onUpdate={() => transform()}
+        updateDisabled={true}
+      />
     </>
   );
 }

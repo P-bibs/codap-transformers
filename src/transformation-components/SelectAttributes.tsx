@@ -8,6 +8,9 @@ import {
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { selectAttributes } from "../transformations/selectAttributes";
+import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
+import { CodapFlowTextArea } from "../ui-components/CodapFlowTextArea";
+import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
 
 interface SelectAttributesProps {
   setErrMsg: (s: string | null) => void;
@@ -62,26 +65,25 @@ export function SelectAttributes({
   return (
     <>
       <p>Table to Select Attributes From</p>
-      <select
-        id="inputDataContext"
+      <CodapFlowSelect
         onChange={inputChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: dataContext.title,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
 
       <p>Attributes to Include in Output (1 per line)</p>
-      <textarea onChange={attributesChange}></textarea>
+      <CodapFlowTextArea onChange={attributesChange} value={attributes} />
 
       <br />
-      <button onClick={() => transform()}>Select attributes!</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform()}
+        onUpdate={() => transform()}
+        updateDisabled={true}
+      />
     </>
   );
 }

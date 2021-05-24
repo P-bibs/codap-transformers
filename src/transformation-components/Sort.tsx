@@ -7,6 +7,9 @@ import {
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { sort } from "../transformations/sort";
+import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
+import { CodapFlowTextArea } from "../ui-components/CodapFlowTextArea";
+import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
 
 export function Sort({ setErrMsg }: TransformationProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
@@ -48,20 +51,24 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
   return (
     <>
       <p>Table to sort</p>
-      <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <CodapFlowSelect
+        onChange={inputChange}
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: dataContext.title,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
+
       <p>Key expression</p>
-      <textarea value={keyExpression} onChange={keyExpressionChange} />
+      <CodapFlowTextArea value={keyExpression} onChange={keyExpressionChange} />
       <br />
-      <button onClick={transform}>Create sorted table</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform()}
+        onUpdate={() => transform()}
+        updateDisabled={true}
+      />
     </>
   );
 }

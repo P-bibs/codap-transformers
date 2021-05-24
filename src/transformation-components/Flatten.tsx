@@ -8,6 +8,8 @@ import {
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
+import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
+import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
 
 interface FlattenProps {
   setErrMsg: (s: string | null) => void;
@@ -55,19 +57,22 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
   return (
     <>
       <p>Table to Flatten</p>
-      <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <CodapFlowSelect
+        onChange={inputChange}
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: dataContext.title,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
 
       <br />
-      <button onClick={transform}>Create flattened table</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform()}
+        onUpdate={() => transform()}
+        updateDisabled={true}
+      />
     </>
   );
 }

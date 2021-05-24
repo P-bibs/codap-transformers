@@ -21,6 +21,47 @@ import {
   runningMax,
   difference,
 } from "./transformations/fold";
+import { getAllAttributes, getAllDataContexts } from "./utils/codapPhone";
+import { CodapAttribute, CodapIdentifyingInfo } from "./utils/codapPhone/types";
+
+type CompareState = {
+  dataContexts: string[];
+  selectedDataContext: string | null;
+  attributes: string[];
+  selectedAttribute: string | null;
+};
+const CompareData = {
+  state: [
+    {
+      name: "dataContexts",
+      dependsOn: [],
+      refresh: async (_state: CompareState) => await getAllDataContexts(),
+    },
+    {
+      name: "selectedDataContext",
+      dependsOn: ["DataContexts"],
+      refresh: (_state: CompareState): string => "",
+    },
+    {
+      name: "attributes",
+      dependsOn: ["dataContexts", "selectedDataContext"],
+      refresh: async (state: CompareState): Promise<CodapIdentifyingInfo[]> =>
+        !state.selectedDataContext
+          ? []
+          : await getAllAttributes(state.selectedDataContext),
+    },
+    {
+      name: "selectedAttribute",
+      dependsOn: ["dataContexts", "selectedDataContext", "attributes"],
+      refresh: async (
+        state: CompareState
+      ): Promise<CodapIdentifyingInfo[] | null> =>
+        !state.dataContexts || !state.selectedDataContext || !state.attributes
+          ? null
+          : await getAllAttributes(state.selectedDataContext),
+    },
+  ],
+};
 
 /**
  * Transformation represents an instance of the plugin, which applies a

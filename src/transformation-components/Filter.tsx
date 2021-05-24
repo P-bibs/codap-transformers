@@ -9,6 +9,9 @@ import {
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { filter } from "../transformations/filter";
+import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
+import { CodapFlowTextArea } from "../ui-components/CodapFlowTextArea";
+import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
 
 interface FilterProps {
   setErrMsg: (s: string | null) => void;
@@ -79,29 +82,25 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
   return (
     <>
       <p>Table to Filter</p>
-      <select
-        id="inputDataContext"
+      <CodapFlowSelect
         onChange={inputChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: dataContext.title,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
 
       <p>How to Filter</p>
-      <textarea onChange={pgrmChange}></textarea>
+      <CodapFlowTextArea onChange={pgrmChange} value={transformPgrm} />
 
       <br />
-      <button onClick={() => transform(false)}>Create filtered table</button>
-      <button onClick={() => transform(true)} disabled={!lastContextName}>
-        Update previous filtered table
-      </button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={!lastContextName}
+      />
     </>
   );
 }

@@ -8,6 +8,9 @@ import {
 } from "../utils/codapPhone";
 import { useDataContexts, useInput } from "../utils/hooks";
 import { count } from "../transformations/count";
+import { CodapFlowTextInput } from "../ui-components/CodapFlowTextInput";
+import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
+import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
 
 interface CountProps {
   setErrMsg: (s: string | null) => void;
@@ -57,26 +60,28 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
   return (
     <>
       <p>Table to Count</p>
-      <select
-        id="inputDataContext"
+      <CodapFlowSelect
         onChange={inputChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: `${dataContext.title} (${dataContext.name})`,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
 
       <p>Attribute to Count</p>
-      <input type="text" onChange={attributeNameChange}></input>
+      <CodapFlowTextInput
+        value={attributeName}
+        onChange={attributeNameChange}
+      />
 
       <br />
-      <button onClick={() => transform()}>Count attribute!</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform()}
+        onUpdate={() => transform()}
+        updateDisabled={true}
+      />
     </>
   );
 }

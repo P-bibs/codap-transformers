@@ -9,6 +9,8 @@ import {
 } from "../utils/codapPhone";
 import { useAttributes, useDataContexts, useInput } from "../utils/hooks";
 import { compare } from "../transformations/compare";
+import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
+import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
 
 interface CompareProps {
   setErrMsg: (s: string | null) => void;
@@ -52,6 +54,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         return;
       }
 
+      // FIXME: perhaps a wrapper function for making a dataset from a context name?
       const dataset1 = {
         collections: (await getDataContext(inputDataContext1)).collections,
         records: await getDataFromContext(inputDataContext1),
@@ -61,15 +64,15 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         records: await getDataFromContext(inputDataContext2),
       };
 
+      const compared = compare(
+        dataset1,
+        dataset2,
+        inputAttribute1,
+        inputAttribute2,
+        isCategorical
+      );
       try {
-        const compared = compare(
-          dataset1,
-          dataset2,
-          inputAttribute1,
-          inputAttribute2,
-          isCategorical
-        );
-
+        // FIXME: wrap up this update vs. create logic in a function
         // if doUpdate is true then we should update a previously created table
         // rather than creating a new one
         if (doUpdate) {
@@ -97,6 +100,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
     ]
   );
 
+  // FIXME: can we find a way to make these update listeners more automatic?
   // Listen for updates to first data context
   useEffect(() => {
     if (inputDataContext1 !== null) {
@@ -120,89 +124,69 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
   return (
     <>
       <p>Table to Compare 1</p>
-      <select
-        id="inputDataContext1"
+      <CodapFlowSelect
         onChange={inputDataContext1OnChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: `${dataContext.title} (${dataContext.name})`,
+        }))}
+        value={inputDataContext1}
+        defaultValue="Select a Data Context"
+      />
       <p>Table to Compare 2</p>
-      <select
-        id="inputDataContext2"
+      <CodapFlowSelect
         onChange={inputDataContext2OnChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: `${dataContext.title} (${dataContext.name})`,
+        }))}
+        value={inputDataContext2}
+        defaultValue="Select a Data Context"
+      />
 
       <p>First attribute to Compare</p>
-      <select
-        id="inputAttribute1"
+      <CodapFlowSelect
         onChange={inputAttribute1OnChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a attribute
-        </option>
-        {attributes1.map((attribute) => (
-          <option key={attribute.name} value={attribute.name}>
-            {attribute.title} ({attribute.name})
-          </option>
-        ))}
-      </select>
+        options={attributes1.map((attribute) => ({
+          value: attribute.name,
+          title: `${attribute.title} (${attribute.name})`,
+        }))}
+        value={inputAttribute1}
+        defaultValue="Select an attribute"
+      />
 
       <p>Second attribute to Compare</p>
-      <select
-        id="inputAttribute2"
+      <CodapFlowSelect
         onChange={inputAttribute2OnChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a attribute
-        </option>
-        {attributes2.map((attribute) => (
-          <option key={attribute.name} value={attribute.name}>
-            {attribute.title} ({attribute.name})
-          </option>
-        ))}
-      </select>
+        options={attributes2.map((attribute) => ({
+          value: attribute.name,
+          title: `${attribute.title} (${attribute.name})`,
+        }))}
+        value={inputAttribute2}
+        defaultValue="Select an attribute"
+      />
+
       <p>What kind of Comparison?</p>
-      <select
-        id="isCategorical"
+      <CodapFlowSelect
         onChange={(e) =>
           e.target.value === "categorical"
             ? setIsCategorical(true)
             : setIsCategorical(false)
         }
+        options={[
+          { value: "categorical", title: "Categorical" },
+          { value: "numeric", title: "Numeric" },
+        ]}
+        value={inputAttribute2}
         defaultValue="numeric"
-      >
-        <option value="categorical">Categorical</option>
-        <option value="numeric">Numeric</option>
-      </select>
+      />
 
       <br />
-      <button onClick={() => transform(false)}>
-        Create Table with Comparison
-      </button>
-      <br />
-      <button onClick={() => transform(true)}>
-        Update Previous Table With Comparison
-      </button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={!lastContextName}
+      />
     </>
   );
 }

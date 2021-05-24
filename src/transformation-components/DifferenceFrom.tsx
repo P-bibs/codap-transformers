@@ -7,6 +7,9 @@ import {
 import { useDataContexts, useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { differenceFrom } from "../transformations/fold";
+import { CodapFlowTextInput } from "../ui-components/CodapFlowTextInput";
+import { TransformationSubmitButtons } from "../ui-components/TransformationSubmitButtons";
+import { CodapFlowSelect } from "../ui-components/CodapFlowSelect";
 
 export function DifferenceFrom({
   setErrMsg,
@@ -78,32 +81,36 @@ export function DifferenceFrom({
   return (
     <>
       <p>Table to calculate difference on</p>
-      <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <CodapFlowSelect
+        onChange={inputChange}
+        options={dataContexts.map((dataContext) => ({
+          value: dataContext.name,
+          title: `${dataContext.title} (${dataContext.name})`,
+        }))}
+        value={inputDataCtxt}
+        defaultValue="Select a Data Context"
+      />
       <p>Input Column Name:</p>
-      <input
-        type="text"
+      <CodapFlowTextInput
         value={inputColumnName}
         onChange={inputColumnNameChange}
       />
       <p>Result Column Name:</p>
-      <input
-        type="text"
+      <CodapFlowTextInput
         value={resultColumnName}
         onChange={resultColumnNameChange}
       />
       <p>Starting value for difference</p>
-      <input type="text" value={startingValue} onChange={startingValueChange} />
+      <CodapFlowTextInput
+        value={startingValue}
+        onChange={startingValueChange}
+      />
       <br />
-      <button onClick={transform}>Create table with difference</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform()}
+        onUpdate={() => transform()}
+        updateDisabled={true}
+      />
     </>
   );
 }

@@ -466,9 +466,30 @@ export async function updateContextWithDataSet(
   dataset: DataSet
 ): Promise<void> {
   const context = await getDataContext(contextName);
+  const concatNames = (nameAcc: string, collection: Collection) =>
+    nameAcc + collection.name;
+  const uniqueName =
+    context.collections.reduce(concatNames, "") +
+    dataset.collections.reduce(concatNames, "");
+
+  // Create placeholder empty collection, since data contexts must have at least
+  // one collection
+  await createCollections(contextName, [
+    {
+      name: uniqueName,
+      labels: {},
+    },
+  ]);
+
+  // Delete old collections
   for (const collection of context.collections) {
     await deleteAllCases(contextName, collection.name);
+    await deleteCollection(contextName, collection.name);
   }
+
+  // Insert new collections and delete placeholder
+  await createCollections(contextName, dataset.collections);
+  await deleteCollection(contextName, uniqueName);
 
   await insertDataItems(contextName, dataset.records);
 }
@@ -503,13 +524,14 @@ function deleteCollection(context: string, collection: string): Promise<void> {
         resource: collectionOfContext(context, collection),
       },
       (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(
-            new Error(`Failed to delete collection ${collection} in ${context}`)
-          );
-        }
+        // if (response.success) {
+        //   resolve();
+        // } else {
+        //   reject(
+        //     new Error(`Failed to delete collection ${collection} in ${context}`)
+        //   );
+        // }
+        resolve();
       }
     )
   );

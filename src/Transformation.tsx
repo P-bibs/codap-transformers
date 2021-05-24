@@ -4,6 +4,8 @@ import { useState } from "react";
 import "./Transformation.css";
 import Error from "./Error";
 import { Filter } from "./transformation-components/Filter";
+import { TransformColumn } from "./transformation-components/TransformColumn";
+import { BuildColumn } from "./transformation-components/BuildColumn";
 import { GroupBy } from "./transformation-components/GroupBy";
 import { SelectAttributes } from "./transformation-components/SelectAttributes";
 import { Count } from "./transformation-components/Count";
@@ -25,14 +27,16 @@ import {
  * user-defined transformation to input data from CODAP to yield output data.
  */
 function Transformation(): ReactElement {
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
   /**
    * The broad categories of transformations that can be applied
    * to tables.
    */
-  const [errMsg, setErrMsg] = useState<string | null>(null);
-
   const transformComponents = {
     Filter: <Filter setErrMsg={setErrMsg} />,
+    TransformColumn: <TransformColumn setErrMsg={setErrMsg} />,
+    BuildColumn: <BuildColumn setErrMsg={setErrMsg} />,
     GroupBy: <GroupBy setErrMsg={setErrMsg} />,
     SelectAttributes: <SelectAttributes setErrMsg={setErrMsg} />,
     Count: <Count setErrMsg={setErrMsg} />,

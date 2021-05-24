@@ -1,3 +1,4 @@
+import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
 
@@ -30,4 +31,80 @@ export function dataItemToEnv(dataItem: Record<string, unknown>): Env {
       return [key, value as Value];
     })
   );
+}
+
+/**
+ * Reparents any collections that have the given parent, to the
+ * parent's parent. This allows the parent to be eliminated.
+ *
+ * @param collections the collections to reparent
+ * @param parent the parent collection being removed
+ */
+export function reparent(collections: Collection[], parent: Collection): void {
+  for (const coll of collections) {
+    if (coll.parent === parent.name) {
+      coll.parent = parent.parent;
+    }
+  }
+}
+
+/**
+ * Inserts a new column into the given collection.
+ *
+ * @param collection - Collection to insert into
+ * @param attr - Attribute to insert
+ * @returns A copy of `collection` with `attr` inserted
+ */
+export function insertColumn(
+  collection: Collection,
+  attr: CodapAttribute
+): Collection {
+  let newAttrs;
+  if (collection.attrs) {
+    newAttrs = [...collection.attrs, attr];
+  } else {
+    newAttrs = [attr];
+  }
+  return {
+    ...collection,
+    attrs: newAttrs,
+  };
+}
+
+/**
+ * Inserts a new column in the last collection of the given collection array.
+ *
+ * @param collections - Array of collections
+ * @param attr - Attribute to insert
+ * @returns A copy of `collections` with `attr` inserted
+ */
+export function insertColumnInLastCollection(
+  collections: Collection[],
+  attr: CodapAttribute
+): Collection[] {
+  const newCollections = collections.slice();
+  const lastCollection = newCollections[newCollections.length - 1];
+  newCollections[newCollections.length - 1] = insertColumn(
+    lastCollection,
+    attr
+  );
+  return newCollections;
+}
+
+/**
+ * Immutably insert a new property into the given object
+ *
+ * @param newProp - Name of the new property
+ * @param newValue - New value to insert
+ * @param row - Object to insert into
+ * @returns A copy of `row` with `newValue` inserted
+ */
+export function insertInRow(
+  row: Record<string, unknown>,
+  newProp: string,
+  newValue: unknown
+): Record<string, unknown> {
+  const newRow = { ...row };
+  newRow[newProp] = newValue;
+  return newRow;
 }

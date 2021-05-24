@@ -4,6 +4,7 @@ import { useState } from "react";
 import "./Transformation.css";
 import Error from "./Error";
 import { Filter } from "./transformation-components/Filter";
+import { GroupBy } from "./transformation-components/GroupBy";
 import { SelectAttributes } from "./transformation-components/SelectAttributes";
 import { Count } from "./transformation-components/Count";
 import { Flatten } from "./transformation-components/Flatten";
@@ -32,6 +33,7 @@ function Transformation(): ReactElement {
 
   const transformComponents = {
     Filter: <Filter setErrMsg={setErrMsg} />,
+    GroupBy: <GroupBy setErrMsg={setErrMsg} />,
     SelectAttributes: <SelectAttributes setErrMsg={setErrMsg} />,
     Count: <Count setErrMsg={setErrMsg} />,
     Flatten: <Flatten setErrMsg={setErrMsg} />,

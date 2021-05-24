@@ -28,7 +28,7 @@ import {
  */
 function Transformation(): ReactElement {
   const [errMsg, setErrMsg] = useState<string | null>(null);
-  
+
   /**
    * The broad categories of transformations that can be applied
    * to tables.

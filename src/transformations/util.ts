@@ -1,7 +1,6 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { Collection } from "../utils/codapPhone/types";
 
 /**
  * Converts a data item object into an environment for our language. Only

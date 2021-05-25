@@ -53,7 +53,13 @@ export function compare(
     {
       name: `Comparison of ${attributeName1} and ${attributeName2}`,
       labels: {},
-      attrs: [attributeData1, { ...attributeData2, name: safeAttributeName2 }],
+      // copy attributes to compare
+      // NOTE: do not copy formulas: formulas may be separated from their
+      // dependencies and would be invalid.
+      attrs: [
+        { ...attributeData1, formula: undefined },
+        { ...attributeData2, name: safeAttributeName2, formula: undefined },
+      ],
     },
   ];
   // Only add this attribute if this is a categorical diff

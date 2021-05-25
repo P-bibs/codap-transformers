@@ -1,14 +1,20 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, { useEffect, useCallback, ReactElement, useState } from "react";
 import {
-  getDataFromContext,
-  setContextItems,
   addContextUpdateListener,
   removeContextUpdateListener,
-  createTableWithDataSet,
-  getDataContext,
+  getDataSet,
 } from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+import {
+  useContextUpdateListenerWithFlowEffect,
+  useInput,
+} from "../utils/hooks";
 import { filter } from "../transformations/filter";
+import {
+  TransformationSubmitButtons,
+  CodapFlowTextArea,
+  ContextSelector,
+} from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface FilterProps {
   setErrMsg: (s: string | null) => void;
@@ -23,7 +29,6 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
     "",
     () => setErrMsg(null)
   );
-  const dataContexts = useDataContexts();
   const [lastContextName, setLastContextName] = useState<string | null>(null);
 
   /**
@@ -40,31 +45,31 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       console.log(`Data context to filter: ${inputDataCtxt}`);
       console.log(`Filter predicate to apply:\n${transformPgrm}`);
 
-      const dataset = {
-        collections: (await getDataContext(inputDataCtxt)).collections,
-        records: await getDataFromContext(inputDataCtxt),
-      };
+      const dataset = await getDataSet(inputDataCtxt);
 
       try {
         const filtered = filter(dataset, transformPgrm);
-
-        // if doUpdate is true then we should update a previously created table
-        // rather than creating a new one
-        if (doUpdate) {
-          if (!lastContextName) {
-            setErrMsg("Please apply transformation to a new table first.");
-            return;
-          }
-          setContextItems(lastContextName, filtered.records);
-        } else {
-          const [newContext] = await createTableWithDataSet(filtered);
-          setLastContextName(newContext.name);
-        }
+        await applyNewDataSet(
+          filtered,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
       } catch (e) {
         setErrMsg(e.message);
       }
     },
     [inputDataCtxt, transformPgrm, lastContextName, setErrMsg]
+  );
+
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
   );
 
   useEffect(() => {
@@ -79,29 +84,17 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
   return (
     <>
       <p>Table to Filter</p>
-      <select
-        id="inputDataContext"
-        onChange={inputChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>How to Filter</p>
-      <textarea onChange={pgrmChange}></textarea>
+      <CodapFlowTextArea onChange={pgrmChange} value={transformPgrm} />
 
       <br />
-      <button onClick={() => transform(false)}>Create filtered table</button>
-      <button onClick={() => transform(true)} disabled={!lastContextName}>
-        Update previous filtered table
-      </button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={!lastContextName}
+      />
     </>
   );
 }

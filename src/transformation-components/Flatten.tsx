@@ -1,13 +1,12 @@
-import React, { useEffect, useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
+import { getDataSet } from "../utils/codapPhone";
 import {
-  getDataFromContext,
-  addContextUpdateListener,
-  removeContextUpdateListener,
-  createTableWithDataSet,
-  getDataContext,
-} from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+  useContextUpdateListenerWithFlowEffect,
+  useInput,
+} from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
+import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface FlattenProps {
   setErrMsg: (s: string | null) => void;
@@ -18,56 +17,58 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const dataContexts = useDataContexts();
+
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
    * Applies the flatten transformation to the input data context,
    * producing an output table in CODAP.
    */
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to flatten.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to flatten.");
+        return;
+      }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const flat = flatten(dataset);
-      await createTableWithDataSet(flat);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, setErrMsg]);
+      try {
+        const flat = flatten(dataset);
+        await applyNewDataSet(
+          flat,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, setErrMsg, lastContextName]
+  );
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, () => {
-        transform();
-      });
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>
       <p>Table to Flatten</p>
-      <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />
-      <button onClick={transform}>Create flattened table</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={true}
+      />
     </>
   );
 }

@@ -48,6 +48,10 @@ export function selectAttributes(
       selectedAttrs.includes(attr.name)
     );
 
+    // do not copy formulas: selected attributes may be separated from
+    // their formula's dependencies, rendering the formula invalid.
+    coll.attrs?.forEach((attr) => (attr.formula = undefined));
+
     // keep only collections that have at least one attribute
     if (coll.attrs === undefined || coll.attrs.length > 0) {
       collections.push(coll);

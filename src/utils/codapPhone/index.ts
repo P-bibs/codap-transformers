@@ -23,6 +23,7 @@ import {
   CaseTable,
   GetDataListResponse,
   CodapAttribute,
+  ExcludeNonObject,
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
@@ -461,20 +462,43 @@ export function insertDataItems(
   );
 }
 
-function shallowEqual(a: any, b: any): boolean {
+/**
+ * Shallow equal
+ *
+ * Compares two objects for equality. This should not be used as a
+ * shallowEquals because of the way it treats `undefined` fields. A canonical
+ * shallowEquals will treat a field with a value of `undefined` and a missing
+ * field differently, but for our use case, we need to treat them the same. For
+ * example, if we send an attribute to CODAP with a missing field, the next
+ * time we query that object, it will be returned with the missing fields
+ * filled in with `undefined`. This will cause it to not be canonically equal
+ * to an identical objects with the undefined fields missing. This version of
+ * shallowEquals treats those objects as equal.
+ *
+ * @param a - The first object
+ * @param b - The second object
+ * @returns Whether the objects are equal
+ */
+function shallowEqual<T>(
+  a: ExcludeNonObject<T>,
+  b: ExcludeNonObject<T>
+): boolean {
+  // The type signature makes sure that the two arguments passed in have the
+  // same type, and that they are not a primitive value (they are objects). The
+  // casts allow us to use string keys. This is safe because the keys are
+  // obtained through `Object.keys`.
+  const aAsRecord = a as unknown as Record<string, unknown>;
+  const bAsRecord = b as unknown as Record<string, unknown>;
+
   if (a === b) {
     return true;
   }
 
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
+  const allKeys = new Set(Object.keys(a));
+  Object.keys(b).forEach((k) => allKeys.add(k));
 
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-
-  for (const key of keysA) {
-    if (!Object.prototype.hasOwnProperty.call(b, key) || a[key] !== b[key]) {
+  for (const key of allKeys) {
+    if (aAsRecord[key] !== bAsRecord[key]) {
       return false;
     }
   }
@@ -490,6 +514,36 @@ function attributesEqual(
     return attributes1 === attributes2;
   }
   return listEqual(attributes1, attributes2, shallowEqual);
+}
+
+/**
+ * Fill attribute with defaults
+ *
+ * If the title is undefined, use the name as the title.
+ * @param attr - Attribute to fill
+ * @returns Filled attribute
+ */
+function fillAttrWithDefaults(attr: CodapAttribute): CodapAttribute {
+  return {
+    ...attr,
+    title: attr.title === undefined ? attr.name : attr.title,
+  };
+}
+
+/**
+ * Fill collection with defaults
+ *
+ * If the title is undefined, use the name as the title. Also fill the titles of
+ * the attrs.
+ * @param c - Collection to fill
+ * @returns Filled collection
+ */
+function fillCollectionWithDefaults(c: Collection): Collection {
+  return {
+    ...c,
+    attrs: c.attrs?.map(fillAttrWithDefaults),
+    title: c.title === undefined ? c.name : c.title,
+  };
 }
 
 function collectionEqual(c1: Collection, c2: Collection): boolean {
@@ -537,7 +591,15 @@ export async function updateContextWithDataSet(
     await deleteAllCases(contextName, collection.name);
   }
 
-  if (!collectionsEqual(context.collections, dataset.collections)) {
+  const normalizedCollections = dataset.collections.map(
+    fillCollectionWithDefaults
+  );
+
+  if (!collectionsEqual(context.collections, normalizedCollections)) {
+    console.group("Equality");
+    console.log(context.collections);
+    console.log(normalizedCollections);
+    console.groupEnd();
     const concatNames = (nameAcc: string, collection: Collection) =>
       nameAcc + collection.name;
     const uniqueName =

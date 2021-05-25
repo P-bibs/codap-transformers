@@ -1,7 +1,6 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
-  useDataContexts,
   useInput,
   useContextUpdateListenerWithFlowEffect,
 } from "../utils/hooks";
@@ -10,8 +9,8 @@ import { applyNewDataSet } from "./util";
 import {
   CodapFlowTextArea,
   CodapFlowTextInput,
-  CodapFlowSelect,
   TransformationSubmitButtons,
+  ContextSelector,
 } from "../ui-components";
 
 interface BuildColumnProps {
@@ -35,7 +34,6 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
     "",
     () => setErrMsg(null)
   );
-  const dataContexts = useDataContexts();
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -104,15 +102,7 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
   return (
     <>
       <p>Table to Add Attribute To</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
       <p>Name of New Attribute</p>
       <CodapFlowTextInput
         value={attributeName}

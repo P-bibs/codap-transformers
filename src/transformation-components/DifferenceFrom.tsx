@@ -2,15 +2,14 @@ import React, { useCallback, ReactElement, useState } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
-  useDataContexts,
   useInput,
 } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { differenceFrom } from "../transformations/fold";
 import {
   CodapFlowTextInput,
-  CodapFlowSelect,
   TransformationSubmitButtons,
+  ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
 
@@ -36,8 +35,6 @@ export function DifferenceFrom({
     string,
     HTMLInputElement
   >("0", () => setErrMsg(null));
-
-  const dataContexts = useDataContexts();
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -102,15 +99,7 @@ export function DifferenceFrom({
   return (
     <>
       <p>Table to calculate difference on</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
       <p>Input Column Name:</p>
       <CodapFlowTextInput
         value={inputColumnName}

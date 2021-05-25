@@ -2,11 +2,10 @@ import React, { useCallback, ReactElement, useState } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
-  useDataContexts,
   useInput,
 } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
-import { CodapFlowSelect, TransformationSubmitButtons } from "../ui-components";
+import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import { applyNewDataSet } from "./util";
 
 interface FlattenProps {
@@ -18,7 +17,6 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const dataContexts = useDataContexts();
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -63,15 +61,7 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
   return (
     <>
       <p>Table to Flatten</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />
       <TransformationSubmitButtons

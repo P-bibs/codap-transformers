@@ -1,12 +1,12 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { useDataContexts, useInput } from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { transformColumn } from "../transformations/transformColumn";
 import { applyNewDataSet } from "./util";
 import {
   CodapFlowTextArea,
   CodapFlowTextInput,
-  CodapFlowSelect,
   TransformationSubmitButtons,
+  ContextSelector,
 } from "../ui-components";
 import { useContextUpdateListenerWithFlowEffect } from "../utils/hooks";
 import { getDataSet } from "../utils/codapPhone";
@@ -30,7 +30,6 @@ export function TransformColumn({
     "",
     () => setErrMsg(null)
   );
-  const dataContexts = useDataContexts();
   const [lastContextName, setLastContextName] = useState<string | null>(null);
 
   /**
@@ -82,15 +81,7 @@ export function TransformColumn({
   return (
     <>
       <p>Table to TransformColumn</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Attribute to Transform</p>
       <CodapFlowTextInput

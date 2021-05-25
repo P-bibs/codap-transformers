@@ -2,14 +2,13 @@ import React, { useCallback, ReactElement, useState } from "react";
 import { getDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
-  useDataContexts,
   useInput,
 } from "../utils/hooks";
 import { selectAttributes } from "../transformations/selectAttributes";
 import {
-  CodapFlowSelect,
   TransformationSubmitButtons,
   CodapFlowTextArea,
+  ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
 
@@ -28,7 +27,6 @@ export function SelectAttributes({
     "",
     () => setErrMsg(null)
   );
-  const dataContexts = useDataContexts();
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -76,15 +74,7 @@ export function SelectAttributes({
   return (
     <>
       <p>Table to Select Attributes From</p>
-      <CodapFlowSelect
-        onChange={inputChange}
-        options={dataContexts.map((dataContext) => ({
-          value: dataContext.name,
-          title: dataContext.title,
-        }))}
-        value={inputDataCtxt}
-        defaultValue="Select a Data Context"
-      />
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Attributes to Include in Output (1 per line)</p>
       <CodapFlowTextArea onChange={attributesChange} value={attributes} />

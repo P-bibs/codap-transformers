@@ -1,9 +1,6 @@
-import a from "./CodapFlowTextInput";
-import b from "./TransformationSubmitButtons";
-import c from "./CodapFlowSelect";
-import d from "./CodapFlowTextArea";
-
-export const CodapFlowTextInput = a;
-export const TransformationSubmitButtons = b;
-export const CodapFlowSelect = c;
-export const CodapFlowTextArea = d;
+export { default as CodapFlowTextInput } from "./CodapFlowTextInput";
+export { default as CodapFlowSelect } from "./CodapFlowSelect";
+export { default as CodapFlowTextArea } from "./CodapFlowTextArea";
+export { default as TransformationSubmitButtons } from "./TransformationSubmitButtons";
+export { default as ContextSelector } from "./ContextSelector";
+export { default as AttributeSelector } from "./AttributeSelector";

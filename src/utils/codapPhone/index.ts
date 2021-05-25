@@ -86,6 +86,7 @@ function itemFromContext(context: string) {
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-item-get-by-search
+/* eslint-disable-next-line */
 function itemSearchAllFromContext(context: string) {
   return `${resourceFromContext(context)}.itemSearch[*]`;
 }

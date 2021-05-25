@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { Token } from "./lex";
 import { Ast, Operator, UnaryOperator, Builtin } from "./ast";
 import { getBindingPower, parseExpr } from "./parse";

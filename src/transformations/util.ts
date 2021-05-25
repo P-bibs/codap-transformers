@@ -108,3 +108,12 @@ export function insertInRow(
   newRow[newProp] = newValue;
   return newRow;
 }
+
+/**
+ * Sets `formula` field of all attributes in the given list
+ * to undefined. Useful in several transformations where
+ * preserving formulas will result in broken formulas.
+ */
+export function eraseFormulas(attrs: CodapAttribute[]): void {
+  attrs.forEach((attr) => (attr.formula = undefined));
+}

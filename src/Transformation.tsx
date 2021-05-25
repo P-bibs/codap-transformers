@@ -21,6 +21,8 @@ import {
   runningMax,
   difference,
 } from "./transformations/fold";
+import { PivotLonger } from "./transformation-components/PivotLonger";
+import { PivotWider } from "./transformation-components/PivotWider";
 import { CodapFlowSelect } from "./ui-components";
 
 /**
@@ -60,6 +62,8 @@ function Transformation(): ReactElement {
     ),
     "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
     Sort: <Sort setErrMsg={setErrMsg} />,
+    "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
+    "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
   };
 
   type TransformType = keyof typeof transformComponents;

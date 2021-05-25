@@ -24,11 +24,7 @@ export default function CodapFlowSelect<T extends string | number>({
   }
 
   return (
-    <select
-      onChange={onChange}
-      defaultValue={defaultValue}
-      value={value || defaultValue}
-    >
+    <select onChange={onChange} value={value || defaultValue}>
       <option disabled value={defaultValue}>
         {defaultValue}
       </option>

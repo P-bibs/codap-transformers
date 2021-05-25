@@ -141,7 +141,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
           { value: "numeric", title: "Numeric" },
         ]}
         value={inputAttribute2}
-        defaultValue="numeric"
+        defaultValue="Select a type"
       />
 
       <br />

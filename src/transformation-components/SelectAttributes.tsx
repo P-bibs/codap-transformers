@@ -49,8 +49,8 @@ export function SelectAttributes({
       // extract attribute names from user's text
       const attributeNames = attributes.split("\n").map((s) => s.trim());
 
-    // select all but the given attributes?
-    const allBut = mode === "selectAllBut";
+      // select all but the given attributes?
+      const allBut = mode === "selectAllBut";
 
       try {
         const selected = selectAttributes(dataset, attributeNames, allBut);

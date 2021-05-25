@@ -260,7 +260,7 @@ export interface RawAttribute {
 }
 
 export interface BaseAttribute extends RawAttribute {
-  type?: undefined;
+  type?: null;
 }
 
 export interface CategoricalAttribute extends RawAttribute {
@@ -428,3 +428,14 @@ type InteractiveFrame = {
   };
   savedState: Record<string, unknown>;
 };
+
+// Conditional type
+// https://www.typescriptlang.org/docs/handbook/2/conditional-types.html
+export type ExcludeNonObject<T> = T extends
+  | number
+  | boolean
+  | string
+  | null
+  | undefined
+  ? never
+  : T;

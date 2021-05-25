@@ -27,7 +27,10 @@ export function SelectAttributes({
     "",
     () => setErrMsg(null)
   );
-
+  const [mode, modeChange] = useInput<string | null, HTMLSelectElement>(
+    "selectOnly",
+    () => setErrMsg(null)
+  );
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
@@ -46,8 +49,11 @@ export function SelectAttributes({
       // extract attribute names from user's text
       const attributeNames = attributes.split("\n").map((s) => s.trim());
 
+      // select all but the given attributes?
+      const allBut = mode === "selectAllBut";
+
       try {
-        const selected = selectAttributes(dataset, attributeNames);
+        const selected = selectAttributes(dataset, attributeNames, allBut);
         await applyNewDataSet(
           selected,
           doUpdate,
@@ -59,7 +65,7 @@ export function SelectAttributes({
         setErrMsg(e.message);
       }
     },
-    [inputDataCtxt, attributes, setErrMsg, lastContextName]
+    [inputDataCtxt, attributes, mode, setErrMsg, lastContextName]
   );
 
   useContextUpdateListenerWithFlowEffect(
@@ -76,7 +82,15 @@ export function SelectAttributes({
       <p>Table to Select Attributes From</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attributes to Include in Output (1 per line)</p>
+      <p>Mode</p>
+      <select id="mode" onChange={modeChange}>
+        <option value="selectOnly">Select only the following attributes</option>
+        <option value="selectAllBut">
+          Select all but the following attributes
+        </option>
+      </select>
+
+      <p>Attributes (1 per line)</p>
       <CodapFlowTextArea onChange={attributesChange} value={attributes} />
 
       <br />

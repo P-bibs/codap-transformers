@@ -21,6 +21,7 @@ import {
   runningMax,
   difference,
 } from "./transformations/fold";
+import { CodapFlowSelect } from "./ui-components";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -74,14 +75,16 @@ function Transformation(): ReactElement {
   return (
     <div className="Transformation">
       <p>Transformation Type</p>
-      <select id="transformType" onChange={typeChange} defaultValue="default">
-        <option disabled value="default">
-          Select a Transformation
-        </option>
-        {Object.keys(transformComponents).map((type, i) => (
-          <option key={i}>{type}</option>
-        ))}
-      </select>
+      <CodapFlowSelect
+        onChange={typeChange}
+        options={Object.keys(transformComponents).map((type) => ({
+          value: type,
+          title: type,
+        }))}
+        value={transformType}
+        defaultValue="Select a transformation"
+      />
+
       {transformType && transformComponents[transformType]}
 
       <Error message={errMsg} />

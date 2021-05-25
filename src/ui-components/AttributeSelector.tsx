@@ -24,6 +24,7 @@ export default function AttributeSelector({
       }))}
       value={value}
       defaultValue="Select an attribute"
+      showValue={true}
     />
   );
 }

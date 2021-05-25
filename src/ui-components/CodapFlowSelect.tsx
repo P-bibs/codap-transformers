@@ -8,6 +8,7 @@ interface CodapFlowSelectProps<T extends string | number> {
     value: T;
     title: string;
   }[];
+  showValue?: boolean;
 }
 
 export default function CodapFlowSelect<T extends string | number>({
@@ -15,7 +16,13 @@ export default function CodapFlowSelect<T extends string | number>({
   value,
   defaultValue,
   options,
+  showValue,
 }: CodapFlowSelectProps<T>): ReactElement {
+  // showValue is false by default
+  if (showValue === undefined || showValue === null) {
+    showValue = false;
+  }
+
   return (
     <select
       onChange={onChange}
@@ -27,7 +34,7 @@ export default function CodapFlowSelect<T extends string | number>({
       </option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
-          {option.title} ({option.value})
+          {showValue ? `${option.title} (${option.value})` : option.title}
         </option>
       ))}
     </select>

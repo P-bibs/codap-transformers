@@ -1,13 +1,16 @@
-import React, { useEffect, useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
+import { getDataSet } from "../utils/codapPhone";
 import {
-  getDataFromContext,
-  addContextUpdateListener,
-  removeContextUpdateListener,
-  createTableWithDataSet,
-  getDataContext,
-} from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+  useContextUpdateListenerWithFlowEffect,
+  useInput,
+} from "../utils/hooks";
 import { selectAttributes } from "../transformations/selectAttributes";
+import {
+  TransformationSubmitButtons,
+  CodapFlowTextArea,
+  ContextSelector,
+} from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface SelectAttributesProps {
   setErrMsg: (s: string | null) => void;
@@ -24,64 +27,64 @@ export function SelectAttributes({
     "",
     () => setErrMsg(null)
   );
-  const dataContexts = useDataContexts();
+
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+      const dataset = await getDataSet(inputDataCtxt);
 
-    // extract attribute names from user's text
-    const attributeNames = attributes.split("\n").map((s) => s.trim());
+      // extract attribute names from user's text
+      const attributeNames = attributes.split("\n").map((s) => s.trim());
 
-    try {
-      const selected = selectAttributes(dataset, attributeNames);
-      await createTableWithDataSet(selected);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, attributes, setErrMsg]);
+      try {
+        const selected = selectAttributes(dataset, attributeNames);
+        await applyNewDataSet(
+          selected,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, attributes, setErrMsg, lastContextName]
+  );
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, transform);
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>
       <p>Table to Select Attributes From</p>
-      <select
-        id="inputDataContext"
-        onChange={inputChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Attributes to Include in Output (1 per line)</p>
-      <textarea onChange={attributesChange}></textarea>
+      <CodapFlowTextArea onChange={attributesChange} value={attributes} />
 
       <br />
-      <button onClick={() => transform()}>Select attributes!</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={true}
+      />
     </>
   );
 }

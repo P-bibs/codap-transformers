@@ -4,6 +4,8 @@ import {
   addNewContextListener,
   removeNewContextListener,
   getAllAttributes,
+  removeContextUpdateListener,
+  addContextUpdateListener,
 } from "./codapPhone";
 import { CodapIdentifyingInfo } from "./codapPhone/types";
 
@@ -62,4 +64,44 @@ export function useInput<T, E extends ElementWithValue>(
     [setInputValue, extraAction]
   );
   return [inputValue, onChange, setInputValue];
+}
+
+/**
+ * Hook that registers and unregisters a listener for updates on a
+ * specific data context
+ */
+export function useContextUpdateListener(
+  contextName: string,
+  callback: () => void,
+  dependencies: unknown[]
+): void {
+  useEffect(() => {
+    addContextUpdateListener(contextName, callback);
+    return () => removeContextUpdateListener(contextName);
+  }, [contextName, callback, ...dependencies]);
+}
+
+/**
+ * Similar to `useContextUpdateListener`, but for callbacks (effects)
+ * which rely on two strings being non-null. The implication is that
+ * the effect is flowing data from the sourceContext to the
+ * destinationContext, but only if both are non-null
+ */
+export function useContextUpdateListenerWithFlowEffect(
+  sourceContext: string | null,
+  destinationContext: string | null,
+  flowCallback: () => void,
+  dependencies: unknown[]
+): void {
+  // We use an unsafe cast from string | null to string here, but it's ok because
+  // there's a check for sourceContext !== null inside the callback
+  useContextUpdateListener(
+    sourceContext as string,
+    () => {
+      if (sourceContext !== null && destinationContext !== null) {
+        flowCallback();
+      }
+    },
+    [destinationContext, flowCallback, ...dependencies]
+  );
 }

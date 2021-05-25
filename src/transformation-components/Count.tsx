@@ -1,13 +1,16 @@
-import React, { useEffect, useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
+import { getDataSet } from "../utils/codapPhone";
 import {
-  getDataFromContext,
-  addContextUpdateListener,
-  removeContextUpdateListener,
-  createTableWithDataSet,
-  getDataContext,
-} from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+  useContextUpdateListenerWithFlowEffect,
+  useInput,
+} from "../utils/hooks";
 import { count } from "../transformations/count";
+import {
+  TransformationSubmitButtons,
+  ContextSelector,
+  AttributeSelector,
+} from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface CountProps {
   setErrMsg: (s: string | null) => void;
@@ -20,63 +23,67 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
   >(null, () => setErrMsg(null));
   const [attributeName, attributeNameChange] = useInput<
     string,
-    HTMLInputElement
+    HTMLSelectElement
   >("", () => setErrMsg(null));
-  const dataContexts = useDataContexts();
+
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const counted = count(dataset, attributeName);
-      await createTableWithDataSet(counted);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, attributeName, setErrMsg]);
+      try {
+        const counted = count(dataset, attributeName);
+        await applyNewDataSet(
+          counted,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, attributeName, setErrMsg, lastContextName]
+  );
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, transform);
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>
       <p>Table to Count</p>
-      <select
-        id="inputDataContext"
-        onChange={inputChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Attribute to Count</p>
-      <input type="text" onChange={attributeNameChange}></input>
+      <AttributeSelector
+        context={inputDataCtxt}
+        value={attributeName}
+        onChange={attributeNameChange}
+      />
 
       <br />
-      <button onClick={() => transform()}>Count attribute!</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={true}
+      />
     </>
   );
 }

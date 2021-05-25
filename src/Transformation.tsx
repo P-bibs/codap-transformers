@@ -21,6 +21,7 @@ import {
   runningMax,
   difference,
 } from "./transformations/fold";
+import { CodapFlowSelect } from "./ui-components";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -35,29 +36,29 @@ function Transformation(): ReactElement {
    */
   const transformComponents = {
     Filter: <Filter setErrMsg={setErrMsg} />,
-    TransformColumn: <TransformColumn setErrMsg={setErrMsg} />,
-    BuildColumn: <BuildColumn setErrMsg={setErrMsg} />,
-    GroupBy: <GroupBy setErrMsg={setErrMsg} />,
-    SelectAttributes: <SelectAttributes setErrMsg={setErrMsg} />,
+    "Transform Column": <TransformColumn setErrMsg={setErrMsg} />,
+    "Build Column": <BuildColumn setErrMsg={setErrMsg} />,
+    "Group By": <GroupBy setErrMsg={setErrMsg} />,
+    "Select Attributes": <SelectAttributes setErrMsg={setErrMsg} />,
     Count: <Count setErrMsg={setErrMsg} />,
     Flatten: <Flatten setErrMsg={setErrMsg} />,
     Compare: <Compare setErrMsg={setErrMsg} />,
-    RunningSum: (
+    "Running Sum": (
       <Fold setErrMsg={setErrMsg} label="running sum" foldFunc={runningSum} />
     ),
-    RunningMean: (
+    "Running Mean": (
       <Fold setErrMsg={setErrMsg} label="running mean" foldFunc={runningMean} />
     ),
-    RunningMin: (
+    "Running Min": (
       <Fold setErrMsg={setErrMsg} label="running min" foldFunc={runningMin} />
     ),
-    RunningMax: (
+    "Running Max": (
       <Fold setErrMsg={setErrMsg} label="running max" foldFunc={runningMax} />
     ),
-    RunningDifference: (
+    "Running Difference": (
       <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
     ),
-    DifferenceFrom: <DifferenceFrom setErrMsg={setErrMsg} />,
+    "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
     Sort: <Sort setErrMsg={setErrMsg} />,
   };
 
@@ -74,14 +75,16 @@ function Transformation(): ReactElement {
   return (
     <div className="Transformation">
       <p>Transformation Type</p>
-      <select id="transformType" onChange={typeChange} defaultValue="default">
-        <option disabled value="default">
-          Select a Transformation
-        </option>
-        {Object.keys(transformComponents).map((type, i) => (
-          <option key={i}>{type}</option>
-        ))}
-      </select>
+      <CodapFlowSelect
+        onChange={typeChange}
+        options={Object.keys(transformComponents).map((type) => ({
+          value: type,
+          title: type,
+        }))}
+        value={transformType}
+        defaultValue="Select a transformation"
+      />
+
       {transformType && transformComponents[transformType]}
 
       <Error message={errMsg} />

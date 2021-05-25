@@ -1,12 +1,17 @@
-import React, { useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
+import { getDataSet } from "../utils/codapPhone";
 import {
-  getDataFromContext,
-  createTableWithDataSet,
-  getDataContext,
-} from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+  useContextUpdateListenerWithFlowEffect,
+  useInput,
+} from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { sort } from "../transformations/sort";
+import {
+  TransformationSubmitButtons,
+  CodapFlowTextArea,
+  ContextSelector,
+} from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 export function Sort({ setErrMsg }: TransformationProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
@@ -19,49 +24,60 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
     HTMLTextAreaElement
   >("", () => setErrMsg(null));
 
-  const dataContexts = useDataContexts();
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    if (keyExpression === "") {
-      setErrMsg("Key expression cannot be empty.");
-      return;
-    }
+      if (keyExpression === "") {
+        setErrMsg("Key expression cannot be empty.");
+        return;
+      }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const result = sort(dataset, keyExpression);
-      await createTableWithDataSet(result);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [inputDataCtxt, setErrMsg, keyExpression]);
+      try {
+        const result = sort(dataset, keyExpression);
+        await applyNewDataSet(
+          result,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [inputDataCtxt, setErrMsg, keyExpression, lastContextName]
+  );
+
+  useContextUpdateListenerWithFlowEffect(
+    inputDataCtxt,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>
       <p>Table to sort</p>
-      <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
+
       <p>Key expression</p>
-      <textarea value={keyExpression} onChange={keyExpressionChange} />
+      <CodapFlowTextArea value={keyExpression} onChange={keyExpressionChange} />
       <br />
-      <button onClick={transform}>Create sorted table</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={true}
+      />
     </>
   );
 }

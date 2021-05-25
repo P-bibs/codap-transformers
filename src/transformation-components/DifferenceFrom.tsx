@@ -1,12 +1,17 @@
-import React, { useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
+import { getDataSet } from "../utils/codapPhone";
 import {
-  getDataFromContext,
-  createTableWithDataSet,
-  getDataContext,
-} from "../utils/codapPhone";
-import { useDataContexts, useInput } from "../utils/hooks";
+  useContextUpdateListenerWithFlowEffect,
+  useInput,
+} from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { differenceFrom } from "../transformations/fold";
+import {
+  CodapFlowTextInput,
+  TransformationSubmitButtons,
+  ContextSelector,
+} from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 export function DifferenceFrom({
   setErrMsg,
@@ -31,79 +36,91 @@ export function DifferenceFrom({
     HTMLInputElement
   >("0", () => setErrMsg(null));
 
-  const dataContexts = useDataContexts();
+  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
-  const transform = useCallback(async () => {
-    if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
-      return;
-    }
+  const transform = useCallback(
+    async (doUpdate: boolean) => {
+      if (inputDataCtxt === null) {
+        setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
 
-    if (resultColumnName === "") {
-      setErrMsg("Please choose a non-empty result column name.");
-      return;
-    }
+      if (resultColumnName === "") {
+        setErrMsg("Please choose a non-empty result column name.");
+        return;
+      }
 
-    const differenceStartingValue = Number(startingValue);
-    if (isNaN(differenceStartingValue)) {
-      setErrMsg(
-        `Expected numeric starting value, instead got ${startingValue}`
-      );
-    }
+      const differenceStartingValue = Number(startingValue);
+      if (isNaN(differenceStartingValue)) {
+        setErrMsg(
+          `Expected numeric starting value, instead got ${startingValue}`
+        );
+      }
 
-    const dataset = {
-      collections: (await getDataContext(inputDataCtxt)).collections,
-      records: await getDataFromContext(inputDataCtxt),
-    };
+      const dataset = await getDataSet(inputDataCtxt);
 
-    try {
-      const result = differenceFrom(
-        dataset,
-        inputColumnName,
-        resultColumnName,
-        differenceStartingValue
-      );
-      await createTableWithDataSet(result);
-    } catch (e) {
-      setErrMsg(e.message);
-    }
-  }, [
+      try {
+        const result = differenceFrom(
+          dataset,
+          inputColumnName,
+          resultColumnName,
+          differenceStartingValue
+        );
+        await applyNewDataSet(
+          result,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
+      } catch (e) {
+        setErrMsg(e.message);
+      }
+    },
+    [
+      inputDataCtxt,
+      inputColumnName,
+      resultColumnName,
+      setErrMsg,
+      startingValue,
+      lastContextName,
+    ]
+  );
+
+  useContextUpdateListenerWithFlowEffect(
     inputDataCtxt,
-    inputColumnName,
-    resultColumnName,
-    setErrMsg,
-    startingValue,
-  ]);
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>
       <p>Table to calculate difference on</p>
-      <select id="inputDataContext" onChange={inputChange}>
-        <option selected disabled>
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      <ContextSelector onChange={inputChange} value={inputDataCtxt} />
       <p>Input Column Name:</p>
-      <input
-        type="text"
+      <CodapFlowTextInput
         value={inputColumnName}
         onChange={inputColumnNameChange}
       />
       <p>Result Column Name:</p>
-      <input
-        type="text"
+      <CodapFlowTextInput
         value={resultColumnName}
         onChange={resultColumnNameChange}
       />
       <p>Starting value for difference</p>
-      <input type="text" value={startingValue} onChange={startingValueChange} />
+      <CodapFlowTextInput
+        value={startingValue}
+        onChange={startingValueChange}
+      />
       <br />
-      <button onClick={transform}>Create table with difference</button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={true}
+      />
     </>
   );
 }

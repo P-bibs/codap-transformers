@@ -1,14 +1,17 @@
-import React, { useState, useCallback, ReactElement, useEffect } from "react";
+import React, { useState, useCallback, ReactElement } from "react";
+import { getDataSet } from "../utils/codapPhone";
 import {
-  getDataFromContext,
-  setContextItems,
-  createTableWithDataSet,
-  getDataContext,
-  addContextUpdateListener,
-  removeContextUpdateListener,
-} from "../utils/codapPhone";
-import { useAttributes, useDataContexts, useInput } from "../utils/hooks";
+  useContextUpdateListenerWithFlowEffect,
+  useInput,
+} from "../utils/hooks";
 import { compare } from "../transformations/compare";
+import {
+  CodapFlowSelect,
+  AttributeSelector,
+  ContextSelector,
+  TransformationSubmitButtons,
+} from "../ui-components";
+import { applyNewDataSet } from "./util";
 
 interface CompareProps {
   setErrMsg: (s: string | null) => void;
@@ -16,25 +19,21 @@ interface CompareProps {
 
 export function Compare({ setErrMsg }: CompareProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
-    string,
+    string | null,
     HTMLSelectElement
-  >("", () => setErrMsg(null));
+  >(null, () => setErrMsg(null));
   const [inputDataContext2, inputDataContext2OnChange] = useInput<
-    string,
+    string | null,
     HTMLSelectElement
-  >("", () => setErrMsg(null));
+  >(null, () => setErrMsg(null));
   const [inputAttribute1, inputAttribute1OnChange] = useInput<
-    string,
+    string | null,
     HTMLSelectElement
-  >("", () => setErrMsg(null));
+  >(null, () => setErrMsg(null));
   const [inputAttribute2, inputAttribute2OnChange] = useInput<
-    string,
+    string | null,
     HTMLSelectElement
-  >("", () => setErrMsg(null));
-
-  const dataContexts = useDataContexts();
-  const attributes1 = useAttributes(inputDataContext1);
-  const attributes2 = useAttributes(inputDataContext2);
+  >(null, () => setErrMsg(null));
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -52,14 +51,8 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         return;
       }
 
-      const dataset1 = {
-        collections: (await getDataContext(inputDataContext1)).collections,
-        records: await getDataFromContext(inputDataContext1),
-      };
-      const dataset2 = {
-        collections: (await getDataContext(inputDataContext2)).collections,
-        records: await getDataFromContext(inputDataContext2),
-      };
+      const dataset1 = await getDataSet(inputDataContext1);
+      const dataset2 = await getDataSet(inputDataContext2);
 
       try {
         const compared = compare(
@@ -69,19 +62,13 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
           inputAttribute2,
           isCategorical
         );
-
-        // if doUpdate is true then we should update a previously created table
-        // rather than creating a new one
-        if (doUpdate) {
-          if (!lastContextName) {
-            setErrMsg("Please apply transformation to a new table first.");
-            return;
-          }
-          setContextItems(lastContextName, compared.records);
-        } else {
-          const [newContext] = await createTableWithDataSet(compared);
-          setLastContextName(newContext.name);
-        }
+        await applyNewDataSet(
+          compared,
+          doUpdate,
+          lastContextName,
+          setLastContextName,
+          setErrMsg
+        );
       } catch (e) {
         setErrMsg(e.message);
       }
@@ -97,112 +84,72 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
     ]
   );
 
-  // Listen for updates to first data context
-  useEffect(() => {
-    if (inputDataContext1 !== null) {
-      addContextUpdateListener(inputDataContext1, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataContext1);
-    }
-  }, [transform, inputDataContext1]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataContext1,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
-  // Listen for updates to second data context
-  useEffect(() => {
-    if (inputDataContext2 !== null) {
-      addContextUpdateListener(inputDataContext2, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataContext2);
-    }
-  }, [transform, inputDataContext2]);
+  useContextUpdateListenerWithFlowEffect(
+    inputDataContext2,
+    lastContextName,
+    () => {
+      transform(true);
+    },
+    [transform]
+  );
 
   return (
     <>
       <p>Table to Compare 1</p>
-      <select
-        id="inputDataContext1"
+      <ContextSelector
+        value={inputDataContext1}
         onChange={inputDataContext1OnChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      />
       <p>Table to Compare 2</p>
-      <select
-        id="inputDataContext2"
+      <ContextSelector
+        value={inputDataContext2}
         onChange={inputDataContext2OnChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a Data Context
-        </option>
-        {dataContexts.map((dataContext) => (
-          <option key={dataContext.name} value={dataContext.name}>
-            {dataContext.title} ({dataContext.name})
-          </option>
-        ))}
-      </select>
+      />
 
       <p>First attribute to Compare</p>
-      <select
-        id="inputAttribute1"
+      <AttributeSelector
         onChange={inputAttribute1OnChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a attribute
-        </option>
-        {attributes1.map((attribute) => (
-          <option key={attribute.name} value={attribute.name}>
-            {attribute.title} ({attribute.name})
-          </option>
-        ))}
-      </select>
+        value={inputAttribute1}
+        context={inputDataContext1}
+      />
 
       <p>Second attribute to Compare</p>
-      <select
-        id="inputAttribute2"
+      <AttributeSelector
         onChange={inputAttribute2OnChange}
-        defaultValue="default"
-      >
-        <option disabled value="default">
-          Select a attribute
-        </option>
-        {attributes2.map((attribute) => (
-          <option key={attribute.name} value={attribute.name}>
-            {attribute.title} ({attribute.name})
-          </option>
-        ))}
-      </select>
+        value={inputAttribute2}
+        context={inputDataContext2}
+      />
+
       <p>What kind of Comparison?</p>
-      <select
-        id="isCategorical"
+      <CodapFlowSelect
         onChange={(e) =>
           e.target.value === "categorical"
             ? setIsCategorical(true)
             : setIsCategorical(false)
         }
-        defaultValue="numeric"
-      >
-        <option value="categorical">Categorical</option>
-        <option value="numeric">Numeric</option>
-      </select>
+        options={[
+          { value: "categorical", title: "Categorical" },
+          { value: "numeric", title: "Numeric" },
+        ]}
+        value={inputAttribute2}
+        defaultValue="Select a type"
+      />
 
       <br />
-      <button onClick={() => transform(false)}>
-        Create Table with Comparison
-      </button>
-      <br />
-      <button onClick={() => transform(true)}>
-        Update Previous Table With Comparison
-      </button>
+      <TransformationSubmitButtons
+        onCreate={() => transform(false)}
+        onUpdate={() => transform(true)}
+        updateDisabled={!lastContextName}
+      />
     </>
   );
 }

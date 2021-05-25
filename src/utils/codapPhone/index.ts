@@ -315,6 +315,13 @@ export async function getDataFromContext(
   );
 }
 
+export async function getDataSet(contextName: string): Promise<DataSet> {
+  return {
+    collections: (await getDataContext(contextName)).collections,
+    records: await getDataFromContext(contextName),
+  };
+}
+
 export function getDataContext(contextName: string): Promise<DataContext> {
   return new Promise<DataContext>((resolve, reject) =>
     phone.call(

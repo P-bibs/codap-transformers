@@ -48,8 +48,8 @@ export function pivotLonger(
   );
 
   const records = [];
-  for (const toPivotAttr of toPivot) {
-    for (const record of dataset.records) {
+  for (const record of dataset.records) {
+    for (const toPivotAttr of toPivot) {
       // remove attributes being pivoted
       const shortRecord = removeFields({ ...record }, toPivot);
 

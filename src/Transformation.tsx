@@ -23,7 +23,6 @@ import {
 } from "./transformations/fold";
 import { PivotLonger } from "./transformation-components/PivotLonger";
 import { PivotWider } from "./transformation-components/PivotWider";
-import { CodapFlowSelect } from "./ui-components";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -36,62 +35,73 @@ function Transformation(): ReactElement {
    * The broad categories of transformations that can be applied
    * to tables.
    */
-  const transformComponents = {
-    Filter: <Filter setErrMsg={setErrMsg} />,
-    "Transform Column": <TransformColumn setErrMsg={setErrMsg} />,
-    "Build Column": <BuildColumn setErrMsg={setErrMsg} />,
-    "Group By": <GroupBy setErrMsg={setErrMsg} />,
-    "Select Attributes": <SelectAttributes setErrMsg={setErrMsg} />,
-    Count: <Count setErrMsg={setErrMsg} />,
-    Flatten: <Flatten setErrMsg={setErrMsg} />,
-    Compare: <Compare setErrMsg={setErrMsg} />,
-    "Running Sum": (
-      <Fold setErrMsg={setErrMsg} label="Running Sum" foldFunc={runningSum} />
-    ),
-    "Running Mean": (
-      <Fold setErrMsg={setErrMsg} label="Running Mean" foldFunc={runningMean} />
-    ),
-    "Running Min": (
-      <Fold setErrMsg={setErrMsg} label="Running Min" foldFunc={runningMin} />
-    ),
-    "Running Max": (
-      <Fold setErrMsg={setErrMsg} label="Running Max" foldFunc={runningMax} />
-    ),
-    "Running Difference": (
-      <Fold
-        setErrMsg={setErrMsg}
-        label="Running Difference"
-        foldFunc={difference}
-      />
-    ),
-    "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
-    Sort: <Sort setErrMsg={setErrMsg} />,
-    "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
-    "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
+  const transformComponents: Record<string, Record<string, unknown>> = {
+    "Running Aggregators": {
+      "Running Sum": (
+        <Fold setErrMsg={setErrMsg} label="running sum" foldFunc={runningSum} />
+      ),
+      "Running Mean": (
+        <Fold
+          setErrMsg={setErrMsg}
+          label="running mean"
+          foldFunc={runningMean}
+        />
+      ),
+      "Running Min": (
+        <Fold setErrMsg={setErrMsg} label="running min" foldFunc={runningMin} />
+      ),
+      "Running Max": (
+        <Fold setErrMsg={setErrMsg} label="running max" foldFunc={runningMax} />
+      ),
+      "Running Difference": (
+        <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
+      ),
+    },
+    "Structural Transformations": {
+      Flatten: <Flatten setErrMsg={setErrMsg} />,
+      "Group By": <GroupBy setErrMsg={setErrMsg} />,
+    },
+    Others: {
+      Filter: <Filter setErrMsg={setErrMsg} />,
+      "Transform Column": <TransformColumn setErrMsg={setErrMsg} />,
+      "Build Column": <BuildColumn setErrMsg={setErrMsg} />,
+      "Select Attributes": <SelectAttributes setErrMsg={setErrMsg} />,
+      Count: <Count setErrMsg={setErrMsg} />,
+      Compare: <Compare setErrMsg={setErrMsg} />,
+      "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
+      Sort: <Sort setErrMsg={setErrMsg} />,
+      "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
+      "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
+    },
   };
 
-  type TransformType = keyof typeof transformComponents;
-
-  const [transformType, setTransformType] =
-    useState<TransformType | null>(null);
+  const [transformType, setTransformType] = useState<string | null>(null);
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    setTransformType(event.target.value as TransformType);
+    setTransformType(event.target.value);
     setErrMsg(null);
   }
 
   return (
     <div className="Transformation">
       <p>Transformation Type</p>
-      <CodapFlowSelect
+      <select
         onChange={typeChange}
-        options={Object.keys(transformComponents).map((type) => ({
-          value: type,
-          title: type,
-        }))}
-        value={transformType}
-        defaultValue="Select a transformation"
-      />
+        value={transformType || "Select a transformation"}
+      >
+        <option disabled value="Select a transformation">
+          Select a transformation
+        </option>
+        {Object.keys(transformComponents).map((typeName) => (
+          <optgroup label={typeName} key={typeName}>
+            {Object.keys(transformComponents[typeName]).map((transformName) => (
+              <option key={transformName} value={transformName}>
+                {transformName}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
 
       {transformType && transformComponents[transformType]}
 

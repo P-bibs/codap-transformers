@@ -7,8 +7,8 @@ import {
 import { selectAttributes } from "../transformations/selectAttributes";
 import {
   TransformationSubmitButtons,
-  CodapFlowTextArea,
   ContextSelector,
+  MultiAttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
 
@@ -23,10 +23,7 @@ export function SelectAttributes({
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, attributesChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
+  const [attributes, setAttributes] = useState<string[]>([]);
   const [mode, modeChange] = useInput<string | null, HTMLSelectElement>(
     "selectOnly",
     () => setErrMsg(null)
@@ -46,14 +43,11 @@ export function SelectAttributes({
 
       const dataset = await getDataSet(inputDataCtxt);
 
-      // extract attribute names from user's text
-      const attributeNames = attributes.split("\n").map((s) => s.trim());
-
       // select all but the given attributes?
       const allBut = mode === "selectAllBut";
 
       try {
-        const selected = selectAttributes(dataset, attributeNames, allBut);
+        const selected = selectAttributes(dataset, attributes, allBut);
         await applyNewDataSet(
           selected,
           doUpdate,
@@ -91,7 +85,10 @@ export function SelectAttributes({
       </select>
 
       <p>Attributes (1 per line)</p>
-      <CodapFlowTextArea onChange={attributesChange} value={attributes} />
+      <MultiAttributeSelector
+        context={inputDataCtxt}
+        onChange={setAttributes}
+      />
 
       <br />
       <TransformationSubmitButtons

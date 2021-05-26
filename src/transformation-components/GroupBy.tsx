@@ -7,9 +7,9 @@ import {
 import { groupBy } from "../transformations/groupBy";
 import { applyNewDataSet } from "./util";
 import {
-  CodapFlowTextArea,
   TransformationSubmitButtons,
   ContextSelector,
+  MultiAttributeSelector,
 } from "../ui-components";
 
 interface GroupByProps {
@@ -21,11 +21,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, attributesChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
-
+  const [attributes, setAttributes] = useState<string[]>([]);
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
@@ -38,19 +34,16 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-      if (attributes === "") {
+      if (attributes.length === 0) {
         setErrMsg("Please choose at least one attribute to group by");
         return;
       }
 
       const dataset = await getDataSet(inputDataCtxt);
-
-      // extract attribute names from user's text
-      const attributeNames = attributes.split("\n").map((s) => s.trim());
-      const parentName = `Grouped by ${attributeNames.join(", ")}`;
+      const parentName = `Grouped by ${attributes.join(", ")}`;
 
       try {
-        const grouped = groupBy(dataset, attributeNames, parentName);
+        const grouped = groupBy(dataset, attributes, parentName);
         await applyNewDataSet(
           grouped,
           doUpdate,
@@ -78,8 +71,12 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
     <>
       <p>Table to Group</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
-      <p>Attributes to Group By (1 per line)</p>
-      <CodapFlowTextArea value={attributes} onChange={attributesChange} />
+
+      <p>Attributes to Group By</p>
+      <MultiAttributeSelector
+        context={inputDataCtxt}
+        onChange={setAttributes}
+      />
 
       <br />
       <TransformationSubmitButtons

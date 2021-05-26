@@ -84,7 +84,7 @@ export function SelectAttributes({
         </option>
       </select>
 
-      <p>Attributes (1 per line)</p>
+      <p>Attributes</p>
       <MultiAttributeSelector
         context={inputDataCtxt}
         onChange={setAttributes}

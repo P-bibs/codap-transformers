@@ -157,26 +157,32 @@ function codapRequestHandler(
     command.resource.startsWith(
       CodapInitiatedResource.DataContextChangeNotice
     ) &&
-    Array.isArray(command.values) &&
-    command.values.length > 0
+    Array.isArray(command.values)
   ) {
-    if (mutatingOperations.includes(command.values[0].operation)) {
-      const contextName = command.resource.slice(
-        command.resource.search("\\[") + 1,
-        command.resource.length - 1
-      );
-      if (contextUpdateListeners[contextName]) {
-        contextUpdateListeners[contextName]();
+    for (const value of command.values) {
+      if (mutatingOperations.includes(value.operation)) {
+        // Context name is between the first pair of brackets
+        const contextName = command.resource.slice(
+          command.resource.search("\\[") + 1,
+          command.resource.length - 1
+        );
+        if (contextUpdateListeners[contextName]) {
+          contextUpdateListeners[contextName]();
+        }
+        callback({ success: true });
+        return;
       }
-      callback({ success: true });
-      return;
-    }
-    if (command.values[0].operation === ContextChangeOperation.UpdateContext) {
-      callAllContextListeners();
-      callback({ success: true });
-      return;
+      if (
+        command.values[0].operation === ContextChangeOperation.UpdateContext
+      ) {
+        callAllContextListeners();
+        callback({ success: true });
+        return;
+      }
     }
   }
+
+  callback({ success: true });
 }
 
 export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {

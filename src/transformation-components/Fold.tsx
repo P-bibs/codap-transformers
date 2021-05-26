@@ -58,6 +58,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         const result = foldFunc(dataset, inputColumnName, resultColumnName);
         await applyNewDataSet(
           result,
+          `Fold of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

@@ -568,12 +568,14 @@ async function ensureUniqueName(
     return name;
   }
 
+  const numberedName = (name: string, i: number) => `${name} (${i})`;
+
   // Otherwise find a suffix for the name that makes it unique
   let i = 1;
-  while (names.includes(`${name}_(${i})`)) {
+  while (names.includes(numberedName(name, i))) {
     i += 1;
   }
-  return `${name}_(${i})`;
+  return numberedName(name, i);
 }
 
 export async function createTableWithDataSet(
@@ -588,8 +590,8 @@ export async function createTableWithDataSet(
   }
 
   // Generate names
-  let contextName = `${baseName}_context`;
-  let tableName = `${baseName}_table`;
+  let contextName = `${baseName} Context`;
+  let tableName = `${baseName}`;
 
   // Ensure names are unique
   contextName = await ensureUniqueName(

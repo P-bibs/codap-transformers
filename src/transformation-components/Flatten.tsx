@@ -37,6 +37,7 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
         const flat = flatten(dataset);
         await applyNewDataSet(
           flat,
+          `Flatten of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

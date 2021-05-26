@@ -64,6 +64,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         );
         await applyNewDataSet(
           compared,
+          `Compare of ${inputDataContext1} and ${inputDataContext2}`,
           doUpdate,
           lastContextName,
           setLastContextName,

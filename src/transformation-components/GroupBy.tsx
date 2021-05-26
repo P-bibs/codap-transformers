@@ -53,6 +53,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
         const grouped = groupBy(dataset, attributeNames, parentName);
         await applyNewDataSet(
           grouped,
+          `Group By of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

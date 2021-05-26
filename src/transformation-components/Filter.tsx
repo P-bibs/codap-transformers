@@ -51,6 +51,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
         const filtered = filter(dataset, transformPgrm);
         await applyNewDataSet(
           filtered,
+          `Filter of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

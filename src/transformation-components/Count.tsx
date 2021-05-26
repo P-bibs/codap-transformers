@@ -45,6 +45,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         const counted = count(dataset, attributeName);
         await applyNewDataSet(
           counted,
+          `Count of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

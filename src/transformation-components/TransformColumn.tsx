@@ -57,6 +57,7 @@ export function TransformColumn({
         const transformed = transformColumn(dataset, attributeName, expression);
         await applyNewDataSet(
           transformed,
+          `Transform Column of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

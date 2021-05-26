@@ -7,6 +7,7 @@ import { createTableWithDataSet, setContextItems } from "../utils/codapPhone";
  */
 export async function applyNewDataSet(
   dataSet: DataSet,
+  name: string | undefined,
   doUpdate: boolean,
   lastContextName: string | null,
   setLastContextName: (s: string) => void,
@@ -22,7 +23,7 @@ export async function applyNewDataSet(
       }
       setContextItems(lastContextName, dataSet.records);
     } else {
-      const [newContext] = await createTableWithDataSet(dataSet);
+      const [newContext] = await createTableWithDataSet(dataSet, name);
       setLastContextName(newContext.name);
     }
   } catch (e) {

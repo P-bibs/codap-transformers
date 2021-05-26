@@ -56,6 +56,7 @@ export function SelectAttributes({
         const selected = selectAttributes(dataset, attributeNames, allBut);
         await applyNewDataSet(
           selected,
+          `Select Attributes of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

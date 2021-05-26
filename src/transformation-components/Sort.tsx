@@ -44,6 +44,7 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
         const result = sort(dataset, keyExpression);
         await applyNewDataSet(
           result,
+          `Sort of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

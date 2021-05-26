@@ -71,6 +71,7 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
         );
         await applyNewDataSet(
           built,
+          `Build Column of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

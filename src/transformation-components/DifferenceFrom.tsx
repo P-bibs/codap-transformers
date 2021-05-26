@@ -68,6 +68,7 @@ export function DifferenceFrom({
         );
         await applyNewDataSet(
           result,
+          `Difference From of ${inputDataCtxt}`,
           doUpdate,
           lastContextName,
           setLastContextName,

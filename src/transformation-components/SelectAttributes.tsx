@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -10,7 +10,7 @@ import {
   CodapFlowTextArea,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 interface SelectAttributesProps {
   setErrMsg: (s: string | null) => void;
@@ -44,7 +44,7 @@ export function SelectAttributes({
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       // extract attribute names from user's text
       const attributeNames = attributes.split("\n").map((s) => s.trim());
@@ -56,7 +56,7 @@ export function SelectAttributes({
         const selected = selectAttributes(dataset, attributeNames, allBut);
         await applyNewDataSet(
           selected,
-          `Select Attributes of ${inputDataCtxt}`,
+          `Select Attributes of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

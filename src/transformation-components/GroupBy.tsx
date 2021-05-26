@@ -1,11 +1,11 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useInput,
   useContextUpdateListenerWithFlowEffect,
 } from "../utils/hooks";
 import { groupBy } from "../transformations/groupBy";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 import {
   CodapFlowTextArea,
   TransformationSubmitButtons,
@@ -43,7 +43,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       // extract attribute names from user's text
       const attributeNames = attributes.split("\n").map((s) => s.trim());
@@ -53,7 +53,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
         const grouped = groupBy(dataset, attributeNames, parentName);
         await applyNewDataSet(
           grouped,
-          `Group By of ${inputDataCtxt}`,
+          `Group By of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

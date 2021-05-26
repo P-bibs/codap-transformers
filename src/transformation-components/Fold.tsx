@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -11,7 +11,7 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 interface FoldProps extends TransformationProps {
   label: string;
@@ -52,13 +52,13 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const result = foldFunc(dataset, inputColumnName, resultColumnName);
         await applyNewDataSet(
           result,
-          `Fold of ${inputDataCtxt}`,
+          `Fold of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

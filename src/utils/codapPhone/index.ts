@@ -26,6 +26,7 @@ import {
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
+import { DirectoryWatcherCallback } from "typescript";
 
 export {
   addNewContextListener,
@@ -315,10 +316,21 @@ export async function getDataFromContext(
   );
 }
 
-export async function getDataSet(contextName: string): Promise<DataSet> {
+/**
+ * Retrieves both a context and a dataset constructed from the context,
+ * given a context name to lookup.
+ */
+export async function getContextAndDataSet(contextName: string): Promise<{
+  context: DataContext;
+  dataset: DataSet;
+}> {
+  const context = await getDataContext(contextName);
   return {
-    collections: (await getDataContext(contextName)).collections,
-    records: await getDataFromContext(contextName),
+    context,
+    dataset: {
+      collections: context.collections,
+      records: await getDataFromContext(contextName),
+    },
   };
 }
 

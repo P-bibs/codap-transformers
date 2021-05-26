@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, ReactElement, useState } from "react";
 import {
   addContextUpdateListener,
   removeContextUpdateListener,
-  getDataSet,
+  getContextAndDataSet,
 } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
@@ -14,7 +14,7 @@ import {
   CodapFlowTextArea,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 interface FilterProps {
   setErrMsg: (s: string | null) => void;
@@ -45,13 +45,13 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       console.log(`Data context to filter: ${inputDataCtxt}`);
       console.log(`Filter predicate to apply:\n${transformPgrm}`);
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const filtered = filter(dataset, transformPgrm);
         await applyNewDataSet(
           filtered,
-          `Filter of ${inputDataCtxt}`,
+          `Filter of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

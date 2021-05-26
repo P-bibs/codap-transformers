@@ -1,7 +1,7 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { useInput } from "../utils/hooks";
 import { transformColumn } from "../transformations/transformColumn";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 import {
   CodapFlowTextArea,
   CodapFlowTextInput,
@@ -9,7 +9,7 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { useContextUpdateListenerWithFlowEffect } from "../utils/hooks";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 
 interface TransformColumnProps {
   setErrMsg: (s: string | null) => void;
@@ -51,13 +51,13 @@ export function TransformColumn({
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const transformed = transformColumn(dataset, attributeName, expression);
         await applyNewDataSet(
           transformed,
-          `Transform Column of ${inputDataCtxt}`,
+          `Transform Column of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

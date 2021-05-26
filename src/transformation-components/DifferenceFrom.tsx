@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -11,7 +11,7 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 export function DifferenceFrom({
   setErrMsg,
@@ -57,7 +57,7 @@ export function DifferenceFrom({
         );
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const result = differenceFrom(
@@ -68,7 +68,7 @@ export function DifferenceFrom({
         );
         await applyNewDataSet(
           result,
-          `Difference From of ${inputDataCtxt}`,
+          `Difference From of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

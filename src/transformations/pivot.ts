@@ -107,7 +107,7 @@ export function pivotWider(
           );
         }
 
-        return rec[namesFrom] as string;
+        return String(rec[namesFrom]);
       })
     )
   );

@@ -58,7 +58,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         const result = foldFunc(dataset, inputColumnName, resultColumnName);
         await applyNewDataSet(
           result,
-          `Fold of ${ctxtTitle(context)}`,
+          `${label} of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,
@@ -75,6 +75,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       setErrMsg,
       foldFunc,
       lastContextName,
+      label,
     ]
   );
 
@@ -89,7 +90,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
 
   return (
     <>
-      <p>Table to calculate {label} on</p>
+      <p>Table to calculate {label.toLowerCase()} on</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
       <p>Input Column Name:</p>
       <CodapFlowTextInput

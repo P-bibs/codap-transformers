@@ -271,7 +271,7 @@ export interface CategoricalAttribute extends RawAttribute {
 export interface NumericAttribute extends RawAttribute {
   type?: "numeric";
   precision?: number;
-  unit?: string;
+  unit?: string | null;
   colormap?: {
     "high-attribute-color": string;
     "low-attribute-color": string;

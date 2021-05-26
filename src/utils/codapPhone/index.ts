@@ -554,11 +554,19 @@ function fillAttrWithDefaults(attr: CodapAttribute): CodapAttribute {
     title: attr.title === undefined ? attr.name : attr.title,
     editable: attr.editable === undefined ? true : attr.editable,
     hidden: attr.hidden === undefined ? false : attr.hidden,
+    description: attr.description === undefined ? "" : attr.description,
   };
-  if (attr.type === undefined) {
+  if (withDefaults.type === undefined) {
     return {
       ...withDefaults,
       type: null,
+    };
+  }
+  if (withDefaults.type === "numeric") {
+    return {
+      ...withDefaults,
+      precision: 2,
+      unit: null,
     };
   }
   return withDefaults;

@@ -56,7 +56,11 @@ function Transformation(): ReactElement {
       <Fold setErrMsg={setErrMsg} label="Running Max" foldFunc={runningMax} />
     ),
     "Running Difference": (
-      <Fold setErrMsg={setErrMsg} label="Running Difference" foldFunc={difference} />
+      <Fold
+        setErrMsg={setErrMsg}
+        label="Running Difference"
+        foldFunc={difference}
+      />
     ),
     "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
     Sort: <Sort setErrMsg={setErrMsg} />,

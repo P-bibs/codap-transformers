@@ -8,7 +8,7 @@ import { count } from "../transformations/count";
 import {
   TransformationSubmitButtons,
   ContextSelector,
-  AttributeSelector,
+  CodapFlowTextArea,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 
@@ -21,10 +21,10 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributeName, attributeNameChange] = useInput<
-    string,
-    HTMLSelectElement
-  >("", () => setErrMsg(null));
+  const [attributes, attributesChange] = useInput<string, HTMLTextAreaElement>(
+    "",
+    () => setErrMsg(null)
+  );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -40,9 +40,15 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       }
 
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const attributeNames = attributes.split("\n").map((s) => s.trim());
+
+      if (attributeNames.length === 0) {
+        setErrMsg("Please choose at least one attribute to count");
+        return;
+      }
 
       try {
-        const counted = count(dataset, attributeName);
+        const counted = count(dataset, attributeNames);
         await applyNewDataSet(
           counted,
           `Count of ${ctxtTitle(context)}`,
@@ -55,7 +61,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         setErrMsg(e.message);
       }
     },
-    [inputDataCtxt, attributeName, setErrMsg, lastContextName]
+    [inputDataCtxt, attributes, setErrMsg, lastContextName]
   );
 
   useContextUpdateListenerWithFlowEffect(
@@ -72,12 +78,8 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       <p>Table to Count</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attribute to Count</p>
-      <AttributeSelector
-        context={inputDataCtxt}
-        value={attributeName}
-        onChange={attributeNameChange}
-      />
+      <p>Attributes to Count (1 per line)</p>
+      <CodapFlowTextArea value={attributes} onChange={attributesChange} />
 
       <br />
       <TransformationSubmitButtons

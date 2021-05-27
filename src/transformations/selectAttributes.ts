@@ -1,5 +1,5 @@
 import { DataSet } from "./types";
-import { reparent } from "./util";
+import { reparent, eraseFormulas } from "./util";
 
 /**
  * Constructs a dataset with only the indicated attributes from the
@@ -50,7 +50,9 @@ export function selectAttributes(
 
     // do not copy formulas: selected attributes may be separated from
     // their formula's dependencies, rendering the formula invalid.
-    coll.attrs?.forEach((attr) => (attr.formula = undefined));
+    if (coll.attrs !== undefined) {
+      eraseFormulas(coll.attrs);
+    }
 
     // keep only collections that have at least one attribute
     if (coll.attrs === undefined || coll.attrs.length > 0) {

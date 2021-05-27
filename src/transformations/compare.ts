@@ -1,12 +1,24 @@
 import { DataSet } from "./types";
-import { Collection } from "../utils/codapPhone/types";
+import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
+import {
+  eraseFormulas,
+  intersectionWithPredicate,
+  symmetricDifferenceWithPredicate,
+  unionWithPredicate,
+} from "./util";
+import { flatten } from "./flatten";
 
 const COMPARE_STATUS_COLUMN_NAME = "Compare Status";
 const COMPARE_VALUE_COLUMN_NAME = "Difference";
 const GREEN = "rgb(0,255,0)";
 const RED = "rgb(255,0,0)";
 const GREY = "rgb(100,100,100)";
+
+const DECISION_1_COLUMN_NAME = "Decision 1";
+const DECISION_2_COLUMN_NAME = "Decision 2";
+
+export type CompareType = "numeric" | "categorical" | "decision";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -17,9 +29,9 @@ export function compare(
   dataset2: DataSet,
   attributeName1: string,
   attributeName2: string,
-  isCategorical: boolean
+  kind: CompareType
 ): DataSet {
-  let attributeData1;
+  let attributeData1: CodapAttribute | undefined;
   for (const collection of dataset1.collections) {
     attributeData1 =
       collection.attrs?.find(
@@ -31,7 +43,7 @@ export function compare(
       "Couldn't find first selected attribute in selected context"
     );
   }
-  let attributeData2;
+  let attributeData2: CodapAttribute | undefined;
   for (const collection of dataset2.collections) {
     attributeData2 =
       collection.attrs?.find(
@@ -41,6 +53,15 @@ export function compare(
   if (!attributeData2) {
     throw new Error(
       "Couldn't find second selected attribute in selected context"
+    );
+  }
+
+  if (kind === "decision") {
+    return compareAsDecision(
+      dataset1,
+      dataset2,
+      attributeData1,
+      attributeData2
     );
   }
 
@@ -63,7 +84,7 @@ export function compare(
     },
   ];
   // Only add this attribute if this is a categorical diff
-  if (!isCategorical) {
+  if (kind === "categorical") {
     collections[0].attrs?.push({
       name: COMPARE_VALUE_COLUMN_NAME,
       description: "",
@@ -83,19 +104,20 @@ export function compare(
   const values1 = dataset1.records.map((record) => record[attributeName1]);
   const values2 = dataset2.records.map((record) => record[attributeName2]);
 
-  const records = isCategorical
-    ? compareRecordsCategorical(
-        attributeName1,
-        safeAttributeName2,
-        values1,
-        values2
-      )
-    : compareRecordsNumerical(
-        attributeName1,
-        safeAttributeName2,
-        values1,
-        values2
-      );
+  const records =
+    kind === "categorical"
+      ? compareRecordsCategorical(
+          attributeName1,
+          safeAttributeName2,
+          values1,
+          values2
+        )
+      : compareRecordsNumerical(
+          attributeName1,
+          safeAttributeName2,
+          values1,
+          values2
+        );
 
   return {
     collections,
@@ -141,6 +163,150 @@ function compareRecordsCategorical(
   }
 
   return records;
+}
+
+function compareAsDecision(
+  dataset1: DataSet,
+  dataset2: DataSet,
+  attribute1Data: CodapAttribute,
+  attribute2Data: CodapAttribute
+): DataSet {
+  dataset1 = flatten(dataset1);
+  dataset2 = flatten(dataset2);
+
+  const attributes1 = dataset1.collections[0].attrs;
+  if (attributes1 === undefined) {
+    throw new Error("First data context doesn't have any collections");
+  }
+  const attributes2 = dataset2.collections[0].attrs;
+  if (attributes2 === undefined) {
+    throw new Error("Second data context doesn't have any collections");
+  }
+
+  const attributesUnion = unionWithPredicate(
+    attributes1,
+    attributes2,
+    (attr1, attr2) => attr1.name === attr2.name
+  );
+  const attributesIntersection = intersectionWithPredicate(
+    attributes1,
+    attributes2,
+    (attr1, attr2) => attr1.name === attr2.name
+  ).filter(
+    (attr) =>
+      attr.name !== attribute1Data.name && attr.name !== attribute2Data.name
+  );
+  eraseFormulas(attributesUnion);
+  eraseFormulas(attributesIntersection);
+
+  const collections: Collection[] = [
+    {
+      name: "Decisions",
+      labels: {},
+      attrs: [
+        {
+          name: DECISION_1_COLUMN_NAME,
+        },
+        {
+          name: DECISION_2_COLUMN_NAME,
+        },
+      ],
+    },
+    {
+      name: "Values",
+      parent: "Decisions",
+      labels: {},
+      attrs: attributesIntersection,
+    },
+  ];
+
+  // const records = [
+  //   ...intersectionWithPredicate(
+  //     dataset1.records,
+  //     dataset1.records,
+  //     (elt1, elt2) =>
+  //       objectsAreEqualForKeys(
+  //         elt1,
+  //         elt2,
+  //         attributesIntersection.map((attr) => attr.name)
+  //       )
+  //   ),
+  //   ...symmetricDifferenceWithPredicate(
+  //     dataset1.records,
+  //     dataset1.records,
+  //     (elt1, elt2) =>
+  //       objectsAreEqualForKeys(
+  //         elt1,
+  //         elt2,
+  //         attributesIntersection.map((attr) => attr.name)
+  //       )
+  //   ),
+  // ];
+  // records.forEach((record) => {
+  //   if (record[attribute1Data.name] !== undefined) {
+  //     record[DECISION_1_COLUMN_NAME] = record[attribute1Data.name];
+  //   }
+  //   if (record[attribute2Data.name] !== undefined) {
+  //     record[DECISION_2_COLUMN_NAME] = record[attribute2Data.name];
+  //   }
+  // });
+
+  const records = [];
+
+  for (const record1 of dataset1.records) {
+    const duplicate = dataset2.records.find((record2) =>
+      objectsAreEqualForKeys(
+        record1,
+        record2,
+        attributesIntersection.map((attr) => attr.name)
+      )
+    );
+    if (duplicate !== undefined) {
+      records.push({
+        ...record1,
+        ...duplicate,
+      });
+    } else {
+      records.push(record1);
+    }
+  }
+
+  for (const record2 of dataset2.records) {
+    const duplicate = dataset1.records.find((record1) =>
+      objectsAreEqualForKeys(
+        record1,
+        record2,
+        attributesIntersection.map((attr) => attr.name)
+      )
+    );
+    if (duplicate !== undefined) {
+      // Skip this record since we already added it in the first loop
+    } else {
+      records.push(record2);
+    }
+  }
+
+  records.forEach((record) => {
+    if (record[attribute1Data.name] !== undefined) {
+      record[DECISION_1_COLUMN_NAME] = record[attribute1Data.name];
+    }
+    if (record[attribute2Data.name] !== undefined) {
+      record[DECISION_2_COLUMN_NAME] = record[attribute2Data.name];
+    }
+  });
+
+  return {
+    collections,
+    records,
+  };
+}
+
+function objectsAreEqualForKeys(
+  object1: Record<string, unknown>,
+  object2: Record<string, unknown>,
+  keys: string[]
+): boolean {
+  return keys.every((key) => object1[key] === object2[key]);
 }
 
 function compareRecordsNumerical(

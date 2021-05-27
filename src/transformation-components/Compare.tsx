@@ -4,7 +4,7 @@ import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
 } from "../utils/hooks";
-import { compare } from "../transformations/compare";
+import { compare, CompareType } from "../transformations/compare";
 import {
   CodapFlowSelect,
   AttributeSelector,
@@ -33,7 +33,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
-  const [isCategorical, setIsCategorical] = useState<boolean>(false);
+  const [compareType, setCompareType] = useState<CompareType>("numeric");
 
   const transform = useCallback(
     async (doUpdate: boolean) => {
@@ -58,7 +58,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
           dataset2,
           inputAttribute1,
           inputAttribute2,
-          isCategorical
+          compareType
         );
         await applyNewDataSet(
           compared,
@@ -78,7 +78,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
       inputAttribute1,
       inputAttribute2,
       lastContextName,
-      isCategorical,
+      compareType,
       setErrMsg,
     ]
   );
@@ -103,12 +103,12 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
 
   return (
     <>
-      <p>Table to Compare 1</p>
+      <p>First Table to Compare </p>
       <ContextSelector
         value={inputDataContext1}
         onChange={inputDataContext1OnChange}
       />
-      <p>Table to Compare 2</p>
+      <p>Second Table to Compare</p>
       <ContextSelector
         value={inputDataContext2}
         onChange={inputDataContext2OnChange}
@@ -130,16 +130,13 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
 
       <p>What kind of Comparison?</p>
       <CodapFlowSelect
-        onChange={(e) =>
-          e.target.value === "categorical"
-            ? setIsCategorical(true)
-            : setIsCategorical(false)
-        }
+        onChange={(e) => setCompareType(e.target.value as CompareType)}
         options={[
           { value: "categorical", title: "Categorical" },
           { value: "numeric", title: "Numeric" },
+          { value: "decision", title: "Decision" },
         ]}
-        value={isCategorical ? "categorical" : "numeric"}
+        value={compareType}
         defaultValue="Select a type"
       />
 

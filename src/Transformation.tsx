@@ -23,7 +23,6 @@ import {
 } from "./transformations/fold";
 import { PivotLonger } from "./transformation-components/PivotLonger";
 import { PivotWider } from "./transformation-components/PivotWider";
-import { CodapFlowSelect } from "./ui-components";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -36,62 +35,87 @@ function Transformation(): ReactElement {
    * The broad categories of transformations that can be applied
    * to tables.
    */
-  const transformComponents = {
+
+  const transformComponents: Record<string, ReactElement> = {
+    "Running Sum": (
+      <Fold setErrMsg={setErrMsg} label="running sum" foldFunc={runningSum} />
+    ),
+    "Running Mean": (
+      <Fold setErrMsg={setErrMsg} label="running mean" foldFunc={runningMean} />
+    ),
+    "Running Min": (
+      <Fold setErrMsg={setErrMsg} label="running min" foldFunc={runningMin} />
+    ),
+    "Running Max": (
+      <Fold setErrMsg={setErrMsg} label="running max" foldFunc={runningMax} />
+    ),
+    "Running Difference": (
+      <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
+    ),
+    Flatten: <Flatten setErrMsg={setErrMsg} />,
+    "Group By": <GroupBy setErrMsg={setErrMsg} />,
     Filter: <Filter setErrMsg={setErrMsg} />,
     "Transform Column": <TransformColumn setErrMsg={setErrMsg} />,
     "Build Column": <BuildColumn setErrMsg={setErrMsg} />,
-    "Group By": <GroupBy setErrMsg={setErrMsg} />,
     "Select Attributes": <SelectAttributes setErrMsg={setErrMsg} />,
     Count: <Count setErrMsg={setErrMsg} />,
-    Flatten: <Flatten setErrMsg={setErrMsg} />,
     Compare: <Compare setErrMsg={setErrMsg} />,
-    "Running Sum": (
-      <Fold setErrMsg={setErrMsg} label="Running Sum" foldFunc={runningSum} />
-    ),
-    "Running Mean": (
-      <Fold setErrMsg={setErrMsg} label="Running Mean" foldFunc={runningMean} />
-    ),
-    "Running Min": (
-      <Fold setErrMsg={setErrMsg} label="Running Min" foldFunc={runningMin} />
-    ),
-    "Running Max": (
-      <Fold setErrMsg={setErrMsg} label="Running Max" foldFunc={runningMax} />
-    ),
-    "Running Difference": (
-      <Fold
-        setErrMsg={setErrMsg}
-        label="Running Difference"
-        foldFunc={difference}
-      />
-    ),
     "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
     Sort: <Sort setErrMsg={setErrMsg} />,
     "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
     "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
   };
 
-  type TransformType = keyof typeof transformComponents;
+  const transformGroups: Record<string, string[]> = {
+    "Running Aggregators": [
+      "Running Sum",
+      "Running Mean",
+      "Running Min",
+      "Running Max",
+      "Running Difference",
+    ],
+    "Structural Transformations": ["Flatten", "Group By"],
+    Others: [
+      "Filter",
+      "Transform Column",
+      "Build Column",
+      "Select Attributes",
+      "Count",
+      "Compare",
+      "Difference From",
+      "Sort",
+      "Pivot Longer",
+      "Pivot Wider",
+    ],
+  };
 
-  const [transformType, setTransformType] =
-    useState<TransformType | null>(null);
+  const [transformType, setTransformType] = useState<string | null>(null);
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    setTransformType(event.target.value as TransformType);
+    setTransformType(event.target.value);
     setErrMsg(null);
   }
 
   return (
     <div className="Transformation">
       <p>Transformation Type</p>
-      <CodapFlowSelect
+      <select
         onChange={typeChange}
-        options={Object.keys(transformComponents).map((type) => ({
-          value: type,
-          title: type,
-        }))}
-        value={transformType}
-        defaultValue="Select a transformation"
-      />
+        value={transformType || "Select a transformation"}
+      >
+        <option disabled value="Select a transformation">
+          Select a transformation
+        </option>
+        {Object.keys(transformGroups).map((groupName) => (
+          <optgroup label={groupName} key={groupName}>
+            {transformGroups[groupName].map((transformName) => (
+              <option key={transformName} value={transformName}>
+                {transformName}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
 
       {transformType && transformComponents[transformType]}
 

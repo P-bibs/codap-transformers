@@ -25,7 +25,10 @@ import {
   CodapAttribute,
   ExcludeNonObject,
 } from "./types";
-import { contextUpdateListeners, callAllContextListeners } from "./listeners";
+import {
+  callUpdateListenersForContext,
+  callAllContextListeners,
+} from "./listeners";
 import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
 
@@ -166,9 +169,7 @@ function codapRequestHandler(
           command.resource.search("\\[") + 1,
           command.resource.length - 1
         );
-        if (contextUpdateListeners[contextName]) {
-          contextUpdateListeners[contextName]();
-        }
+        callUpdateListenersForContext(contextName);
         callback({ success: true });
         return;
       }

@@ -95,7 +95,7 @@ export function useContextUpdateListener(
 ): void {
   useEffect(() => {
     addContextUpdateListener(contextName, callback);
-    return () => removeContextUpdateListener(contextName);
+    return () => removeContextUpdateListener(contextName, callback);
   }, [contextName, callback, ...dependencies]);
 }
 

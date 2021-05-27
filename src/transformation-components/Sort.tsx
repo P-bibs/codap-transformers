@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -11,7 +11,7 @@ import {
   CodapFlowTextArea,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 export function Sort({ setErrMsg }: TransformationProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
@@ -38,12 +38,13 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const result = sort(dataset, keyExpression);
         await applyNewDataSet(
           result,
+          `Sort of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

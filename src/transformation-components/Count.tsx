@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -10,7 +10,7 @@ import {
   ContextSelector,
   CodapFlowTextArea,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 interface CountProps {
   setErrMsg: (s: string | null) => void;
@@ -39,7 +39,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const attributeNames = attributes.split("\n").map((s) => s.trim());
 
       if (attributeNames.length === 0) {
@@ -51,6 +51,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         const counted = count(dataset, attributeNames);
         await applyNewDataSet(
           counted,
+          `Count of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

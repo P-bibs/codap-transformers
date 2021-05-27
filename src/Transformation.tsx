@@ -35,44 +35,58 @@ function Transformation(): ReactElement {
    * The broad categories of transformations that can be applied
    * to tables.
    */
-  const transformComponents: Record<string, Record<string, unknown>> = {
-    "Running Aggregators": {
-      "Running Sum": (
-        <Fold setErrMsg={setErrMsg} label="running sum" foldFunc={runningSum} />
-      ),
-      "Running Mean": (
-        <Fold
-          setErrMsg={setErrMsg}
-          label="running mean"
-          foldFunc={runningMean}
-        />
-      ),
-      "Running Min": (
-        <Fold setErrMsg={setErrMsg} label="running min" foldFunc={runningMin} />
-      ),
-      "Running Max": (
-        <Fold setErrMsg={setErrMsg} label="running max" foldFunc={runningMax} />
-      ),
-      "Running Difference": (
-        <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
-      ),
-    },
-    "Structural Transformations": {
-      Flatten: <Flatten setErrMsg={setErrMsg} />,
-      "Group By": <GroupBy setErrMsg={setErrMsg} />,
-    },
-    Others: {
-      Filter: <Filter setErrMsg={setErrMsg} />,
-      "Transform Column": <TransformColumn setErrMsg={setErrMsg} />,
-      "Build Column": <BuildColumn setErrMsg={setErrMsg} />,
-      "Select Attributes": <SelectAttributes setErrMsg={setErrMsg} />,
-      Count: <Count setErrMsg={setErrMsg} />,
-      Compare: <Compare setErrMsg={setErrMsg} />,
-      "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
-      Sort: <Sort setErrMsg={setErrMsg} />,
-      "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
-      "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
-    },
+
+  const transformComponents: Record<string, ReactElement> = {
+    "Running Sum": (
+      <Fold setErrMsg={setErrMsg} label="running sum" foldFunc={runningSum} />
+    ),
+    "Running Mean": (
+      <Fold setErrMsg={setErrMsg} label="running mean" foldFunc={runningMean} />
+    ),
+    "Running Min": (
+      <Fold setErrMsg={setErrMsg} label="running min" foldFunc={runningMin} />
+    ),
+    "Running Max": (
+      <Fold setErrMsg={setErrMsg} label="running max" foldFunc={runningMax} />
+    ),
+    "Running Difference": (
+      <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
+    ),
+    Flatten: <Flatten setErrMsg={setErrMsg} />,
+    "Group By": <GroupBy setErrMsg={setErrMsg} />,
+    Filter: <Filter setErrMsg={setErrMsg} />,
+    "Transform Column": <TransformColumn setErrMsg={setErrMsg} />,
+    "Build Column": <BuildColumn setErrMsg={setErrMsg} />,
+    "Select Attributes": <SelectAttributes setErrMsg={setErrMsg} />,
+    Count: <Count setErrMsg={setErrMsg} />,
+    Compare: <Compare setErrMsg={setErrMsg} />,
+    "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
+    Sort: <Sort setErrMsg={setErrMsg} />,
+    "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
+    "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
+  };
+
+  const transformGroups: Record<string, string[]> = {
+    "Running Aggregators": [
+      "Running Sum",
+      "Running Mean",
+      "Running Min",
+      "Running Max",
+      "Running Difference",
+    ],
+    "Structural Transformations": ["Flatten", "Group By"],
+    Others: [
+      "Filter",
+      "Transform Column",
+      "Build Column",
+      "Select Attributes",
+      "Count",
+      "Compare",
+      "Difference From",
+      "Sort",
+      "Pivot Longer",
+      "Pivot Wider",
+    ],
   };
 
   const [transformType, setTransformType] = useState<string | null>(null);
@@ -92,9 +106,9 @@ function Transformation(): ReactElement {
         <option disabled value="Select a transformation">
           Select a transformation
         </option>
-        {Object.keys(transformComponents).map((typeName) => (
-          <optgroup label={typeName} key={typeName}>
-            {Object.keys(transformComponents[typeName]).map((transformName) => (
+        {Object.keys(transformGroups).map((groupName) => (
+          <optgroup label={groupName} key={groupName}>
+            {transformGroups[groupName].map((transformName) => (
               <option key={transformName} value={transformName}>
                 {transformName}
               </option>

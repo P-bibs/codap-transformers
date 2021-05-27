@@ -1,11 +1,11 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useInput,
   useContextUpdateListenerWithFlowEffect,
 } from "../utils/hooks";
 import { pivotWider } from "../transformations/pivot";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 import {
   AttributeSelector,
   TransformationSubmitButtons,
@@ -51,12 +51,13 @@ export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const pivoted = pivotWider(dataset, namesFrom, valuesFrom);
         await applyNewDataSet(
           pivoted,
+          `Pivot Wider of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

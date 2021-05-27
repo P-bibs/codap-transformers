@@ -1,13 +1,13 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useInput,
   useContextUpdateListenerWithFlowEffect,
 } from "../utils/hooks";
 import { pivotLonger } from "../transformations/pivot";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 import {
-  CodapFlowTextArea,
+  MultiAttributeSelector,
   TransformationSubmitButtons,
   ContextSelector,
   CodapFlowTextInput,
@@ -22,10 +22,7 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, attributesChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
+  const [attributes, setAttributes] = useState<string[]>([]);
   const [namesTo, namesToChange] = useInput<string, HTMLInputElement>("", () =>
     setErrMsg(null)
   );
@@ -33,7 +30,6 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
     "",
     () => setErrMsg(null)
   );
-
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
@@ -46,7 +42,7 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-      if (attributes === "") {
+      if (attributes.length === 0) {
         setErrMsg("Please choose at least one attribute to pivot on");
         return;
       }
@@ -59,15 +55,13 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
-
-      // extract attribute names from user's text
-      const attributeNames = attributes.split("\n").map((s) => s.trim());
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const pivoted = pivotLonger(dataset, attributeNames, namesTo, valuesTo);
+        const pivoted = pivotLonger(dataset, attributes, namesTo, valuesTo);
         await applyNewDataSet(
           pivoted,
+          `Pivot Longer of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,
@@ -94,8 +88,11 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
       <p>Table to Pivot</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attributes to Pivot (1 per line)</p>
-      <CodapFlowTextArea value={attributes} onChange={attributesChange} />
+      <p>Attributes to Pivot</p>
+      <MultiAttributeSelector
+        context={inputDataCtxt}
+        onChange={setAttributes}
+      />
 
       <p>Names To</p>
       <CodapFlowTextInput value={namesTo} onChange={namesToChange} />

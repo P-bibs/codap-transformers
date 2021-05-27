@@ -1,6 +1,9 @@
 import { DataSet } from "../transformations/types";
-import { createTableWithDataSet, setContextItems } from "../utils/codapPhone";
 import { DataContext } from "../utils/codapPhone/types";
+import {
+  createTableWithDataSet,
+  updateContextWithDataSet,
+} from "../utils/codapPhone";
 
 /**
  * This function takes a dataset as well as a `doUpdate` flag and either
@@ -22,7 +25,7 @@ export async function applyNewDataSet(
         setErrMsg("Please apply transformation to a new table first.");
         return;
       }
-      setContextItems(lastContextName, dataSet.records);
+      updateContextWithDataSet(lastContextName, dataSet);
     } else {
       const [newContext] = await createTableWithDataSet(dataSet, name);
       setLastContextName(newContext.name);

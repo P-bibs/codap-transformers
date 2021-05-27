@@ -8,7 +8,7 @@ import { count } from "../transformations/count";
 import {
   TransformationSubmitButtons,
   ContextSelector,
-  CodapFlowTextArea,
+  MultiAttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 
@@ -21,11 +21,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, attributesChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
-
+  const [attributes, setAttributes] = useState<string[]>([]);
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
@@ -38,20 +34,18 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-
-      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const attributeNames = attributes.split("\n").map((s) => s.trim());
-
-      if (attributeNames.length === 0) {
+      if (attributes.length === 0) {
         setErrMsg("Please choose at least one attribute to count");
         return;
       }
 
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+
       try {
-        const counted = count(dataset, attributeNames);
+        const counted = count(dataset, attributes);
         await applyNewDataSet(
           counted,
-          `Count of ${ctxtTitle(context)}`,
+          `Count of ${attributes.join(", ")} in ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,
@@ -78,8 +72,11 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       <p>Table to Count</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attributes to Count (1 per line)</p>
-      <CodapFlowTextArea value={attributes} onChange={attributesChange} />
+      <p>Attributes to Count</p>
+      <MultiAttributeSelector
+        context={inputDataCtxt}
+        onChange={setAttributes}
+      />
 
       <br />
       <TransformationSubmitButtons

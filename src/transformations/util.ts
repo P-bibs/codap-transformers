@@ -117,3 +117,27 @@ export function insertInRow(
 export function eraseFormulas(attrs: CodapAttribute[]): void {
   attrs.forEach((attr) => (attr.formula = undefined));
 }
+
+/**
+ * Finds an attribute name with the given base that is unique relative
+ * to the given list of attributes.
+ */
+export function uniqueAttrName(base: string, attrs: CodapAttribute[]): string {
+  let name = base;
+  let counter = 0;
+  let conflicts = true;
+  while (conflicts) {
+    conflicts = false;
+    for (const attr of attrs) {
+      if (attr.name === name) {
+        conflicts = true;
+        break;
+      }
+    }
+    if (conflicts) {
+      counter++;
+      name = `${base} (${counter})`;
+    }
+  }
+  return name;
+}

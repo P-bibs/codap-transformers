@@ -1,5 +1,5 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -11,7 +11,7 @@ import {
   ContextSelector,
   TransformationSubmitButtons,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 interface CompareProps {
   setErrMsg: (s: string | null) => void;
@@ -51,8 +51,10 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         return;
       }
 
-      const dataset1 = await getDataSet(inputDataContext1);
-      const dataset2 = await getDataSet(inputDataContext2);
+      const { context: context1, dataset: dataset1 } =
+        await getContextAndDataSet(inputDataContext1);
+      const { context: context2, dataset: dataset2 } =
+        await getContextAndDataSet(inputDataContext2);
 
       try {
         const compared = compare(
@@ -64,6 +66,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         );
         await applyNewDataSet(
           compared,
+          `Compare of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
           doUpdate,
           lastContextName,
           setLastContextName,
@@ -140,7 +143,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
           { value: "categorical", title: "Categorical" },
           { value: "numeric", title: "Numeric" },
         ]}
-        value={inputAttribute2}
+        value={isCategorical ? "categorical" : "numeric"}
         defaultValue="Select a type"
       />
 

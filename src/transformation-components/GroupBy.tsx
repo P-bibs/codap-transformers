@@ -1,11 +1,11 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useInput,
   useContextUpdateListenerWithFlowEffect,
 } from "../utils/hooks";
 import { groupBy } from "../transformations/groupBy";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 import {
   TransformationSubmitButtons,
   ContextSelector,
@@ -39,13 +39,14 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const parentName = `Grouped by ${attributes.join(", ")}`;
 
       try {
         const grouped = groupBy(dataset, attributes, parentName);
         await applyNewDataSet(
           grouped,
+          `Group By of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

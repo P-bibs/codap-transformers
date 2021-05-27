@@ -1,12 +1,12 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
 } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 interface FlattenProps {
   setErrMsg: (s: string | null) => void;
@@ -31,12 +31,13 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const flat = flatten(dataset);
         await applyNewDataSet(
           flat,
+          `Flatten of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

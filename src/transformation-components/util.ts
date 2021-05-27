@@ -1,5 +1,6 @@
 import { DataSet } from "../transformations/types";
 import { createTableWithDataSet, setContextItems } from "../utils/codapPhone";
+import { DataContext } from "../utils/codapPhone/types";
 
 /**
  * This function takes a dataset as well as a `doUpdate` flag and either
@@ -7,6 +8,7 @@ import { createTableWithDataSet, setContextItems } from "../utils/codapPhone";
  */
 export async function applyNewDataSet(
   dataSet: DataSet,
+  name: string | undefined,
   doUpdate: boolean,
   lastContextName: string | null,
   setLastContextName: (s: string) => void,
@@ -22,10 +24,17 @@ export async function applyNewDataSet(
       }
       setContextItems(lastContextName, dataSet.records);
     } else {
-      const [newContext] = await createTableWithDataSet(dataSet);
+      const [newContext] = await createTableWithDataSet(dataSet, name);
       setLastContextName(newContext.name);
     }
   } catch (e) {
     setErrMsg(e.message);
   }
+}
+
+/**
+ * Returns the context's title, if any, or falls back to its name.
+ */
+export function ctxtTitle(context: DataContext): string {
+  return context.title ? context.title : context.name;
 }

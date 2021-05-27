@@ -44,19 +44,23 @@ function Transformation(): ReactElement {
     Flatten: <Flatten setErrMsg={setErrMsg} />,
     Compare: <Compare setErrMsg={setErrMsg} />,
     "Running Sum": (
-      <Fold setErrMsg={setErrMsg} label="running sum" foldFunc={runningSum} />
+      <Fold setErrMsg={setErrMsg} label="Running Sum" foldFunc={runningSum} />
     ),
     "Running Mean": (
-      <Fold setErrMsg={setErrMsg} label="running mean" foldFunc={runningMean} />
+      <Fold setErrMsg={setErrMsg} label="Running Mean" foldFunc={runningMean} />
     ),
     "Running Min": (
-      <Fold setErrMsg={setErrMsg} label="running min" foldFunc={runningMin} />
+      <Fold setErrMsg={setErrMsg} label="Running Min" foldFunc={runningMin} />
     ),
     "Running Max": (
-      <Fold setErrMsg={setErrMsg} label="running max" foldFunc={runningMax} />
+      <Fold setErrMsg={setErrMsg} label="Running Max" foldFunc={runningMax} />
     ),
     "Running Difference": (
-      <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
+      <Fold
+        setErrMsg={setErrMsg}
+        label="Running Difference"
+        foldFunc={difference}
+      />
     ),
     "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
     Sort: <Sort setErrMsg={setErrMsg} />,

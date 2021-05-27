@@ -1,11 +1,11 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useInput,
   useContextUpdateListenerWithFlowEffect,
 } from "../utils/hooks";
 import { buildColumn } from "../transformations/buildColumn";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 import {
   CodapFlowTextArea,
   CodapFlowTextInput,
@@ -60,7 +60,7 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const built = buildColumn(
@@ -71,6 +71,7 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
         );
         await applyNewDataSet(
           built,
+          `Build Column of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

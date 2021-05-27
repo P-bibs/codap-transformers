@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -10,7 +10,7 @@ import {
   ContextSelector,
   MultiAttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 interface SelectAttributesProps {
   setErrMsg: (s: string | null) => void;
@@ -41,7 +41,7 @@ export function SelectAttributes({
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       // select all but the given attributes?
       const allBut = mode === "selectAllBut";
@@ -50,6 +50,7 @@ export function SelectAttributes({
         const selected = selectAttributes(dataset, attributes, allBut);
         await applyNewDataSet(
           selected,
+          `Select Attributes of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,

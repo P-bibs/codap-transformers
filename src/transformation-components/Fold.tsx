@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -11,7 +11,7 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, ctxtTitle } from "./util";
 
 interface FoldProps extends TransformationProps {
   label: string;
@@ -52,12 +52,13 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         return;
       }
 
-      const dataset = await getDataSet(inputDataCtxt);
+      const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
         const result = foldFunc(dataset, inputColumnName, resultColumnName);
         await applyNewDataSet(
           result,
+          `${label} of ${ctxtTitle(context)}`,
           doUpdate,
           lastContextName,
           setLastContextName,
@@ -74,6 +75,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       setErrMsg,
       foldFunc,
       lastContextName,
+      label,
     ]
   );
 
@@ -88,7 +90,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
 
   return (
     <>
-      <p>Table to calculate {label} on</p>
+      <p>Table to calculate {label.toLowerCase()} on</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
       <p>Input Column Name:</p>
       <CodapFlowTextInput

@@ -26,6 +26,7 @@ import {
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
+import { DirectoryWatcherCallback } from "typescript";
 
 export {
   addNewContextListener,
@@ -315,10 +316,21 @@ export async function getDataFromContext(
   );
 }
 
-export async function getDataSet(contextName: string): Promise<DataSet> {
+/**
+ * Retrieves both a context and a dataset constructed from the context,
+ * given a context name to lookup.
+ */
+export async function getContextAndDataSet(contextName: string): Promise<{
+  context: DataContext;
+  dataset: DataSet;
+}> {
+  const context = await getDataContext(contextName);
   return {
-    collections: (await getDataContext(contextName)).collections,
-    records: await getDataFromContext(contextName),
+    context,
+    dataset: {
+      collections: context.collections,
+      records: await getDataFromContext(contextName),
+    },
   };
 }
 
@@ -568,12 +580,14 @@ async function ensureUniqueName(
     return name;
   }
 
+  const numberedName = (name: string, i: number) => `${name} (${i})`;
+
   // Otherwise find a suffix for the name that makes it unique
   let i = 1;
-  while (names.includes(`${name}_(${i})`)) {
+  while (names.includes(numberedName(name, i))) {
     i += 1;
   }
-  return `${name}_(${i})`;
+  return numberedName(name, i);
 }
 
 export async function createTableWithDataSet(
@@ -588,8 +602,8 @@ export async function createTableWithDataSet(
   }
 
   // Generate names
-  let contextName = `${baseName}_context`;
-  let tableName = `${baseName}_table`;
+  let contextName = `${baseName} Context`;
+  let tableName = `${baseName}`;
 
   // Ensure names are unique
   contextName = await ensureUniqueName(

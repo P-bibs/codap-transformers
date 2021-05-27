@@ -140,7 +140,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
           { value: "categorical", title: "Categorical" },
           { value: "numeric", title: "Numeric" },
         ]}
-        value={inputAttribute2}
+        value={isCategorical ? "categorical" : "numeric"}
         defaultValue="Select a type"
       />
 

@@ -3,7 +3,7 @@ import {
   intersectionWithPredicate,
   unionWithPredicate,
   symmetricDifferenceWithPredicate,
-} from "../util";
+} from "../sets";
 
 test("set union works", () => {
   const arr1 = [1, 2, 3, 4, 5, 6];

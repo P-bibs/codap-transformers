@@ -134,7 +134,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         options={[
           { value: "categorical", title: "Categorical" },
           { value: "numeric", title: "Numeric" },
-          { value: "decision", title: "Decision" },
+          { value: "structural", title: "Structural" },
         ]}
         value={compareType}
         defaultValue="Select a type"

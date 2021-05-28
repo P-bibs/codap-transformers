@@ -1,13 +1,9 @@
 import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
-import {
-  eraseFormulas,
-  intersectionWithPredicate,
-  symmetricDifferenceWithPredicate,
-  unionWithPredicate,
-} from "./util";
+import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
 import { flatten } from "./flatten";
+import { eraseFormulas, getAttributeDataFromDataset } from "./util";
 
 const COMPARE_STATUS_COLUMN_NAME = "Compare Status";
 const COMPARE_VALUE_COLUMN_NAME = "Difference";
@@ -18,7 +14,7 @@ const GREY = "rgb(100,100,100)";
 const DECISION_1_COLUMN_NAME = "Decision 1";
 const DECISION_2_COLUMN_NAME = "Decision 2";
 
-export type CompareType = "numeric" | "categorical" | "decision";
+export type CompareType = "numeric" | "categorical" | "structural";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -31,33 +27,11 @@ export function compare(
   attributeName2: string,
   kind: CompareType
 ): DataSet {
-  let attributeData1: CodapAttribute | undefined;
-  for (const collection of dataset1.collections) {
-    attributeData1 =
-      collection.attrs?.find(
-        (attribute) => attribute.name === attributeName1
-      ) ?? attributeData1;
-  }
-  if (!attributeData1) {
-    throw new Error(
-      "Couldn't find first selected attribute in selected context"
-    );
-  }
-  let attributeData2: CodapAttribute | undefined;
-  for (const collection of dataset2.collections) {
-    attributeData2 =
-      collection.attrs?.find(
-        (attribute) => attribute.name === attributeName2
-      ) ?? attributeData2;
-  }
-  if (!attributeData2) {
-    throw new Error(
-      "Couldn't find second selected attribute in selected context"
-    );
-  }
+  const attributeData1 = getAttributeDataFromDataset(attributeName1, dataset1);
+  const attributeData2 = getAttributeDataFromDataset(attributeName2, dataset2);
 
-  if (kind === "decision") {
-    return compareAsDecision(
+  if (kind === "categorical") {
+    return compareCategorical(
       dataset1,
       dataset2,
       attributeData1,
@@ -83,8 +57,8 @@ export function compare(
       ],
     },
   ];
-  // Only add this attribute if this is a categorical diff
-  if (kind === "categorical") {
+  // Only add this attribute if this is a structural diff
+  if (kind === "structural") {
     collections[0].attrs?.push({
       name: COMPARE_VALUE_COLUMN_NAME,
       description: "",
@@ -105,8 +79,8 @@ export function compare(
   const values2 = dataset2.records.map((record) => record[attributeName2]);
 
   const records =
-    kind === "categorical"
-      ? compareRecordsCategorical(
+    kind === "structural"
+      ? compareRecordsStructural(
           attributeName1,
           safeAttributeName2,
           values1,
@@ -125,7 +99,7 @@ export function compare(
   };
 }
 
-function compareRecordsCategorical(
+function compareRecordsStructural(
   attributeName1: string,
   attributeName2: string,
   values1: unknown[],
@@ -165,7 +139,7 @@ function compareRecordsCategorical(
   return records;
 }
 
-function compareAsDecision(
+function compareCategorical(
   dataset1: DataSet,
   dataset2: DataSet,
   attribute1Data: CodapAttribute,
@@ -219,37 +193,6 @@ function compareAsDecision(
       attrs: attributesIntersection,
     },
   ];
-
-  // const records = [
-  //   ...intersectionWithPredicate(
-  //     dataset1.records,
-  //     dataset1.records,
-  //     (elt1, elt2) =>
-  //       objectsAreEqualForKeys(
-  //         elt1,
-  //         elt2,
-  //         attributesIntersection.map((attr) => attr.name)
-  //       )
-  //   ),
-  //   ...symmetricDifferenceWithPredicate(
-  //     dataset1.records,
-  //     dataset1.records,
-  //     (elt1, elt2) =>
-  //       objectsAreEqualForKeys(
-  //         elt1,
-  //         elt2,
-  //         attributesIntersection.map((attr) => attr.name)
-  //       )
-  //   ),
-  // ];
-  // records.forEach((record) => {
-  //   if (record[attribute1Data.name] !== undefined) {
-  //     record[DECISION_1_COLUMN_NAME] = record[attribute1Data.name];
-  //   }
-  //   if (record[attribute2Data.name] !== undefined) {
-  //     record[DECISION_2_COLUMN_NAME] = record[attribute2Data.name];
-  //   }
-  // });
 
   const records = [];
 

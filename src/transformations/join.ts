@@ -29,6 +29,7 @@ export function join(
   }
 
   const addedAttrs = collToJoin.attrs.slice();
+  const addedAttrOriginalNames = addedAttrs.map((attr) => attr.name);
 
   const collections = baseDataset.collections.slice();
   const collToJoinInto = findCollectionWithAttr(collections, baseAttr);
@@ -65,7 +66,10 @@ export function join(
     );
 
     if (matchingRecord !== undefined) {
-      copyValuesIntoRecord(record, matchingRecord, addedAttrs, attrToUnique);
+      for (const attrName of addedAttrOriginalNames) {
+        const unique = attrToUnique[attrName];
+        record[unique] = matchingRecord[attrName];
+      }
     }
   }
 
@@ -86,20 +90,4 @@ function findCollectionWithAttr(
   return collections.find((coll) =>
     coll.attrs?.find((attr) => attr.name === attribute)
   );
-}
-
-/**
- * Copies values of the given attributes from one record into another,
- * using unique names for the copies, given by attrToUnique.
- */
-function copyValuesIntoRecord(
-  baseRecord: Record<string, unknown>,
-  matchingRecord: Record<string, unknown>,
-  addedAttrs: CodapAttribute[],
-  attrToUnique: Record<string, string>
-): void {
-  for (const attr of addedAttrs) {
-    const unique = attrToUnique[attr.name];
-    baseRecord[unique] = matchingRecord[attr.name];
-  }
 }

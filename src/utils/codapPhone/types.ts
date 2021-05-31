@@ -158,6 +158,14 @@ export enum ContextChangeOperation {
   // Not sure where this is documented, but it is triggered when a collection
   // is renamed, for example
   UpdateCollection = "updateCollection",
+
+  CreateCollection = "createCollection",
+  DeleteCollection = "deleteCollection",
+
+  // Not sure where this is documented either, but it is triggered when
+  // attribute dependencies change (e.g. when moving an attribute from one
+  // collection to another).
+  DependentCases = "dependentCases",
 }
 
 export const mutatingOperations = [
@@ -169,6 +177,9 @@ export const mutatingOperations = [
   ContextChangeOperation.DeleteAttribute,
   ContextChangeOperation.MoveAttribute,
   ContextChangeOperation.UpdateCollection,
+  ContextChangeOperation.CreateCollection,
+  ContextChangeOperation.DeleteCollection,
+  ContextChangeOperation.DependentCases,
 ];
 
 export enum DocumentChangeOperations {

@@ -20,31 +20,35 @@ export function join(
   joiningAttr: string
 ): DataSet {
   // find collection containing joining attribute in joining dataset
-  const collToJoin = findCollectionWithAttr(
+  const joiningCollection = findCollectionWithAttr(
     joiningDataset.collections,
     joiningAttr
   );
-  if (collToJoin === undefined || collToJoin.attrs === undefined) {
+  if (
+    joiningCollection === undefined ||
+    joiningCollection.attrs === undefined
+  ) {
     throw new Error(`invalid joining attribute: ${joiningAttr}`);
   }
 
-  const addedAttrs = collToJoin.attrs.slice();
+  const addedAttrs = joiningCollection.attrs.slice();
   const addedAttrOriginalNames = addedAttrs.map((attr) => attr.name);
 
   const collections = baseDataset.collections.slice();
-  const collToJoinInto = findCollectionWithAttr(collections, baseAttr);
-  if (collToJoinInto === undefined || collToJoinInto.attrs === undefined) {
+  const baseCollection = findCollectionWithAttr(collections, baseAttr);
+  if (baseCollection === undefined || baseCollection.attrs === undefined) {
     throw new Error(`invalid base attribute: ${baseAttr}`);
   }
 
-  const allBaseAttrs = baseDataset.collections.reduce(
+  // list of attributes whose names cannot be duplicated by the added attrs
+  const namesToAvoid = baseDataset.collections.reduce(
     (acc, coll) => acc.concat(coll.attrs || []),
     [] as CodapAttribute[]
   );
 
   // ensure added attribute names are unique relative to attribute
   // names in base dataset (as well as all other added attributes)
-  const namesToAvoid = allBaseAttrs;
+  // NOTE: this renames the addedAttrs
   const attrToUnique: Record<string, string> = {};
   for (const attr of addedAttrs) {
     attrToUnique[attr.name] = uniqueAttrName(attr.name, namesToAvoid);
@@ -53,7 +57,7 @@ export function join(
   }
 
   // add the attrs from the joining collection into the collection being joined into
-  collToJoinInto.attrs = collToJoinInto.attrs.concat(addedAttrs);
+  baseCollection.attrs = baseCollection.attrs.concat(addedAttrs);
 
   // start with a copy of the base dataset's records
   const records = baseDataset.records.slice();
@@ -66,6 +70,7 @@ export function join(
     );
 
     if (matchingRecord !== undefined) {
+      // copy values for added attrs in matching record into current record
       for (const attrName of addedAttrOriginalNames) {
         const unique = attrToUnique[attrName];
         record[unique] = matchingRecord[attrName];

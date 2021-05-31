@@ -104,16 +104,17 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
     <>
       <p>Table to Add Attribute To</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
-      <p>Name of New Attribute</p>
-      <CodapFlowTextInput
-        value={attributeName}
-        onChange={attributeNameChange}
-      />
 
       <p>Collection to Add To</p>
       <CodapFlowTextInput
         value={collectionName}
         onChange={collectionNameChange}
+      />
+
+      <p>Name of New Attribute</p>
+      <CodapFlowTextInput
+        value={attributeName}
+        onChange={attributeNameChange}
       />
 
       <p>Formula for Attribute Values</p>

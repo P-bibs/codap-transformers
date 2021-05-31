@@ -10,6 +10,7 @@ import {
   CodapFlowTextInput,
   TransformationSubmitButtons,
   ContextSelector,
+  AttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 
@@ -28,12 +29,12 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [inputColumnName, inputColumnNameChange] = useInput<
-    string,
-    HTMLInputElement
-  >("", () => setErrMsg(null));
+  const [inputAttributeName, inputAttributeNameChange] = useInput<
+    string | null,
+    HTMLSelectElement
+  >(null, () => setErrMsg(null));
 
-  const [resultColumnName, resultColumnNameChange] = useInput<
+  const [resultAttributeName, resultAttributeNameChange] = useInput<
     string,
     HTMLInputElement
   >("", () => setErrMsg(null));
@@ -46,8 +47,11 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-
-      if (resultColumnName === "") {
+      if (inputAttributeName === null) {
+        setErrMsg("Please select an attribute to aggregate");
+        return;
+      }
+      if (resultAttributeName === "") {
         setErrMsg("Please choose a non-empty result column name.");
         return;
       }
@@ -55,7 +59,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const result = foldFunc(dataset, inputColumnName, resultColumnName);
+        const result = foldFunc(dataset, inputAttributeName, resultAttributeName);
         await applyNewDataSet(
           result,
           `${label} of ${ctxtTitle(context)}`,
@@ -70,8 +74,8 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     },
     [
       inputDataCtxt,
-      inputColumnName,
-      resultColumnName,
+      inputAttributeName,
+      resultAttributeName,
       setErrMsg,
       foldFunc,
       lastContextName,
@@ -92,15 +96,16 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     <>
       <p>Table to calculate {label.toLowerCase()} on</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
-      <p>Input Column Name:</p>
-      <CodapFlowTextInput
-        value={inputColumnName}
-        onChange={inputColumnNameChange}
+      <p>Attribute to Aggregate</p>
+      <AttributeSelector
+        onChange={inputAttributeNameChange}
+        value={inputAttributeName}
+        context={inputDataCtxt}
       />
-      <p>Result Column Name:</p>
+      <p>Result Attribute Name</p>
       <CodapFlowTextInput
-        value={resultColumnName}
-        onChange={resultColumnNameChange}
+        value={resultAttributeName}
+        onChange={resultAttributeNameChange}
       />
       <br />
       <TransformationSubmitButtons

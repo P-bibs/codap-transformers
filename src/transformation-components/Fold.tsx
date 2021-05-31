@@ -59,7 +59,11 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const result = foldFunc(dataset, inputAttributeName, resultAttributeName);
+        const result = foldFunc(
+          dataset,
+          inputAttributeName,
+          resultAttributeName
+        );
         await applyNewDataSet(
           result,
           `${label} of ${ctxtTitle(context)}`,

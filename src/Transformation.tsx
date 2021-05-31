@@ -23,6 +23,7 @@ import {
 } from "./transformations/fold";
 import { PivotLonger } from "./transformation-components/PivotLonger";
 import { PivotWider } from "./transformation-components/PivotWider";
+import { Join } from "./transformation-components/Join";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -64,6 +65,7 @@ function Transformation(): ReactElement {
     Sort: <Sort setErrMsg={setErrMsg} />,
     "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
     "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
+    Join: <Join setErrMsg={setErrMsg} />,
   };
 
   const transformGroups: Record<string, string[]> = {
@@ -86,6 +88,7 @@ function Transformation(): ReactElement {
       "Sort",
       "Pivot Longer",
       "Pivot Wider",
+      "Join",
     ],
   };
 

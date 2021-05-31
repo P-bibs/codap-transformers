@@ -1,6 +1,9 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
-import { Value } from "../language/ast";
+import { Value, Ast } from "../language/ast";
+import { lex } from "../language/lex";
+import { parse } from "../language/parse";
+import { DataSet } from "./types";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -140,4 +143,70 @@ export function uniqueAttrName(base: string, attrs: CodapAttribute[]): string {
     }
   }
   return name;
+}
+
+/**
+ * Determines if the given records have any missing values under
+ * the given attribute.
+ */
+export function checkAttrForMissing(
+  records: Record<string, unknown>[],
+  attribute: string
+): boolean {
+  for (const record of records) {
+    if (record[attribute] === "") {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Returns a list of attribute names that appear in the formula and
+ * have missing values in the given records.
+ */
+export function checkFormulaForMissing(
+  dataset: DataSet,
+  formula: string
+): string[] {
+  const ast = parse(lex(formula));
+
+  // Finds all identifiers in an expression
+  function findIdents(expr: Ast): string[] {
+    switch (expr.kind) {
+      case "Builtin": {
+        let idents: string[] = [];
+        for (const arg of expr.args) {
+          idents = idents.concat(findIdents(arg));
+        }
+        return idents;
+      }
+      case "Binop":
+        return findIdents(expr.op1).concat(findIdents(expr.op2));
+      case "Unop":
+        return findIdents(expr.op1);
+      case "Identifier":
+        return [expr.content];
+      default:
+        return [];
+    }
+  }
+
+  // list of distinct identifiers (attributes) used in formula
+  const attrsInFormula = new Set(findIdents(ast));
+
+  // get attributes that have missing values in cases
+  const attrsWithMissing = new Set();
+  for (const coll of dataset.collections) {
+    coll.attrs?.forEach((attr) => {
+      if (checkAttrForMissing(dataset.records, attr.name)) {
+        attrsWithMissing.add(attr.name);
+      }
+    });
+  }
+
+  // return intersection of attrs in formula / attrs with missing values
+  return Array.from(
+    new Set([...attrsInFormula].filter((attr) => attrsWithMissing.has(attr)))
+  );
 }

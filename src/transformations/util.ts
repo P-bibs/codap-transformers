@@ -210,3 +210,19 @@ export function checkFormulaForMissing(
     new Set([...attrsInFormula].filter((attr) => attrsWithMissing.has(attr)))
   );
 }
+
+/**
+ * Raises an error if there is at least one attribute used
+ * in the given formula that has missing values.
+ */
+export function guardAgainstMissingInFormula(
+  dataset: DataSet,
+  formula: string
+): void {
+  const attrsWithMissing = checkFormulaForMissing(dataset, formula);
+  for (const attr of attrsWithMissing) {
+    throw new Error(
+      `cannot use attribute with missing values in formula: ${attr}`
+    );
+  }
+}

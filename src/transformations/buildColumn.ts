@@ -1,5 +1,5 @@
 import { DataSet } from "./types";
-import { dataItemToEnv } from "./util";
+import { dataItemToEnv, guardAgainstMissingInFormula } from "./util";
 import { evaluate } from "../language";
 
 /**
@@ -12,6 +12,8 @@ export function buildColumn(
   collectionName: string,
   expression: string
 ): DataSet {
+  guardAgainstMissingInFormula(dataset, expression);
+
   // find collection to add attribute to
   const collections = dataset.collections.slice();
   const toAdd = collections.find((coll) => coll.name === collectionName);

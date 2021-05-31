@@ -1,5 +1,9 @@
 import { DataSet } from "./types";
-import { insertColumnInLastCollection, insertInRow } from "./util";
+import {
+  checkAttrForMissing,
+  insertColumnInLastCollection,
+  insertInRow,
+} from "./util";
 
 function makeNumFold<T>(
   base: T,
@@ -87,6 +91,12 @@ export function differenceFrom(
   resultColumnName: string,
   startingValue = 0
 ): DataSet {
+  if (checkAttrForMissing(dataset.records, inputColumnName)) {
+    throw new Error(
+      `cannot take difference from attribute with missing values: ${inputColumnName}`
+    );
+  }
+
   const resultRecords = dataset.records.map((row) => {
     const numValue = Number(row[inputColumnName]);
     if (!isNaN(numValue)) {

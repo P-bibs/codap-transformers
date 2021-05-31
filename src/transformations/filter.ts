@@ -1,5 +1,5 @@
 import { DataSet } from "./types";
-import { dataItemToEnv } from "./util";
+import { dataItemToEnv, guardAgainstMissingInFormula } from "./util";
 import { evaluate } from "../language";
 
 /**
@@ -7,6 +7,8 @@ import { evaluate } from "../language";
  * depending on a given predicate.
  */
 export function filter(dataset: DataSet, predicate: string): DataSet {
+  guardAgainstMissingInFormula(dataset, predicate);
+
   const filteredRecords = [];
 
   for (const dataItem of dataset.records) {

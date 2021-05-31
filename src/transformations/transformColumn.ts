@@ -1,5 +1,5 @@
 import { DataSet } from "./types";
-import { dataItemToEnv } from "./util";
+import { dataItemToEnv, guardAgainstMissingInFormula } from "./util";
 import { evaluate } from "../language";
 
 /**
@@ -12,6 +12,8 @@ export function transformColumn(
   attributeName: string,
   expression: string
 ): DataSet {
+  guardAgainstMissingInFormula(dataset, expression);
+
   const records = dataset.records.slice();
   for (const record of records) {
     if (record[attributeName] === undefined) {

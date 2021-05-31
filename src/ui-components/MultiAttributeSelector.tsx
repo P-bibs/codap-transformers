@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useState, useEffect } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
 import { useAttributes } from "../utils/hooks";
 
@@ -12,12 +12,23 @@ export default function MultiAttributeSelector({
   onChange,
 }: MultiAttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
-  const [count, setCount] = useState<number>(0);
   const [selected, setSelected] = useState<string[]>([]);
+
+  // If selected contains an outdated value (attribute name that has been)
+  // deleted, then start over with selection
+  useEffect(() => {
+    const attrNames = attributes.map((a) => a.name);
+    setSelected(selected.filter((a) => attrNames.includes(a)));
+  }, [attributes, selected]);
+
+  // Call `onChange` whenever selected updates
+  useEffect(() => {
+    onChange(selected);
+  }, [onChange, selected]);
 
   return (
     <>
-      {[...Array(count + 1).keys()].map((i) => (
+      {[...Array(selected.length + 1).keys()].map((i) => (
         <div
           key={i}
           style={{
@@ -30,10 +41,6 @@ export default function MultiAttributeSelector({
               const newSelected = [...selected];
               newSelected[i] = e.target.value;
               setSelected(newSelected);
-              onChange(newSelected);
-              if (i === count) {
-                setCount(count + 1);
-              }
             }}
             options={attributes.map((attribute) => ({
               value: attribute.name,
@@ -43,10 +50,9 @@ export default function MultiAttributeSelector({
             defaultValue="Select an attribute"
             showValue={true}
           />
-          {i === count ? null : (
+          {i === selected.length ? null : (
             <button
               onClick={() => {
-                setCount(count - 1);
                 setSelected([
                   ...selected.slice(0, i),
                   ...selected.slice(i + 1),

@@ -14,6 +14,7 @@ import { Compare } from "./transformation-components/Compare";
 import { Fold } from "./transformation-components/Fold";
 import { DifferenceFrom } from "./transformation-components/DifferenceFrom";
 import { Sort } from "./transformation-components/Sort";
+import { Eval } from "./transformation-components/Eval";
 import {
   runningSum,
   runningMean,
@@ -23,6 +24,7 @@ import {
 } from "./transformations/fold";
 import { PivotLonger } from "./transformation-components/PivotLonger";
 import { PivotWider } from "./transformation-components/PivotWider";
+import { evalExpression } from "./utils/codapPhone";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -64,6 +66,7 @@ function Transformation(): ReactElement {
     Sort: <Sort setErrMsg={setErrMsg} />,
     "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
     "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
+    Eval: <Eval setErrMsg={setErrMsg} />,
   };
 
   const transformGroups: Record<string, string[]> = {
@@ -86,6 +89,7 @@ function Transformation(): ReactElement {
       "Sort",
       "Pivot Longer",
       "Pivot Wider",
+      "Eval",
     ],
   };
 

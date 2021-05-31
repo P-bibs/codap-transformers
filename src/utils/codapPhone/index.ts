@@ -67,6 +67,34 @@ phone.call(
   }
 );
 
+export function evalExpression(
+  expr: string,
+  records: Record<string, unknown>[]
+): Promise<unknown[]> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: CodapResource.EvalExpression,
+        values: {
+          source: expr,
+          records: records,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          console.group("Eval");
+          console.log(response.values);
+          console.groupEnd();
+          resolve(response.values);
+        } else {
+          reject(new Error(`Failed to evaluate expression: ${expr}`));
+        }
+      }
+    )
+  );
+}
+
 function resourceFromContext(context: string) {
   return `dataContext[${context}]`;
 }

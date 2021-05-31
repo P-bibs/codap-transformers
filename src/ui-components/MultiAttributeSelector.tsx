@@ -4,27 +4,25 @@ import { useAttributes } from "../utils/hooks";
 
 interface MultiAttributeSelectorProps {
   context: string | null;
+  selected: string[];
   onChange: (selected: string[]) => void;
 }
 
 export default function MultiAttributeSelector({
   context,
+  selected,
   onChange,
 }: MultiAttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
-  const [selected, setSelected] = useState<string[]>([]);
 
   // If selected contains an outdated value (attribute name that has been)
   // deleted, then start over with selection
   useEffect(() => {
     const attrNames = attributes.map((a) => a.name);
-    setSelected(selected.filter((a) => attrNames.includes(a)));
-  }, [attributes, selected]);
-
-  // Call `onChange` whenever selected updates
-  useEffect(() => {
-    onChange(selected);
-  }, [onChange, selected]);
+    if (selected.some((a) => !attrNames.includes(a))) {
+      onChange(selected.filter((a) => attrNames.includes(a)));
+    }
+  }, [attributes, selected, onChange]);
 
   return (
     <>
@@ -40,7 +38,7 @@ export default function MultiAttributeSelector({
             onChange={(e) => {
               const newSelected = [...selected];
               newSelected[i] = e.target.value;
-              setSelected(newSelected);
+              onChange(newSelected);
             }}
             options={attributes.map((attribute) => ({
               value: attribute.name,
@@ -53,10 +51,7 @@ export default function MultiAttributeSelector({
           {i === selected.length ? null : (
             <button
               onClick={() => {
-                setSelected([
-                  ...selected.slice(0, i),
-                  ...selected.slice(i + 1),
-                ]);
+                onChange([...selected.slice(0, i), ...selected.slice(i + 1)]);
               }}
             >
               🗙

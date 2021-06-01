@@ -24,7 +24,6 @@ import {
 } from "./transformations/fold";
 import { PivotLonger } from "./transformation-components/PivotLonger";
 import { PivotWider } from "./transformation-components/PivotWider";
-import { evalExpression } from "./utils/codapPhone";
 
 /**
  * Transformation represents an instance of the plugin, which applies a

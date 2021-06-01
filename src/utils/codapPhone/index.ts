@@ -28,7 +28,6 @@ import {
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
-import { DirectoryWatcherCallback } from "typescript";
 
 export {
   addNewContextListener,

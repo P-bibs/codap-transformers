@@ -28,7 +28,7 @@ import {
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
-import { DirectoryWatcherCallback } from "typescript";
+import { uniqueName } from "../names";
 
 export {
   addNewContextListener,
@@ -789,21 +789,10 @@ async function ensureUniqueName(
     )
   );
 
-  const names = resourceList.map((x) => x.name);
-
-  // If the name doesn't already exist we can return it as is
-  if (!names.includes(name)) {
-    return name;
-  }
-
-  const numberedName = (name: string, i: number) => `${name} (${i})`;
-
-  // Otherwise find a suffix for the name that makes it unique
-  let i = 1;
-  while (names.includes(numberedName(name, i))) {
-    i += 1;
-  }
-  return numberedName(name, i);
+  return uniqueName(
+    name,
+    resourceList.map((x) => x.name)
+  );
 }
 
 export async function createTableWithDataSet(

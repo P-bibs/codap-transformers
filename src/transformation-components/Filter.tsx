@@ -15,6 +15,7 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { CodapEvalError } from "../utils/codapPhone/error";
 
 interface FilterProps {
   setErrMsg: (s: string | null) => void;
@@ -25,7 +26,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [transformPgrm, pgrmChange] = useInput<string, HTMLTextAreaElement>(
+  const [predicate, predicateChange] = useInput<string, HTMLTextAreaElement>(
     "",
     () => setErrMsg(null)
   );
@@ -43,12 +44,12 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       }
 
       console.log(`Data context to filter: ${inputDataCtxt}`);
-      console.log(`Filter predicate to apply:\n${transformPgrm}`);
+      console.log(`Filter predicate to apply:\n${predicate}`);
 
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const filtered = filter(dataset, transformPgrm);
+        const filtered = await filter(dataset, predicate);
         await applyNewDataSet(
           filtered,
           `Filter of ${ctxtTitle(context)}`,
@@ -58,10 +59,14 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
           setErrMsg
         );
       } catch (e) {
-        setErrMsg(e.message);
+        if (e instanceof CodapEvalError) {
+          setErrMsg(e.error);
+        } else {
+          setErrMsg(e.toString());
+        }
       }
     },
-    [inputDataCtxt, transformPgrm, lastContextName, setErrMsg]
+    [inputDataCtxt, predicate, lastContextName, setErrMsg]
   );
 
   useContextUpdateListenerWithFlowEffect(
@@ -88,7 +93,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>How to Filter</p>
-      <CodapFlowTextArea onChange={pgrmChange} value={transformPgrm} />
+      <CodapFlowTextArea onChange={predicateChange} value={predicate} />
 
       <br />
       <TransformationSubmitButtons

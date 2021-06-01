@@ -10,6 +10,7 @@ import {
   CodapFlowTextInput,
   TransformationSubmitButtons,
   ContextSelector,
+  AttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 
@@ -21,12 +22,12 @@ export function DifferenceFrom({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [inputColumnName, inputColumnNameChange] = useInput<
-    string,
-    HTMLInputElement
-  >("", () => setErrMsg(null));
+  const [inputAttributeName, inputAttributeNameChange] = useInput<
+    string | null,
+    HTMLSelectElement
+  >(null, () => setErrMsg(null));
 
-  const [resultColumnName, resultColumnNameChange] = useInput<
+  const [resultAttributeName, resultAttributeNameChange] = useInput<
     string,
     HTMLInputElement
   >("", () => setErrMsg(null));
@@ -44,8 +45,11 @@ export function DifferenceFrom({
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-
-      if (resultColumnName === "") {
+      if (inputAttributeName === null) {
+        setErrMsg("Please choose an attribute to take the difference from");
+        return;
+      }
+      if (resultAttributeName === "") {
         setErrMsg("Please choose a non-empty result column name.");
         return;
       }
@@ -62,8 +66,8 @@ export function DifferenceFrom({
       try {
         const result = differenceFrom(
           dataset,
-          inputColumnName,
-          resultColumnName,
+          inputAttributeName,
+          resultAttributeName,
           differenceStartingValue
         );
         await applyNewDataSet(
@@ -80,8 +84,8 @@ export function DifferenceFrom({
     },
     [
       inputDataCtxt,
-      inputColumnName,
-      resultColumnName,
+      inputAttributeName,
+      resultAttributeName,
       setErrMsg,
       startingValue,
       lastContextName,
@@ -101,15 +105,16 @@ export function DifferenceFrom({
     <>
       <p>Table to calculate difference on</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
-      <p>Input Column Name:</p>
-      <CodapFlowTextInput
-        value={inputColumnName}
-        onChange={inputColumnNameChange}
+      <p>Attribute to take difference from</p>
+      <AttributeSelector
+        onChange={inputAttributeNameChange}
+        value={inputAttributeName}
+        context={inputDataCtxt}
       />
-      <p>Result Column Name:</p>
+      <p>Result Attribute Name</p>
       <CodapFlowTextInput
-        value={resultColumnName}
-        onChange={resultColumnNameChange}
+        value={resultAttributeName}
+        onChange={resultAttributeNameChange}
       />
       <p>Starting value for difference</p>
       <CodapFlowTextInput

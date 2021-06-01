@@ -4,7 +4,7 @@ import { transformColumn } from "../transformations/transformColumn";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import {
   CodapFlowTextArea,
-  CodapFlowTextInput,
+  AttributeSelector,
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
@@ -23,9 +23,9 @@ export function TransformColumn({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
   const [attributeName, attributeNameChange] = useInput<
-    string,
-    HTMLInputElement
-  >("", () => setErrMsg(null));
+    string | null,
+    HTMLSelectElement
+  >(null, () => setErrMsg(null));
   const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
     "",
     () => setErrMsg(null)
@@ -42,8 +42,8 @@ export function TransformColumn({
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-      if (attributeName === "") {
-        setErrMsg("Please enter a non-empty attribute name to transform");
+      if (attributeName === null) {
+        setErrMsg("Please select an attribute to transform");
         return;
       }
       if (expression === "") {
@@ -85,9 +85,10 @@ export function TransformColumn({
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Attribute to Transform</p>
-      <CodapFlowTextInput
-        value={attributeName}
+      <AttributeSelector
         onChange={attributeNameChange}
+        value={attributeName}
+        context={inputDataCtxt}
       />
 
       <p>How to Transform Column</p>

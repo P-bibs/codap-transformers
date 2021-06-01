@@ -22,6 +22,7 @@ import {
   CodapIdentifyingInfo,
   CaseTable,
   GetDataListResponse,
+  GetFunctionNamesResponse,
   CodapAttribute,
   ExcludeNonObject,
 } from "./types";
@@ -865,3 +866,30 @@ export function evalExpression(
     )
   );
 }
+
+export const getFunctionNames: () => Promise<string[]> = (() => {
+  // Remember result
+  let names: string[] | null = null;
+  return () => {
+    return new Promise<string[]>((resolve, reject) => {
+      if (names !== null) {
+        resolve(names);
+        return;
+      }
+      phone.call(
+        {
+          action: CodapActions.Get,
+          resource: CodapResource.FunctionNames,
+        },
+        (response: GetFunctionNamesResponse) => {
+          if (response.success) {
+            names = response.values;
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to get function names"));
+          }
+        }
+      );
+    });
+  };
+})();

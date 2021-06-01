@@ -1,5 +1,6 @@
 import React, { ReactElement, useCallback } from "react";
 import { UnControlled as CodeMirrorElement } from "react17-codemirror2";
+import { getFunctionNames } from "../utils/codapPhone";
 
 // This is required for defineSimpleMode
 import "codemirror/addon/mode/simple.js";
@@ -45,8 +46,18 @@ interface ExpressionEditorProps {
   attributeNames?: string[];
 }
 
+const delimiters = new Set([" ", "(", ")", "`"]);
+
 function isMatchableChar(m: string) {
-  return m !== " ";
+  return !delimiters.has(m);
+}
+
+/**
+ * Checks if `candidate` is a prefix of the lowercase version of `full`,
+ * assumes candidate is already lowercase.
+ */
+function isLowerCasePrefix(full: string, candidate: string) {
+  return full.toLowerCase().startsWith(candidate);
 }
 
 /**
@@ -78,16 +89,31 @@ export default function ExpressionEditor({
   attributeNames = [],
 }: ExpressionEditorProps): ReactElement {
   const codapFormulaHints: HintFunction = useCallback(
-    (cm) => {
+    async (cm) => {
       const cursor = cm.getCursor();
       const { start, end, word } = getCurrentWord(cm);
+      const wordLower = word.toLowerCase();
 
       // Don't complete if word is empty string
       const completionList =
-        word === "" ? [] : attributeNames.filter((w) => w.startsWith(word));
+        word === ""
+          ? []
+          : attributeNames.filter((w) => isLowerCasePrefix(w, wordLower));
+
+      // Complete function names
+      const functionNames = await getFunctionNames();
+      const functionCompletionList = (
+        word === ""
+          ? []
+          : functionNames.filter((w) => isLowerCasePrefix(w, wordLower))
+      )
+        // Add parens
+        // TODO: Eventually add hint function so we can place cursor inside
+        // the parens when replacing
+        .map((s) => s + "()");
 
       return {
-        list: completionList,
+        list: completionList.concat(functionCompletionList),
         from: CodeMirror.Pos(cursor.line, start),
         to: CodeMirror.Pos(cursor.line, end),
       };

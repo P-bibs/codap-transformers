@@ -27,6 +27,7 @@ import {
 } from "./types";
 import { contextUpdateListeners, callAllContextListeners } from "./listeners";
 import { DataSet } from "../../transformations/types";
+import { CodapEvalError } from "./error";
 import { DirectoryWatcherCallback } from "typescript";
 
 export {
@@ -835,4 +836,33 @@ export async function createTableWithDataSet(
 
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];
+}
+
+export function evalExpression(
+  expr: string,
+  records: Record<string, unknown>[]
+): Promise<unknown[]> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: CodapResource.EvalExpression,
+        values: {
+          source: expr,
+          records: records,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          console.group("Eval");
+          console.log(response.values);
+          console.groupEnd();
+          resolve(response.values);
+        } else {
+          // In this case, values is an error message
+          reject(new CodapEvalError(expr, response.values.error));
+        }
+      }
+    )
+  );
 }

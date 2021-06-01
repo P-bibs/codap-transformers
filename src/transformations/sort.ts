@@ -1,56 +1,62 @@
 import { DataSet } from "./types";
-import { dataItemToEnv } from "./util";
-import { evaluate } from "../language";
-import { Value } from "../language/ast";
+import { evalExpression } from "../utils/codapPhone";
 
-function numCompareFn(a: { content: number }, b: { content: number }) {
-  return a.content - b.content;
+function numCompareFn(a: number, b: number) {
+  return a - b;
 }
 
-function stringCompareFn(a: { content: string }, b: { content: string }) {
-  if (a.content === b.content) {
+function stringCompareFn(a: string, b: string) {
+  if (a === b) {
     return 0;
-  } else if (a.content > b.content) {
+  } else if (a > b) {
     return 1;
   } else {
     return -1;
   }
 }
 
-function boolCompareFn(a: { content: boolean }, b: { content: boolean }) {
-  if (a.content) {
-    return b.content ? 0 : 1;
+function boolCompareFn(a: boolean, b: boolean) {
+  if (a) {
+    return b ? 0 : 1;
   } else {
-    return b.content ? -1 : 0;
+    return b ? -1 : 0;
   }
 }
 
-function compareFn(a: Value, b: Value): number {
-  if (a.kind === "Num" && b.kind === "Num") {
+function compareFn(a: unknown, b: unknown): number {
+  if (typeof a === "number" && typeof b === "number") {
     return numCompareFn(a, b);
-  } else if (a.kind === "String" && b.kind === "String") {
+  } else if (typeof a === "string" && typeof b === "string") {
     return stringCompareFn(a, b);
-  } else if (a.kind === "Bool" && b.kind === "Bool") {
+  } else if (typeof a === "boolean" && typeof b === "boolean") {
     return boolCompareFn(a, b);
   } else {
     throw new Error(
-      `Keys must have the same type for all rows. Got ${a.kind} and {b.kind}`
+      `Keys must have the same type for all rows. Got ${a} and ${b}`
     );
   }
 }
 
-export function sort(dataset: DataSet, keyExpr: string): DataSet {
-  const sorted = dataset.records.slice();
-  sorted.sort((row1, row2) => {
-    const env1 = dataItemToEnv(row1);
-    const env2 = dataItemToEnv(row2);
-    const key1 = evaluate(keyExpr, env1);
-    const key2 = evaluate(keyExpr, env2);
-    return compareFn(key1, key2);
-  });
+export async function sort(
+  dataset: DataSet,
+  keyExpr: string
+): Promise<DataSet> {
+  const records = dataset.records.slice();
+  const keyValues = await evalExpression(keyExpr, records);
 
-  return {
-    collections: dataset.collections.slice(),
-    records: sorted,
-  };
+  const sorted = records
+    .map((record, i) => {
+      return { record, i };
+    })
+    .sort(({ i: i1 }, { i: i2 }) => {
+      return compareFn(keyValues[i1], keyValues[i2]);
+    })
+    .map(({ record }) => record);
+
+  return new Promise((resolve) =>
+    resolve({
+      collections: dataset.collections.slice(),
+      records: sorted,
+    })
+  );
 }

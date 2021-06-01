@@ -21,14 +21,8 @@ export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [namesFrom, namesFromOnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(null, () => setErrMsg(null));
-  const [valuesFrom, valuesFromOnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  const [namesFrom, namesFromOnChange] = useState<string | null>(null);
+  const [valuesFrom, valuesFromOnChange] = useState<string | null>(null);
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 

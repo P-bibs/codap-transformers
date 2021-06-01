@@ -26,14 +26,10 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [inputAttribute1, inputAttribute1OnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(null, () => setErrMsg(null));
-  const [inputAttribute2, inputAttribute2OnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  const [inputAttribute1, inputAttribute1OnChange] =
+    useState<string | null>(null);
+  const [inputAttribute2, inputAttribute2OnChange] =
+    useState<string | null>(null);
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 

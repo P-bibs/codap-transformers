@@ -16,7 +16,7 @@ export default function MultiAttributeSelector({
   const attributes = useAttributes(context);
 
   // If selected contains an outdated value (attribute name that has been)
-  // deleted, then start over with selection
+  // deleted, then filter out the value
   useEffect(() => {
     const attrNames = attributes.map((a) => a.name);
     if (selected.some((a) => !attrNames.includes(a))) {

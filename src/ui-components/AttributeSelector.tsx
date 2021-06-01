@@ -1,11 +1,11 @@
-import React, { ReactElement, ChangeEvent } from "react";
+import React, { ReactElement, ChangeEvent, useEffect } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
 import { useAttributes } from "../utils/hooks";
 
 interface AttributeSelectorProps {
   context: string | null;
   value: string | null;
-  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (s: string | null) => void;
 }
 
 export default function AttributeSelector({
@@ -15,9 +15,15 @@ export default function AttributeSelector({
 }: AttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
 
+  useEffect(() => {
+    if (value && !attributes.map((a) => a.name).includes(value)) {
+      onChange(null);
+    }
+  }, [value, onChange, attributes]);
+
   return (
     <CodapFlowSelect
-      onChange={onChange}
+      onChange={(e) => onChange(e.target.value)}
       options={attributes.map((attribute) => ({
         value: attribute.name,
         title: attribute.title,

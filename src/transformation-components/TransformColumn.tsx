@@ -23,10 +23,7 @@ export function TransformColumn({
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributeName, attributeNameChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  const [attributeName, attributeNameChange] = useState<string | null>(null);
   const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
     "",
     () => setErrMsg(null)

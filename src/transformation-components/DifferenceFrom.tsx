@@ -22,10 +22,8 @@ export function DifferenceFrom({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [inputAttributeName, inputAttributeNameChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  const [inputAttributeName, inputAttributeNameChange] =
+    useState<string | null>(null);
 
   const [resultAttributeName, resultAttributeNameChange] = useInput<
     string,

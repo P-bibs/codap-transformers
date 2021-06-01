@@ -7,12 +7,12 @@ import {
 import { TransformationProps } from "./types";
 import { DataSet } from "../transformations/types";
 import {
-  CodapFlowTextInput,
   TransformationSubmitButtons,
   ContextSelector,
   AttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { uniqueAttrName } from "../transformations/util";
 
 interface FoldProps extends TransformationProps {
   label: string;
@@ -34,11 +34,6 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [resultAttributeName, resultAttributeNameChange] = useInput<
-    string,
-    HTMLInputElement
-  >("", () => setErrMsg(null));
-
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   const transform = useCallback(
@@ -51,12 +46,14 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         setErrMsg("Please select an attribute to aggregate");
         return;
       }
-      if (resultAttributeName === "") {
-        setErrMsg("Please choose a non-empty result column name.");
-        return;
-      }
 
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+
+      const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
+      const resultAttributeName = uniqueAttrName(
+        `${label} of ${inputAttributeName}`,
+        attrs
+      );
 
       try {
         const result = foldFunc(
@@ -79,7 +76,6 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     [
       inputDataCtxt,
       inputAttributeName,
-      resultAttributeName,
       setErrMsg,
       foldFunc,
       lastContextName,
@@ -100,17 +96,14 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     <>
       <p>Table to calculate {label.toLowerCase()} on</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
+
       <p>Attribute to Aggregate</p>
       <AttributeSelector
         onChange={inputAttributeNameChange}
         value={inputAttributeName}
         context={inputDataCtxt}
       />
-      <p>Result Attribute Name</p>
-      <CodapFlowTextInput
-        value={resultAttributeName}
-        onChange={resultAttributeNameChange}
-      />
+
       <br />
       <TransformationSubmitButtons
         onCreate={() => transform(false)}

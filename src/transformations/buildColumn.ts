@@ -1,17 +1,16 @@
 import { DataSet } from "./types";
-import { dataItemToEnv } from "./util";
-import { evaluate } from "../language";
+import { evalExpression } from "../utils/codapPhone/index";
 
 /**
  * Builds a dataset with a new attribute added to one of the collections,
  * whose case values are computed by evaluating the given expression.
  */
-export function buildColumn(
+export async function buildColumn(
   dataset: DataSet,
   newAttributeName: string,
   collectionName: string,
   expression: string
-): DataSet {
+): Promise<DataSet> {
   // find collection to add attribute to
   const collections = dataset.collections.slice();
   const toAdd = collections.find((coll) => coll.name === collectionName);
@@ -38,12 +37,13 @@ export function buildColumn(
     name: newAttributeName,
   });
 
-  // add new values for this attribute to each record
   const records = dataset.records.slice();
-  for (const record of records) {
-    const env = dataItemToEnv(record);
-    record[newAttributeName] = evaluate(expression, env).content;
-  }
+  const colValues = await evalExpression(expression, records);
+
+  // add values for new attribute to all records
+  colValues.forEach((value, i) => {
+    records[i][newAttributeName] = value;
+  });
 
   return {
     collections,

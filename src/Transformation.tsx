@@ -14,6 +14,7 @@ import { Compare } from "./transformation-components/Compare";
 import { Fold } from "./transformation-components/Fold";
 import { DifferenceFrom } from "./transformation-components/DifferenceFrom";
 import { Sort } from "./transformation-components/Sort";
+import { Eval } from "./transformation-components/Eval";
 import {
   runningSum,
   runningMean,
@@ -39,19 +40,19 @@ function Transformation(): ReactElement {
 
   const transformComponents: Record<string, ReactElement> = {
     "Running Sum": (
-      <Fold setErrMsg={setErrMsg} label="running sum" foldFunc={runningSum} />
+      <Fold setErrMsg={setErrMsg} label="Running Sum" foldFunc={runningSum} />
     ),
     "Running Mean": (
-      <Fold setErrMsg={setErrMsg} label="running mean" foldFunc={runningMean} />
+      <Fold setErrMsg={setErrMsg} label="Running Mean" foldFunc={runningMean} />
     ),
     "Running Min": (
-      <Fold setErrMsg={setErrMsg} label="running min" foldFunc={runningMin} />
+      <Fold setErrMsg={setErrMsg} label="Running Min" foldFunc={runningMin} />
     ),
     "Running Max": (
-      <Fold setErrMsg={setErrMsg} label="running max" foldFunc={runningMax} />
+      <Fold setErrMsg={setErrMsg} label="Running Max" foldFunc={runningMax} />
     ),
     "Running Difference": (
-      <Fold setErrMsg={setErrMsg} label="difference" foldFunc={difference} />
+      <Fold setErrMsg={setErrMsg} label="Difference" foldFunc={difference} />
     ),
     Flatten: <Flatten setErrMsg={setErrMsg} />,
     "Group By": <GroupBy setErrMsg={setErrMsg} />,
@@ -66,6 +67,7 @@ function Transformation(): ReactElement {
     "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
     "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
     Join: <Join setErrMsg={setErrMsg} />,
+    Eval: <Eval setErrMsg={setErrMsg} />,
   };
 
   const transformGroups: Record<string, string[]> = {
@@ -89,6 +91,7 @@ function Transformation(): ReactElement {
       "Pivot Longer",
       "Pivot Wider",
       "Join",
+      "Eval",
     ],
   };
 

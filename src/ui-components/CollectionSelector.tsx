@@ -1,29 +1,29 @@
 import React, { ReactElement, ChangeEvent } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
-import { useAttributes } from "../utils/hooks";
+import { useCollections } from "../utils/hooks";
 
-interface AttributeSelectorProps {
+interface CollectionSelectorProps {
   context: string | null;
   value: string | null;
   onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
 }
 
-export default function AttributeSelector({
+export default function CollectionSelector({
   context,
   value,
   onChange,
-}: AttributeSelectorProps): ReactElement {
-  const attributes = useAttributes(context);
+}: CollectionSelectorProps): ReactElement {
+  const collections = useCollections(context);
 
   return (
     <CodapFlowSelect
       onChange={onChange}
-      options={attributes.map((attribute) => ({
-        value: attribute.name,
-        title: attribute.title,
+      options={collections.map((collection) => ({
+        value: collection.name,
+        title: collection.title,
       }))}
       value={value}
-      defaultValue="Select an attribute"
+      defaultValue="Select a collection"
       showValue={true}
     />
   );

@@ -5,3 +5,4 @@ export { default as TransformationSubmitButtons } from "./TransformationSubmitBu
 export { default as ContextSelector } from "./ContextSelector";
 export { default as AttributeSelector } from "./AttributeSelector";
 export { default as MultiAttributeSelector } from "./MultiAttributeSelector";
+export { default as CollectionSelector } from "./CollectionSelector";

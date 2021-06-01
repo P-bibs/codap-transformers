@@ -12,6 +12,13 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { runningSum } from "../transformations/fold";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+
+export interface FoldSaveData {
+  inputColumnName: string;
+  resultColumnName: string;
+}
 
 interface FoldProps extends TransformationProps {
   label: string;
@@ -20,9 +27,32 @@ interface FoldProps extends TransformationProps {
     inputName: string,
     outputName: string
   ) => DataSet;
+  saveData?: FoldSaveData;
 }
 
-export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
+// This is props type for components which are constructed with an
+// underlying `Fold` component. Examples include Running Sum and Running Mean
+type FoldConsumerProps = Omit<FoldProps, "foldFunc" | "label">;
+
+export const RunningSum = (props: FoldConsumerProps): ReactElement => {
+  // Use spread syntax to merge passed in props with fixed props
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "running sum",
+        foldFunc: runningSum,
+      }}
+    />
+  );
+};
+
+export function Fold({
+  setErrMsg,
+  label,
+  foldFunc,
+  saveData,
+}: FoldProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -31,12 +61,16 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
   const [inputColumnName, inputColumnNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.inputColumnName : "", () =>
+    setErrMsg(null)
+  );
 
   const [resultColumnName, resultColumnNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.resultColumnName : "", () =>
+    setErrMsg(null)
+  );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -96,11 +130,13 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       <CodapFlowTextInput
         value={inputColumnName}
         onChange={inputColumnNameChange}
+        disabled={saveData !== undefined}
       />
       <p>Result Column Name:</p>
       <CodapFlowTextInput
         value={resultColumnName}
         onChange={resultColumnNameChange}
+        disabled={saveData !== undefined}
       />
       <br />
       <TransformationSubmitButtons
@@ -108,6 +144,14 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={true}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            inputColumnName,
+            resultColumnName,
+          })}
+        />
+      )}
     </>
   );
 }

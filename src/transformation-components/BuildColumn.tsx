@@ -12,12 +12,23 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface BuildColumnProps {
-  setErrMsg: (s: string | null) => void;
+export interface BuildColumnSaveData {
+  attributeName: string;
+  collectionName: string;
+  expression: string;
 }
 
-export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
+interface BuildColumnProps extends TransformationProps {
+  saveData?: BuildColumnSaveData;
+}
+
+export function BuildColumn({
+  setErrMsg,
+  saveData,
+}: BuildColumnProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -25,13 +36,17 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
   const [attributeName, attributeNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.attributeName : "", () =>
+    setErrMsg(null)
+  );
   const [collectionName, collectionNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.collectionName : "", () =>
+    setErrMsg(null)
+  );
   const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
-    "",
+    saveData !== undefined ? saveData.expression : "",
     () => setErrMsg(null)
   );
 
@@ -108,16 +123,22 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
       <CodapFlowTextInput
         value={attributeName}
         onChange={attributeNameChange}
+        disabled={saveData !== undefined}
       />
 
       <p>Collection to Add To</p>
       <CodapFlowTextInput
         value={collectionName}
         onChange={collectionNameChange}
+        disabled={saveData !== undefined}
       />
 
       <p>Formula for Attribute Values</p>
-      <CodapFlowTextArea value={expression} onChange={expressionChange} />
+      <CodapFlowTextArea
+        value={expression}
+        onChange={expressionChange}
+        disabled={saveData !== undefined}
+      />
 
       <br />
       <TransformationSubmitButtons
@@ -125,6 +146,15 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributeName,
+            collectionName,
+            expression,
+          })}
+        />
+      )}
     </>
   );
 }

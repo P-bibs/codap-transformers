@@ -15,18 +15,24 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { TransformationProps } from "./types";
 
-interface FilterProps {
-  setErrMsg: (s: string | null) => void;
+export interface FilterSaveData {
+  transformPgrm: string;
 }
 
-export function Filter({ setErrMsg }: FilterProps): ReactElement {
+interface FilterProps extends TransformationProps {
+  saveData?: FilterSaveData;
+}
+
+export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
   const [transformPgrm, pgrmChange] = useInput<string, HTMLTextAreaElement>(
-    "",
+    saveData !== undefined ? saveData.transformPgrm : "",
     () => setErrMsg(null)
   );
   const [lastContextName, setLastContextName] = useState<string | null>(null);
@@ -88,7 +94,11 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>How to Filter</p>
-      <CodapFlowTextArea onChange={pgrmChange} value={transformPgrm} />
+      <CodapFlowTextArea
+        onChange={pgrmChange}
+        value={transformPgrm}
+        disabled={saveData !== undefined}
+      />
 
       <br />
       <TransformationSubmitButtons
@@ -96,6 +106,13 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            transformPgrm,
+          })}
+        />
+      )}
     </>
   );
 }

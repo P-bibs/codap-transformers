@@ -6,12 +6,14 @@ interface ContextSelectorProps {
   context: string | null;
   value: string | null;
   onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  disabled?: boolean;
 }
 
 export default function AttributeSelector({
   context,
   value,
   onChange,
+  disabled,
 }: ContextSelectorProps): ReactElement {
   const attributes = useAttributes(context);
 
@@ -25,6 +27,7 @@ export default function AttributeSelector({
       value={value}
       defaultValue="Select an attribute"
       showValue={true}
+      disabled={disabled}
     />
   );
 }

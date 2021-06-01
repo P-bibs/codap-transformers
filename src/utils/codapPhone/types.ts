@@ -126,9 +126,17 @@ interface TableResponse extends CodapResponse {
   values: CaseTable;
 }
 
-interface EvalExpressionResponse extends CodapResponse {
-  values: unknown[];
-}
+type EvalExpressionResponse =
+  | {
+      success: true;
+      values: unknown[];
+    }
+  | {
+      success: false;
+      values: {
+        error: string;
+      };
+    };
 
 export type CodapPhone = {
   call(r: UpdateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;

@@ -1,5 +1,6 @@
 import React, { ReactElement, useState } from "react";
 import { getContextAndDataSet, evalExpression } from "../utils/codapPhone";
+import { CodapEvalError } from "../utils/codapPhone/error";
 import { useInput } from "../utils/hooks";
 import { CodapFlowTextArea, ContextSelector } from "../ui-components";
 
@@ -30,11 +31,19 @@ export function Eval({ setErrMsg }: EvalProps): ReactElement {
     if (dataset.records.length < 5) {
       setErrMsg("Please pick a dataset with at least 5 elements");
     }
-    const evalResult = await evalExpression(
-      transformPgrm,
-      dataset.records.slice(0, 5)
-    );
-    setResult(JSON.stringify(evalResult));
+    try {
+      const evalResult = await evalExpression(
+        transformPgrm,
+        dataset.records.slice(0, 5)
+      );
+      setResult(JSON.stringify(evalResult));
+    } catch (e) {
+      if (e instanceof CodapEvalError) {
+        setErrMsg(e.error);
+      } else {
+        setErrMsg(e.toString());
+      }
+    }
   }
 
   return (

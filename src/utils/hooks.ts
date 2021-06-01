@@ -4,6 +4,7 @@ import {
   addNewContextListener,
   removeNewContextListener,
   getAllAttributes,
+  getAllCollections,
   removeContextUpdateListener,
   addContextUpdateListener,
 } from "./codapPhone";
@@ -26,8 +27,25 @@ export function useDataContexts(): CodapIdentifyingInfo[] {
   return dataContexts;
 }
 
+export function useCollections(context: string | null): CodapIdentifyingInfo[] {
+  const [collections, setCollections] = useState<CodapIdentifyingInfo[]>([]);
+
+  async function refreshCollections(context: string) {
+    setCollections(await getAllCollections(context));
+  }
+
+  // Update if context changes
+  useEffect(() => {
+    if (context) {
+      refreshCollections(context);
+    }
+  }, [context]);
+
+  return collections;
+}
+
 export function useAttributes(context: string | null): CodapIdentifyingInfo[] {
-  const [collections, setAttributes] = useState<CodapIdentifyingInfo[]>([]);
+  const [attributes, setAttributes] = useState<CodapIdentifyingInfo[]>([]);
 
   async function refreshAttributes(context: string) {
     setAttributes(await getAllAttributes(context));
@@ -40,7 +58,7 @@ export function useAttributes(context: string | null): CodapIdentifyingInfo[] {
     }
   }, [context]);
 
-  return collections;
+  return attributes;
 }
 
 interface ElementWithValue {

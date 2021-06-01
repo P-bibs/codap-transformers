@@ -11,6 +11,7 @@ import {
   CodapFlowTextInput,
   TransformationSubmitButtons,
   ContextSelector,
+  CollectionSelector,
 } from "../ui-components";
 
 interface BuildColumnProps {
@@ -27,9 +28,9 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
     HTMLInputElement
   >("", () => setErrMsg(null));
   const [collectionName, collectionNameChange] = useInput<
-    string,
-    HTMLInputElement
-  >("", () => setErrMsg(null));
+    string | null,
+    HTMLSelectElement
+  >(null, () => setErrMsg(null));
   const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
     "",
     () => setErrMsg(null)
@@ -47,12 +48,12 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-      if (attributeName === "") {
-        setErrMsg("Please enter a non-empty name for the new attribute");
+      if (collectionName === null) {
+        setErrMsg("Please select a collection to add to");
         return;
       }
-      if (collectionName === "") {
-        setErrMsg("Please enter a non-empty collection name to add to");
+      if (attributeName === "") {
+        setErrMsg("Please enter a non-empty name for the new attribute");
         return;
       }
       if (expression === "") {
@@ -106,7 +107,8 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Collection to Add To</p>
-      <CodapFlowTextInput
+      <CollectionSelector
+        context={inputDataCtxt}
         value={collectionName}
         onChange={collectionNameChange}
       />

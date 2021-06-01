@@ -5,6 +5,7 @@ import { UnControlled as CodeMirrorElement } from "react17-codemirror2";
 import "codemirror/addon/mode/simple.js";
 import "codemirror/lib/codemirror.css";
 import CodeMirror from "codemirror";
+import "./ExpressionEditor.css";
 
 // Adapted from codap/apps/dg/formula/formula.js
 const firstChar =

@@ -2,7 +2,11 @@ import React, { ReactElement, useState } from "react";
 import { getContextAndDataSet, evalExpression } from "../utils/codapPhone";
 import { CodapEvalError } from "../utils/codapPhone/error";
 import { useInput } from "../utils/hooks";
-import { CodapFlowTextArea, ContextSelector } from "../ui-components";
+import {
+  CodapFlowTextArea,
+  ContextSelector,
+  ExpressionEditor,
+} from "../ui-components";
 
 interface EvalProps {
   setErrMsg: (s: string | null) => void;
@@ -13,10 +17,7 @@ export function Eval({ setErrMsg }: EvalProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [transformPgrm, pgrmChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
+  const [transformPgrm, pgrmChange] = useState<string>("");
   const [result, setResult] = useState<string>("");
 
   async function evalExpr() {
@@ -52,7 +53,7 @@ export function Eval({ setErrMsg }: EvalProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>How to Filter</p>
-      <CodapFlowTextArea onChange={pgrmChange} value={transformPgrm} />
+      <ExpressionEditor onChange={pgrmChange} />
 
       <br />
       <button onClick={evalExpr}>Eval</button>

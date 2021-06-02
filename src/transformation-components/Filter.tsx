@@ -3,12 +3,13 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
+  useAttributes,
 } from "../utils/hooks";
 import { filter } from "../transformations/filter";
 import {
   TransformationSubmitButtons,
-  CodapFlowTextArea,
   ContextSelector,
+  ExpressionEditor,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import { CodapEvalError } from "../utils/codapPhone/error";
@@ -22,11 +23,9 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [predicate, predicateChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
+  const [predicate, predicateChange] = useState<string>("");
   const [lastContextName, setLastContextName] = useState<string | null>(null);
+  const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -80,7 +79,10 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>How to Filter</p>
-      <CodapFlowTextArea onChange={predicateChange} value={predicate} />
+      <ExpressionEditor
+        onChange={predicateChange}
+        attributeNames={attributes.map((a) => a.name)}
+      />
 
       <br />
       <TransformationSubmitButtons

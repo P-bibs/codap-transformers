@@ -6,6 +6,7 @@ export enum CodapResource {
   Collection = "collection",
   CollectionList = "collectionList",
   EvalExpression = "evalExpression",
+  FunctionNames = "functionNames",
 }
 
 export enum CodapListResource {
@@ -86,6 +87,11 @@ interface EvalExpressionRequest {
   };
 }
 
+interface GetFunctionNamesRequest {
+  action: CodapActions.Get;
+  resource: CodapResource.FunctionNames;
+}
+
 export interface CodapResponse {
   success: boolean;
 }
@@ -126,6 +132,10 @@ interface TableResponse extends CodapResponse {
   values: CaseTable;
 }
 
+export interface GetFunctionNamesResponse extends CodapResponse {
+  values: string[];
+}
+
 type EvalExpressionResponse =
   | {
       success: true;
@@ -153,6 +163,10 @@ export type CodapPhone = {
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
   call(r: CreateTableRequest, cb: (r: TableResponse) => void): void;
   call(r: EvalExpressionRequest, cb: (r: EvalExpressionResponse) => void): void;
+  call(
+    r: GetFunctionNamesRequest,
+    cb: (r: GetFunctionNamesResponse) => void
+  ): void;
 };
 
 export enum CodapInitiatedResource {

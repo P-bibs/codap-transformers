@@ -41,7 +41,6 @@ export default function MultiAttributeSelector({
             }))}
             value={selected[i]}
             defaultValue="Select an attribute"
-            showValue={true}
           />
           {i === count ? null : (
             <button

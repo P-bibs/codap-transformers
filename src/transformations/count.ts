@@ -1,6 +1,7 @@
 import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { eraseFormulas, uniqueAttrName } from "./util";
+import { eraseFormulas } from "./util";
+import { uniqueName } from "../utils/names";
 
 // TODO: allow for two modes:
 //  1) treat data like one table, values are counted across all cases
@@ -36,7 +37,10 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
   eraseFormulas(countedAttrs);
 
   // generate a unique attribute name for the `count` column
-  const countAttrName = uniqueAttrName("count", countedAttrs);
+  const countAttrName = uniqueName(
+    "count",
+    countedAttrs.map((attr) => attr.name)
+  );
 
   // single collection with copy of counted attributes, plus
   // a new "count" attribute for the frequencies

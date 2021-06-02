@@ -75,6 +75,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       <p>Attributes to Count</p>
       <MultiAttributeSelector
         context={inputDataCtxt}
+        selected={attributes}
         onChange={setAttributes}
       />
 

@@ -29,10 +29,8 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [inputAttributeName, inputAttributeNameChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  const [inputAttributeName, inputAttributeNameChange] =
+    useState<string | null>(null);
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 

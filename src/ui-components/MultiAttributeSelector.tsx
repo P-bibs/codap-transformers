@@ -1,23 +1,32 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useState, useEffect } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
 import { useAttributes } from "../utils/hooks";
 
 interface MultiAttributeSelectorProps {
   context: string | null;
+  selected: string[];
   onChange: (selected: string[]) => void;
 }
 
 export default function MultiAttributeSelector({
   context,
+  selected,
   onChange,
 }: MultiAttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
-  const [count, setCount] = useState<number>(0);
-  const [selected, setSelected] = useState<string[]>([]);
+
+  // If selected contains an outdated value (attribute name that has been)
+  // deleted, then filter out the value
+  useEffect(() => {
+    const attrNames = attributes.map((a) => a.name);
+    if (selected.some((a) => !attrNames.includes(a))) {
+      onChange(selected.filter((a) => attrNames.includes(a)));
+    }
+  }, [attributes, selected, onChange]);
 
   return (
     <>
-      {[...Array(count + 1).keys()].map((i) => (
+      {[...Array(selected.length + 1).keys()].map((i) => (
         <div
           key={i}
           style={{
@@ -29,11 +38,7 @@ export default function MultiAttributeSelector({
             onChange={(e) => {
               const newSelected = [...selected];
               newSelected[i] = e.target.value;
-              setSelected(newSelected);
               onChange(newSelected);
-              if (i === count) {
-                setCount(count + 1);
-              }
             }}
             options={attributes.map((attribute) => ({
               value: attribute.name,
@@ -42,14 +47,10 @@ export default function MultiAttributeSelector({
             value={selected[i]}
             defaultValue="Select an attribute"
           />
-          {i === count ? null : (
+          {i === selected.length ? null : (
             <button
               onClick={() => {
-                setCount(count - 1);
-                setSelected([
-                  ...selected.slice(0, i),
-                  ...selected.slice(i + 1),
-                ]);
+                onChange([...selected.slice(0, i), ...selected.slice(i + 1)]);
               }}
             >
               🗙

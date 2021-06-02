@@ -91,6 +91,7 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
       <p>Attributes to Pivot</p>
       <MultiAttributeSelector
         context={inputDataCtxt}
+        selected={attributes}
         onChange={setAttributes}
       />
 

@@ -1,9 +1,5 @@
-import React, { useEffect, useCallback, ReactElement, useState } from "react";
-import {
-  addContextUpdateListener,
-  removeContextUpdateListener,
-  getContextAndDataSet,
-} from "../utils/codapPhone";
+import React, { useCallback, ReactElement, useState } from "react";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -77,15 +73,6 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
     },
     [transform]
   );
-
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
 
   return (
     <>

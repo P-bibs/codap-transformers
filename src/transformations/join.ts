@@ -1,6 +1,6 @@
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { DataSet } from "./types";
-import { uniqueAttrName } from "./util";
+import { uniqueName } from "../utils/names";
 
 /**
  * Joins two datasets together, using the baseDataset as a starting point
@@ -41,19 +41,18 @@ export function join(
   }
 
   // list of attributes whose names cannot be duplicated by the added attrs
-  const namesToAvoid = baseDataset.collections.reduce(
-    (acc, coll) => acc.concat(coll.attrs || []),
-    [] as CodapAttribute[]
-  );
+  const namesToAvoid = baseDataset.collections
+    .reduce((acc, coll) => acc.concat(coll.attrs || []), [] as CodapAttribute[])
+    .map((attr) => attr.name);
 
   // ensure added attribute names are unique relative to attribute
   // names in base dataset (as well as all other added attributes)
   // NOTE: this renames the addedAttrs
   const attrToUnique: Record<string, string> = {};
   for (const attr of addedAttrs) {
-    attrToUnique[attr.name] = uniqueAttrName(attr.name, namesToAvoid);
+    attrToUnique[attr.name] = uniqueName(attr.name, namesToAvoid);
     attr.name = attrToUnique[attr.name];
-    namesToAvoid.push(attr);
+    namesToAvoid.push(attr.name);
   }
 
   // add the attrs from the joining collection into the collection being joined into

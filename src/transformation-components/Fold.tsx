@@ -12,7 +12,7 @@ import {
   AttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
-import { uniqueAttrName } from "../transformations/util";
+import { uniqueName } from "../utils/names";
 
 interface FoldProps extends TransformationProps {
   label: string;
@@ -50,9 +50,9 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
-      const resultAttributeName = uniqueAttrName(
+      const resultAttributeName = uniqueName(
         `${label} of ${inputAttributeName}`,
-        attrs
+        attrs.map((attr) => attr.name)
       );
 
       try {

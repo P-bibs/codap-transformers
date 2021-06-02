@@ -33,8 +33,14 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
    */
   const transform = useCallback(
     async (doUpdate: boolean) => {
+      setErrMsg("");
+
       if (inputDataCtxt === null) {
         setErrMsg("Please choose a valid data context to transform.");
+        return;
+      }
+      if (predicate === "") {
+        setErrMsg("Please enter a non-empty expression to filter by");
         return;
       }
 

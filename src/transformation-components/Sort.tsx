@@ -27,13 +27,14 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
 
   const transform = useCallback(
     async (doUpdate: boolean) => {
+      setErrMsg("");
+
       if (inputDataCtxt === null) {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-
       if (keyExpression === "") {
-        setErrMsg("Key expression cannot be empty.");
+        setErrMsg("Please enter a non-empty key expression");
         return;
       }
 

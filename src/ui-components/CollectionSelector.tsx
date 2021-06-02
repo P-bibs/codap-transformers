@@ -24,7 +24,6 @@ export default function CollectionSelector({
       }))}
       value={value}
       defaultValue="Select a collection"
-      showValue={true}
     />
   );
 }

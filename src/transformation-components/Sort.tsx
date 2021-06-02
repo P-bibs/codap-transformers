@@ -12,6 +12,7 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { CodapEvalError } from "../utils/codapPhone/error";
 
 export function Sort({ setErrMsg }: TransformationProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
@@ -41,7 +42,7 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const result = sort(dataset, keyExpression);
+        const result = await sort(dataset, keyExpression);
         await applyNewDataSet(
           result,
           `Sort of ${ctxtTitle(context)}`,
@@ -51,7 +52,11 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
           setErrMsg
         );
       } catch (e) {
-        setErrMsg(e.message);
+        if (e instanceof CodapEvalError) {
+          setErrMsg(e.error);
+        } else {
+          setErrMsg(e.toString());
+        }
       }
     },
     [inputDataCtxt, setErrMsg, keyExpression, lastContextName]

@@ -10,6 +10,7 @@ import {
 } from "../ui-components";
 import { useContextUpdateListenerWithFlowEffect } from "../utils/hooks";
 import { getContextAndDataSet } from "../utils/codapPhone";
+import { CodapEvalError } from "../utils/codapPhone/error";
 
 interface TransformColumnProps {
   setErrMsg: (s: string | null) => void;
@@ -54,7 +55,11 @@ export function TransformColumn({
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const transformed = transformColumn(dataset, attributeName, expression);
+        const transformed = await transformColumn(
+          dataset,
+          attributeName,
+          expression
+        );
         await applyNewDataSet(
           transformed,
           `Transform Column of ${ctxtTitle(context)}`,
@@ -64,7 +69,11 @@ export function TransformColumn({
           setErrMsg
         );
       } catch (e) {
-        setErrMsg(e.message);
+        if (e instanceof CodapEvalError) {
+          setErrMsg(e.error);
+        } else {
+          setErrMsg(e.toString());
+        }
       }
     },
     [inputDataCtxt, attributeName, expression, lastContextName, setErrMsg]

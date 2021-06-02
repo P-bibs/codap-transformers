@@ -1,35 +1,37 @@
 import { DataSet } from "./types";
-import { dataItemToEnv } from "./util";
-import { evaluate } from "../language";
+import { evalExpression } from "../utils/codapPhone";
 
 /**
  * Filter produces a dataset with certain records excluded
  * depending on a given predicate.
  */
-export function filter(dataset: DataSet, predicate: string): DataSet {
-  const filteredRecords = [];
+export async function filter(
+  dataset: DataSet,
+  predicate: string
+): Promise<DataSet> {
+  const filteredRecords: Record<string, unknown>[] = [];
 
-  for (const dataItem of dataset.records) {
-    // bind attribute names to values from this record,
-    // evaluate the predicate in this environment
-    const dataEnv = dataItemToEnv(dataItem);
-    const result = evaluate(predicate, dataEnv);
+  // evaluate predicate at each case in the dataset
+  const predValues = await evalExpression(predicate, dataset.records);
 
-    // type error if predicate does not evaluate to a boolean
-    if (result.kind !== "Bool") {
+  predValues.forEach((value, i) => {
+    if (value !== true && value !== false) {
       throw new Error(
-        `Expected filter condition to evaluate to true/false, instead got a ${result.kind}`
+        `expected filter predicate to evaluate to true/false, but got ${value} at case ${
+          i + 1
+        }`
       );
     }
-    // include in filter if expression evaluated to true
-    if (result.content) {
-      filteredRecords.push(dataItem);
-    }
-  }
 
-  // dataset with same context but filtered records
-  return {
-    collections: dataset.collections.slice(),
-    records: filteredRecords,
-  };
+    if (value) {
+      filteredRecords.push({ ...dataset.records[i] });
+    }
+  });
+
+  return new Promise((resolve) =>
+    resolve({
+      collections: dataset.collections.slice(),
+      records: filteredRecords,
+    })
+  );
 }

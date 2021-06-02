@@ -1,31 +1,33 @@
 import { DataSet } from "./types";
-import { dataItemToEnv } from "./util";
-import { evaluate } from "../language";
+import { evalExpression } from "../utils/codapPhone";
 
 /**
  * Produces a dataset with the indicated attribute's values transformed
  * to be the result of evaluating the given expression in the context
  * of each case.
  */
-export function transformColumn(
+export async function transformColumn(
   dataset: DataSet,
   attributeName: string,
   expression: string
-): DataSet {
+): Promise<DataSet> {
   const records = dataset.records.slice();
-  for (const record of records) {
+  const exprValues = await evalExpression(expression, records);
+
+  exprValues.forEach((value, i) => {
+    const record = records[i];
+
     if (record[attributeName] === undefined) {
-      throw new Error(`invalid attribute name: ${attributeName}`);
+      throw new Error(`invalid attribute to transform: ${attributeName}`);
     }
 
-    // transform each cell under this attribute by evaluating
-    // expression in the env determined by the record
-    const env = dataItemToEnv(record);
-    record[attributeName] = evaluate(expression, env).content;
-  }
+    record[attributeName] = value;
+  });
 
-  return {
-    collections: dataset.collections.slice(),
-    records,
-  };
+  return new Promise((resolve) =>
+    resolve({
+      collections: dataset.collections.slice(),
+      records,
+    })
+  );
 }

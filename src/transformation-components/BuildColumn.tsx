@@ -13,6 +13,7 @@ import {
   ContextSelector,
   CollectionSelector,
 } from "../ui-components";
+import { CodapEvalError } from "../utils/codapPhone/error";
 
 interface BuildColumnProps {
   setErrMsg: (s: string | null) => void;
@@ -64,7 +65,7 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const built = buildColumn(
+        const built = await buildColumn(
           dataset,
           attributeName,
           collectionName,
@@ -79,7 +80,11 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
           setErrMsg
         );
       } catch (e) {
-        setErrMsg(e.message);
+        if (e instanceof CodapEvalError) {
+          setErrMsg(e.error);
+        } else {
+          setErrMsg(e.toString());
+        }
       }
     },
     [

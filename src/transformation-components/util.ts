@@ -33,9 +33,10 @@ export function addUpdateListener(
   inputContext: string,
   outputContext: string,
   doTransform: () => Promise<[DataSet, string]>,
-  setErrMsg: (msg: string) => void
+  setErrMsg: (msg: string | null) => void
 ): void {
   addContextUpdateListener(inputContext, async () => {
+    setErrMsg(null);
     try {
       const [transformed] = await doTransform();
       updateContextWithDataSet(outputContext, transformed);

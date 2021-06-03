@@ -1,6 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
+import { DataSet } from "./types";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -116,4 +117,47 @@ export function insertInRow(
  */
 export function eraseFormulas(attrs: CodapAttribute[]): void {
   attrs.forEach((attr) => (attr.formula = undefined));
+}
+
+/**
+ * Finds an attribute name with the given base that is unique relative
+ * to the given list of attributes.
+ */
+export function uniqueAttrName(base: string, attrs: CodapAttribute[]): string {
+  let name = base;
+  let counter = 0;
+  let conflicts = true;
+  while (conflicts) {
+    conflicts = false;
+    for (const attr of attrs) {
+      if (attr.name === name) {
+        conflicts = true;
+        break;
+      }
+    }
+    if (conflicts) {
+      counter++;
+      name = `${base} (${counter})`;
+    }
+  }
+  return name;
+}
+
+export function getAttributeDataFromDataset(
+  attributeName: string,
+  dataset: DataSet
+): CodapAttribute {
+  let attributeData: CodapAttribute | undefined;
+  for (const collection of dataset.collections) {
+    attributeData =
+      collection.attrs?.find((attribute) => attribute.name === attributeName) ??
+      attributeData;
+  }
+  if (!attributeData) {
+    throw new Error(
+      "Couldn't find first selected attribute in selected context"
+    );
+  }
+
+  return attributeData;
 }

@@ -211,7 +211,7 @@ function compareCategorical(
     if (duplicate === undefined) {
       // If we didn't find a duplicate then just push the record
       records.push({
-        record1,
+        ...record1,
         [DECISION_1_COLUMN_NAME]: record1[attribute1Data.name],
       });
     } else {
@@ -239,7 +239,7 @@ function compareCategorical(
       // Skip this record since we already added it in the first loop
     } else {
       records.push({
-        record2,
+        ...record2,
         [DECISION_2_COLUMN_NAME]: record2[attribute2Data.name],
       });
     }

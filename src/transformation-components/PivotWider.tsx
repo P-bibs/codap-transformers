@@ -64,14 +64,9 @@ export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
     [inputDataCtxt, setErrMsg, lastContextName, namesFrom, valuesFrom]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -93,11 +88,7 @@ export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

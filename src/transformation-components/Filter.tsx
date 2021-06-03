@@ -65,14 +65,9 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
     [inputDataCtxt, predicate, lastContextName, setErrMsg]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -83,11 +78,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       <CodapFlowTextArea onChange={predicateChange} value={predicate} />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

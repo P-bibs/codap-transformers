@@ -65,14 +65,9 @@ export function SelectAttributes({
     [inputDataCtxt, attributes, mode, setErrMsg, lastContextName]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -95,11 +90,7 @@ export function SelectAttributes({
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={lastContextName === null}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

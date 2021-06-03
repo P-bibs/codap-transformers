@@ -81,14 +81,9 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
     ]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -103,11 +98,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={true}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

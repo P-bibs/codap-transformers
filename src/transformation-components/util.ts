@@ -8,31 +8,17 @@ import {
 /**
  * This function takes a dataset as well as a `doUpdate` flag and either
  * creates a new table for the dataset or updates an existing one accordingly.
+ *
+ * @returns The name of the newly created context.
  */
 export async function applyNewDataSet(
   dataSet: DataSet,
-  name: string | undefined,
-  doUpdate: boolean,
-  lastContextName: string | null,
-  setLastContextName: (s: string) => void,
-  setErrMsg: (s: string | null) => void
-): Promise<void> {
-  try {
-    // if doUpdate is true then we should update a previously created table
-    // rather than creating a new one
-    if (doUpdate) {
-      if (!lastContextName) {
-        setErrMsg("Please apply transformation to a new table first.");
-        return;
-      }
-      updateContextWithDataSet(lastContextName, dataSet);
-    } else {
-      const [newContext] = await createTableWithDataSet(dataSet, name);
-      setLastContextName(newContext.name);
-    }
-  } catch (e) {
-    setErrMsg(e.message);
-  }
+  name: string | undefined
+): Promise<string> {
+  // if doUpdate is true then we should update a previously created table
+  // rather than creating a new one
+  const [newContext] = await createTableWithDataSet(dataSet, name);
+  return newContext.name;
 }
 
 /**

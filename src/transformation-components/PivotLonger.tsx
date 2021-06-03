@@ -74,14 +74,9 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
     [inputDataCtxt, attributes, setErrMsg, lastContextName, namesTo, valuesTo]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -102,11 +97,7 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
       <CodapFlowTextInput value={valuesTo} onChange={valuesToChange} />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

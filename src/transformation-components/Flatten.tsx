@@ -50,14 +50,9 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
     [inputDataCtxt, setErrMsg, lastContextName]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -65,11 +60,7 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={true}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

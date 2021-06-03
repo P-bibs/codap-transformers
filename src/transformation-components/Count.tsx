@@ -58,14 +58,9 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
     [inputDataCtxt, attributes, setErrMsg, lastContextName]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -80,11 +75,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={true}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

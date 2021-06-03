@@ -88,8 +88,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
     lastContextName,
     () => {
       transform(true);
-    },
-    [transform]
+    }
   );
 
   useContextUpdateListenerWithFlowEffect(
@@ -97,8 +96,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
     lastContextName,
     () => {
       transform(true);
-    },
-    [transform]
+    }
   );
 
   return (
@@ -144,11 +142,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

@@ -83,8 +83,7 @@ export function Join({ setErrMsg }: JoinProps): ReactElement {
     lastContextName,
     () => {
       transform(true);
-    },
-    [transform]
+    }
   );
 
   useContextUpdateListenerWithFlowEffect(
@@ -92,8 +91,7 @@ export function Join({ setErrMsg }: JoinProps): ReactElement {
     lastContextName,
     () => {
       transform(true);
-    },
-    [transform]
+    }
   );
 
   return (
@@ -124,11 +122,7 @@ export function Join({ setErrMsg }: JoinProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

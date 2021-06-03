@@ -62,14 +62,9 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
     [inputDataCtxt, setErrMsg, keyExpression, lastContextName]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -79,11 +74,7 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
       <p>Key expression</p>
       <CodapFlowTextArea value={keyExpression} onChange={keyExpressionChange} />
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={true}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

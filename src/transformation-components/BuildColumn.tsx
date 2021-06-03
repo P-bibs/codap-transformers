@@ -97,14 +97,9 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
     ]
   );
 
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
+    transform(true);
+  });
 
   return (
     <>
@@ -128,11 +123,7 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
       <CodapFlowTextArea value={expression} onChange={expressionChange} />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={() => transform(false)} />
     </>
   );
 }

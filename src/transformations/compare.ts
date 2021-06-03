@@ -11,8 +11,8 @@ const GREEN = "rgb(0,255,0)";
 const RED = "rgb(255,0,0)";
 const GREY = "rgb(100,100,100)";
 
-const DECISION_1_COLUMN_NAME = "Decision 1";
-const DECISION_2_COLUMN_NAME = "Decision 2";
+const DECISION_1_COLUMN_NAME = "Category 1";
+const DECISION_2_COLUMN_NAME = "Category 2";
 
 export type CompareType = "numeric" | "categorical" | "structural";
 

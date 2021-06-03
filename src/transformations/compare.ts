@@ -256,7 +256,9 @@ function objectsAreEqualForKeys(
   object2: Record<string, unknown>,
   keys: string[]
 ): boolean {
-  return keys.every((key) => object1[key] === object2[key]);
+  return keys.every(
+    (key) => JSON.stringify(object1[key]) === JSON.stringify(object2[key])
+  );
 }
 
 function compareRecordsNumerical(

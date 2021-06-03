@@ -196,7 +196,10 @@ function compareCategorical(
 
   const records = [];
 
+  // Loop through all records in the first data context
   for (const record1 of dataset1.records) {
+    // We consider a record a duplicate between the two contexts if
+    // it has equal values for all attributes which the two contexts share
     const duplicate = dataset2.records.find((record2) =>
       objectsAreEqualForKeys(
         record1,
@@ -204,16 +207,26 @@ function compareCategorical(
         attributesIntersection.map((attr) => attr.name)
       )
     );
-    if (duplicate !== undefined) {
+
+    if (duplicate === undefined) {
+      // If we didn't find a duplicate then just push the record
+      records.push({
+        record1,
+        [DECISION_1_COLUMN_NAME]: record1[attribute1Data.name],
+      });
+    } else {
+      // If we did find a duplicate then merge the records, set the decision
+      // attribute values, and push
       records.push({
         ...record1,
         ...duplicate,
+        [DECISION_1_COLUMN_NAME]: record1[attribute1Data.name],
+        [DECISION_2_COLUMN_NAME]: duplicate[attribute2Data.name],
       });
-    } else {
-      records.push(record1);
     }
   }
 
+  // Same logic as above loop
   for (const record2 of dataset2.records) {
     const duplicate = dataset1.records.find((record1) =>
       objectsAreEqualForKeys(
@@ -225,18 +238,12 @@ function compareCategorical(
     if (duplicate !== undefined) {
       // Skip this record since we already added it in the first loop
     } else {
-      records.push(record2);
+      records.push({
+        record2,
+        [DECISION_2_COLUMN_NAME]: record2[attribute2Data.name],
+      });
     }
   }
-
-  records.forEach((record) => {
-    if (record[attribute1Data.name] !== undefined) {
-      record[DECISION_1_COLUMN_NAME] = record[attribute1Data.name];
-    }
-    if (record[attribute2Data.name] !== undefined) {
-      record[DECISION_2_COLUMN_NAME] = record[attribute2Data.name];
-    }
-  });
 
   return {
     collections,

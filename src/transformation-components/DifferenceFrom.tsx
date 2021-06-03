@@ -34,6 +34,8 @@ export function DifferenceFrom({
   >("0", () => setErrMsg(null));
 
   const transform = useCallback(async () => {
+    setErrMsg(null);
+
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid data context to transform.");
       return;

@@ -29,6 +29,8 @@ export function Join({ setErrMsg }: JoinProps): ReactElement {
     useState<string | null>(null);
 
   const transform = useCallback(async () => {
+    setErrMsg(null);
+
     if (
       !inputDataContext1 ||
       !inputDataContext2 ||

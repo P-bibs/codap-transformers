@@ -21,6 +21,8 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
    * producing an output table in CODAP.
    */
   const transform = useCallback(async () => {
+    setErrMsg(null);
+
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid data context to flatten.");
       return;

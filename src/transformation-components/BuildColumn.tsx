@@ -40,6 +40,8 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
    * and generates an output table into CODAP containing the transformed data.
    */
   const transform = useCallback(async () => {
+    setErrMsg(null);
+
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid data context to transform.");
       return;

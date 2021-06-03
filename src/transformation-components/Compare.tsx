@@ -32,6 +32,8 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
   const [isCategorical, setIsCategorical] = useState<boolean>(false);
 
   const transform = useCallback(async () => {
+    setErrMsg(null);
+
     if (
       !inputDataContext1 ||
       !inputDataContext2 ||

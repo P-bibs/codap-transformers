@@ -95,13 +95,12 @@ export function useInput<T, E extends ElementWithValue>(
  */
 export function useContextUpdateListener(
   contextName: string,
-  callback: () => void,
-  dependencies: unknown[]
+  callback: () => void
 ): void {
   useEffect(() => {
     addContextUpdateListener(contextName, callback);
     return () => removeContextUpdateListener(contextName, callback);
-  }, [contextName, callback, ...dependencies]);
+  }, [contextName, callback]);
 }
 
 /**
@@ -113,18 +112,13 @@ export function useContextUpdateListener(
 export function useContextUpdateListenerWithFlowEffect(
   sourceContext: string | null,
   destinationContext: string | null,
-  flowCallback: () => void,
-  dependencies: unknown[]
+  flowCallback: () => void
 ): void {
   // We use an unsafe cast from string | null to string here, but it's ok because
   // there's a check for sourceContext !== null inside the callback
-  useContextUpdateListener(
-    sourceContext as string,
-    () => {
-      if (sourceContext !== null && destinationContext !== null) {
-        flowCallback();
-      }
-    },
-    [destinationContext, flowCallback, ...dependencies]
-  );
+  useContextUpdateListener(sourceContext as string, () => {
+    if (sourceContext !== null && destinationContext !== null) {
+      flowCallback();
+    }
+  });
 }

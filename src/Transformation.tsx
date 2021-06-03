@@ -25,6 +25,7 @@ import {
 import { PivotLonger } from "./transformation-components/PivotLonger";
 import { PivotWider } from "./transformation-components/PivotWider";
 import { Join } from "./transformation-components/Join";
+import { Copy } from "./transformation-components/Copy";
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -68,6 +69,7 @@ function Transformation(): ReactElement {
     "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
     Join: <Join setErrMsg={setErrMsg} />,
     Eval: <Eval setErrMsg={setErrMsg} />,
+    Copy: <Copy setErrMsg={setErrMsg} />,
   };
 
   const transformGroups: Record<string, string[]> = {
@@ -92,6 +94,7 @@ function Transformation(): ReactElement {
       "Pivot Wider",
       "Join",
       "Eval",
+      "Copy",
     ],
   };
 

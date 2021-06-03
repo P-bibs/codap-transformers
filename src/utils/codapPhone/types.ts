@@ -30,6 +30,13 @@ type UpdateInteractiveFrameRequest = {
   values: Partial<Omit<InteractiveFrame, "interactiveState">>;
 };
 
+type CreateInteractiveFrameRequest = {
+  action: CodapActions.Create;
+  resource: CodapResource.InteractiveFrame;
+
+  values: {url: string, name?: string};
+};
+
 type GetContextListRequest = {
   action: CodapActions.Get;
   resource: CodapResource.DataContextList;
@@ -149,6 +156,7 @@ type EvalExpressionResponse =
     };
 
 export type CodapPhone = {
+  call(r: CreateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
   call(r: UpdateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
   call(r: GetContextListRequest, cb: (r: ListResponse) => void): void;
   call(r: GetListRequest, cb: (r: ListResponse) => void): void;

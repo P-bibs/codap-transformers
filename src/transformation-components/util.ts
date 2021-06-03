@@ -5,7 +5,6 @@ import {
   updateContextWithDataSet,
   addContextUpdateListener,
 } from "../utils/codapPhone";
-import { CodapEvalError } from "../utils/codapPhone/error";
 
 /**
  * This function takes a dataset as well as a `doUpdate` flag and either
@@ -41,11 +40,7 @@ export function addUpdateListener(
       const [transformed] = await doTransform();
       updateContextWithDataSet(outputContext, transformed);
     } catch (e) {
-      if (e instanceof CodapEvalError) {
-        setErrMsg(`Error updating ${outputContext}: ${e.message}`);
-      } else {
-        setErrMsg(`Error updating ${outputContext}: ${e.toString()}`);
-      }
+      setErrMsg(`Error updating ${outputContext}: ${e.message}`);
     }
   });
 }

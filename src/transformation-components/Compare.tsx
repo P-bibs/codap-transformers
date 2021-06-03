@@ -62,8 +62,18 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
 
     try {
       const newContextName = await applyNewDataSet(...(await doTransform()));
-      addUpdateListener(inputDataContext1, newContextName, doTransform);
-      addUpdateListener(inputDataContext2, newContextName, doTransform);
+      addUpdateListener(
+        inputDataContext1,
+        newContextName,
+        doTransform,
+        setErrMsg
+      );
+      addUpdateListener(
+        inputDataContext2,
+        newContextName,
+        doTransform,
+        setErrMsg
+      );
     } catch (e) {
       setErrMsg(e.message);
     }

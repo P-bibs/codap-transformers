@@ -44,7 +44,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
 
     try {
       const newContextName = await applyNewDataSet(...(await doTransform()));
-      addUpdateListener(inputDataCtxt, newContextName, doTransform);
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
     } catch (e) {
       setErrMsg(e.message);
     }

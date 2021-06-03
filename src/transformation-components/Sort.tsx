@@ -42,7 +42,7 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
 
     try {
       const newContextName = await applyNewDataSet(...(await doTransform()));
-      addUpdateListener(inputDataCtxt, newContextName, doTransform);
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
     } catch (e) {
       if (e instanceof CodapEvalError) {
         setErrMsg(e.error);

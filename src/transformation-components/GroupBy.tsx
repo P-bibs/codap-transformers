@@ -1,11 +1,9 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useInput,
-  useContextUpdateListenerWithFlowEffect,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { groupBy } from "../transformations/groupBy";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { DataSet } from "../transformations/types";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import {
   TransformationSubmitButtons,
   ContextSelector,
@@ -22,46 +20,35 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
   const [attributes, setAttributes] = useState<string[]>([]);
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
-      if (attributes.length === 0) {
-        setErrMsg("Please choose at least one attribute to group by");
-        return;
-      }
+  const transform = useCallback(async () => {
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (attributes.length === 0) {
+      setErrMsg("Please choose at least one attribute to group by");
+      return;
+    }
 
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const parentName = `Grouped by ${attributes.join(", ")}`;
+      const grouped = groupBy(dataset, attributes, parentName);
+      return [grouped, `Group By of ${ctxtTitle(context)}`];
+    };
 
-      try {
-        const grouped = groupBy(dataset, attributes, parentName);
-        await applyNewDataSet(
-          grouped,
-          `Group By of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [inputDataCtxt, attributes, setErrMsg, lastContextName]
-  );
-
-  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
-    transform(true);
-  });
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [inputDataCtxt, attributes, setErrMsg]);
 
   return (
     <>
@@ -76,7 +63,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons onCreate={() => transform(false)} />
+      <TransformationSubmitButtons onCreate={transform} />
     </>
   );
 }

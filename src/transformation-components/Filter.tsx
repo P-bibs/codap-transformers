@@ -1,16 +1,14 @@
-import React, { useCallback, ReactElement, useState } from "react";
+import React, { useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { filter } from "../transformations/filter";
+import { DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
   CodapFlowTextArea,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { CodapEvalError } from "../utils/codapPhone/error";
 
 interface FilterProps {
@@ -26,48 +24,34 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
     "",
     () => setErrMsg(null)
   );
-  const [lastContextName, setLastContextName] = useState<string | null>(null);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
+  const transform = useCallback(async () => {
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
 
-      console.log(`Data context to filter: ${inputDataCtxt}`);
-      console.log(`Filter predicate to apply:\n${predicate}`);
-
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const filtered = await filter(dataset, predicate);
+      return [filtered, `Filter of ${ctxtTitle(context)}`];
+    };
 
-      try {
-        const filtered = await filter(dataset, predicate);
-        await applyNewDataSet(
-          filtered,
-          `Filter of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        if (e instanceof CodapEvalError) {
-          setErrMsg(e.error);
-        } else {
-          setErrMsg(e.toString());
-        }
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform);
+    } catch (e) {
+      if (e instanceof CodapEvalError) {
+        setErrMsg(e.error);
+      } else {
+        setErrMsg(e.toString());
       }
-    },
-    [inputDataCtxt, predicate, lastContextName, setErrMsg]
-  );
-
-  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
-    transform(true);
-  });
+    }
+  }, [inputDataCtxt, predicate, setErrMsg]);
 
   return (
     <>
@@ -78,7 +62,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       <CodapFlowTextArea onChange={predicateChange} value={predicate} />
 
       <br />
-      <TransformationSubmitButtons onCreate={() => transform(false)} />
+      <TransformationSubmitButtons onCreate={transform} />
     </>
   );
 }

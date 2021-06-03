@@ -1,16 +1,14 @@
 import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { count } from "../transformations/count";
+import { DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
   ContextSelector,
   MultiAttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 
 interface CountProps {
   setErrMsg: (s: string | null) => void;
@@ -22,45 +20,37 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
   const [attributes, setAttributes] = useState<string[]>([]);
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
-      if (attributes.length === 0) {
-        setErrMsg("Please choose at least one attribute to count");
-        return;
-      }
+  const transform = useCallback(async () => {
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (attributes.length === 0) {
+      setErrMsg("Please choose at least one attribute to count");
+      return;
+    }
 
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const counted = count(dataset, attributes);
+      return [
+        counted,
+        `Count of ${attributes.join(", ")} in ${ctxtTitle(context)}`,
+      ];
+    };
 
-      try {
-        const counted = count(dataset, attributes);
-        await applyNewDataSet(
-          counted,
-          `Count of ${attributes.join(", ")} in ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [inputDataCtxt, attributes, setErrMsg, lastContextName]
-  );
-
-  useContextUpdateListenerWithFlowEffect(inputDataCtxt, lastContextName, () => {
-    transform(true);
-  });
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [inputDataCtxt, attributes, setErrMsg]);
 
   return (
     <>
@@ -75,7 +65,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons onCreate={() => transform(false)} />
+      <TransformationSubmitButtons onCreate={transform} />
     </>
   );
 }

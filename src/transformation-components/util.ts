@@ -3,6 +3,7 @@ import { DataContext } from "../utils/codapPhone/types";
 import {
   createTableWithDataSet,
   updateContextWithDataSet,
+  addContextUpdateListener,
 } from "../utils/codapPhone";
 
 /**
@@ -26,4 +27,15 @@ export async function applyNewDataSet(
  */
 export function ctxtTitle(context: DataContext): string {
   return context.title ? context.title : context.name;
+}
+
+export function addUpdateListener(
+  inputContext: string,
+  outputContext: string,
+  doTransform: () => Promise<[DataSet, string]>
+): void {
+  addContextUpdateListener(inputContext, async () => {
+    const [transformed] = await doTransform();
+    updateContextWithDataSet(outputContext, transformed);
+  });
 }

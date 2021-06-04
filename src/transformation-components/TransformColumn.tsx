@@ -1,9 +1,9 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { useInput } from "../utils/hooks";
+import { useInput, useAttributes } from "../utils/hooks";
 import { transformColumn } from "../transformations/transformColumn";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import {
-  CodapFlowTextArea,
+  ExpressionEditor,
   AttributeSelector,
   TransformationSubmitButtons,
   ContextSelector,
@@ -24,11 +24,9 @@ export function TransformColumn({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
   const [attributeName, attributeNameChange] = useState<string | null>(null);
-  const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
+  const [expression, expressionChange] = useState<string>("");
   const [lastContextName, setLastContextName] = useState<string | null>(null);
+  const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -36,6 +34,8 @@ export function TransformColumn({
    */
   const transform = useCallback(
     async (doUpdate: boolean) => {
+      setErrMsg("");
+
       if (inputDataCtxt === null) {
         setErrMsg("Please choose a valid data context to transform.");
         return;
@@ -98,7 +98,10 @@ export function TransformColumn({
       />
 
       <p>How to Transform Column</p>
-      <CodapFlowTextArea value={expression} onChange={expressionChange} />
+      <ExpressionEditor
+        onChange={expressionChange}
+        attributeNames={attributes.map((a) => a.name)}
+      />
 
       <br />
       <TransformationSubmitButtons

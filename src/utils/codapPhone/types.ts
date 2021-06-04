@@ -34,7 +34,7 @@ type CreateInteractiveFrameRequest = {
   action: CodapActions.Create;
   resource: CodapResource.InteractiveFrame;
 
-  values: {url: string, name?: string};
+  values: { url: string; name?: string };
 };
 
 type GetContextListRequest = {

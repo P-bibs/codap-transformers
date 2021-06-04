@@ -455,7 +455,7 @@ async function createDataContext(
 
 export async function createDataInteractive(
   url: string,
-  name: string,
+  name: string
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
@@ -464,7 +464,7 @@ export async function createDataInteractive(
         resource: CodapResource.InteractiveFrame,
         values: {
           url,
-          name
+          name,
         },
       },
       (response) => {

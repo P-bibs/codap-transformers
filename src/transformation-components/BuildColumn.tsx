@@ -44,14 +44,14 @@ export function BuildColumn({
   );
   const [collectionName, collectionNameChange] = useInput<
     string,
-    HTMLInputElement
+    HTMLSelectElement
   >(saveData !== undefined ? saveData.collectionName : "", () =>
     setErrMsg(null)
   );
-  const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
-    saveData !== undefined ? saveData.expression : "",
-    () => setErrMsg(null)
-  );
+  const [expression, expressionChange, setExpression] = useInput<
+    string,
+    HTMLTextAreaElement
+  >(saveData !== undefined ? saveData.expression : "", () => setErrMsg(null));
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
   const attributes = useAttributes(inputDataCtxt);
@@ -152,7 +152,7 @@ export function BuildColumn({
 
       <p>Formula for Attribute Values</p>
       <ExpressionEditor
-        onChange={expressionChange}
+        onChange={(s) => setExpression(s)}
         attributeNames={attributes.map((a) => a.name)}
       />
 

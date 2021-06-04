@@ -34,17 +34,11 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [inputAttribute1, inputAttribute1OnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(saveData !== undefined ? saveData.inputAttribute1 : "", () =>
-    setErrMsg(null)
+  const [inputAttribute1, setInputAttribute1] = useState<string | null>(
+    saveData !== undefined ? saveData.inputAttribute1 : ""
   );
-  const [inputAttribute2, inputAttribute2OnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(saveData !== undefined ? saveData.inputAttribute2 : "", () =>
-    setErrMsg(null)
+  const [inputAttribute2, setInputAttribute2] = useState<string | null>(
+    saveData !== undefined ? saveData.inputAttribute2 : ""
   );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
@@ -132,7 +126,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
 
       <p>First attribute to Compare</p>
       <AttributeSelector
-        onChange={inputAttribute1OnChange}
+        onChange={(s) => setInputAttribute1(s)}
         value={inputAttribute1}
         context={inputDataContext1}
         disabled={saveData !== undefined}
@@ -140,7 +134,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
 
       <p>Second attribute to Compare</p>
       <AttributeSelector
-        onChange={inputAttribute2OnChange}
+        onChange={(s) => setInputAttribute2(s)}
         value={inputAttribute2}
         context={inputDataContext2}
         disabled={saveData !== undefined}

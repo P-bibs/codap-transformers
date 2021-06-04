@@ -29,9 +29,8 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [predicate, predicateChange] = useInput<string, HTMLTextAreaElement>(
-    saveData !== undefined ? saveData.transformPgrm : "",
-    () => setErrMsg(null)
+  const [predicate, setPredicate] = useState<string>(
+    saveData !== undefined ? saveData.predicate : ""
   );
   const [lastContextName, setLastContextName] = useState<string | null>(null);
   const attributes = useAttributes(inputDataCtxt);
@@ -95,7 +94,7 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
 
       <p>How to Filter</p>
       <ExpressionEditor
-        onChange={predicateChange}
+        onChange={(s) => setPredicate(s)}
         attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}
       />

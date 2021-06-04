@@ -44,6 +44,7 @@ CodeMirror.defineSimpleMode("codapFormula", {
 interface ExpressionEditorProps {
   onChange: (value: string) => void;
   attributeNames?: string[];
+  disabled?: boolean;
 }
 
 const delimiters = new Set([" ", "(", ")", "`"]);
@@ -87,6 +88,7 @@ function getCurrentWord(cm: CodeMirror.Editor): Word {
 export default function ExpressionEditor({
   onChange,
   attributeNames = [],
+  disabled,
 }: ExpressionEditorProps): ReactElement {
   const codapFormulaHints: HintFunction = useCallback(
     async (cm) => {
@@ -134,7 +136,9 @@ export default function ExpressionEditor({
         editor.showHint();
       }}
       onChange={(editor, data, value) => {
-        onChange(value);
+        if (!disabled) {
+          onChange(value);
+        }
       }}
     />
   );

@@ -16,8 +16,8 @@ import { applyNewDataSet, ctxtTitle } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface DifferenceFromSaveData {
-  inputColumnName: string;
-  resultColumnName: string;
+  inputAttributeName: string;
+  resultAttributeName: string;
   startingValue: string;
 }
 
@@ -36,12 +36,12 @@ export function DifferenceFrom({
 
   const [inputAttributeName, inputAttributeNameChange] = useState<
     string | null
-  >(saveData !== undefined ? saveData.inputColumnName : "");
+  >(saveData !== undefined ? saveData.inputAttributeName : "");
 
   const [resultAttributeName, resultAttributeNameChange] = useInput<
     string,
     HTMLInputElement
-  >(saveData !== undefined ? saveData.resultColumnName : "", () =>
+  >(saveData !== undefined ? saveData.resultAttributeName : "", () =>
     setErrMsg(null)
   );
 
@@ -145,8 +145,8 @@ export function DifferenceFrom({
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({
-            inputColumnName,
-            resultColumnName,
+            inputAttributeName,
+            resultAttributeName,
             startingValue,
           })}
         />

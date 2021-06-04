@@ -37,13 +37,6 @@ type UpdateInteractiveFrameRequest = {
   values: Partial<Omit<InteractiveFrame, "interactiveState">>;
 };
 
-type CreateInteractiveFrameRequest = {
-  action: CodapActions.Create;
-  resource: CodapResource.InteractiveFrame;
-
-  values: { url: string; name?: string };
-};
-
 type GetContextListRequest = {
   action: CodapActions.Get;
   resource: CodapResource.DataContextList;

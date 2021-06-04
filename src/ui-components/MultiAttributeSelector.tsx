@@ -49,7 +49,6 @@ export default function MultiAttributeSelector({
             }))}
             value={selected[i]}
             defaultValue="Select an attribute"
-            showValue={true}
             disabled={disabled}
           />
           {i === selected.length ? null : (

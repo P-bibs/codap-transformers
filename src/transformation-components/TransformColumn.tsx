@@ -111,6 +111,7 @@ export function TransformColumn({
 
       <p>How to Transform Column</p>
       <ExpressionEditor
+        value={expression}
         onChange={expressionChange}
         attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}

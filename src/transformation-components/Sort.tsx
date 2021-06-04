@@ -88,6 +88,7 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
 
       <p>Key expression</p>
       <ExpressionEditor
+        value={keyExpression}
         onChange={keyExpressionChange}
         attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}

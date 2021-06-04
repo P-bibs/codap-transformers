@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback } from "react";
-import { UnControlled as CodeMirrorElement } from "react17-codemirror2";
+import { Controlled as CodeMirrorElement } from "react17-codemirror2";
 import { getFunctionNames } from "../utils/codapPhone";
 
 // This is required for defineSimpleMode
@@ -42,6 +42,7 @@ CodeMirror.defineSimpleMode("codapFormula", {
 });
 
 interface ExpressionEditorProps {
+  value: string;
   onChange: (value: string) => void;
   attributeNames?: string[];
   disabled?: boolean;
@@ -86,6 +87,7 @@ function getCurrentWord(cm: CodeMirror.Editor): Word {
 }
 
 export default function ExpressionEditor({
+  value,
   onChange,
   attributeNames = [],
   disabled,
@@ -124,22 +126,29 @@ export default function ExpressionEditor({
   );
 
   return (
-    <CodeMirrorElement
-      options={{
-        mode: "codapFormula",
-        hintOptions: {
-          completeSingle: false,
-          hint: codapFormulaHints,
-        },
-      }}
-      onInputRead={(editor) => {
-        editor.showHint();
-      }}
-      onChange={(editor, data, value) => {
-        if (!disabled) {
-          onChange(value);
-        }
-      }}
-    />
+    <>
+      {disabled && "DISABLED"}
+      <CodeMirrorElement
+        value={value}
+        options={{
+          mode: "codapFormula",
+          hintOptions: {
+            completeSingle: false,
+            hint: codapFormulaHints,
+          },
+        }}
+        onInputRead={(editor) => {
+          editor.showHint();
+        }}
+        onBeforeChange={(editor, data, value) => {
+          if (!disabled) {
+            onChange(value);
+          }
+        }}
+        onChange={(editor, data, value) => {
+          // don't do anything
+        }}
+      />
+    </>
   );
 }

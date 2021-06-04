@@ -94,6 +94,7 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
 
       <p>How to Filter</p>
       <ExpressionEditor
+        value={predicate}
         onChange={(s) => setPredicate(s)}
         attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}

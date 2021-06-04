@@ -144,16 +144,12 @@ export function BuildColumn({
         disabled={saveData !== undefined}
       />
 
-      <p>Name of New Attribute</p>
-      <CodapFlowTextInput
-        value={attributeName}
-        onChange={attributeNameChange}
-      />
-
       <p>Formula for Attribute Values</p>
       <ExpressionEditor
+        value={expression}
         onChange={(s) => setExpression(s)}
         attributeNames={attributes.map((a) => a.name)}
+        disabled={saveData !== undefined}
       />
 
       <br />

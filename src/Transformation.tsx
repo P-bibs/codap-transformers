@@ -79,6 +79,9 @@ function Transformation({
     { name: "Select Attributes", content: { base: "Select Attributes" } },
     { name: "Sort", content: { base: "Sort" } },
     { name: "Transform Column", content: { base: "Transform Column" } },
+    { name: "Join", content: { base: "Join" } },
+    { name: "Eval", content: { base: "Eval" } },
+    { name: "Copy", content: { base: "Copy" } },
   ];
 
   function addTransformation(name: string, data: TransformationSaveData) {

@@ -54,8 +54,10 @@ export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
 
       <p>Formula to Evaluate</p>
       <ExpressionEditor
+        value={transformPgrm}
         onChange={pgrmChange}
         attributeNames={attributes.map((a) => a.name)}
+        disabled={saveData !== undefined}
       />
 
       <br />

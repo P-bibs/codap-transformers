@@ -9,6 +9,7 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
   MultiAttributeSelector,
+  CodapFlowSelect,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import { TransformationProps } from "./types";
@@ -88,17 +89,28 @@ export function SelectAttributes({
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Mode</p>
-      <select id="mode" onChange={modeChange}>
-        <option value="selectOnly">Select only the following attributes</option>
-        <option value="selectAllBut">
-          Select all but the following attributes
-        </option>
-      </select>
+      <CodapFlowSelect
+        onChange={modeChange}
+        options={[
+          {
+            value: "selectOnly",
+            title: "Select only the following attributes",
+          },
+          {
+            value: "selectAllBut",
+            title: "Select all but the following attributes",
+          },
+        ]}
+        value={mode}
+        defaultValue={"Mode"}
+        disabled={saveData !== undefined}
+      />
 
       <p>Attributes</p>
       <MultiAttributeSelector
         context={inputDataCtxt}
-        onChange={setAttributes}
+        selected={attributes}
+        setSelected={setAttributes}
         disabled={saveData !== undefined}
       />
 

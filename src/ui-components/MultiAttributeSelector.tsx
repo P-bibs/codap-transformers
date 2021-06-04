@@ -1,21 +1,22 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
 import { useAttributes } from "../utils/hooks";
 
 interface MultiAttributeSelectorProps {
   context: string | null;
-  onChange: (selected: string[]) => void;
+  selected: string[];
+  setSelected: (selected: string[]) => void;
   disabled?: boolean;
 }
 
 export default function MultiAttributeSelector({
   context,
-  onChange,
   disabled,
+  selected,
+  setSelected,
 }: MultiAttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
-  const [count, setCount] = useState<number>(0);
-  const [selected, setSelected] = useState<string[]>([]);
+  const count = selected?.length || 0;
 
   return (
     <>
@@ -32,10 +33,6 @@ export default function MultiAttributeSelector({
               const newSelected = [...selected];
               newSelected[i] = e.target.value;
               setSelected(newSelected);
-              onChange(newSelected);
-              if (i === count) {
-                setCount(count + 1);
-              }
             }}
             options={attributes.map((attribute) => ({
               value: attribute.name,
@@ -49,7 +46,6 @@ export default function MultiAttributeSelector({
           {i === count ? null : (
             <button
               onClick={() => {
-                setCount(count - 1);
                 setSelected([
                   ...selected.slice(0, i),
                   ...selected.slice(i + 1),

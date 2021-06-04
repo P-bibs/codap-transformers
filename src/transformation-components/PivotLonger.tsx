@@ -105,7 +105,8 @@ export function PivotLonger({
       <p>Attributes to Pivot</p>
       <MultiAttributeSelector
         context={inputDataCtxt}
-        onChange={setAttributes}
+        selected={attributes}
+        setSelected={setAttributes}
         disabled={saveData !== undefined}
       />
 

@@ -84,7 +84,8 @@ export function GroupBy({ setErrMsg, saveData }: GroupByProps): ReactElement {
       <p>Attributes to Group By</p>
       <MultiAttributeSelector
         context={inputDataCtxt}
-        onChange={setAttributes}
+        selected={attributes}
+        setSelected={setAttributes}
         disabled={saveData !== undefined}
       />
 

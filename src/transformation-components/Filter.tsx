@@ -1,12 +1,12 @@
-import React, { useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { useInput } from "../utils/hooks";
+import { useInput, useAttributes } from "../utils/hooks";
 import { filter } from "../transformations/filter";
 import { DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
-  CodapFlowTextArea,
   ContextSelector,
+  ExpressionEditor,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { CodapEvalError } from "../utils/codapPhone/error";
@@ -20,10 +20,8 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [predicate, predicateChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
+  const [predicate, predicateChange] = useState<string>("");
+  const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -34,6 +32,11 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
 
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+
+    if (predicate === "") {
+      setErrMsg("Please enter a non-empty expression to filter by");
       return;
     }
 
@@ -61,7 +64,10 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>How to Filter</p>
-      <CodapFlowTextArea onChange={predicateChange} value={predicate} />
+      <ExpressionEditor
+        onChange={predicateChange}
+        attributeNames={attributes.map((a) => a.name)}
+      />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />

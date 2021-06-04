@@ -1,11 +1,11 @@
-import React, { useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { useInput } from "../utils/hooks";
+import { useInput, useAttributes } from "../utils/hooks";
 import { buildColumn } from "../transformations/buildColumn";
 import { DataSet } from "../transformations/types";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import {
-  CodapFlowTextArea,
+  ExpressionEditor,
   CodapFlowTextInput,
   TransformationSubmitButtons,
   ContextSelector,
@@ -30,10 +30,8 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
-    "",
-    () => setErrMsg(null)
-  );
+  const [expression, expressionChange] = useState<string>("");
+  const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -101,7 +99,10 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
       />
 
       <p>Formula for Attribute Values</p>
-      <CodapFlowTextArea value={expression} onChange={expressionChange} />
+      <ExpressionEditor
+        onChange={expressionChange}
+        attributeNames={attributes.map((a) => a.name)}
+      />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />

@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from "react";
+import React, { ReactElement, useEffect } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
 import { useAttributes } from "../utils/hooks";
 

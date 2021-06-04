@@ -24,9 +24,20 @@ export async function transformColumn(
     record[attributeName] = value;
   });
 
+  const collections = dataset.collections.slice();
+  for (const coll of collections) {
+    const attr = coll.attrs?.find((attr) => attr.name === attributeName);
+
+    // erase the transformed attribute's formula
+    if (attr !== undefined) {
+      attr.formula = undefined;
+      break;
+    }
+  }
+
   return new Promise((resolve) =>
     resolve({
-      collections: dataset.collections.slice(),
+      collections,
       records,
     })
   );

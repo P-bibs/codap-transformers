@@ -46,10 +46,10 @@ export function Eval({ setErrMsg }: EvalProps): ReactElement {
 
   return (
     <>
-      <p>Table to Filter</p>
+      <p>Table to Evaluate On</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>How to Filter</p>
+      <p>Formula to Evaluate</p>
       <ExpressionEditor
         onChange={pgrmChange}
         attributeNames={attributes.map((a) => a.name)}

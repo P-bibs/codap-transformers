@@ -1,12 +1,12 @@
-import React, { useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { useInput } from "../utils/hooks";
+import { useInput, useAttributes } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { sort } from "../transformations/sort";
 import { DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
-  CodapFlowTextArea,
+  ExpressionEditor,
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
@@ -18,10 +18,8 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [keyExpression, keyExpressionChange] = useInput<
-    string,
-    HTMLTextAreaElement
-  >("", () => setErrMsg(null));
+  const [keyExpression, keyExpressionChange] = useState<string>("");
+  const attributes = useAttributes(inputDataCtxt);
 
   const transform = useCallback(async () => {
     setErrMsg(null);
@@ -30,9 +28,8 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
       setErrMsg("Please choose a valid data context to transform.");
       return;
     }
-
     if (keyExpression === "") {
-      setErrMsg("Key expression cannot be empty.");
+      setErrMsg("Please enter a non-empty key expression");
       return;
     }
 
@@ -60,7 +57,11 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Key expression</p>
-      <CodapFlowTextArea value={keyExpression} onChange={keyExpressionChange} />
+      <ExpressionEditor
+        onChange={keyExpressionChange}
+        attributeNames={attributes.map((a) => a.name)}
+      />
+
       <br />
       <TransformationSubmitButtons onCreate={transform} />
     </>

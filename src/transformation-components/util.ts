@@ -29,6 +29,15 @@ export function ctxtTitle(context: DataContext): string {
   return context.title ? context.title : context.name;
 }
 
+/**
+ * Set up a listener to update `outputContext` when `inputContext` changes.
+ *
+ * @param inputContext - The input context
+ * @param outputContext - The context to update
+ * @param doTransform - A transformation function that returns the result
+ * dataset
+ * @param setErrMsg - A function that displays the error message to the user
+ */
 export function addUpdateListener(
   inputContext: string,
   outputContext: string,

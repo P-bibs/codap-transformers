@@ -84,6 +84,7 @@ export function GroupBy({ setErrMsg, saveData }: GroupByProps): ReactElement {
       <MultiAttributeSelector
         context={inputDataCtxt}
         onChange={setAttributes}
+        disabled={saveData !== undefined}
       />
 
       <br />

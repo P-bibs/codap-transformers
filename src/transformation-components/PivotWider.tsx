@@ -98,6 +98,7 @@ export function PivotWider({
         onChange={namesFromOnChange}
         value={namesFrom}
         context={inputDataCtxt}
+        disabled={saveData !== undefined}
       />
 
       <p>Values From</p>
@@ -105,6 +106,7 @@ export function PivotWider({
         onChange={valuesFromOnChange}
         value={valuesFrom}
         context={inputDataCtxt}
+        disabled={saveData !== undefined}
       />
 
       <br />

@@ -100,7 +100,11 @@ export function TransformColumn({
       />
 
       <p>How to Transform Column</p>
-      <CodapFlowTextArea value={expression} onChange={expressionChange} />
+      <CodapFlowTextArea
+        value={expression}
+        onChange={expressionChange}
+        disabled={saveData !== undefined}
+      />
 
       <br />
       <TransformationSubmitButtons

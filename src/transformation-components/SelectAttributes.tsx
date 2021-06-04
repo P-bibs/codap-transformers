@@ -98,6 +98,7 @@ export function SelectAttributes({
       <MultiAttributeSelector
         context={inputDataCtxt}
         onChange={setAttributes}
+        disabled={saveData !== undefined}
       />
 
       <br />

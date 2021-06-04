@@ -136,6 +136,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
         onChange={inputAttribute1OnChange}
         value={inputAttribute1}
         context={inputDataContext1}
+        disabled={saveData !== undefined}
       />
 
       <p>Second attribute to Compare</p>
@@ -143,6 +144,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
         onChange={inputAttribute2OnChange}
         value={inputAttribute2}
         context={inputDataContext2}
+        disabled={saveData !== undefined}
       />
 
       <p>What kind of Comparison?</p>
@@ -158,6 +160,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
         ]}
         value={isCategorical ? "categorical" : "numeric"}
         defaultValue="Select a type"
+        disabled={saveData !== undefined}
       />
 
       <br />

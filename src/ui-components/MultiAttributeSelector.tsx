@@ -5,11 +5,13 @@ import { useAttributes } from "../utils/hooks";
 interface MultiAttributeSelectorProps {
   context: string | null;
   onChange: (selected: string[]) => void;
+  disabled?: boolean;
 }
 
 export default function MultiAttributeSelector({
   context,
   onChange,
+  disabled,
 }: MultiAttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
   const [count, setCount] = useState<number>(0);
@@ -42,6 +44,7 @@ export default function MultiAttributeSelector({
             value={selected[i]}
             defaultValue="Select an attribute"
             showValue={true}
+            disabled={disabled}
           />
           {i === count ? null : (
             <button
@@ -52,6 +55,7 @@ export default function MultiAttributeSelector({
                   ...selected.slice(i + 1),
                 ]);
               }}
+              disabled={disabled}
             >
               🗙
             </button>

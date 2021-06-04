@@ -83,6 +83,7 @@ export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
       <MultiAttributeSelector
         context={inputDataCtxt}
         onChange={setAttributes}
+        disabled={saveData !== undefined}
       />
 
       <br />

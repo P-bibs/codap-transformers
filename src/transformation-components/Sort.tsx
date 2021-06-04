@@ -82,7 +82,11 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Key expression</p>
-      <CodapFlowTextArea value={keyExpression} onChange={keyExpressionChange} />
+      <CodapFlowTextArea
+        value={keyExpression}
+        onChange={keyExpressionChange}
+        disabled={saveData !== undefined}
+      />
       <br />
       <TransformationSubmitButtons
         onCreate={() => transform(false)}

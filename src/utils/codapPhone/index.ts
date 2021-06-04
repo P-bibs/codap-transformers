@@ -22,12 +22,17 @@ import {
   CodapIdentifyingInfo,
   CaseTable,
   GetDataListResponse,
+  GetFunctionNamesResponse,
   CodapAttribute,
   ExcludeNonObject,
 } from "./types";
-import { contextUpdateListeners, callAllContextListeners } from "./listeners";
+import {
+  callUpdateListenersForContext,
+  callAllContextListeners,
+} from "./listeners";
 import { DataSet } from "../../transformations/types";
-import { DirectoryWatcherCallback } from "typescript";
+import { CodapEvalError } from "./error";
+import { uniqueName } from "../names";
 
 export {
   addNewContextListener,
@@ -166,9 +171,7 @@ function codapRequestHandler(
           command.resource.search("\\[") + 1,
           command.resource.length - 1
         );
-        if (contextUpdateListeners[contextName]) {
-          contextUpdateListeners[contextName]();
-        }
+        callUpdateListenersForContext(contextName);
         callback({ success: true });
         return;
       }
@@ -460,8 +463,8 @@ export async function createDataInteractive(
         action: CodapActions.Create,
         resource: CodapResource.InteractiveFrame,
         values: {
-          name,
           url,
+          name,
         },
       },
       (response) => {
@@ -813,21 +816,10 @@ async function ensureUniqueName(
     )
   );
 
-  const names = resourceList.map((x) => x.name);
-
-  // If the name doesn't already exist we can return it as is
-  if (!names.includes(name)) {
-    return name;
-  }
-
-  const numberedName = (name: string, i: number) => `${name} (${i})`;
-
-  // Otherwise find a suffix for the name that makes it unique
-  let i = 1;
-  while (names.includes(numberedName(name, i))) {
-    i += 1;
-  }
-  return numberedName(name, i);
+  return uniqueName(
+    name,
+    resourceList.map((x) => x.name)
+  );
 }
 
 export async function createTableWithDataSet(
@@ -861,3 +853,59 @@ export async function createTableWithDataSet(
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];
 }
+
+export function evalExpression(
+  expr: string,
+  records: Record<string, unknown>[]
+): Promise<unknown[]> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: CodapResource.EvalExpression,
+        values: {
+          source: expr,
+          records: records,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          console.group("Eval");
+          console.log(response.values);
+          console.groupEnd();
+          resolve(response.values);
+        } else {
+          // In this case, values is an error message
+          reject(new CodapEvalError(expr, response.values.error));
+        }
+      }
+    )
+  );
+}
+
+export const getFunctionNames: () => Promise<string[]> = (() => {
+  // Remember result
+  let names: string[] | null = null;
+  return () => {
+    return new Promise<string[]>((resolve, reject) => {
+      if (names !== null) {
+        resolve(names);
+        return;
+      }
+      phone.call(
+        {
+          action: CodapActions.Get,
+          resource: CodapResource.FunctionNames,
+        },
+        (response: GetFunctionNamesResponse) => {
+          if (response.success) {
+            names = response.values;
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to get function names"));
+          }
+        }
+      );
+    });
+  };
+})();

@@ -8,7 +8,6 @@ interface CodapFlowSelectProps<T extends string | number> {
     value: T;
     title: string;
   }[];
-  showValue?: boolean;
   disabled?: boolean;
 }
 
@@ -17,12 +16,13 @@ export default function CodapFlowSelect<T extends string | number>({
   value,
   defaultValue,
   options,
-  showValue,
   disabled,
 }: CodapFlowSelectProps<T>): ReactElement {
-  // showValue is false by default
-  if (showValue === undefined || showValue === null) {
-    showValue = false;
+  const titles = options.map((option) => option.title);
+
+  // Determines if more than one option use the given title
+  function ambiguousTitle(title: string): boolean {
+    return titles.filter((t) => t === title).length > 1;
   }
 
   return (
@@ -36,7 +36,10 @@ export default function CodapFlowSelect<T extends string | number>({
       </option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
-          {showValue ? `${option.title} (${option.value})` : option.title}
+          {/* disambiguate titles by showing value also if needed */}
+          {ambiguousTitle(option.title)
+            ? `${option.title} (${option.value})`
+            : option.title}
         </option>
       ))}
     </select>

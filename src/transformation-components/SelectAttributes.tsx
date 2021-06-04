@@ -47,6 +47,8 @@ export function SelectAttributes({
    */
   const transform = useCallback(
     async (doUpdate: boolean) => {
+      setErrMsg(null);
+
       if (inputDataCtxt === null) {
         setErrMsg("Please choose a valid data context to transform.");
         return;
@@ -118,7 +120,7 @@ export function SelectAttributes({
       <TransformationSubmitButtons
         onCreate={() => transform(false)}
         onUpdate={() => transform(true)}
-        updateDisabled={true}
+        updateDisabled={lastContextName === null}
       />
       {saveData === undefined && (
         <TransformationSaveButton

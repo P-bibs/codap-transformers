@@ -31,14 +31,13 @@ export function PivotWider({
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [namesFrom, namesFromOnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(saveData !== undefined ? saveData.namesFrom : null, () => setErrMsg(null));
-  const [valuesFrom, valuesFromOnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(saveData !== undefined ? saveData.valuesFrom : null, () => setErrMsg(null));
+
+  const [namesFrom, namesFromOnChange] = useState<string | null>(
+    saveData !== undefined ? saveData.namesFrom : null
+  );
+  const [valuesFrom, valuesFromOnChange] = useState<string | null>(
+    saveData !== undefined ? saveData.valuesFrom : null
+  );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 

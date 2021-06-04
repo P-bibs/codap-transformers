@@ -22,7 +22,6 @@ export default function ContextSelector({
       }))}
       value={value}
       defaultValue="Select a Data Context"
-      showValue={true}
     />
   );
 }

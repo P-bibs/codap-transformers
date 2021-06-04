@@ -1,25 +1,23 @@
-import React, { useEffect, useCallback, ReactElement, useState } from "react";
-import {
-  addContextUpdateListener,
-  removeContextUpdateListener,
-  getContextAndDataSet,
-} from "../utils/codapPhone";
+import React, { useCallback, ReactElement, useState } from "react";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
+  useAttributes,
 } from "../utils/hooks";
 import { filter } from "../transformations/filter";
 import {
   TransformationSubmitButtons,
-  CodapFlowTextArea,
   ContextSelector,
+  ExpressionEditor,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { TransformationProps } from "./types";
+import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface FilterSaveData {
-  transformPgrm: string;
+  predicate: string;
 }
 
 interface FilterProps extends TransformationProps {
@@ -31,11 +29,12 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [transformPgrm, pgrmChange] = useInput<string, HTMLTextAreaElement>(
+  const [predicate, predicateChange] = useInput<string, HTMLTextAreaElement>(
     saveData !== undefined ? saveData.transformPgrm : "",
     () => setErrMsg(null)
   );
   const [lastContextName, setLastContextName] = useState<string | null>(null);
+  const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -43,18 +42,24 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
    */
   const transform = useCallback(
     async (doUpdate: boolean) => {
+      setErrMsg("");
+
       if (inputDataCtxt === null) {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
+      if (predicate === "") {
+        setErrMsg("Please enter a non-empty expression to filter by");
+        return;
+      }
 
       console.log(`Data context to filter: ${inputDataCtxt}`);
-      console.log(`Filter predicate to apply:\n${transformPgrm}`);
+      console.log(`Filter predicate to apply:\n${predicate}`);
 
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const filtered = filter(dataset, transformPgrm);
+        const filtered = await filter(dataset, predicate);
         await applyNewDataSet(
           filtered,
           `Filter of ${ctxtTitle(context)}`,
@@ -64,10 +69,14 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
           setErrMsg
         );
       } catch (e) {
-        setErrMsg(e.message);
+        if (e instanceof CodapEvalError) {
+          setErrMsg(e.error);
+        } else {
+          setErrMsg(e.toString());
+        }
       }
     },
-    [inputDataCtxt, transformPgrm, lastContextName, setErrMsg]
+    [inputDataCtxt, predicate, lastContextName, setErrMsg]
   );
 
   useContextUpdateListenerWithFlowEffect(
@@ -79,24 +88,15 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
     [transform]
   );
 
-  useEffect(() => {
-    if (inputDataCtxt !== null) {
-      addContextUpdateListener(inputDataCtxt, () => {
-        transform(true);
-      });
-      return () => removeContextUpdateListener(inputDataCtxt);
-    }
-  }, [transform, inputDataCtxt]);
-
   return (
     <>
       <p>Table to Filter</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>How to Filter</p>
-      <CodapFlowTextArea
-        onChange={pgrmChange}
-        value={transformPgrm}
+      <ExpressionEditor
+        onChange={predicateChange}
+        attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}
       />
 
@@ -109,7 +109,7 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({
-            transformPgrm,
+            predicate,
           })}
         />
       )}

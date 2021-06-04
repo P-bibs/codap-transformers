@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
 import { useAttributes } from "../utils/hooks";
 
@@ -18,9 +18,18 @@ export default function MultiAttributeSelector({
   const attributes = useAttributes(context);
   const count = selected?.length || 0;
 
+  // If selected contains an outdated value (attribute name that has been)
+  // deleted, then filter out the value
+  useEffect(() => {
+    const attrNames = attributes.map((a) => a.name);
+    if (selected.some((a) => !attrNames.includes(a))) {
+      setSelected(selected.filter((a) => attrNames.includes(a)));
+    }
+  }, [attributes, selected, setSelected]);
+
   return (
     <>
-      {[...Array(count + 1).keys()].map((i) => (
+      {[...Array(selected.length + 1).keys()].map((i) => (
         <div
           key={i}
           style={{
@@ -43,7 +52,7 @@ export default function MultiAttributeSelector({
             showValue={true}
             disabled={disabled}
           />
-          {i === count ? null : (
+          {i === selected.length ? null : (
             <button
               onClick={() => {
                 setSelected([

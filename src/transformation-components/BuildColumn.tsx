@@ -3,17 +3,20 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useInput,
   useContextUpdateListenerWithFlowEffect,
+  useAttributes,
 } from "../utils/hooks";
 import { buildColumn } from "../transformations/buildColumn";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import {
-  CodapFlowTextArea,
+  ExpressionEditor,
   CodapFlowTextInput,
   TransformationSubmitButtons,
   ContextSelector,
+  CollectionSelector,
 } from "../ui-components";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface BuildColumnSaveData {
   attributeName: string;
@@ -51,6 +54,7 @@ export function BuildColumn({
   );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
+  const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -58,16 +62,18 @@ export function BuildColumn({
    */
   const transform = useCallback(
     async (doUpdate: boolean) => {
+      setErrMsg("");
+
       if (inputDataCtxt === null) {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-      if (attributeName === "") {
-        setErrMsg("Please enter a non-empty name for the new attribute");
+      if (collectionName === null) {
+        setErrMsg("Please select a collection to add to");
         return;
       }
-      if (collectionName === "") {
-        setErrMsg("Please enter a non-empty collection name to add to");
+      if (attributeName === "") {
+        setErrMsg("Please enter a non-empty name for the new attribute");
         return;
       }
       if (expression === "") {
@@ -78,7 +84,7 @@ export function BuildColumn({
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const built = buildColumn(
+        const built = await buildColumn(
           dataset,
           attributeName,
           collectionName,
@@ -93,7 +99,11 @@ export function BuildColumn({
           setErrMsg
         );
       } catch (e) {
-        setErrMsg(e.message);
+        if (e instanceof CodapEvalError) {
+          setErrMsg(e.error);
+        } else {
+          setErrMsg(e.toString());
+        }
       }
     },
     [
@@ -127,17 +137,23 @@ export function BuildColumn({
       />
 
       <p>Collection to Add To</p>
-      <CodapFlowTextInput
+      <CollectionSelector
+        context={inputDataCtxt}
         value={collectionName}
         onChange={collectionNameChange}
         disabled={saveData !== undefined}
       />
 
+      <p>Name of New Attribute</p>
+      <CodapFlowTextInput
+        value={attributeName}
+        onChange={attributeNameChange}
+      />
+
       <p>Formula for Attribute Values</p>
-      <CodapFlowTextArea
-        value={expression}
+      <ExpressionEditor
         onChange={expressionChange}
-        disabled={saveData !== undefined}
+        attributeNames={attributes.map((a) => a.name)}
       />
 
       <br />

@@ -1,6 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
+import { DataSet } from "./types";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -140,4 +141,23 @@ export function uniqueAttrName(base: string, attrs: CodapAttribute[]): string {
     }
   }
   return name;
+}
+
+export function getAttributeDataFromDataset(
+  attributeName: string,
+  dataset: DataSet
+): CodapAttribute {
+  let attributeData: CodapAttribute | undefined;
+  for (const collection of dataset.collections) {
+    attributeData =
+      collection.attrs?.find((attribute) => attribute.name === attributeName) ??
+      attributeData;
+  }
+  if (!attributeData) {
+    throw new Error(
+      "Couldn't find first selected attribute in selected context"
+    );
+  }
+
+  return attributeData;
 }

@@ -18,16 +18,31 @@ export function callAllContextListeners(): void {
 
 // Listen for data context updates
 
-export const contextUpdateListeners: Record<string, () => void | undefined> =
-  {};
+export const contextUpdateListeners: Record<string, Array<() => void>> = {};
 
 export function addContextUpdateListener(
   context: string,
   listener: () => void
 ): void {
-  contextUpdateListeners[context] = listener;
+  if (contextUpdateListeners[context] === undefined) {
+    contextUpdateListeners[context] = [];
+  }
+  contextUpdateListeners[context].push(listener);
 }
 
-export function removeContextUpdateListener(context: string): void {
-  delete contextUpdateListeners[context];
+export function removeContextUpdateListener(
+  context: string,
+  listener: () => void
+): void {
+  if (contextUpdateListeners[context] !== undefined) {
+    contextUpdateListeners[context] = contextUpdateListeners[context].filter(
+      (f) => f !== listener
+    );
+  }
+}
+
+export function callUpdateListenersForContext(context: string): void {
+  if (contextUpdateListeners[context] !== undefined) {
+    contextUpdateListeners[context].forEach((f) => f());
+  }
 }

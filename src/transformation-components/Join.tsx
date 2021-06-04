@@ -4,28 +4,19 @@ import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
 } from "../utils/hooks";
-import { compare, CompareType } from "../transformations/compare";
+import { join } from "../transformations/join";
 import {
-  CodapFlowSelect,
   AttributeSelector,
   ContextSelector,
   TransformationSubmitButtons,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
-import { TransformationProps } from "./types";
-import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-export interface CompareSaveData {
-  inputAttribute1: string;
-  inputAttribute2: string;
-  compareType: CompareType;
+interface JoinProps {
+  setErrMsg: (s: string | null) => void;
 }
 
-interface CompareProps extends TransformationProps {
-  saveData?: CompareSaveData;
-}
-
-export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
+export function Join({ setErrMsg }: JoinProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -34,22 +25,12 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [inputAttribute1, inputAttribute1OnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(saveData !== undefined ? saveData.inputAttribute1 : "", () =>
-    setErrMsg(null)
-  );
-  const [inputAttribute2, inputAttribute2OnChange] = useInput<
-    string | null,
-    HTMLSelectElement
-  >(saveData !== undefined ? saveData.inputAttribute2 : "", () =>
-    setErrMsg(null)
-  );
+  const [inputAttribute1, inputAttribute1OnChange] =
+    useState<string | null>(null);
+  const [inputAttribute2, inputAttribute2OnChange] =
+    useState<string | null>(null);
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
-
-  const [compareType, setCompareType] = useState<CompareType>("numeric");
 
   const transform = useCallback(
     async (doUpdate: boolean) => {
@@ -69,16 +50,15 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
         await getContextAndDataSet(inputDataContext2);
 
       try {
-        const compared = compare(
+        const joined = join(
           dataset1,
-          dataset2,
           inputAttribute1,
-          inputAttribute2,
-          compareType
+          dataset2,
+          inputAttribute2
         );
         await applyNewDataSet(
-          compared,
-          `Compare of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
+          joined,
+          `Join of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
           doUpdate,
           lastContextName,
           setLastContextName,
@@ -94,7 +74,6 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
       inputAttribute1,
       inputAttribute2,
       lastContextName,
-      compareType,
       setErrMsg,
     ]
   );
@@ -119,44 +98,29 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
 
   return (
     <>
-      <p>First Table to Compare </p>
+      <p>Base Table</p>
       <ContextSelector
         value={inputDataContext1}
         onChange={inputDataContext1OnChange}
       />
-      <p>Second Table to Compare</p>
+      <p>Joining Table</p>
       <ContextSelector
         value={inputDataContext2}
         onChange={inputDataContext2OnChange}
       />
 
-      <p>First attribute to Compare</p>
+      <p>Base Attribute</p>
       <AttributeSelector
         onChange={inputAttribute1OnChange}
         value={inputAttribute1}
         context={inputDataContext1}
-        disabled={saveData !== undefined}
       />
 
-      <p>Second attribute to Compare</p>
+      <p>Joining Attribute</p>
       <AttributeSelector
         onChange={inputAttribute2OnChange}
         value={inputAttribute2}
         context={inputDataContext2}
-        disabled={saveData !== undefined}
-      />
-
-      <p>What kind of Comparison?</p>
-      <CodapFlowSelect
-        onChange={(e) => setCompareType(e.target.value as CompareType)}
-        options={[
-          { value: "categorical", title: "Categorical" },
-          { value: "numeric", title: "Numeric" },
-          { value: "structural", title: "Structural" },
-        ]}
-        value={compareType}
-        defaultValue="Select a type"
-        disabled={saveData !== undefined}
       />
 
       <br />
@@ -165,15 +129,6 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
-      {saveData === undefined && (
-        <TransformationSaveButton
-          generateSaveData={() => ({
-            inputAttribute1,
-            inputAttribute2,
-            compareType,
-          })}
-        />
-      )}
     </>
   );
 }

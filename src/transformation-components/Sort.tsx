@@ -3,16 +3,18 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
+  useAttributes,
 } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { sort } from "../transformations/sort";
 import {
   TransformationSubmitButtons,
-  CodapFlowTextArea,
+  ExpressionEditor,
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface SortSaveData {
   keyExpression: string;
@@ -28,31 +30,29 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [keyExpression, keyExpressionChange] = useInput<
-    string,
-    HTMLTextAreaElement
-  >(saveData !== undefined ? saveData.keyExpression : "", () =>
-    setErrMsg(null)
+  const [keyExpression, keyExpressionChange] = useState<string>(
+    saveData !== undefined ? saveData.keyExpression : ""
   );
-
   const [lastContextName, setLastContextName] = useState<null | string>(null);
+  const attributes = useAttributes(inputDataCtxt);
 
   const transform = useCallback(
     async (doUpdate: boolean) => {
+      setErrMsg("");
+
       if (inputDataCtxt === null) {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-
       if (keyExpression === "") {
-        setErrMsg("Key expression cannot be empty.");
+        setErrMsg("Please enter a non-empty key expression");
         return;
       }
 
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const result = sort(dataset, keyExpression);
+        const result = await sort(dataset, keyExpression);
         await applyNewDataSet(
           result,
           `Sort of ${ctxtTitle(context)}`,
@@ -62,7 +62,11 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
           setErrMsg
         );
       } catch (e) {
-        setErrMsg(e.message);
+        if (e instanceof CodapEvalError) {
+          setErrMsg(e.error);
+        } else {
+          setErrMsg(e.toString());
+        }
       }
     },
     [inputDataCtxt, setErrMsg, keyExpression, lastContextName]
@@ -83,11 +87,12 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Key expression</p>
-      <CodapFlowTextArea
-        value={keyExpression}
+      <ExpressionEditor
         onChange={keyExpressionChange}
+        attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}
       />
+
       <br />
       <TransformationSubmitButtons
         onCreate={() => transform(false)}

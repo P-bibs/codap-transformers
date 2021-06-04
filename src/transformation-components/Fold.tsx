@@ -7,9 +7,9 @@ import {
 import { TransformationProps } from "./types";
 import { DataSet } from "../transformations/types";
 import {
-  CodapFlowTextInput,
   TransformationSubmitButtons,
   ContextSelector,
+  AttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import {
@@ -20,10 +20,10 @@ import {
   runningSum,
 } from "../transformations/fold";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { uniqueName } from "../utils/names";
 
 export interface FoldSaveData {
-  inputColumnName: string;
-  resultColumnName: string;
+  inputAttributeName: string;
 }
 
 interface FoldProps extends TransformationProps {
@@ -108,19 +108,9 @@ export function Fold({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [inputColumnName, inputColumnNameChange] = useInput<
-    string,
-    HTMLInputElement
-  >(saveData !== undefined ? saveData.inputColumnName : "", () =>
-    setErrMsg(null)
-  );
-
-  const [resultColumnName, resultColumnNameChange] = useInput<
-    string,
-    HTMLInputElement
-  >(saveData !== undefined ? saveData.resultColumnName : "", () =>
-    setErrMsg(null)
-  );
+  const [inputAttributeName, inputAttributeNameChange] = useState<
+    string | null
+  >(saveData !== undefined ? saveData.inputAttributeName : "");
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -130,16 +120,25 @@ export function Fold({
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-
-      if (resultColumnName === "") {
-        setErrMsg("Please choose a non-empty result column name.");
+      if (inputAttributeName === null) {
+        setErrMsg("Please select an attribute to aggregate");
         return;
       }
 
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
+      const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
+      const resultAttributeName = uniqueName(
+        `${label} of ${inputAttributeName}`,
+        attrs.map((attr) => attr.name)
+      );
+
       try {
-        const result = foldFunc(dataset, inputColumnName, resultColumnName);
+        const result = foldFunc(
+          dataset,
+          inputAttributeName,
+          resultAttributeName
+        );
         await applyNewDataSet(
           result,
           `${label} of ${ctxtTitle(context)}`,
@@ -154,8 +153,7 @@ export function Fold({
     },
     [
       inputDataCtxt,
-      inputColumnName,
-      resultColumnName,
+      inputAttributeName,
       setErrMsg,
       foldFunc,
       lastContextName,
@@ -176,18 +174,14 @@ export function Fold({
     <>
       <p>Table to calculate {label.toLowerCase()} on</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
-      <p>Input Column Name:</p>
-      <CodapFlowTextInput
-        value={inputColumnName}
-        onChange={inputColumnNameChange}
-        disabled={saveData !== undefined}
+
+      <p>Attribute to Aggregate</p>
+      <AttributeSelector
+        onChange={inputAttributeNameChange}
+        value={inputAttributeName}
+        context={inputDataCtxt}
       />
-      <p>Result Column Name:</p>
-      <CodapFlowTextInput
-        value={resultColumnName}
-        onChange={resultColumnNameChange}
-        disabled={saveData !== undefined}
-      />
+
       <br />
       <TransformationSubmitButtons
         onCreate={() => transform(false)}
@@ -197,8 +191,7 @@ export function Fold({
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({
-            inputColumnName,
-            resultColumnName,
+            inputAttributeName,
           })}
         />
       )}

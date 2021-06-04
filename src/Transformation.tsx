@@ -55,6 +55,9 @@ function Transformation({
       "Sort",
       "Pivot Longer",
       "Pivot Wider",
+      "Join",
+      "Eval",
+      "Copy",
     ],
   };
 

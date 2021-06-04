@@ -1,10 +1,10 @@
 import React, { useState, useCallback, ReactElement } from "react";
-import { useInput } from "../utils/hooks";
+import { useInput, useAttributes } from "../utils/hooks";
 import { transformColumn } from "../transformations/transformColumn";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import {
-  CodapFlowTextArea,
-  CodapFlowTextInput,
+  ExpressionEditor,
+  AttributeSelector,
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
@@ -12,6 +12,7 @@ import { useContextUpdateListenerWithFlowEffect } from "../utils/hooks";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface TransformColumnSaveData {
   attributeName: string;
@@ -29,17 +30,15 @@ export function TransformColumn({
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributeName, attributeNameChange] = useInput<
-    string,
-    HTMLInputElement
-  >(saveData !== undefined ? saveData.attributeName : "", () =>
-    setErrMsg(null)
+
+  const [attributeName, attributeNameChange] = useState<string | null>(
+    saveData !== undefined ? saveData.attributeName : ""
   );
-  const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
-    saveData !== undefined ? saveData.expression : "",
-    () => setErrMsg(null)
+  const [expression, expressionChange] = useState<string>(
+    saveData !== undefined ? saveData.expression : ""
   );
   const [lastContextName, setLastContextName] = useState<string | null>(null);
+  const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -47,12 +46,14 @@ export function TransformColumn({
    */
   const transform = useCallback(
     async (doUpdate: boolean) => {
+      setErrMsg("");
+
       if (inputDataCtxt === null) {
         setErrMsg("Please choose a valid data context to transform.");
         return;
       }
-      if (attributeName === "") {
-        setErrMsg("Please enter a non-empty attribute name to transform");
+      if (attributeName === null) {
+        setErrMsg("Please select an attribute to transform");
         return;
       }
       if (expression === "") {
@@ -63,7 +64,11 @@ export function TransformColumn({
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
       try {
-        const transformed = transformColumn(dataset, attributeName, expression);
+        const transformed = await transformColumn(
+          dataset,
+          attributeName,
+          expression
+        );
         await applyNewDataSet(
           transformed,
           `Transform Column of ${ctxtTitle(context)}`,
@@ -73,7 +78,11 @@ export function TransformColumn({
           setErrMsg
         );
       } catch (e) {
-        setErrMsg(e.message);
+        if (e instanceof CodapEvalError) {
+          setErrMsg(e.error);
+        } else {
+          setErrMsg(e.toString());
+        }
       }
     },
     [inputDataCtxt, attributeName, expression, lastContextName, setErrMsg]
@@ -94,15 +103,16 @@ export function TransformColumn({
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Attribute to Transform</p>
-      <CodapFlowTextInput
-        value={attributeName}
+      <AttributeSelector
         onChange={attributeNameChange}
+        value={attributeName}
+        context={inputDataCtxt}
       />
 
       <p>How to Transform Column</p>
-      <CodapFlowTextArea
-        value={expression}
+      <ExpressionEditor
         onChange={expressionChange}
+        attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}
       />
 

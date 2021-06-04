@@ -5,6 +5,8 @@ export enum CodapResource {
   Component = "component",
   Collection = "collection",
   CollectionList = "collectionList",
+  EvalExpression = "evalExpression",
+  FunctionNames = "functionNames",
 }
 
 export enum CodapListResource {
@@ -33,6 +35,13 @@ type UpdateInteractiveFrameRequest = {
 
   // We are not allowed to set interactiveState
   values: Partial<Omit<InteractiveFrame, "interactiveState">>;
+};
+
+type CreateInteractiveFrameRequest = {
+  action: CodapActions.Create;
+  resource: CodapResource.InteractiveFrame;
+
+  values: { url: string; name?: string };
 };
 
 type GetContextListRequest = {
@@ -83,6 +92,20 @@ type CreateTableRequest = {
   values: CaseTable;
 };
 
+interface EvalExpressionRequest {
+  action: CodapActions.Get;
+  resource: CodapResource.EvalExpression;
+  values: {
+    source: string;
+    records: Record<string, unknown>[];
+  };
+}
+
+interface GetFunctionNamesRequest {
+  action: CodapActions.Get;
+  resource: CodapResource.FunctionNames;
+}
+
 export interface CodapResponse {
   success: boolean;
 }
@@ -123,6 +146,22 @@ interface TableResponse extends CodapResponse {
   values: CaseTable;
 }
 
+export interface GetFunctionNamesResponse extends CodapResponse {
+  values: string[];
+}
+
+type EvalExpressionResponse =
+  | {
+      success: true;
+      values: unknown[];
+    }
+  | {
+      success: false;
+      values: {
+        error: string;
+      };
+    };
+
 export type CodapPhone = {
   call(r: CreateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
   call(r: UpdateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
@@ -138,6 +177,11 @@ export type CodapPhone = {
   call(r: CreateCollectionsRequest, cb: (r: ListResponse) => void): void;
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
   call(r: CreateTableRequest, cb: (r: TableResponse) => void): void;
+  call(r: EvalExpressionRequest, cb: (r: EvalExpressionResponse) => void): void;
+  call(
+    r: GetFunctionNamesRequest,
+    cb: (r: GetFunctionNamesResponse) => void
+  ): void;
 };
 
 export enum CodapInitiatedResource {
@@ -166,6 +210,14 @@ export enum ContextChangeOperation {
   // Not sure where this is documented, but it is triggered when a collection
   // is renamed, for example
   UpdateCollection = "updateCollection",
+
+  CreateCollection = "createCollection",
+  DeleteCollection = "deleteCollection",
+
+  // Not sure where this is documented either, but it is triggered when
+  // attribute dependencies change (e.g. when moving an attribute from one
+  // collection to another).
+  DependentCases = "dependentCases",
 }
 
 export const mutatingOperations = [
@@ -177,6 +229,9 @@ export const mutatingOperations = [
   ContextChangeOperation.DeleteAttribute,
   ContextChangeOperation.MoveAttribute,
   ContextChangeOperation.UpdateCollection,
+  ContextChangeOperation.CreateCollection,
+  ContextChangeOperation.DeleteCollection,
+  ContextChangeOperation.DependentCases,
 ];
 
 export enum DocumentChangeOperations {

@@ -3,12 +3,15 @@ import { getContextAndDataSet, evalExpression } from "../utils/codapPhone";
 import { CodapEvalError } from "../utils/codapPhone/error";
 import { useInput, useAttributes } from "../utils/hooks";
 import { ContextSelector, ExpressionEditor } from "../ui-components";
+import { TransformationProps } from "./types";
 
-interface EvalProps {
-  setErrMsg: (s: string | null) => void;
+// eslint-disable-next-line
+export interface EvalSaveData {}
+
+interface EvalProps extends TransformationProps {
+  saveData?: EvalSaveData;
 }
-
-export function Eval({ setErrMsg }: EvalProps): ReactElement {
+export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement

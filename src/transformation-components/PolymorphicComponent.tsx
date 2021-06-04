@@ -19,6 +19,9 @@ import { Sort } from "./Sort";
 import { PivotLonger } from "./PivotLonger";
 import { PivotWider } from "./PivotWider";
 import { SavedTransformation } from "./types";
+import { Join } from "./Join";
+import { Eval } from "./Eval";
+import { Copy } from "./Copy";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -137,6 +140,18 @@ export const PolymorphicComponent = ({
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
         />
+      );
+    case "Join":
+      return (
+        <Join setErrMsg={setErrMsg} saveData={transformation.content.data} />
+      );
+    case "Eval":
+      return (
+        <Eval setErrMsg={setErrMsg} saveData={transformation.content.data} />
+      );
+    case "Copy":
+      return (
+        <Copy setErrMsg={setErrMsg} saveData={transformation.content.data} />
       );
   }
 };

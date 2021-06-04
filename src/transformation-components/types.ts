@@ -1,12 +1,15 @@
 import { ReactElement } from "react";
 import { BuildColumnSaveData } from "./BuildColumn";
 import { CompareSaveData } from "./Compare";
+import { CopySaveData } from "./Copy";
 import { CountSaveData } from "./Count";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
+import { EvalSaveData } from "./Eval";
 import { FilterSaveData } from "./Filter";
 import { FlattenSaveData } from "./Flatten";
 import { FoldSaveData } from "./Fold";
 import { GroupBySaveData } from "./GroupBy";
+import { JoinSaveData } from "./Join";
 import { PivotLongerSaveData } from "./PivotLonger";
 import { PivotWiderSaveData } from "./PivotWider";
 import { SelectAttributesSaveData } from "./SelectAttributes";
@@ -86,7 +89,20 @@ export type SavedTransformationContent =
   | {
       base: "Transform Column";
       data?: TransformColumnSaveData;
+    }
+  | {
+      base: "Copy";
+      data?: CopySaveData;
+    }
+  | {
+      base: "Join";
+      data?: JoinSaveData;
+    }
+  | {
+      base: "Eval";
+      data?: EvalSaveData;
     };
+
 /**
  *  All valid values of the `base` field of a saved transformation object
  */

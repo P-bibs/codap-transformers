@@ -12,6 +12,7 @@ import {
   MultiAttributeSelector,
 } from "../ui-components";
 import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface GroupBySaveData {
   attributes: string[];
@@ -93,6 +94,13 @@ export function GroupBy({ setErrMsg, saveData }: GroupByProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributes,
+          })}
+        />
+      )}
     </>
   );
 }

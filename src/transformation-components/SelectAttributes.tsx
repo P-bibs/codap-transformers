@@ -12,6 +12,7 @@ import {
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface SelectAttributesSaveData {
   attributes: string[];
@@ -107,6 +108,14 @@ export function SelectAttributes({
         onUpdate={() => transform(true)}
         updateDisabled={true}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributes,
+            mode,
+          })}
+        />
+      )}
     </>
   );
 }

@@ -12,6 +12,7 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface SortSaveData {
   keyExpression: string;
@@ -93,6 +94,13 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={true}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            keyExpression,
+          })}
+        />
+      )}
     </>
   );
 }

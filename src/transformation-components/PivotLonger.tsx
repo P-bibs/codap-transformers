@@ -13,6 +13,7 @@ import {
   CodapFlowTextInput,
 } from "../ui-components";
 import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface PivotLongerSaveData {
   attributes: string[];
@@ -120,6 +121,15 @@ export function PivotLonger({
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributes,
+            namesTo,
+            valuesTo,
+          })}
+        />
+      )}
     </>
   );
 }

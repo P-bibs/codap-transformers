@@ -11,10 +11,10 @@ import {
 import { useContextUpdateListenerWithFlowEffect } from "../utils/hooks";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface TransformColumnSaveData {
   attributeName: string;
-  collectionName: string;
   expression: string;
 }
 
@@ -112,6 +112,14 @@ export function TransformColumn({
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributeName,
+            expression,
+          })}
+        />
+      )}
     </>
   );
 }

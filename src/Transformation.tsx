@@ -33,40 +33,49 @@ function Transformation({
   transformation?: SavedTransformation;
 }): ReactElement {
   const [transformType, setTransformType] = useState<string | null>(null);
-  const [savedTransformations, setSavedTransformations] = useState<
-    SavedTransformation[]
-  >([]);
 
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const transformGroups: Record<string, string[]> = {
-    // "Running Aggregators": [
-    //   "Running Sum",
-    //   "Running Mean",
-    //   "Running Min",
-    //   "Running Max",
-    //   "Running Difference",
-    // ],
-    // "Structural Transformations": ["Flatten", "Group By"],
-    // Others: [
-    //   "Filter",
-    //   "Transform Column",
-    //   "Build Column",
-    //   "Select Attributes",
-    //   "Count",
-    //   "Compare",
-    //   "Difference From",
-    //   "Sort",
-    //   "Pivot Longer",
-    //   "Pivot Wider",
-    // ],
-    Primitive: ["Filter", "Build Column", "Running Sum"],
-    Saved: savedTransformations.map((transform) => transform.name),
+    "Running Aggregators": [
+      "Running Sum",
+      "Running Mean",
+      "Running Min",
+      "Running Max",
+      "Running Difference",
+    ],
+    "Structural Transformations": ["Flatten", "Group By"],
+    Others: [
+      "Filter",
+      "Transform Column",
+      "Build Column",
+      "Select Attributes",
+      "Count",
+      "Compare",
+      "Difference From",
+      "Sort",
+      "Pivot Longer",
+      "Pivot Wider",
+    ],
   };
+
   const transformationData: SavedTransformation[] = [
-    { name: "Filter", content: { base: "Filter" } },
     { name: "Build Column", content: { base: "Build Column" } },
+    { name: "Compare", content: { base: "Compare" } },
+    { name: "Count", content: { base: "Count" } },
+    { name: "Difference From", content: { base: "Difference From" } },
+    { name: "Filter", content: { base: "Filter" } },
+    { name: "Flatten", content: { base: "Flatten" } },
     { name: "Running Sum", content: { base: "Running Sum" } },
-    ...savedTransformations,
+    { name: "Running Mean", content: { base: "Running Mean" } },
+    { name: "Running Min", content: { base: "Running Min" } },
+    { name: "Running Max", content: { base: "Running Max" } },
+    { name: "Running Difference", content: { base: "Running Difference" } },
+    { name: "Group By", content: { base: "Group By" } },
+    { name: "Pivot Longer", content: { base: "Pivot Longer" } },
+    { name: "Pivot Wider", content: { base: "Pivot Wider" } },
+    { name: "Select Attributes", content: { base: "Select Attributes" } },
+    { name: "Sort", content: { base: "Sort" } },
+    { name: "Transform Column", content: { base: "Transform Column" } },
   ];
 
   function addTransformation(name: string, data: TransformationSaveData) {
@@ -92,8 +101,6 @@ function Transformation({
     const savedTransformation = { name, content };
     const encoded = encodeURIComponent(JSON.stringify(savedTransformation));
     createDataInteractive(name, `http://localhost:3000?transform=${encoded}`);
-
-    // setSavedTransformations([...savedTransformations, ]);
   }
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {

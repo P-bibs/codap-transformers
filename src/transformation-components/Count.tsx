@@ -12,6 +12,7 @@ import {
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface CountSaveData {
   attributes: string[];
@@ -92,6 +93,13 @@ export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={true}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributes,
+          })}
+        />
+      )}
     </>
   );
 }

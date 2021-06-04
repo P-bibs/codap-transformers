@@ -12,6 +12,7 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface PivotWiderSaveData {
   namesFrom: string;
@@ -115,6 +116,14 @@ export function PivotWider({
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            namesFrom,
+            valuesFrom,
+          })}
+        />
+      )}
     </>
   );
 }

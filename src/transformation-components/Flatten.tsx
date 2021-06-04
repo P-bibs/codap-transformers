@@ -8,6 +8,7 @@ import { flatten } from "../transformations/flatten";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 // eslint-disable-next-line
 export interface FlattenSaveData {}
@@ -16,7 +17,7 @@ interface FlattenProps extends TransformationProps {
   saveData?: FlattenSaveData;
 }
 
-export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
+export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -74,6 +75,9 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={true}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton generateSaveData={() => ({})} />
+      )}
     </>
   );
 }

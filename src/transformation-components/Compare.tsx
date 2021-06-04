@@ -13,6 +13,7 @@ import {
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface CompareSaveData {
   inputAttribute1: string;
@@ -169,6 +170,15 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            inputAttribute1,
+            inputAttribute2,
+            isCategorical,
+          })}
+        />
+      )}
     </>
   );
 }

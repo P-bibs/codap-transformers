@@ -12,6 +12,7 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface DifferenceFromSaveData {
   inputColumnName: string;
@@ -139,6 +140,15 @@ export function DifferenceFrom({
         onUpdate={() => transform(true)}
         updateDisabled={true}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            inputColumnName,
+            resultColumnName,
+            startingValue,
+          })}
+        />
+      )}
     </>
   );
 }

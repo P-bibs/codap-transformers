@@ -1,8 +1,13 @@
 import React, { ReactElement } from "react";
 import { BuildColumn } from "./BuildColumn";
-import { RunningSum } from "./Fold";
+import {
+  RunningDifference,
+  RunningMax,
+  RunningMean,
+  RunningMin,
+  RunningSum,
+} from "./Fold";
 import { useState } from "react";
-import "./Transformation.css";
 import CodapFlowErrorDisplay from "../Error";
 import { Filter, FilterSaveData } from "./Filter";
 import { TransformColumn } from "./TransformColumn";
@@ -52,113 +57,103 @@ export const PolymorphicComponent = ({
   switch (transformation.content.base) {
     case "Running Sum":
       return (
-        <Fold
+        <RunningSum
           setErrMsg={setErrMsg}
-          label="running sum"
-          foldFunc={runningSum}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Running Mean":
       return (
-        <Fold
+        <RunningMean
           setErrMsg={setErrMsg}
-          label="running mean"
-          foldFunc={runningMean}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Running Min":
       return (
-        <Fold
+        <RunningMin
           setErrMsg={setErrMsg}
-          label="running min"
-          foldFunc={runningMin}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Running Max":
       return (
-        <Fold
+        <RunningMax
           setErrMsg={setErrMsg}
-          label="running max"
-          foldFunc={runningMax}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Running Difference":
       return (
-        <Fold
+        <RunningDifference
           setErrMsg={setErrMsg}
-          label="difference"
-          foldFunc={difference}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Flatten":
       return (
-        <Flatten setErrMsg={setErrMsg} saveData={transformation.content.base} />
+        <Flatten setErrMsg={setErrMsg} saveData={transformation.content.data} />
       );
     case "Group By":
       return (
-        <GroupBy setErrMsg={setErrMsg} saveData={transformation.content.base} />
+        <GroupBy setErrMsg={setErrMsg} saveData={transformation.content.data} />
       );
     case "Filter":
       return (
-        <Filter setErrMsg={setErrMsg} saveData={transformation.content.base} />
+        <Filter setErrMsg={setErrMsg} saveData={transformation.content.data} />
       );
     case "Transform Column":
       return (
         <TransformColumn
           setErrMsg={setErrMsg}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Build Column":
       return (
         <BuildColumn
           setErrMsg={setErrMsg}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Select Attributes":
       return (
         <SelectAttributes
           setErrMsg={setErrMsg}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Count":
       return (
-        <Count setErrMsg={setErrMsg} saveData={transformation.content.base} />
+        <Count setErrMsg={setErrMsg} saveData={transformation.content.data} />
       );
     case "Compare":
       return (
-        <Compare setErrMsg={setErrMsg} saveData={transformation.content.base} />
+        <Compare setErrMsg={setErrMsg} saveData={transformation.content.data} />
       );
     case "Difference From":
       return (
         <DifferenceFrom
           setErrMsg={setErrMsg}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Sort":
       return (
-        <Sort setErrMsg={setErrMsg} saveData={transformation.content.base} />
+        <Sort setErrMsg={setErrMsg} saveData={transformation.content.data} />
       );
     case "Pivot Longer":
       return (
         <PivotLonger
           setErrMsg={setErrMsg}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
     case "Pivot Wider":
       return (
         <PivotWider
           setErrMsg={setErrMsg}
-          saveData={transformation.content.base}
+          saveData={transformation.content.data}
         />
       );
   }

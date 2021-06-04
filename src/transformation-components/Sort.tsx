@@ -13,7 +13,15 @@ import {
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 
-export function Sort({ setErrMsg }: TransformationProps): ReactElement {
+export interface SortSaveData {
+  keyExpression: string;
+}
+
+interface SortProps extends TransformationProps {
+  saveData?: SortSaveData;
+}
+
+export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -22,7 +30,9 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
   const [keyExpression, keyExpressionChange] = useInput<
     string,
     HTMLTextAreaElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.keyExpression : "", () =>
+    setErrMsg(null)
+  );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 

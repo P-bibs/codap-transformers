@@ -11,17 +11,24 @@ import {
   ContextSelector,
   MultiAttributeSelector,
 } from "../ui-components";
+import { TransformationProps } from "./types";
 
-interface GroupByProps {
-  setErrMsg: (s: string | null) => void;
+export interface GroupBySaveData {
+  attributes: string[];
 }
 
-export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
+interface GroupByProps extends TransformationProps {
+  saveData?: GroupBySaveData;
+}
+
+export function GroupBy({ setErrMsg, saveData }: GroupByProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, setAttributes] = useState<string[]>([]);
+  const [attributes, setAttributes] = useState<string[]>(
+    saveData !== undefined ? saveData.attributes : []
+  );
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**

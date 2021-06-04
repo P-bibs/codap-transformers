@@ -12,7 +12,13 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
-import { runningSum } from "../transformations/fold";
+import {
+  difference,
+  runningMax,
+  runningMean,
+  runningMin,
+  runningSum,
+} from "../transformations/fold";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface FoldSaveData {
@@ -42,6 +48,50 @@ export const RunningSum = (props: FoldConsumerProps): ReactElement => {
         ...props,
         label: "running sum",
         foldFunc: runningSum,
+      }}
+    />
+  );
+};
+export const RunningMean = (props: FoldConsumerProps): ReactElement => {
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "running mean",
+        foldFunc: runningMean,
+      }}
+    />
+  );
+};
+export const RunningMin = (props: FoldConsumerProps): ReactElement => {
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "running min",
+        foldFunc: runningMin,
+      }}
+    />
+  );
+};
+export const RunningMax = (props: FoldConsumerProps): ReactElement => {
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "running max",
+        foldFunc: runningMax,
+      }}
+    />
+  );
+};
+export const RunningDifference = (props: FoldConsumerProps): ReactElement => {
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "difference",
+        foldFunc: difference,
       }}
     />
   );

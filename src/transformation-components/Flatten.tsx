@@ -7,9 +7,13 @@ import {
 import { flatten } from "../transformations/flatten";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { TransformationProps } from "./types";
 
-interface FlattenProps {
-  setErrMsg: (s: string | null) => void;
+// eslint-disable-next-line
+export interface FlattenSaveData {}
+
+interface FlattenProps extends TransformationProps {
+  saveData?: FlattenSaveData;
 }
 
 export function Flatten({ setErrMsg }: FlattenProps): ReactElement {

@@ -11,21 +11,30 @@ import {
   MultiAttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { TransformationProps } from "./types";
 
-interface SelectAttributesProps {
-  setErrMsg: (s: string | null) => void;
+export interface SelectAttributesSaveData {
+  attributes: string[];
+  mode: string;
+}
+
+interface SelectAttributesProps extends TransformationProps {
+  saveData?: SelectAttributesSaveData;
 }
 
 export function SelectAttributes({
   setErrMsg,
+  saveData,
 }: SelectAttributesProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, setAttributes] = useState<string[]>([]);
+  const [attributes, setAttributes] = useState<string[]>(
+    saveData !== undefined ? saveData.attributes : []
+  );
   const [mode, modeChange] = useInput<string | null, HTMLSelectElement>(
-    "selectOnly",
+    saveData !== undefined ? saveData.mode : "selectOnly",
     () => setErrMsg(null)
   );
   const [lastContextName, setLastContextName] = useState<null | string>(null);

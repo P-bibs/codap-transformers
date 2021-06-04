@@ -12,12 +12,19 @@ import {
   TransformationSubmitButtons,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { TransformationProps } from "./types";
 
-interface CompareProps {
-  setErrMsg: (s: string | null) => void;
+export interface CompareSaveData {
+  inputAttribute1: string;
+  inputAttribute2: string;
+  isCategorical: boolean;
 }
 
-export function Compare({ setErrMsg }: CompareProps): ReactElement {
+interface CompareProps extends TransformationProps {
+  saveData?: CompareSaveData;
+}
+
+export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -29,15 +36,21 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
   const [inputAttribute1, inputAttribute1OnChange] = useInput<
     string | null,
     HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.inputAttribute1 : "", () =>
+    setErrMsg(null)
+  );
   const [inputAttribute2, inputAttribute2OnChange] = useInput<
     string | null,
     HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.inputAttribute2 : "", () =>
+    setErrMsg(null)
+  );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
-  const [isCategorical, setIsCategorical] = useState<boolean>(false);
+  const [isCategorical, setIsCategorical] = useState<boolean>(
+    saveData !== undefined ? saveData.isCategorical : false
+  );
 
   const transform = useCallback(
     async (doUpdate: boolean) => {

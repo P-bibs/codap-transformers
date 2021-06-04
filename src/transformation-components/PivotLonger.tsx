@@ -12,22 +12,35 @@ import {
   ContextSelector,
   CodapFlowTextInput,
 } from "../ui-components";
+import { TransformationProps } from "./types";
 
-interface PivotLongerProps {
-  setErrMsg: (s: string | null) => void;
+export interface PivotLongerSaveData {
+  attributes: string[];
+  namesTo: string;
+  valuesTo: string;
 }
 
-export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
+interface PivotLongerProps extends TransformationProps {
+  saveData?: PivotLongerSaveData;
+}
+
+export function PivotLonger({
+  setErrMsg,
+  saveData,
+}: PivotLongerProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, setAttributes] = useState<string[]>([]);
-  const [namesTo, namesToChange] = useInput<string, HTMLInputElement>("", () =>
-    setErrMsg(null)
+  const [attributes, setAttributes] = useState<string[]>(
+    saveData !== undefined ? saveData.attributes : []
+  );
+  const [namesTo, namesToChange] = useInput<string, HTMLInputElement>(
+    saveData !== undefined ? saveData.namesTo : "",
+    () => setErrMsg(null)
   );
   const [valuesTo, valuesToChange] = useInput<string, HTMLInputElement>(
-    "",
+    saveData !== undefined ? saveData.valuesTo : "",
     () => setErrMsg(null)
   );
   const [lastContextName, setLastContextName] = useState<null | string>(null);

@@ -13,9 +13,20 @@ import {
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
 
+export interface DifferenceFromSaveData {
+  inputColumnName: string;
+  resultColumnName: string;
+  startingValue: string;
+}
+
+interface DifferenceFromProps extends TransformationProps {
+  saveData?: DifferenceFromSaveData;
+}
+
 export function DifferenceFrom({
   setErrMsg,
-}: TransformationProps): ReactElement {
+  saveData,
+}: DifferenceFromProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -24,17 +35,23 @@ export function DifferenceFrom({
   const [inputColumnName, inputColumnNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.inputColumnName : "", () =>
+    setErrMsg(null)
+  );
 
   const [resultColumnName, resultColumnNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.resultColumnName : "", () =>
+    setErrMsg(null)
+  );
 
   const [startingValue, startingValueChange] = useInput<
     string,
     HTMLInputElement
-  >("0", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.startingValue : "0", () =>
+    setErrMsg(null)
+  );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 

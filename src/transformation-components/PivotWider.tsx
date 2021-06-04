@@ -11,12 +11,21 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
+import { TransformationProps } from "./types";
 
-interface PivotWiderProps {
-  setErrMsg: (s: string | null) => void;
+export interface PivotWiderSaveData {
+  namesFrom: string;
+  valuesFrom: string;
 }
 
-export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
+interface PivotWiderProps extends TransformationProps {
+  saveData?: PivotWiderSaveData;
+}
+
+export function PivotWider({
+  setErrMsg,
+  saveData,
+}: PivotWiderProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -24,11 +33,11 @@ export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
   const [namesFrom, namesFromOnChange] = useInput<
     string | null,
     HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.namesFrom : null, () => setErrMsg(null));
   const [valuesFrom, valuesFromOnChange] = useInput<
     string | null,
     HTMLSelectElement
-  >(null, () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.valuesFrom : null, () => setErrMsg(null));
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 

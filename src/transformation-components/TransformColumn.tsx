@@ -10,13 +10,20 @@ import {
 } from "../ui-components";
 import { useContextUpdateListenerWithFlowEffect } from "../utils/hooks";
 import { getContextAndDataSet } from "../utils/codapPhone";
+import { TransformationProps } from "./types";
 
-interface TransformColumnProps {
-  setErrMsg: (s: string | null) => void;
+export interface TransformColumnSaveData {
+  attributeName: string;
+  collectionName: string;
+  expression: string;
 }
 
+interface TransformColumnProps extends TransformationProps {
+  saveData?: TransformColumnSaveData;
+}
 export function TransformColumn({
   setErrMsg,
+  saveData,
 }: TransformColumnProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -25,9 +32,11 @@ export function TransformColumn({
   const [attributeName, attributeNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.attributeName : "", () =>
+    setErrMsg(null)
+  );
   const [expression, expressionChange] = useInput<string, HTMLTextAreaElement>(
-    "",
+    saveData !== undefined ? saveData.expression : "",
     () => setErrMsg(null)
   );
   const [lastContextName, setLastContextName] = useState<string | null>(null);

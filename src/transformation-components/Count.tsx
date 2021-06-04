@@ -11,17 +11,24 @@ import {
   MultiAttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { TransformationProps } from "./types";
 
-interface CountProps {
-  setErrMsg: (s: string | null) => void;
+export interface CountSaveData {
+  attributes: string[];
 }
 
-export function Count({ setErrMsg }: CountProps): ReactElement {
+interface CountProps extends TransformationProps {
+  saveData?: CountSaveData;
+}
+
+export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, setAttributes] = useState<string[]>([]);
+  const [attributes, setAttributes] = useState<string[]>(
+    saveData !== undefined ? saveData.attributes : []
+  );
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**

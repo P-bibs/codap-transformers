@@ -450,6 +450,31 @@ async function createDataContext(
   );
 }
 
+export async function createDataInteractive(
+  name: string,
+  url: string
+): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Create,
+        resource: CodapResource.InteractiveFrame,
+        values: {
+          name,
+          url,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to create data interactive"));
+        }
+      }
+    )
+  );
+}
+
 export async function createContextWithDataSet(
   dataset: DataSet,
   name: string,

@@ -20,6 +20,13 @@ export enum CodapActions {
   Notify = "notify",
 }
 
+type CreateInteractiveFrameRequest = {
+  action: CodapActions.Create;
+  resource: CodapResource.InteractiveFrame;
+
+  values: { url: string; name: string };
+};
+
 type UpdateInteractiveFrameRequest = {
   action: CodapActions.Update;
   resource: CodapResource.InteractiveFrame;
@@ -117,6 +124,7 @@ interface TableResponse extends CodapResponse {
 }
 
 export type CodapPhone = {
+  call(r: CreateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
   call(r: UpdateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
   call(r: GetContextListRequest, cb: (r: ListResponse) => void): void;
   call(r: GetListRequest, cb: (r: ListResponse) => void): void;

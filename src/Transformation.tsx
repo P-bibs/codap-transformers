@@ -17,7 +17,7 @@ import { createDataInteractive } from "./utils/codapPhone";
  */
 export const SaveTransformationContext = React.createContext<
   (name: string, d: TransformationSaveData) => void
->((name, d) => {
+>(() => {
   // If someone tries to subscribe to this context without a valid
   // provider higher up, then throw an error.
   throw Error("No Save Transformation Provider Found");

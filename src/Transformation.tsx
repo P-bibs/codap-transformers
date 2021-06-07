@@ -85,6 +85,9 @@ function Transformation({
   ];
 
   function addTransformation(name: string, data: TransformationSaveData) {
+    if (name === "") {
+      return;
+    }
     // Make sure transformType is non-null
     if (transformType === null) {
       return;

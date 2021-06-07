@@ -1,17 +1,15 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { compare, CompareType } from "../transformations/compare";
+import { DataSet } from "../transformations/types";
 import {
   CodapFlowSelect,
   AttributeSelector,
   ContextSelector,
   TransformationSubmitButtons,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -41,75 +39,64 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
     saveData !== undefined ? saveData.inputAttribute2 : ""
   );
 
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
-
   const [compareType, setCompareType] = useState<CompareType>("numeric");
 
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (
-        !inputDataContext1 ||
-        !inputDataContext2 ||
-        !inputAttribute1 ||
-        !inputAttribute2
-      ) {
-        setErrMsg("Please choose two contexts and two attributes");
-        return;
-      }
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
+    if (
+      !inputDataContext1 ||
+      !inputDataContext2 ||
+      !inputAttribute1 ||
+      !inputAttribute2
+    ) {
+      setErrMsg("Please choose two contexts and two attributes");
+      return;
+    }
+
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context: context1, dataset: dataset1 } =
         await getContextAndDataSet(inputDataContext1);
       const { context: context2, dataset: dataset2 } =
         await getContextAndDataSet(inputDataContext2);
+      const compared = compare(
+        dataset1,
+        dataset2,
+        inputAttribute1,
+        inputAttribute2,
+        compareType
+      );
+      return [
+        compared,
+        `Compare of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
+      ];
+    };
 
-      try {
-        const compared = compare(
-          dataset1,
-          dataset2,
-          inputAttribute1,
-          inputAttribute2,
-          compareType
-        );
-        await applyNewDataSet(
-          compared,
-          `Compare of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [
-      inputDataContext1,
-      inputDataContext2,
-      inputAttribute1,
-      inputAttribute2,
-      lastContextName,
-      compareType,
-      setErrMsg,
-    ]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(
+        inputDataContext1,
+        newContextName,
+        doTransform,
+        setErrMsg
+      );
+      addUpdateListener(
+        inputDataContext2,
+        newContextName,
+        doTransform,
+        setErrMsg
+      );
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [
     inputDataContext1,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
     inputDataContext2,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    inputAttribute1,
+    inputAttribute2,
+    compareType,
+    setErrMsg,
+  ]);
 
   return (
     <>
@@ -154,11 +141,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

@@ -1,16 +1,14 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { join } from "../transformations/join";
+import { DataSet } from "../transformations/types";
 import {
   AttributeSelector,
   ContextSelector,
   TransformationSubmitButtons,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -39,71 +37,55 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
     saveData !== undefined ? saveData.inputAttribute2 : null
   );
 
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (
-        !inputDataContext1 ||
-        !inputDataContext2 ||
-        !inputAttribute1 ||
-        !inputAttribute2
-      ) {
-        setErrMsg("Please choose two contexts and two attributes");
-        return;
-      }
+    if (
+      !inputDataContext1 ||
+      !inputDataContext2 ||
+      !inputAttribute1 ||
+      !inputAttribute2
+    ) {
+      setErrMsg("Please choose two contexts and two attributes");
+      return;
+    }
 
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context: context1, dataset: dataset1 } =
         await getContextAndDataSet(inputDataContext1);
       const { context: context2, dataset: dataset2 } =
         await getContextAndDataSet(inputDataContext2);
+      const joined = join(dataset1, inputAttribute1, dataset2, inputAttribute2);
+      return [
+        joined,
+        `Join of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
+      ];
+    };
 
-      try {
-        const joined = join(
-          dataset1,
-          inputAttribute1,
-          dataset2,
-          inputAttribute2
-        );
-        await applyNewDataSet(
-          joined,
-          `Join of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [
-      inputDataContext1,
-      inputDataContext2,
-      inputAttribute1,
-      inputAttribute2,
-      lastContextName,
-      setErrMsg,
-    ]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(
+        inputDataContext1,
+        newContextName,
+        doTransform,
+        setErrMsg
+      );
+      addUpdateListener(
+        inputDataContext2,
+        newContextName,
+        doTransform,
+        setErrMsg
+      );
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [
     inputDataContext1,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
     inputDataContext2,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    inputAttribute1,
+    inputAttribute2,
+    setErrMsg,
+  ]);
 
   return (
     <>
@@ -133,11 +115,7 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({ inputAttribute1, inputAttribute2 })}

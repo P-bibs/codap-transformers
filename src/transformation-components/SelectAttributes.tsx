@@ -1,17 +1,15 @@
 import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { selectAttributes } from "../transformations/selectAttributes";
+import { DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
   ContextSelector,
   MultiAttributeSelector,
   CodapFlowSelect,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -39,51 +37,35 @@ export function SelectAttributes({
     saveData !== undefined ? saveData.mode : "selectOnly",
     () => setErrMsg(null)
   );
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      setErrMsg(null);
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
 
+    // select all but the given attributes?
+    const allBut = mode === "selectAllBut";
+
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const selected = selectAttributes(dataset, attributes, allBut);
+      return [selected, `Select Attributes of ${ctxtTitle(context)}`];
+    };
 
-      // select all but the given attributes?
-      const allBut = mode === "selectAllBut";
-
-      try {
-        const selected = selectAttributes(dataset, attributes, allBut);
-        await applyNewDataSet(
-          selected,
-          `Select Attributes of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [inputDataCtxt, attributes, mode, setErrMsg, lastContextName]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [inputDataCtxt, attributes, mode, setErrMsg]);
 
   return (
     <>
@@ -117,11 +99,7 @@ export function SelectAttributes({
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={lastContextName === null}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

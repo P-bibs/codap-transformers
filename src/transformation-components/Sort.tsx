@@ -1,18 +1,15 @@
 import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-  useAttributes,
-} from "../utils/hooks";
+import { useInput, useAttributes } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { sort } from "../transformations/sort";
+import { DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
   ExpressionEditor,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { CodapEvalError } from "../utils/codapPhone/error";
 
@@ -33,53 +30,37 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
   const [keyExpression, keyExpressionChange] = useState<string>(
     saveData !== undefined ? saveData.keyExpression : ""
   );
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
   const attributes = useAttributes(inputDataCtxt);
 
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      setErrMsg("");
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
-      if (keyExpression === "") {
-        setErrMsg("Please enter a non-empty key expression");
-        return;
-      }
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (keyExpression === "") {
+      setErrMsg("Please enter a non-empty key expression");
+      return;
+    }
 
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const result = await sort(dataset, keyExpression);
+      return [result, `Sort of ${ctxtTitle(context)}`];
+    };
 
-      try {
-        const result = await sort(dataset, keyExpression);
-        await applyNewDataSet(
-          result,
-          `Sort of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        if (e instanceof CodapEvalError) {
-          setErrMsg(e.error);
-        } else {
-          setErrMsg(e.toString());
-        }
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+    } catch (e) {
+      if (e instanceof CodapEvalError) {
+        setErrMsg(e.error);
+      } else {
+        setErrMsg(e.toString());
       }
-    },
-    [inputDataCtxt, setErrMsg, keyExpression, lastContextName]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    }
+  }, [inputDataCtxt, setErrMsg, keyExpression]);
 
   return (
     <>
@@ -95,11 +76,7 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={true}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

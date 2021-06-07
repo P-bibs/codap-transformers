@@ -17,7 +17,6 @@ export default function MultiAttributeSelector({
   setSelected,
 }: MultiAttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
-  const count = selected?.length || 0;
 
   // If selected contains an outdated value (attribute name that has been)
   // deleted, then filter out the value
@@ -30,7 +29,7 @@ export default function MultiAttributeSelector({
     if (selected.some((a) => !attrNames.includes(a))) {
       setSelected(selected.filter((a) => attrNames.includes(a)));
     }
-  }, [attributes, selected, setSelected]);
+  }, [attributes, selected, setSelected, disabled]);
 
   return (
     <>

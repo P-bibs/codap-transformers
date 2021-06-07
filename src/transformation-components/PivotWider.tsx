@@ -1,11 +1,9 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useInput,
-  useContextUpdateListenerWithFlowEffect,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { pivotWider } from "../transformations/pivot";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { DataSet } from "../transformations/types";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import {
   AttributeSelector,
   TransformationSubmitButtons,
@@ -39,54 +37,39 @@ export function PivotWider({
     saveData !== undefined ? saveData.valuesFrom : null
   );
 
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
-
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
-      if (namesFrom === null) {
-        setErrMsg("Please choose an attribute to get names from");
-        return;
-      }
-      if (valuesFrom === null) {
-        setErrMsg("Please choose an attribute to get values from");
-        return;
-      }
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (namesFrom === null) {
+      setErrMsg("Please choose an attribute to get names from");
+      return;
+    }
+    if (valuesFrom === null) {
+      setErrMsg("Please choose an attribute to get values from");
+      return;
+    }
+
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const pivoted = pivotWider(dataset, namesFrom, valuesFrom);
+      return [pivoted, `Pivot Wider of ${ctxtTitle(context)}`];
+    };
 
-      try {
-        const pivoted = pivotWider(dataset, namesFrom, valuesFrom);
-        await applyNewDataSet(
-          pivoted,
-          `Pivot Wider of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [inputDataCtxt, setErrMsg, lastContextName, namesFrom, valuesFrom]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [inputDataCtxt, setErrMsg, namesFrom, valuesFrom]);
 
   return (
     <>
@@ -110,11 +93,7 @@ export function PivotWider({
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

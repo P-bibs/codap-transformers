@@ -1,12 +1,10 @@
-import React, { useCallback, ReactElement, useState } from "react";
+import React, { useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
+import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -23,46 +21,31 @@ export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
-
   /**
    * Applies the flatten transformation to the input data context,
    * producing an output table in CODAP.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to flatten.");
-        return;
-      }
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to flatten.");
+      return;
+    }
+
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const flat = flatten(dataset);
+      return [flat, `Flatten of ${ctxtTitle(context)}`];
+    };
 
-      try {
-        const flat = flatten(dataset);
-        await applyNewDataSet(
-          flat,
-          `Flatten of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [inputDataCtxt, setErrMsg, lastContextName]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [inputDataCtxt, setErrMsg]);
 
   return (
     <>
@@ -70,11 +53,7 @@ export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={true}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />
       )}

@@ -1,9 +1,6 @@
 import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { DataSet } from "../transformations/types";
 import {
@@ -11,7 +8,7 @@ import {
   ContextSelector,
   AttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import {
   difference,
   runningMax,
@@ -112,63 +109,36 @@ export function Fold({
     string | null
   >(saveData !== undefined ? saveData.inputAttributeName : "");
 
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
-      if (inputAttributeName === null) {
-        setErrMsg("Please select an attribute to aggregate");
-        return;
-      }
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (inputAttributeName === null) {
+      setErrMsg("Please select an attribute to aggregate");
+      return;
+    }
 
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-
       const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
       const resultAttributeName = uniqueName(
         `${label} of ${inputAttributeName}`,
         attrs.map((attr) => attr.name)
       );
+      const result = foldFunc(dataset, inputAttributeName, resultAttributeName);
+      return [result, `${label} of ${ctxtTitle(context)}`];
+    };
 
-      try {
-        const result = foldFunc(
-          dataset,
-          inputAttributeName,
-          resultAttributeName
-        );
-        await applyNewDataSet(
-          result,
-          `${label} of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [
-      inputDataCtxt,
-      inputAttributeName,
-      setErrMsg,
-      foldFunc,
-      lastContextName,
-      label,
-    ]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [inputDataCtxt, inputAttributeName, setErrMsg, foldFunc, label]);
 
   return (
     <>
@@ -183,11 +153,7 @@ export function Fold({
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={true}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

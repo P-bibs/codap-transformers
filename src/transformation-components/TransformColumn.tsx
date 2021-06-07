@@ -1,14 +1,14 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { useInput, useAttributes } from "../utils/hooks";
 import { transformColumn } from "../transformations/transformColumn";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { DataSet } from "../transformations/types";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import {
   ExpressionEditor,
   AttributeSelector,
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
-import { useContextUpdateListenerWithFlowEffect } from "../utils/hooks";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
@@ -37,65 +37,50 @@ export function TransformColumn({
   const [expression, expressionChange] = useState<string>(
     saveData !== undefined ? saveData.expression : ""
   );
-  const [lastContextName, setLastContextName] = useState<string | null>(null);
   const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      setErrMsg("");
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
-      if (attributeName === null) {
-        setErrMsg("Please select an attribute to transform");
-        return;
-      }
-      if (expression === "") {
-        setErrMsg("Please enter a non-empty expression to transform with");
-        return;
-      }
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (attributeName === null) {
+      setErrMsg("Please select an attribute to transform");
+      return;
+    }
+    if (expression === "") {
+      setErrMsg("Please enter a non-empty expression to transform with");
+      return;
+    }
 
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const transformed = await transformColumn(
+        dataset,
+        attributeName,
+        expression
+      );
+      const newName = `Transform Column of ${ctxtTitle(context)}`;
+      return [transformed, newName];
+    };
 
-      try {
-        const transformed = await transformColumn(
-          dataset,
-          attributeName,
-          expression
-        );
-        await applyNewDataSet(
-          transformed,
-          `Transform Column of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        if (e instanceof CodapEvalError) {
-          setErrMsg(e.error);
-        } else {
-          setErrMsg(e.toString());
-        }
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+    } catch (e) {
+      if (e instanceof CodapEvalError) {
+        setErrMsg(e.error);
+      } else {
+        setErrMsg(e.toString());
       }
-    },
-    [inputDataCtxt, attributeName, expression, lastContextName, setErrMsg]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    }
+  }, [inputDataCtxt, attributeName, expression, setErrMsg]);
 
   return (
     <>
@@ -118,11 +103,7 @@ export function TransformColumn({
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

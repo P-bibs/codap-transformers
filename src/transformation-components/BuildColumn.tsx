@@ -1,12 +1,9 @@
-import React, { useState, useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useInput,
-  useContextUpdateListenerWithFlowEffect,
-  useAttributes,
-} from "../utils/hooks";
+import { useInput, useAttributes } from "../utils/hooks";
 import { buildColumn } from "../transformations/buildColumn";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { DataSet } from "../transformations/types";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import {
   ExpressionEditor,
   CodapFlowTextInput,
@@ -48,82 +45,58 @@ export function BuildColumn({
   >(saveData !== undefined ? saveData.collectionName : "", () =>
     setErrMsg(null)
   );
-  const [expression, expressionChange, setExpression] = useInput<
-    string,
-    HTMLTextAreaElement
-  >(saveData !== undefined ? saveData.expression : "", () => setErrMsg(null));
+  const [expression, setExpression] = useState<string>(
+    saveData !== undefined ? saveData.expression : ""
+  );
 
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
   const attributes = useAttributes(inputDataCtxt);
 
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
    */
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      setErrMsg("");
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
-      if (collectionName === null) {
-        setErrMsg("Please select a collection to add to");
-        return;
-      }
-      if (attributeName === "") {
-        setErrMsg("Please enter a non-empty name for the new attribute");
-        return;
-      }
-      if (expression === "") {
-        setErrMsg("Please enter a non-empty expression");
-        return;
-      }
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (collectionName === null) {
+      setErrMsg("Please select a collection to add to");
+      return;
+    }
+    if (attributeName === "") {
+      setErrMsg("Please enter a non-empty name for the new attribute");
+      return;
+    }
+    if (expression === "") {
+      setErrMsg("Please enter a non-empty expression");
+      return;
+    }
 
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const built = await buildColumn(
+        dataset,
+        attributeName,
+        collectionName,
+        expression
+      );
+      return [built, `Build Column of ${ctxtTitle(context)}`];
+    };
 
-      try {
-        const built = await buildColumn(
-          dataset,
-          attributeName,
-          collectionName,
-          expression
-        );
-        await applyNewDataSet(
-          built,
-          `Build Column of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        if (e instanceof CodapEvalError) {
-          setErrMsg(e.error);
-        } else {
-          setErrMsg(e.toString());
-        }
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+    } catch (e) {
+      if (e instanceof CodapEvalError) {
+        setErrMsg(e.error);
+      } else {
+        setErrMsg(e.toString());
       }
-    },
-    [
-      inputDataCtxt,
-      attributeName,
-      collectionName,
-      expression,
-      setErrMsg,
-      lastContextName,
-    ]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
-    inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    }
+  }, [inputDataCtxt, attributeName, collectionName, expression, setErrMsg]);
 
   return (
     <>
@@ -147,17 +120,13 @@ export function BuildColumn({
       <p>Formula for Attribute Values</p>
       <ExpressionEditor
         value={expression}
-        onChange={(s) => setExpression(s)}
+        onChange={setExpression}
         attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}
       />
 
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={!lastContextName}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

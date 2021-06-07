@@ -1,18 +1,16 @@
 import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import {
-  useContextUpdateListenerWithFlowEffect,
-  useInput,
-} from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { differenceFrom } from "../transformations/fold";
+import { DataSet } from "../transformations/types";
 import {
   CodapFlowTextInput,
   TransformationSubmitButtons,
   ContextSelector,
   AttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle } from "./util";
+import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface DifferenceFromSaveData {
@@ -52,69 +50,53 @@ export function DifferenceFrom({
     setErrMsg(null)
   );
 
-  const [lastContextName, setLastContextName] = useState<null | string>(null);
+  const transform = useCallback(async () => {
+    setErrMsg(null);
 
-  const transform = useCallback(
-    async (doUpdate: boolean) => {
-      if (inputDataCtxt === null) {
-        setErrMsg("Please choose a valid data context to transform.");
-        return;
-      }
-      if (inputAttributeName === null) {
-        setErrMsg("Please choose an attribute to take the difference from");
-        return;
-      }
-      if (resultAttributeName === "") {
-        setErrMsg("Please choose a non-empty result column name.");
-        return;
-      }
+    if (inputDataCtxt === null) {
+      setErrMsg("Please choose a valid data context to transform.");
+      return;
+    }
+    if (inputAttributeName === null) {
+      setErrMsg("Please choose an attribute to take the difference from");
+      return;
+    }
+    if (resultAttributeName === "") {
+      setErrMsg("Please choose a non-empty result column name.");
+      return;
+    }
 
-      const differenceStartingValue = Number(startingValue);
-      if (isNaN(differenceStartingValue)) {
-        setErrMsg(
-          `Expected numeric starting value, instead got ${startingValue}`
-        );
-      }
+    const differenceStartingValue = Number(startingValue);
+    if (isNaN(differenceStartingValue)) {
+      setErrMsg(
+        `Expected numeric starting value, instead got ${startingValue}`
+      );
+    }
 
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+      const result = differenceFrom(
+        dataset,
+        inputAttributeName,
+        resultAttributeName,
+        differenceStartingValue
+      );
+      return [result, `Difference From of ${ctxtTitle(context)}`];
+    };
 
-      try {
-        const result = differenceFrom(
-          dataset,
-          inputAttributeName,
-          resultAttributeName,
-          differenceStartingValue
-        );
-        await applyNewDataSet(
-          result,
-          `Difference From of ${ctxtTitle(context)}`,
-          doUpdate,
-          lastContextName,
-          setLastContextName,
-          setErrMsg
-        );
-      } catch (e) {
-        setErrMsg(e.message);
-      }
-    },
-    [
-      inputDataCtxt,
-      inputAttributeName,
-      resultAttributeName,
-      setErrMsg,
-      startingValue,
-      lastContextName,
-    ]
-  );
-
-  useContextUpdateListenerWithFlowEffect(
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+    } catch (e) {
+      setErrMsg(e.message);
+    }
+  }, [
     inputDataCtxt,
-    lastContextName,
-    () => {
-      transform(true);
-    },
-    [transform]
-  );
+    inputAttributeName,
+    resultAttributeName,
+    setErrMsg,
+    startingValue,
+  ]);
 
   return (
     <>
@@ -137,11 +119,7 @@ export function DifferenceFrom({
         onChange={startingValueChange}
       />
       <br />
-      <TransformationSubmitButtons
-        onCreate={() => transform(false)}
-        onUpdate={() => transform(true)}
-        updateDisabled={true}
-      />
+      <TransformationSubmitButtons onCreate={transform} />
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

@@ -127,7 +127,6 @@ export default function ExpressionEditor({
 
   return (
     <>
-      {disabled && "DISABLED"}
       <CodeMirrorElement
         value={value}
         options={{

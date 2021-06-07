@@ -59,6 +59,7 @@ export function Join({ setErrMsg }: JoinProps): ReactElement {
         await applyNewDataSet(
           joined,
           `Join of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

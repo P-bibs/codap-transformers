@@ -53,6 +53,7 @@ export function SelectAttributes({
         await applyNewDataSet(
           selected,
           `Select Attributes of ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

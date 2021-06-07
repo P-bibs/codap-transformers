@@ -45,6 +45,7 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
         await applyNewDataSet(
           result,
           `Sort of ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

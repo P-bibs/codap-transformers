@@ -1,5 +1,5 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet, getDataContext } from "../utils/codapPhone";
 import {
   useContextUpdateListenerWithFlowEffect,
   useInput,
@@ -54,6 +54,7 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
         await applyNewDataSet(
           filtered,
           `Filter of ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

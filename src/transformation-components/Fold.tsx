@@ -62,6 +62,7 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
         await applyNewDataSet(
           result,
           `${label} of ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

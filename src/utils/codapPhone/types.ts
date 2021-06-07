@@ -260,12 +260,21 @@ export type CodapInitiatedCommand =
       }[];
     };
 
+// The `metadata` property of data contexts is undocumented but described here:
+// https://codap.concord.org/forums/topic/accessing-dataset-description-through-plugin-api/
+export interface ContextMetadata {
+  description?: string,
+  importDate?: string,
+  source?: string,
+}
+
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#datacontexts
 export interface DataContext {
   name: string;
   title?: string;
   description?: string;
   collections: Collection[];
+  metadata?: ContextMetadata;
 }
 
 export interface ReturnedDataContext extends Omit<DataContext, "collections"> {

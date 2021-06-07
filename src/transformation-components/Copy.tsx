@@ -38,6 +38,7 @@ export function Copy({ setErrMsg }: CopyProps): ReactElement {
         await applyNewDataSet(
           copied,
           `Copy of ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

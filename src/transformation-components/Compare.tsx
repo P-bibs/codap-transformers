@@ -63,6 +63,7 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         await applyNewDataSet(
           compared,
           `Compare of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

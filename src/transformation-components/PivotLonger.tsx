@@ -62,6 +62,7 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
         await applyNewDataSet(
           pivoted,
           `Pivot Longer of ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

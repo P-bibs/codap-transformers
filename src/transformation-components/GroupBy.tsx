@@ -47,6 +47,7 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
         await applyNewDataSet(
           grouped,
           `Group By of ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

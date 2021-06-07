@@ -12,6 +12,7 @@ import {
 export async function applyNewDataSet(
   dataSet: DataSet,
   name: string | undefined,
+  description: string | undefined,
   doUpdate: boolean,
   lastContextName: string | null,
   setLastContextName: (s: string) => void,
@@ -27,7 +28,7 @@ export async function applyNewDataSet(
       }
       updateContextWithDataSet(lastContextName, dataSet);
     } else {
-      const [newContext] = await createTableWithDataSet(dataSet, name);
+      const [newContext] = await createTableWithDataSet(dataSet, name, description);
       setLastContextName(newContext.name);
     }
   } catch (e) {

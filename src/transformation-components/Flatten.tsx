@@ -38,6 +38,7 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
         await applyNewDataSet(
           flat,
           `Flatten of ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

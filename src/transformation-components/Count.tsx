@@ -46,6 +46,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         await applyNewDataSet(
           counted,
           `Count of ${attributes.join(", ")} in ${ctxtTitle(context)}`,
+          `TODO: describe the transformed context`,
           doUpdate,
           lastContextName,
           setLastContextName,

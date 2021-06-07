@@ -22,6 +22,7 @@ import { SavedTransformation } from "./types";
 import { Join } from "./Join";
 import { Eval } from "./Eval";
 import { Copy } from "./Copy";
+import { CopySchema } from "./CopySchema";
 import { CombineCases } from "./CombineCases";
 
 interface PolymorphicComponentProps {
@@ -153,6 +154,13 @@ export const PolymorphicComponent = ({
     case "Copy":
       return (
         <Copy setErrMsg={setErrMsg} saveData={transformation.content.data} />
+      );
+    case "Copy Schema":
+      return (
+        <CopySchema
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+        />
       );
     case "Combine Cases":
       return (

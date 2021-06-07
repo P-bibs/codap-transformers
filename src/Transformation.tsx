@@ -58,6 +58,7 @@ function Transformation({
       "Join",
       "Eval",
       "Copy",
+      "Copy Schema",
       "Combine Cases",
     ],
   };
@@ -83,6 +84,7 @@ function Transformation({
     { name: "Join", content: { base: "Join" } },
     { name: "Eval", content: { base: "Eval" } },
     { name: "Copy", content: { base: "Copy" } },
+    { name: "Copy Schema", content: { base: "Copy Schema" } },
     { name: "Combine Cases", content: { base: "Combine Cases" } },
   ];
 

@@ -2,6 +2,7 @@ import { ReactElement } from "react";
 import { BuildColumnSaveData } from "./BuildColumn";
 import { CompareSaveData } from "./Compare";
 import { CopySaveData } from "./Copy";
+import { CopySchemaSaveData } from "./CopySchema";
 import { CountSaveData } from "./Count";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { EvalSaveData } from "./Eval";
@@ -94,6 +95,10 @@ export type SavedTransformationContent =
   | {
       base: "Copy";
       data?: CopySaveData;
+    }
+  | {
+      base: "Copy Schema";
+      data?: CopySchemaSaveData;
     }
   | {
       base: "Join";

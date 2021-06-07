@@ -22,6 +22,7 @@ export default function TransformationSaveButton({
             <CodapFlowTextInput
               value={currentName}
               onChange={(e) => setCurrentName(e.target.value)}
+              placeholder={"Transformation name"}
             />
             <br />
             <button

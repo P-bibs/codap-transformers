@@ -4,14 +4,22 @@ interface CodapFlowTextInputProps {
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   value: string;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 export default function CodapFlowTextInput({
   onChange,
   value,
   disabled,
+  placeholder,
 }: CodapFlowTextInputProps): ReactElement {
   return (
-    <input type="text" onChange={onChange} value={value} disabled={disabled} />
+    <input
+      type="text"
+      placeholder={placeholder}
+      onChange={onChange}
+      value={value}
+      disabled={disabled}
+    />
   );
 }

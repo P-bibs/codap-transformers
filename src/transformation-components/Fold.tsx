@@ -28,7 +28,8 @@ interface FoldProps extends TransformationProps {
   foldFunc: (
     dataset: DataSet,
     inputName: string,
-    outputName: string
+    outputName: string,
+    outputDescrip: string
   ) => DataSet;
   saveData?: FoldSaveData;
 }
@@ -43,7 +44,7 @@ export const RunningSum = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "running sum",
+        label: "Running Sum",
         foldFunc: runningSum,
       }}
     />
@@ -54,7 +55,7 @@ export const RunningMean = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "running mean",
+        label: "Running Mean",
         foldFunc: runningMean,
       }}
     />
@@ -65,7 +66,7 @@ export const RunningMin = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "running min",
+        label: "Running Min",
         foldFunc: runningMin,
       }}
     />
@@ -76,7 +77,7 @@ export const RunningMax = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "running max",
+        label: "Running Max",
         foldFunc: runningMax,
       }}
     />
@@ -87,7 +88,7 @@ export const RunningDifference = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "difference",
+        label: "Running Difference",
         foldFunc: difference,
       }}
     />
@@ -125,10 +126,22 @@ export function Fold({
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
       const resultAttributeName = uniqueName(
-        `${label} of ${inputAttributeName}`,
+        `${label} of ${
+          inputAttributeName.includes(" ")
+            ? `(${inputAttributeName})`
+            : inputAttributeName
+        } from ${ctxtTitle(context)}`,
         attrs.map((attr) => attr.name)
       );
-      const result = foldFunc(dataset, inputAttributeName, resultAttributeName);
+      const resultDescription = `A ${label.toLowerCase()} of the values from the ${inputAttributeName} attribute in the ${ctxtTitle(
+        context
+      )} table.`;
+      const result = foldFunc(
+        dataset,
+        inputAttributeName,
+        resultAttributeName,
+        resultDescription
+      );
       return [result, `${label} of ${ctxtTitle(context)}`];
     };
 

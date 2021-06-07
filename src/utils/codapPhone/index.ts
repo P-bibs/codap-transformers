@@ -53,24 +53,30 @@ const DEFAULT_PLUGIN_WIDTH = 300;
 const DEFAULT_PLUGIN_HEIGHT = 320;
 
 // Initialize
-phone.call(
-  {
-    action: CodapActions.Update,
-    resource: CodapResource.InteractiveFrame,
-    values: {
-      title: "CODAP Flow",
-      dimensions: {
-        width: DEFAULT_PLUGIN_WIDTH,
-        height: DEFAULT_PLUGIN_HEIGHT,
+export async function initPhone(title: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Update,
+        resource: CodapResource.InteractiveFrame,
+        values: {
+          title,
+          dimensions: {
+            width: DEFAULT_PLUGIN_WIDTH,
+            height: DEFAULT_PLUGIN_HEIGHT,
+          },
+        },
       },
-    },
-  },
-  (response) => {
-    if (!response.success) {
-      throw new Error("Failed to update CODAP interactive frame");
-    }
-  }
-);
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update CODAP interactive frame"));
+        }
+      }
+    )
+  );
+}
 
 function resourceFromContext(context: string) {
   return `dataContext[${context}]`;

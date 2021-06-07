@@ -22,6 +22,7 @@ import { SavedTransformation } from "./types";
 import { Join } from "./Join";
 import { Eval } from "./Eval";
 import { Copy } from "./Copy";
+import { CombineCases } from "./CombineCases";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -152,6 +153,13 @@ export const PolymorphicComponent = ({
     case "Copy":
       return (
         <Copy setErrMsg={setErrMsg} saveData={transformation.content.data} />
+      );
+    case "Combine Cases":
+      return (
+        <CombineCases
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+        />
       );
   }
 };

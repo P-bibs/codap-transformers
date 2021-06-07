@@ -5,12 +5,16 @@ import { copy } from "../transformations/copy";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface CopyProps {
-  setErrMsg: (s: string | null) => void;
+// eslint-disable-next-line
+export interface CopySaveData {}
+
+interface CopyProps extends TransformationProps {
+  saveData?: CopySaveData;
 }
-
-export function Copy({ setErrMsg }: CopyProps): ReactElement {
+export function Copy({ setErrMsg, saveData }: CopyProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -47,6 +51,9 @@ export function Copy({ setErrMsg }: CopyProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton generateSaveData={() => ({})} />
+      )}
     </>
   );
 }

@@ -22,19 +22,19 @@ export enum CodapActions {
   Notify = "notify",
 }
 
+type CreateInteractiveFrameRequest = {
+  action: CodapActions.Create;
+  resource: CodapResource.InteractiveFrame;
+
+  values: { url: string; name: string };
+};
+
 type UpdateInteractiveFrameRequest = {
   action: CodapActions.Update;
   resource: CodapResource.InteractiveFrame;
 
   // We are not allowed to set interactiveState
   values: Partial<Omit<InteractiveFrame, "interactiveState">>;
-};
-
-type CreateInteractiveFrameRequest = {
-  action: CodapActions.Create;
-  resource: CodapResource.InteractiveFrame;
-
-  values: { url: string; name?: string };
 };
 
 type GetContextListRequest = {

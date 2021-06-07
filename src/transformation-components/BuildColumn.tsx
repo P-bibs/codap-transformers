@@ -11,13 +11,24 @@ import {
   ContextSelector,
   CollectionSelector,
 } from "../ui-components";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { CodapEvalError } from "../utils/codapPhone/error";
 
-interface BuildColumnProps {
-  setErrMsg: (s: string | null) => void;
+export interface BuildColumnSaveData {
+  attributeName: string;
+  collectionName: string;
+  expression: string;
 }
 
-export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
+interface BuildColumnProps extends TransformationProps {
+  saveData?: BuildColumnSaveData;
+}
+
+export function BuildColumn({
+  setErrMsg,
+  saveData,
+}: BuildColumnProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -25,12 +36,19 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
   const [attributeName, attributeNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.attributeName : "", () =>
+    setErrMsg(null)
+  );
   const [collectionName, collectionNameChange] = useInput<
-    string | null,
+    string,
     HTMLSelectElement
-  >(null, () => setErrMsg(null));
-  const [expression, expressionChange] = useState<string>("");
+  >(saveData !== undefined ? saveData.collectionName : "", () =>
+    setErrMsg(null)
+  );
+  const [expression, setExpression] = useState<string>(
+    saveData !== undefined ? saveData.expression : ""
+  );
+
   const attributes = useAttributes(inputDataCtxt);
 
   /**
@@ -84,28 +102,40 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
     <>
       <p>Table to Add Attribute To</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
+      <p>Name of New Attribute</p>
+      <CodapFlowTextInput
+        value={attributeName}
+        onChange={attributeNameChange}
+        disabled={saveData !== undefined}
+      />
 
       <p>Collection to Add To</p>
       <CollectionSelector
         context={inputDataCtxt}
         value={collectionName}
         onChange={collectionNameChange}
-      />
-
-      <p>Name of New Attribute</p>
-      <CodapFlowTextInput
-        value={attributeName}
-        onChange={attributeNameChange}
+        disabled={saveData !== undefined}
       />
 
       <p>Formula for Attribute Values</p>
       <ExpressionEditor
-        onChange={expressionChange}
+        value={expression}
+        onChange={setExpression}
         attributeNames={attributes.map((a) => a.name)}
+        disabled={saveData !== undefined}
       />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributeName,
+            collectionName,
+            expression,
+          })}
+        />
+      )}
     </>
   );
 }

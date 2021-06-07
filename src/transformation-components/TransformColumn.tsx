@@ -10,21 +10,33 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { getContextAndDataSet } from "../utils/codapPhone";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { CodapEvalError } from "../utils/codapPhone/error";
 
-interface TransformColumnProps {
-  setErrMsg: (s: string | null) => void;
+export interface TransformColumnSaveData {
+  attributeName: string;
+  expression: string;
 }
 
+interface TransformColumnProps extends TransformationProps {
+  saveData?: TransformColumnSaveData;
+}
 export function TransformColumn({
   setErrMsg,
+  saveData,
 }: TransformColumnProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributeName, attributeNameChange] = useState<string | null>(null);
-  const [expression, expressionChange] = useState<string>("");
+
+  const [attributeName, attributeNameChange] = useState<string | null>(
+    saveData !== undefined ? saveData.attributeName : ""
+  );
+  const [expression, expressionChange] = useState<string>(
+    saveData !== undefined ? saveData.expression : ""
+  );
   const attributes = useAttributes(inputDataCtxt);
 
   /**
@@ -84,12 +96,22 @@ export function TransformColumn({
 
       <p>How to Transform Column</p>
       <ExpressionEditor
+        value={expression}
         onChange={expressionChange}
         attributeNames={attributes.map((a) => a.name)}
+        disabled={saveData !== undefined}
       />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributeName,
+            expression,
+          })}
+        />
+      )}
     </>
   );
 }

@@ -9,18 +9,33 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
 } from "../ui-components";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface PivotWiderProps {
-  setErrMsg: (s: string | null) => void;
+export interface PivotWiderSaveData {
+  namesFrom: string;
+  valuesFrom: string;
 }
 
-export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
+interface PivotWiderProps extends TransformationProps {
+  saveData?: PivotWiderSaveData;
+}
+
+export function PivotWider({
+  setErrMsg,
+  saveData,
+}: PivotWiderProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [namesFrom, namesFromOnChange] = useState<string | null>(null);
-  const [valuesFrom, valuesFromOnChange] = useState<string | null>(null);
+
+  const [namesFrom, namesFromOnChange] = useState<string | null>(
+    saveData !== undefined ? saveData.namesFrom : null
+  );
+  const [valuesFrom, valuesFromOnChange] = useState<string | null>(
+    saveData !== undefined ? saveData.valuesFrom : null
+  );
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -66,6 +81,7 @@ export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
         onChange={namesFromOnChange}
         value={namesFrom}
         context={inputDataCtxt}
+        disabled={saveData !== undefined}
       />
 
       <p>Values From</p>
@@ -73,10 +89,19 @@ export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
         onChange={valuesFromOnChange}
         value={valuesFrom}
         context={inputDataCtxt}
+        disabled={saveData !== undefined}
       />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            namesFrom,
+            valuesFrom,
+          })}
+        />
+      )}
     </>
   );
 }

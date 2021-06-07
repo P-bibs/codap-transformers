@@ -10,12 +10,20 @@ import {
   TransformationSubmitButtons,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface CompareProps {
-  setErrMsg: (s: string | null) => void;
+export interface CompareSaveData {
+  inputAttribute1: string;
+  inputAttribute2: string;
+  compareType: CompareType;
 }
 
-export function Compare({ setErrMsg }: CompareProps): ReactElement {
+interface CompareProps extends TransformationProps {
+  saveData?: CompareSaveData;
+}
+
+export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -24,10 +32,12 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [inputAttribute1, inputAttribute1OnChange] =
-    useState<string | null>(null);
-  const [inputAttribute2, inputAttribute2OnChange] =
-    useState<string | null>(null);
+  const [inputAttribute1, setInputAttribute1] = useState<string | null>(
+    saveData !== undefined ? saveData.inputAttribute1 : ""
+  );
+  const [inputAttribute2, setInputAttribute2] = useState<string | null>(
+    saveData !== undefined ? saveData.inputAttribute2 : ""
+  );
 
   const [compareType, setCompareType] = useState<CompareType>("numeric");
 
@@ -103,16 +113,18 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
 
       <p>First attribute to Compare</p>
       <AttributeSelector
-        onChange={inputAttribute1OnChange}
+        onChange={(s) => setInputAttribute1(s)}
         value={inputAttribute1}
         context={inputDataContext1}
+        disabled={saveData !== undefined}
       />
 
       <p>Second attribute to Compare</p>
       <AttributeSelector
-        onChange={inputAttribute2OnChange}
+        onChange={(s) => setInputAttribute2(s)}
         value={inputAttribute2}
         context={inputDataContext2}
+        disabled={saveData !== undefined}
       />
 
       <p>What kind of Comparison?</p>
@@ -125,10 +137,20 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
         ]}
         value={compareType}
         defaultValue="Select a type"
+        disabled={saveData !== undefined}
       />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            inputAttribute1,
+            inputAttribute2,
+            compareType,
+          })}
+        />
+      )}
     </>
   );
 }

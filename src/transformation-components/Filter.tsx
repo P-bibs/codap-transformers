@@ -9,18 +9,26 @@ import {
   ExpressionEditor,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { TransformationProps } from "./types";
 import { CodapEvalError } from "../utils/codapPhone/error";
 
-interface FilterProps {
-  setErrMsg: (s: string | null) => void;
+export interface FilterSaveData {
+  predicate: string;
 }
 
-export function Filter({ setErrMsg }: FilterProps): ReactElement {
+interface FilterProps extends TransformationProps {
+  saveData?: FilterSaveData;
+}
+
+export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [predicate, predicateChange] = useState<string>("");
+  const [predicate, setPredicate] = useState<string>(
+    saveData !== undefined ? saveData.predicate : ""
+  );
   const attributes = useAttributes(inputDataCtxt);
 
   /**
@@ -65,12 +73,21 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
 
       <p>How to Filter</p>
       <ExpressionEditor
-        onChange={predicateChange}
+        value={predicate}
+        onChange={(s) => setPredicate(s)}
         attributeNames={attributes.map((a) => a.name)}
+        disabled={saveData !== undefined}
       />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            predicate,
+          })}
+        />
+      )}
     </>
   );
 }

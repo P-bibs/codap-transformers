@@ -9,7 +9,19 @@ import {
   AttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import {
+  difference,
+  runningMax,
+  runningMean,
+  runningMin,
+  runningSum,
+} from "../transformations/fold";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { uniqueName } from "../utils/names";
+
+export interface FoldSaveData {
+  inputAttributeName: string;
+}
 
 interface FoldProps extends TransformationProps {
   label: string;
@@ -18,16 +30,84 @@ interface FoldProps extends TransformationProps {
     inputName: string,
     outputName: string
   ) => DataSet;
+  saveData?: FoldSaveData;
 }
 
-export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
+// This is props type for components which are constructed with an
+// underlying `Fold` component. Examples include Running Sum and Running Mean
+type FoldConsumerProps = Omit<FoldProps, "foldFunc" | "label">;
+
+export const RunningSum = (props: FoldConsumerProps): ReactElement => {
+  // Use spread syntax to merge passed in props with fixed props
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "running sum",
+        foldFunc: runningSum,
+      }}
+    />
+  );
+};
+export const RunningMean = (props: FoldConsumerProps): ReactElement => {
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "running mean",
+        foldFunc: runningMean,
+      }}
+    />
+  );
+};
+export const RunningMin = (props: FoldConsumerProps): ReactElement => {
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "running min",
+        foldFunc: runningMin,
+      }}
+    />
+  );
+};
+export const RunningMax = (props: FoldConsumerProps): ReactElement => {
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "running max",
+        foldFunc: runningMax,
+      }}
+    />
+  );
+};
+export const RunningDifference = (props: FoldConsumerProps): ReactElement => {
+  return (
+    <Fold
+      {...{
+        ...props,
+        label: "difference",
+        foldFunc: difference,
+      }}
+    />
+  );
+};
+
+export function Fold({
+  setErrMsg,
+  label,
+  foldFunc,
+  saveData,
+}: FoldProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [inputAttributeName, inputAttributeNameChange] =
-    useState<string | null>(null);
+  const [inputAttributeName, inputAttributeNameChange] = useState<
+    string | null
+  >(saveData !== undefined ? saveData.inputAttributeName : "");
 
   const transform = useCallback(async () => {
     setErrMsg(null);
@@ -74,6 +154,13 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            inputAttributeName,
+          })}
+        />
+      )}
     </>
   );
 }

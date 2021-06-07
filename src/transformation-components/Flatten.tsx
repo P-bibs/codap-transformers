@@ -5,12 +5,17 @@ import { flatten } from "../transformations/flatten";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface FlattenProps {
-  setErrMsg: (s: string | null) => void;
+// eslint-disable-next-line
+export interface FlattenSaveData {}
+
+interface FlattenProps extends TransformationProps {
+  saveData?: FlattenSaveData;
 }
 
-export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
+export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -49,6 +54,9 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton generateSaveData={() => ({})} />
+      )}
     </>
   );
 }

@@ -10,22 +10,36 @@ import {
   ContextSelector,
   CodapFlowTextInput,
 } from "../ui-components";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface PivotLongerProps {
-  setErrMsg: (s: string | null) => void;
+export interface PivotLongerSaveData {
+  attributes: string[];
+  namesTo: string;
+  valuesTo: string;
 }
 
-export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
+interface PivotLongerProps extends TransformationProps {
+  saveData?: PivotLongerSaveData;
+}
+
+export function PivotLonger({
+  setErrMsg,
+  saveData,
+}: PivotLongerProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, setAttributes] = useState<string[]>([]);
-  const [namesTo, namesToChange] = useInput<string, HTMLInputElement>("", () =>
-    setErrMsg(null)
+  const [attributes, setAttributes] = useState<string[]>(
+    saveData !== undefined ? saveData.attributes : []
+  );
+  const [namesTo, namesToChange] = useInput<string, HTMLInputElement>(
+    saveData !== undefined ? saveData.namesTo : "",
+    () => setErrMsg(null)
   );
   const [valuesTo, valuesToChange] = useInput<string, HTMLInputElement>(
-    "",
+    saveData !== undefined ? saveData.valuesTo : "",
     () => setErrMsg(null)
   );
 
@@ -76,7 +90,8 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
       <MultiAttributeSelector
         context={inputDataCtxt}
         selected={attributes}
-        onChange={setAttributes}
+        setSelected={setAttributes}
+        disabled={saveData !== undefined}
       />
 
       <p>Names To</p>
@@ -87,6 +102,15 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributes,
+            namesTo,
+            valuesTo,
+          })}
+        />
+      )}
     </>
   );
 }

@@ -11,27 +11,44 @@ import {
   AttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+
+export interface DifferenceFromSaveData {
+  inputAttributeName: string;
+  resultAttributeName: string;
+  startingValue: string;
+}
+
+interface DifferenceFromProps extends TransformationProps {
+  saveData?: DifferenceFromSaveData;
+}
 
 export function DifferenceFrom({
   setErrMsg,
-}: TransformationProps): ReactElement {
+  saveData,
+}: DifferenceFromProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [inputAttributeName, inputAttributeNameChange] =
-    useState<string | null>(null);
+  const [inputAttributeName, inputAttributeNameChange] = useState<
+    string | null
+  >(saveData !== undefined ? saveData.inputAttributeName : "");
 
   const [resultAttributeName, resultAttributeNameChange] = useInput<
     string,
     HTMLInputElement
-  >("", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.resultAttributeName : "", () =>
+    setErrMsg(null)
+  );
 
   const [startingValue, startingValueChange] = useInput<
     string,
     HTMLInputElement
-  >("0", () => setErrMsg(null));
+  >(saveData !== undefined ? saveData.startingValue : "0", () =>
+    setErrMsg(null)
+  );
 
   const transform = useCallback(async () => {
     setErrMsg(null);
@@ -103,6 +120,15 @@ export function DifferenceFrom({
       />
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            inputAttributeName,
+            resultAttributeName,
+            startingValue,
+          })}
+        />
+      )}
     </>
   );
 }

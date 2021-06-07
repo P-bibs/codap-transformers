@@ -60,10 +60,12 @@ export function Compare({ setErrMsg }: CompareProps): ReactElement {
           inputAttribute2,
           compareType
         );
+        const title1 = ctxtTitle(context1);
+        const title2 = ctxtTitle(context2);
         await applyNewDataSet(
           compared,
-          `Compare of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
-          `TODO: describe the transformed context`,
+          `Compare of ${title1} and ${title2}`,
+          `A comparison of the attributes ${inputAttribute1} (from ${title1}) and ${inputAttribute2} (from ${title2})`,
           doUpdate,
           lastContextName,
           setLastContextName,

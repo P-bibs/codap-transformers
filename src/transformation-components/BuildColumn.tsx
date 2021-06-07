@@ -71,10 +71,11 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
           collectionName,
           expression
         );
+        const inputTitle = ctxtTitle(context);
         await applyNewDataSet(
           built,
-          `Build Column of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Build Column of ${inputTitle}`,
+          `A copy of ${inputTitle}, with a new attribute (${attributeName}) added, whose value is determined by the formula ${expression}`,
           doUpdate,
           lastContextName,
           setLastContextName,

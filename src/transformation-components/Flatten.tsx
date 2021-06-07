@@ -35,10 +35,11 @@ export function Flatten({ setErrMsg }: FlattenProps): ReactElement {
 
       try {
         const flat = flatten(dataset);
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           flat,
-          `Flatten of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Flatten of ${title}`,
+          `A copy of ${title} in which all collections have been flattened into one collection.`,
           doUpdate,
           lastContextName,
           setLastContextName,

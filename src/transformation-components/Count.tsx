@@ -43,10 +43,12 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
 
       try {
         const counted = count(dataset, attributes);
+        const attributeNames = attributes.join(", ");
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           counted,
-          `Count of ${attributes.join(", ")} in ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Count of ${attributeNames} in ${title}`,
+          `A summary of the frequency of all tuples of the attributes ${attributeNames} in ${title}`,
           doUpdate,
           lastContextName,
           setLastContextName,

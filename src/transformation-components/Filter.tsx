@@ -51,10 +51,11 @@ export function Filter({ setErrMsg }: FilterProps): ReactElement {
 
       try {
         const filtered = await filter(dataset, predicate);
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           filtered,
-          `Filter of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Filter of ${title}`,
+          `A copy of ${title} that only includes the cases for which the predicate ${predicate} is satisfied.`,
           doUpdate,
           lastContextName,
           setLastContextName,

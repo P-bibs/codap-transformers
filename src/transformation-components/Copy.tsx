@@ -35,10 +35,11 @@ export function Copy({ setErrMsg }: CopyProps): ReactElement {
 
       try {
         const copied = copy(dataset);
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           copied,
-          `Copy of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Copy of ${title}`,
+          `A copy of the ${title} table.`,
           doUpdate,
           lastContextName,
           setLastContextName,

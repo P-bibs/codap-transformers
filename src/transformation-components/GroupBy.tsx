@@ -40,14 +40,17 @@ export function GroupBy({ setErrMsg }: GroupByProps): ReactElement {
       }
 
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const parentName = `Grouped by ${attributes.join(", ")}`;
+
+      const attributeNames = attributes.join(", ");
+      const parentName = `Grouped by ${attributeNames}`;
 
       try {
         const grouped = groupBy(dataset, attributes, parentName);
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           grouped,
-          `Group By of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Group By of ${title}`,
+          `A copy of ${title} with a new parent collection added which contains copies of the attributes ${attributeNames}.`,
           doUpdate,
           lastContextName,
           setLastContextName,

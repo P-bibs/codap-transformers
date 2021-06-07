@@ -428,7 +428,9 @@ function normalizeDataContext(context: ReturnedDataContext): DataContext {
   };
 }
 
-async function createDataContext(context: DataContext): Promise<CodapIdentifyingInfo> {
+async function createDataContext(
+  context: DataContext
+): Promise<CodapIdentifyingInfo> {
   return new Promise<CodapIdentifyingInfo>((resolve, reject) =>
     phone.call(
       {
@@ -476,7 +478,7 @@ export async function createContextWithDataSet(
   dataset: DataSet,
   name: string,
   title?: string,
-  metadata?: ContextMetadata,
+  metadata?: ContextMetadata
 ): Promise<CodapIdentifyingInfo> {
   const newDatasetDescription = await createDataContext({
     name,
@@ -821,7 +823,7 @@ async function ensureUniqueName(
 export async function createTableWithDataSet(
   dataset: DataSet,
   name?: string,
-  description?: string,
+  description?: string
 ): Promise<[CodapIdentifyingInfo, CaseTable]> {
   let baseName;
   if (!name) {
@@ -845,9 +847,14 @@ export async function createTableWithDataSet(
   );
 
   // Create context and table;
-  const newContext = await createContextWithDataSet(dataset, contextName, contextName, {
-    description
-  });
+  const newContext = await createContextWithDataSet(
+    dataset,
+    contextName,
+    contextName,
+    {
+      description,
+    }
+  );
 
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];

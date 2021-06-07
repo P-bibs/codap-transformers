@@ -68,10 +68,11 @@ export function DifferenceFrom({
           resultAttributeName,
           differenceStartingValue
         );
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           result,
-          `Difference From of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Difference From of ${title}`,
+          `A copy of ${title} with a new attribute (${resultAttributeName}) whose value is determined by the formula ${inputAttributeName} - ${differenceStartingValue}`,
           doUpdate,
           lastContextName,
           setLastContextName,

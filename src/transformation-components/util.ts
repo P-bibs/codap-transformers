@@ -28,7 +28,11 @@ export async function applyNewDataSet(
       }
       updateContextWithDataSet(lastContextName, dataSet);
     } else {
-      const [newContext] = await createTableWithDataSet(dataSet, name, description);
+      const [newContext] = await createTableWithDataSet(
+        dataSet,
+        name,
+        description
+      );
       setLastContextName(newContext.name);
     }
   } catch (e) {

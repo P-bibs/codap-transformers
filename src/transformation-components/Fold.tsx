@@ -59,10 +59,11 @@ export function Fold({ setErrMsg, label, foldFunc }: FoldProps): ReactElement {
           inputAttributeName,
           resultAttributeName
         );
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           result,
-          `${label} of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `${label} of ${title}`,
+          `A copy of ${title} with a new attribute added whose value is a ${label.toLowerCase()} of the ${inputAttributeName} attribute.`,
           doUpdate,
           lastContextName,
           setLastContextName,

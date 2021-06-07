@@ -145,9 +145,6 @@ export default function ExpressionEditor({
             onChange(value);
           }
         }}
-        onChange={(editor, data, value) => {
-          // don't do anything
-        }}
       />
     </>
   );

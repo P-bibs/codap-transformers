@@ -48,7 +48,7 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         await applyNewDataSet(
           counted,
           `Count of ${attributeNames} in ${title}`,
-          `A summary of the frequency of all tuples of the attributes ${attributeNames} in ${title}`,
+          `A summary of the frequency of all tuples of the attributes ${attributeNames} that appear in ${title}`,
           doUpdate,
           lastContextName,
           setLastContextName,

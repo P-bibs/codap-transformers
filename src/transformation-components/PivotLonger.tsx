@@ -57,12 +57,15 @@ export function PivotLonger({ setErrMsg }: PivotLongerProps): ReactElement {
 
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
 
+      const attributeNames = attributes.join(", ");
+
       try {
         const pivoted = pivotLonger(dataset, attributes, namesTo, valuesTo);
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           pivoted,
-          `Pivot Longer of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Pivot Longer of ${title}`,
+          `A copy of ${title} with the attributes ${attributeNames} turned into values under a new attribute (${namesTo}), and the values previously under those attributes moved under a new attribute (${valuesTo}).`,
           doUpdate,
           lastContextName,
           setLastContextName,

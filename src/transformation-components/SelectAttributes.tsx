@@ -50,10 +50,13 @@ export function SelectAttributes({
 
       try {
         const selected = selectAttributes(dataset, attributes, allBut);
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           selected,
-          `Select Attributes of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Select Attributes of ${title}`,
+          `A copy of ${title} with ${
+            allBut ? "all but" : "only"
+          } the attributes ${attributes.join(", ")} included.`,
           doUpdate,
           lastContextName,
           setLastContextName,

@@ -49,10 +49,11 @@ export function PivotWider({ setErrMsg }: PivotWiderProps): ReactElement {
 
       try {
         const pivoted = pivotWider(dataset, namesFrom, valuesFrom);
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           pivoted,
-          `Pivot Wider of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Pivot Wider of ${title}`,
+          `A copy of ${title} with the values in attribute ${namesFrom} converted into new attributes, which get their values from the attribute ${valuesFrom}.`,
           doUpdate,
           lastContextName,
           setLastContextName,

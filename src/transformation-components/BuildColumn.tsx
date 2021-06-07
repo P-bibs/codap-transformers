@@ -75,7 +75,7 @@ export function BuildColumn({ setErrMsg }: BuildColumnProps): ReactElement {
         await applyNewDataSet(
           built,
           `Build Column of ${inputTitle}`,
-          `A copy of ${inputTitle}, with a new attribute (${attributeName}) added, whose value is determined by the formula ${expression}`,
+          `A copy of ${inputTitle} with a new attribute (${attributeName}) added to the ${collectionName} collection, whose value is determined by the formula ${expression}`,
           doUpdate,
           lastContextName,
           setLastContextName,

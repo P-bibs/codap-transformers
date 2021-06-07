@@ -57,10 +57,11 @@ export function TransformColumn({
           attributeName,
           expression
         );
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           transformed,
-          `Transform Column of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Transform Column of ${title}`,
+          `A copy of ${title}, with the ${attributeName} attribute's values determined by the formula ${expression}`,
           doUpdate,
           lastContextName,
           setLastContextName,

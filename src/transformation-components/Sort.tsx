@@ -42,10 +42,11 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
 
       try {
         const result = await sort(dataset, keyExpression);
+        const title = ctxtTitle(context);
         await applyNewDataSet(
           result,
-          `Sort of ${ctxtTitle(context)}`,
-          `TODO: describe the transformed context`,
+          `Sort of ${title}`,
+          `A copy of ${title}, sorted by the value of the key formula: ${keyExpression}`,
           doUpdate,
           lastContextName,
           setLastContextName,

@@ -56,10 +56,12 @@ export function Join({ setErrMsg }: JoinProps): ReactElement {
           dataset2,
           inputAttribute2
         );
+        const baseTitle = ctxtTitle(context1);
+        const joiningTitle = ctxtTitle(context2);
         await applyNewDataSet(
           joined,
-          `Join of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
-          `TODO: describe the transformed context`,
+          `Join of ${baseTitle} and ${joiningTitle}`,
+          `A copy of ${baseTitle}, with all the attributes/values from the collection containing ${inputAttribute2} in ${joiningTitle} added into the collection containing ${inputAttribute1} in ${baseTitle}.`,
           doUpdate,
           lastContextName,
           setLastContextName,

@@ -23,6 +23,7 @@ export default function TransformationSaveButton({
               value={currentName}
               onChange={(e) => setCurrentName(e.target.value)}
             />
+            <br />
             <button
               disabled={disabled}
               onClick={() =>

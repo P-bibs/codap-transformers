@@ -120,12 +120,12 @@ function Transformation({
   return (
     <div className="Transformation">
       {urlTransformation ? (
-        <p>
+        <h3>
           {urlTransformation.name} ({urlTransformation.content.base})
-        </p>
+        </h3>
       ) : (
         <>
-          <p>Transformation Type</p>
+          <h3>Transformation Type</h3>
 
           <select
             onChange={typeChange}

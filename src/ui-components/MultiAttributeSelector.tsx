@@ -7,6 +7,7 @@ interface MultiAttributeSelectorProps {
   selected: string[];
   setSelected: (selected: string[]) => void;
   disabled?: boolean;
+  frozen?: boolean;
 }
 
 export default function MultiAttributeSelector({
@@ -21,6 +22,10 @@ export default function MultiAttributeSelector({
   // If selected contains an outdated value (attribute name that has been)
   // deleted, then filter out the value
   useEffect(() => {
+    // Only filter out attributes if this selector is enabled
+    if (disabled) {
+      return;
+    }
     const attrNames = attributes.map((a) => a.name);
     if (selected.some((a) => !attrNames.includes(a))) {
       setSelected(selected.filter((a) => attrNames.includes(a)));

@@ -9,23 +9,34 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
   MultiAttributeSelector,
+  CodapFlowSelect,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface SelectAttributesProps {
-  setErrMsg: (s: string | null) => void;
+export interface SelectAttributesSaveData {
+  attributes: string[];
+  mode: string;
+}
+
+interface SelectAttributesProps extends TransformationProps {
+  saveData?: SelectAttributesSaveData;
 }
 
 export function SelectAttributes({
   setErrMsg,
+  saveData,
 }: SelectAttributesProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, setAttributes] = useState<string[]>([]);
+  const [attributes, setAttributes] = useState<string[]>(
+    saveData !== undefined ? saveData.attributes : []
+  );
   const [mode, modeChange] = useInput<string | null, HTMLSelectElement>(
-    "selectOnly",
+    saveData !== undefined ? saveData.mode : "selectOnly",
     () => setErrMsg(null)
   );
   const [lastContextName, setLastContextName] = useState<null | string>(null);
@@ -80,18 +91,29 @@ export function SelectAttributes({
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <p>Mode</p>
-      <select id="mode" onChange={modeChange}>
-        <option value="selectOnly">Select only the following attributes</option>
-        <option value="selectAllBut">
-          Select all but the following attributes
-        </option>
-      </select>
+      <CodapFlowSelect
+        onChange={modeChange}
+        options={[
+          {
+            value: "selectOnly",
+            title: "Select only the following attributes",
+          },
+          {
+            value: "selectAllBut",
+            title: "Select all but the following attributes",
+          },
+        ]}
+        value={mode}
+        defaultValue={"Mode"}
+        disabled={saveData !== undefined}
+      />
 
       <p>Attributes</p>
       <MultiAttributeSelector
         context={inputDataCtxt}
         selected={attributes}
-        onChange={setAttributes}
+        setSelected={setAttributes}
+        disabled={saveData !== undefined}
       />
 
       <br />
@@ -100,6 +122,14 @@ export function SelectAttributes({
         onUpdate={() => transform(true)}
         updateDisabled={lastContextName === null}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributes,
+            mode,
+          })}
+        />
+      )}
     </>
   );
 }

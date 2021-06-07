@@ -2,76 +2,39 @@
 import React, { ReactElement } from "react";
 import { useState } from "react";
 import "./Transformation.css";
-import Error from "./Error";
-import { Filter } from "./transformation-components/Filter";
-import { TransformColumn } from "./transformation-components/TransformColumn";
-import { BuildColumn } from "./transformation-components/BuildColumn";
-import { GroupBy } from "./transformation-components/GroupBy";
-import { SelectAttributes } from "./transformation-components/SelectAttributes";
-import { Count } from "./transformation-components/Count";
-import { Flatten } from "./transformation-components/Flatten";
-import { Compare } from "./transformation-components/Compare";
-import { Fold } from "./transformation-components/Fold";
-import { DifferenceFrom } from "./transformation-components/DifferenceFrom";
-import { Sort } from "./transformation-components/Sort";
-import { Eval } from "./transformation-components/Eval";
+import CodapFlowErrorDisplay from "./Error";
 import {
-  runningSum,
-  runningMean,
-  runningMin,
-  runningMax,
-  difference,
-} from "./transformations/fold";
-import { PivotLonger } from "./transformation-components/PivotLonger";
-import { PivotWider } from "./transformation-components/PivotWider";
-import { Join } from "./transformation-components/Join";
-import { Copy } from "./transformation-components/Copy";
+  BaseTransformations,
+  SavedTransformation,
+  SavedTransformationContent,
+  TransformationSaveData,
+} from "./transformation-components/types";
+import { PolymorphicComponent } from "./transformation-components/PolymorphicComponent";
+import { createDataInteractive } from "./utils/codapPhone";
+
+/**
+ * Subscribing to this context allows adding new saved transformations
+ */
+export const SaveTransformationContext = React.createContext<
+  (name: string, d: TransformationSaveData) => void
+>((name, d) => {
+  // If someone tries to subscribe to this context without a valid
+  // provider higher up, then throw an error.
+  throw Error("No Save Transformation Provider Found");
+});
 
 /**
  * Transformation represents an instance of the plugin, which applies a
  * user-defined transformation to input data from CODAP to yield output data.
  */
-function Transformation(): ReactElement {
+function Transformation({
+  transformation: urlTransformation,
+}: {
+  transformation?: SavedTransformation;
+}): ReactElement {
+  const [transformType, setTransformType] = useState<string | null>(null);
+
   const [errMsg, setErrMsg] = useState<string | null>(null);
-
-  /**
-   * The broad categories of transformations that can be applied
-   * to tables.
-   */
-
-  const transformComponents: Record<string, ReactElement> = {
-    "Running Sum": (
-      <Fold setErrMsg={setErrMsg} label="Running Sum" foldFunc={runningSum} />
-    ),
-    "Running Mean": (
-      <Fold setErrMsg={setErrMsg} label="Running Mean" foldFunc={runningMean} />
-    ),
-    "Running Min": (
-      <Fold setErrMsg={setErrMsg} label="Running Min" foldFunc={runningMin} />
-    ),
-    "Running Max": (
-      <Fold setErrMsg={setErrMsg} label="Running Max" foldFunc={runningMax} />
-    ),
-    "Running Difference": (
-      <Fold setErrMsg={setErrMsg} label="Difference" foldFunc={difference} />
-    ),
-    Flatten: <Flatten setErrMsg={setErrMsg} />,
-    "Group By": <GroupBy setErrMsg={setErrMsg} />,
-    Filter: <Filter setErrMsg={setErrMsg} />,
-    "Transform Column": <TransformColumn setErrMsg={setErrMsg} />,
-    "Build Column": <BuildColumn setErrMsg={setErrMsg} />,
-    "Select Attributes": <SelectAttributes setErrMsg={setErrMsg} />,
-    Count: <Count setErrMsg={setErrMsg} />,
-    Compare: <Compare setErrMsg={setErrMsg} />,
-    "Difference From": <DifferenceFrom setErrMsg={setErrMsg} />,
-    Sort: <Sort setErrMsg={setErrMsg} />,
-    "Pivot Longer": <PivotLonger setErrMsg={setErrMsg} />,
-    "Pivot Wider": <PivotWider setErrMsg={setErrMsg} />,
-    Join: <Join setErrMsg={setErrMsg} />,
-    Eval: <Eval setErrMsg={setErrMsg} />,
-    Copy: <Copy setErrMsg={setErrMsg} />,
-  };
-
   const transformGroups: Record<string, string[]> = {
     "Running Aggregators": [
       "Running Sum",
@@ -98,7 +61,56 @@ function Transformation(): ReactElement {
     ],
   };
 
-  const [transformType, setTransformType] = useState<string | null>(null);
+  const transformationData: SavedTransformation[] = [
+    { name: "Build Column", content: { base: "Build Column" } },
+    { name: "Compare", content: { base: "Compare" } },
+    { name: "Count", content: { base: "Count" } },
+    { name: "Difference From", content: { base: "Difference From" } },
+    { name: "Filter", content: { base: "Filter" } },
+    { name: "Flatten", content: { base: "Flatten" } },
+    { name: "Running Sum", content: { base: "Running Sum" } },
+    { name: "Running Mean", content: { base: "Running Mean" } },
+    { name: "Running Min", content: { base: "Running Min" } },
+    { name: "Running Max", content: { base: "Running Max" } },
+    { name: "Running Difference", content: { base: "Running Difference" } },
+    { name: "Group By", content: { base: "Group By" } },
+    { name: "Pivot Longer", content: { base: "Pivot Longer" } },
+    { name: "Pivot Wider", content: { base: "Pivot Wider" } },
+    { name: "Select Attributes", content: { base: "Select Attributes" } },
+    { name: "Sort", content: { base: "Sort" } },
+    { name: "Transform Column", content: { base: "Transform Column" } },
+    { name: "Join", content: { base: "Join" } },
+    { name: "Eval", content: { base: "Eval" } },
+    { name: "Copy", content: { base: "Copy" } },
+  ];
+
+  function addTransformation(name: string, data: TransformationSaveData) {
+    if (name === "") {
+      return;
+    }
+    // Make sure transformType is non-null
+    if (transformType === null) {
+      return;
+    }
+    // Search for the base value associated with the currently selected transformation
+    const base: BaseTransformations | undefined = transformationData.find(
+      ({ name }) => name === transformType
+    )?.content.base;
+    // Make sure the previous search was successful
+    if (base === undefined) {
+      return;
+    }
+    // Create a new transformation and add it to the list
+    // TODO: can we do this without casting?
+    const content: SavedTransformationContent = {
+      base,
+      data,
+    } as SavedTransformationContent;
+
+    const savedTransformation = { name, content };
+    const encoded = encodeURIComponent(JSON.stringify(savedTransformation));
+    createDataInteractive(name, `http://localhost:3000?transform=${encoded}`);
+  }
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setTransformType(event.target.value);
@@ -107,28 +119,49 @@ function Transformation(): ReactElement {
 
   return (
     <div className="Transformation">
-      <p>Transformation Type</p>
-      <select
-        onChange={typeChange}
-        value={transformType || "Select a transformation"}
-      >
-        <option disabled value="Select a transformation">
-          Select a transformation
-        </option>
-        {Object.keys(transformGroups).map((groupName) => (
-          <optgroup label={groupName} key={groupName}>
-            {transformGroups[groupName].map((transformName) => (
-              <option key={transformName} value={transformName}>
-                {transformName}
-              </option>
+      {urlTransformation ? (
+        <p>
+          {urlTransformation.name} ({urlTransformation.content.base})
+        </p>
+      ) : (
+        <>
+          <p>Transformation Type</p>
+
+          <select
+            onChange={typeChange}
+            value={transformType || "Select a transformation"}
+          >
+            <option disabled value="Select a transformation">
+              Select a transformation
+            </option>
+            {Object.keys(transformGroups).map((groupName) => (
+              <optgroup label={groupName} key={groupName}>
+                {transformGroups[groupName].map((transformName) => (
+                  <option key={transformName} value={transformName}>
+                    {transformName}
+                  </option>
+                ))}
+              </optgroup>
             ))}
-          </optgroup>
-        ))}
-      </select>
-
-      {transformType && transformComponents[transformType]}
-
-      <Error message={errMsg} />
+          </select>
+        </>
+      )}
+      <SaveTransformationContext.Provider value={addTransformation}>
+        {urlTransformation ? (
+          <PolymorphicComponent
+            setErrMsg={setErrMsg}
+            transformation={urlTransformation}
+          />
+        ) : (
+          <PolymorphicComponent
+            setErrMsg={setErrMsg}
+            transformation={transformationData.find(
+              ({ name }) => name === transformType
+            )}
+          />
+        )}
+      </SaveTransformationContext.Provider>
+      <CodapFlowErrorDisplay message={errMsg} />
     </div>
   );
 }

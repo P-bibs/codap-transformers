@@ -6,12 +6,14 @@ interface CollectionSelectorProps {
   context: string | null;
   value: string | null;
   onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  disabled?: boolean;
 }
 
 export default function CollectionSelector({
   context,
   value,
   onChange,
+  disabled,
 }: CollectionSelectorProps): ReactElement {
   const collections = useCollections(context);
 
@@ -24,6 +26,7 @@ export default function CollectionSelector({
       }))}
       value={value}
       defaultValue="Select a collection"
+      disabled={disabled}
     />
   );
 }

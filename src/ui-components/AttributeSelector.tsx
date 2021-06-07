@@ -5,6 +5,7 @@ import { useAttributes } from "../utils/hooks";
 interface AttributeSelectorProps {
   context: string | null;
   value: string | null;
+  disabled?: boolean;
   onChange: (s: string | null) => void;
 }
 
@@ -12,6 +13,7 @@ export default function AttributeSelector({
   context,
   value,
   onChange,
+  disabled,
 }: AttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
 
@@ -30,6 +32,7 @@ export default function AttributeSelector({
       }))}
       value={value}
       defaultValue="Select an attribute"
+      disabled={disabled}
     />
   );
 }

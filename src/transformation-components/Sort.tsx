@@ -13,15 +13,26 @@ import {
   ContextSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { CodapEvalError } from "../utils/codapPhone/error";
 
-export function Sort({ setErrMsg }: TransformationProps): ReactElement {
+export interface SortSaveData {
+  keyExpression: string;
+}
+
+interface SortProps extends TransformationProps {
+  saveData?: SortSaveData;
+}
+
+export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [keyExpression, keyExpressionChange] = useState<string>("");
+  const [keyExpression, keyExpressionChange] = useState<string>(
+    saveData !== undefined ? saveData.keyExpression : ""
+  );
   const [lastContextName, setLastContextName] = useState<null | string>(null);
   const attributes = useAttributes(inputDataCtxt);
 
@@ -77,8 +88,10 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
 
       <p>Key expression</p>
       <ExpressionEditor
+        value={keyExpression}
         onChange={keyExpressionChange}
         attributeNames={attributes.map((a) => a.name)}
+        disabled={saveData !== undefined}
       />
 
       <br />
@@ -87,6 +100,13 @@ export function Sort({ setErrMsg }: TransformationProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={true}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            keyExpression,
+          })}
+        />
+      )}
     </>
   );
 }

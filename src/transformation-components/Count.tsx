@@ -11,17 +11,25 @@ import {
   MultiAttributeSelector,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface CountProps {
-  setErrMsg: (s: string | null) => void;
+export interface CountSaveData {
+  attributes: string[];
 }
 
-export function Count({ setErrMsg }: CountProps): ReactElement {
+interface CountProps extends TransformationProps {
+  saveData?: CountSaveData;
+}
+
+export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [attributes, setAttributes] = useState<string[]>([]);
+  const [attributes, setAttributes] = useState<string[]>(
+    saveData !== undefined ? saveData.attributes : []
+  );
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
   /**
@@ -76,7 +84,8 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
       <MultiAttributeSelector
         context={inputDataCtxt}
         selected={attributes}
-        onChange={setAttributes}
+        setSelected={setAttributes}
+        disabled={saveData !== undefined}
       />
 
       <br />
@@ -85,6 +94,13 @@ export function Count({ setErrMsg }: CountProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={true}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({
+            attributes,
+          })}
+        />
+      )}
     </>
   );
 }

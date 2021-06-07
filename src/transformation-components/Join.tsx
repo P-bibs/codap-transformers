@@ -11,12 +11,19 @@ import {
   TransformationSubmitButtons,
 } from "../ui-components";
 import { applyNewDataSet, ctxtTitle } from "./util";
+import { TransformationProps } from "./types";
+import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-interface JoinProps {
-  setErrMsg: (s: string | null) => void;
+export interface JoinSaveData {
+  inputAttribute1: string;
+  inputAttribute2: string;
 }
 
-export function Join({ setErrMsg }: JoinProps): ReactElement {
+interface JoinProps extends TransformationProps {
+  saveData?: JoinSaveData;
+}
+
+export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -25,10 +32,12 @@ export function Join({ setErrMsg }: JoinProps): ReactElement {
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [inputAttribute1, inputAttribute1OnChange] =
-    useState<string | null>(null);
-  const [inputAttribute2, inputAttribute2OnChange] =
-    useState<string | null>(null);
+  const [inputAttribute1, inputAttribute1OnChange] = useState<string | null>(
+    saveData !== undefined ? saveData.inputAttribute1 : null
+  );
+  const [inputAttribute2, inputAttribute2OnChange] = useState<string | null>(
+    saveData !== undefined ? saveData.inputAttribute2 : null
+  );
 
   const [lastContextName, setLastContextName] = useState<null | string>(null);
 
@@ -129,6 +138,11 @@ export function Join({ setErrMsg }: JoinProps): ReactElement {
         onUpdate={() => transform(true)}
         updateDisabled={!lastContextName}
       />
+      {saveData === undefined && (
+        <TransformationSaveButton
+          generateSaveData={() => ({ inputAttribute1, inputAttribute2 })}
+        />
+      )}
     </>
   );
 }

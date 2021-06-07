@@ -69,10 +69,10 @@ export function SelectAttributes({
 
   return (
     <>
-      <p>Table to Select Attributes From</p>
+      <h3>Table to Select Attributes From</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Mode</p>
+      <h3>Mode</h3>
       <CodapFlowSelect
         onChange={modeChange}
         options={[
@@ -90,7 +90,7 @@ export function SelectAttributes({
         disabled={saveData !== undefined}
       />
 
-      <p>Attributes</p>
+      <h3>Attributes</h3>
       <MultiAttributeSelector
         context={inputDataCtxt}
         selected={attributes}

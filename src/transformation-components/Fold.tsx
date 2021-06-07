@@ -142,10 +142,10 @@ export function Fold({
 
   return (
     <>
-      <p>Table to calculate {label.toLowerCase()} on</p>
+      <h3>Table to calculate {label.toLowerCase()} on</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attribute to Aggregate</p>
+      <h3>Attribute to Aggregate</h3>
       <AttributeSelector
         onChange={inputAttributeNameChange}
         value={inputAttributeName}

@@ -64,10 +64,10 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
 
   return (
     <>
-      <p>Table to sort</p>
+      <h3>Table to sort</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Key expression</p>
+      <h3>Key expression</h3>
       <ExpressionEditor
         value={keyExpression}
         onChange={keyExpressionChange}

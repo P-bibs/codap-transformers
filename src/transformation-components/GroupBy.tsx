@@ -62,10 +62,10 @@ export function GroupBy({ setErrMsg, saveData }: GroupByProps): ReactElement {
 
   return (
     <>
-      <p>Table to Group</p>
+      <h3>Table to Group</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attributes to Group By</p>
+      <h3>Attributes to Group By</h3>
       <MultiAttributeSelector
         context={inputDataCtxt}
         selected={attributes}

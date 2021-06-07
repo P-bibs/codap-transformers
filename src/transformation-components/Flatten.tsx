@@ -49,7 +49,7 @@ export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
 
   return (
     <>
-      <p>Table to Flatten</p>
+      <h3>Table to Flatten</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />

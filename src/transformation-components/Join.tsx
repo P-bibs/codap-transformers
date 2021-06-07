@@ -89,25 +89,25 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
 
   return (
     <>
-      <p>Base Table</p>
+      <h3>Base Table</h3>
       <ContextSelector
         value={inputDataContext1}
         onChange={inputDataContext1OnChange}
       />
-      <p>Joining Table</p>
+      <h3>Joining Table</h3>
       <ContextSelector
         value={inputDataContext2}
         onChange={inputDataContext2OnChange}
       />
 
-      <p>Base Attribute</p>
+      <h3>Base Attribute</h3>
       <AttributeSelector
         onChange={inputAttribute1OnChange}
         value={inputAttribute1}
         context={inputDataContext1}
       />
 
-      <p>Joining Attribute</p>
+      <h3>Joining Attribute</h3>
       <AttributeSelector
         onChange={inputAttribute2OnChange}
         value={inputAttribute2}

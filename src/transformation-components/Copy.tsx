@@ -46,7 +46,7 @@ export function Copy({ setErrMsg, saveData }: CopyProps): ReactElement {
 
   return (
     <>
-      <p>Table to Copy</p>
+      <h3>Table to Copy</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />

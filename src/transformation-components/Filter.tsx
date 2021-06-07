@@ -68,10 +68,10 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
 
   return (
     <>
-      <p>Table to Filter</p>
+      <h3>Table to Filter</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>How to Filter</p>
+      <h3>How to Filter</h3>
       <ExpressionEditor
         value={predicate}
         onChange={(s) => setPredicate(s)}

@@ -84,17 +84,17 @@ export function TransformColumn({
 
   return (
     <>
-      <p>Table to TransformColumn</p>
+      <h3>Table to TransformColumn</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attribute to Transform</p>
+      <h3>Attribute to Transform</h3>
       <AttributeSelector
         onChange={attributeNameChange}
         value={attributeName}
         context={inputDataCtxt}
       />
 
-      <p>How to Transform Column</p>
+      <h3>How to Transform Column</h3>
       <ExpressionEditor
         value={expression}
         onChange={expressionChange}

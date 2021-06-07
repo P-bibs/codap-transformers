@@ -83,10 +83,10 @@ export function PivotLonger({
 
   return (
     <>
-      <p>Table to Pivot</p>
+      <h3>Table to Pivot</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attributes to Pivot</p>
+      <h3>Attributes to Pivot</h3>
       <MultiAttributeSelector
         context={inputDataCtxt}
         selected={attributes}
@@ -94,10 +94,10 @@ export function PivotLonger({
         disabled={saveData !== undefined}
       />
 
-      <p>Names To</p>
+      <h3>Names To</h3>
       <CodapFlowTextInput value={namesTo} onChange={namesToChange} />
 
-      <p>Values To</p>
+      <h3>Values To</h3>
       <CodapFlowTextInput value={valuesTo} onChange={valuesToChange} />
 
       <br />

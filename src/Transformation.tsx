@@ -59,6 +59,7 @@ function Transformation({
       "Eval",
       "Copy",
       "Dot Product",
+      "Average",
     ],
   };
 
@@ -84,6 +85,7 @@ function Transformation({
     { name: "Eval", content: { base: "Eval" } },
     { name: "Copy", content: { base: "Copy" } },
     { name: "Dot Product", content: { base: "Dot Product" } },
+    { name: "Average", content: { base: "Average" } },
   ];
 
   function addTransformation(name: string, data: TransformationSaveData) {

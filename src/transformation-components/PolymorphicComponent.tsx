@@ -23,6 +23,7 @@ import { Join } from "./Join";
 import { Eval } from "./Eval";
 import { Copy } from "./Copy";
 import { DotProduct } from "./DotProduct";
+import { Average } from "./Average";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -160,6 +161,10 @@ export const PolymorphicComponent = ({
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
         />
+      );
+    case "Average":
+      return (
+        <Average setErrMsg={setErrMsg} saveData={transformation.content.data} />
       );
   }
 };

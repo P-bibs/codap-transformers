@@ -16,6 +16,7 @@ import { SelectAttributesSaveData } from "./SelectAttributes";
 import { SortSaveData } from "./Sort";
 import { TransformColumnSaveData } from "./TransformColumn";
 import { DotProductSaveData } from "./DotProduct";
+import { AverageSaveData } from "./Average";
 
 /**
  * The content associated with a saved transformation. Includes the base
@@ -106,6 +107,10 @@ export type SavedTransformationContent =
   | {
       base: "Dot Product";
       data?: DotProductSaveData;
+    }
+  | {
+      base: "Average";
+      data?: AverageSaveData;
     };
 
 /**

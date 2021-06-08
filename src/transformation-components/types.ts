@@ -15,6 +15,7 @@ import { PivotWiderSaveData } from "./PivotWider";
 import { SelectAttributesSaveData } from "./SelectAttributes";
 import { SortSaveData } from "./Sort";
 import { TransformColumnSaveData } from "./TransformColumn";
+import { DotProductSaveData } from "./DotProduct";
 
 /**
  * The content associated with a saved transformation. Includes the base
@@ -101,6 +102,10 @@ export type SavedTransformationContent =
   | {
       base: "Eval";
       data?: EvalSaveData;
+    }
+  | {
+      base: "Dot Product";
+      data?: DotProductSaveData;
     };
 
 /**

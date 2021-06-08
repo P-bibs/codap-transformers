@@ -22,6 +22,7 @@ import { SavedTransformation } from "./types";
 import { Join } from "./Join";
 import { Eval } from "./Eval";
 import { Copy } from "./Copy";
+import { DotProduct } from "./DotProduct";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -152,6 +153,13 @@ export const PolymorphicComponent = ({
     case "Copy":
       return (
         <Copy setErrMsg={setErrMsg} saveData={transformation.content.data} />
+      );
+    case "Dot Product":
+      return (
+        <DotProduct
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+        />
       );
   }
 };

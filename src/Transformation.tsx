@@ -58,6 +58,7 @@ function Transformation({
       "Join",
       "Eval",
       "Copy",
+      "Dot Product",
     ],
   };
 
@@ -82,6 +83,7 @@ function Transformation({
     { name: "Join", content: { base: "Join" } },
     { name: "Eval", content: { base: "Eval" } },
     { name: "Copy", content: { base: "Copy" } },
+    { name: "Dot Product", content: { base: "Dot Product" } },
   ];
 
   function addTransformation(name: string, data: TransformationSaveData) {

@@ -4,6 +4,7 @@ import {
   createTableWithDataSet,
   updateContextWithDataSet,
   addContextUpdateListener,
+  updateText,
 } from "../utils/codapPhone";
 
 /**
@@ -53,4 +54,26 @@ export function addUpdateListener(
       setErrMsg(`Error updating ${outputContext}: ${e.message}`);
     }
   });
+}
+
+export function addUpdateTextListener(
+  inputContext: string,
+  textName: string,
+  doTransform: () => Promise<[number, string]>,
+  setErrMsg: (msg: string) => void
+): void {
+  addContextUpdateListener(inputContext, async () => {
+    try {
+      const [result] = await doTransform();
+      updateText(textName, String(result));
+    } catch (e) {
+      setErrMsg(`Error updating ${textName}: ${e.message}`);
+    }
+  });
+}
+
+export function allAttributesFromContext(context: DataContext): string[] {
+  return context.collections.flatMap((c) =>
+    c.attrs ? c.attrs.map((a) => a.name) : []
+  );
 }

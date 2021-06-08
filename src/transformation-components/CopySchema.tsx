@@ -4,7 +4,7 @@ import { useInput } from "../utils/hooks";
 import { copySchema } from "../transformations/copySchema";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -35,7 +35,7 @@ export function CopySchema({
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const copied = copySchema(dataset);
-      return [copied, `Schema Copy of ${ctxtTitle(context)}`];
+      return [copied, `Schema Copy of ${readableName(context)}`];
     };
 
     try {

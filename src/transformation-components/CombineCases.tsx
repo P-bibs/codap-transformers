@@ -4,7 +4,7 @@ import { useInput } from "../utils/hooks";
 import { combineCases } from "../transformations/combineCases";
 import { DataSet } from "../transformations/types";
 import { ContextSelector, TransformationSubmitButtons } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -43,7 +43,9 @@ export function CombineCases({
       const combined = combineCases(dataset1, dataset2);
       return [
         combined,
-        `Combined Cases of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
+        `Combined Cases of ${readableName(context1)} and ${readableName(
+          context2
+        )}`,
       ];
     };
 

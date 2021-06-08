@@ -14,7 +14,7 @@ import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface DifferenceFromSaveData {
-  inputAttributeName: string;
+  inputAttributeName: string | null;
   resultAttributeName: string;
   startingValue: string;
 }

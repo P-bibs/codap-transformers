@@ -20,7 +20,7 @@ import TransformationSaveButton from "../ui-components/TransformationSaveButton"
 import { uniqueName } from "../utils/names";
 
 export interface FoldSaveData {
-  inputAttributeName: string;
+  inputAttributeName: string | null;
 }
 
 interface FoldProps extends TransformationProps {

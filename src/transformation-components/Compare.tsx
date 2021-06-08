@@ -14,8 +14,8 @@ import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface CompareSaveData {
-  inputAttribute1: string;
-  inputAttribute2: string;
+  inputAttribute1: string | null;
+  inputAttribute2: string | null;
   compareType: CompareType;
 }
 

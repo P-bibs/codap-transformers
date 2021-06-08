@@ -2,6 +2,7 @@ import { ReactElement } from "react";
 import { BuildColumnSaveData } from "./BuildColumn";
 import { CompareSaveData } from "./Compare";
 import { CopySaveData } from "./Copy";
+import { CopySchemaSaveData } from "./CopySchema";
 import { CountSaveData } from "./Count";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { EvalSaveData } from "./Eval";
@@ -17,6 +18,7 @@ import { SortSaveData } from "./Sort";
 import { TransformColumnSaveData } from "./TransformColumn";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
+import { CombineCasesSaveData } from "./CombineCases";
 
 /**
  * The content associated with a saved transformation. Includes the base
@@ -97,6 +99,10 @@ export type SavedTransformationContent =
       data?: CopySaveData;
     }
   | {
+      base: "Copy Schema";
+      data?: CopySchemaSaveData;
+    }
+  | {
       base: "Join";
       data?: JoinSaveData;
     }
@@ -111,6 +117,10 @@ export type SavedTransformationContent =
   | {
       base: "Average";
       data?: AverageSaveData;
+    }
+  | {
+      base: "Combine Cases";
+      data?: CombineCasesSaveData;
     };
 
 /**

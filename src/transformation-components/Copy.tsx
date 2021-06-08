@@ -4,12 +4,11 @@ import { useInput } from "../utils/hooks";
 import { copy } from "../transformations/copy";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-// eslint-disable-next-line
-export interface CopySaveData {}
+export type CopySaveData = Record<string, never>;
 
 interface CopyProps extends TransformationProps {
   saveData?: CopySaveData;
@@ -33,7 +32,7 @@ export function Copy({ setErrMsg, saveData }: CopyProps): ReactElement {
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const copied = copy(dataset);
-      return [copied, `Copy of ${ctxtTitle(context)}`];
+      return [copied, `Copy of ${readableName(context)}`];
     };
 
     try {

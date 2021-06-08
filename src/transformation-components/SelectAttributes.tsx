@@ -9,7 +9,7 @@ import {
   MultiAttributeSelector,
   CodapFlowSelect,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -56,7 +56,7 @@ export function SelectAttributes({
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const selected = selectAttributes(dataset, attributes, allBut);
-      return [selected, `Select Attributes of ${ctxtTitle(context)}`];
+      return [selected, `Select Attributes of ${readableName(context)}`];
     };
 
     try {

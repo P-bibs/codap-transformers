@@ -8,7 +8,7 @@ import {
   ContextSelector,
   ExpressionEditor,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { TransformationProps } from "./types";
 import { CodapEvalError } from "../utils/codapPhone/error";
@@ -51,7 +51,7 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const filtered = await filter(dataset, predicate);
-      return [filtered, `Filter of ${ctxtTitle(context)}`];
+      return [filtered, `Filter of ${readableName(context)}`];
     };
 
     try {

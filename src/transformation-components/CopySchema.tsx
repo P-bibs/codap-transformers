@@ -1,32 +1,32 @@
 import React, { useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput } from "../utils/hooks";
-import { flatten } from "../transformations/flatten";
+import { copySchema } from "../transformations/copySchema";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-export type FlattenSaveData = Record<string, never>;
+export type CopySchemaSaveData = Record<string, never>;
 
-interface FlattenProps extends TransformationProps {
-  saveData?: FlattenSaveData;
+interface CopySchemaProps extends TransformationProps {
+  saveData?: CopySchemaSaveData;
 }
-
-export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
+export function CopySchema({
+  setErrMsg,
+  saveData,
+}: CopySchemaProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
   /**
-   * Applies the flatten transformation to the input data context,
+   * Applies the copy transformation to the input data context,
    * producing an output table in CODAP.
    */
   const transform = useCallback(async () => {
-    setErrMsg(null);
-
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid data context to flatten.");
       return;
@@ -34,8 +34,8 @@ export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
 
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const flat = flatten(dataset);
-      return [flat, `Flatten of ${readableName(context)}`];
+      const copied = copySchema(dataset);
+      return [copied, `Schema Copy of ${readableName(context)}`];
     };
 
     try {
@@ -48,7 +48,7 @@ export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
 
   return (
     <>
-      <p>Table to Flatten</p>
+      <p>Table to Copy the Schema of</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />

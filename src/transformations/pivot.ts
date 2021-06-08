@@ -34,6 +34,8 @@ export function pivotLonger(
   // NOTE: do not copy formulas: dependencies may be removed by the pivot
   eraseFormulas(collection.attrs);
 
+  const toPivotNames = toPivot.join(", ");
+
   // add namesTo and valuesTo attributes
   // NOTE: valuesTo might hold values of different types
   // so we can't be sure it's either numeric / categorical
@@ -41,9 +43,11 @@ export function pivotLonger(
     {
       name: namesTo,
       type: "categorical",
+      description: `Contains the names of attributes (${toPivotNames}) that were pivoted into values.`,
     },
     {
       name: valuesTo,
+      description: `Contains the values previously under the ${toPivotNames} attributes.`,
     }
   );
 
@@ -140,6 +144,7 @@ export function pivotWider(
       ...valuesFromAttr,
       formula: undefined,
       name: attrName,
+      description: `Attribute created by pivoting the values of ${namesFrom} into separate attributes.`,
     });
   }
 

@@ -8,7 +8,12 @@ import {
   ContextSelector,
   AttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import {
+  applyNewDataSet,
+  readableName,
+  parenthesizeName,
+  addUpdateListener,
+} from "./util";
 import {
   difference,
   runningMax,
@@ -20,7 +25,7 @@ import TransformationSaveButton from "../ui-components/TransformationSaveButton"
 import { uniqueName } from "../utils/names";
 
 export interface FoldSaveData {
-  inputAttributeName: string;
+  inputAttributeName: string | null;
 }
 
 interface FoldProps extends TransformationProps {
@@ -28,7 +33,8 @@ interface FoldProps extends TransformationProps {
   foldFunc: (
     dataset: DataSet,
     inputName: string,
-    outputName: string
+    outputName: string,
+    outputDescription: string
   ) => DataSet;
   saveData?: FoldSaveData;
 }
@@ -43,7 +49,7 @@ export const RunningSum = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "running sum",
+        label: "Running Sum",
         foldFunc: runningSum,
       }}
     />
@@ -54,7 +60,7 @@ export const RunningMean = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "running mean",
+        label: "Running Mean",
         foldFunc: runningMean,
       }}
     />
@@ -65,7 +71,7 @@ export const RunningMin = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "running min",
+        label: "Running Min",
         foldFunc: runningMin,
       }}
     />
@@ -76,7 +82,7 @@ export const RunningMax = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "running max",
+        label: "Running Max",
         foldFunc: runningMax,
       }}
     />
@@ -87,7 +93,7 @@ export const RunningDifference = (props: FoldConsumerProps): ReactElement => {
     <Fold
       {...{
         ...props,
-        label: "difference",
+        label: "Running Difference",
         foldFunc: difference,
       }}
     />
@@ -125,11 +131,21 @@ export function Fold({
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
       const resultAttributeName = uniqueName(
-        `${label} of ${inputAttributeName}`,
+        `${label} of ${parenthesizeName(
+          inputAttributeName
+        )} from ${readableName(context)}`,
         attrs.map((attr) => attr.name)
       );
-      const result = foldFunc(dataset, inputAttributeName, resultAttributeName);
-      return [result, `${label} of ${ctxtTitle(context)}`];
+      const resultDescription = `A ${label.toLowerCase()} of the values from the ${inputAttributeName} attribute in the ${readableName(
+        context
+      )} table.`;
+      const result = foldFunc(
+        dataset,
+        inputAttributeName,
+        resultAttributeName,
+        resultDescription
+      );
+      return [result, `${label} of ${readableName(context)}`];
     };
 
     try {

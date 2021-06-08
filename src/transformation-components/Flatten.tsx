@@ -8,8 +8,7 @@ import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-// eslint-disable-next-line
-export interface FlattenSaveData {}
+export type FlattenSaveData = Record<string, never>;
 
 interface FlattenProps extends TransformationProps {
   saveData?: FlattenSaveData;

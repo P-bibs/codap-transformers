@@ -5,8 +5,7 @@ import { useInput, useAttributes } from "../utils/hooks";
 import { ContextSelector, ExpressionEditor } from "../ui-components";
 import { TransformationProps } from "./types";
 
-// eslint-disable-next-line
-export interface EvalSaveData {}
+export type EvalSaveData = Record<string, never>;
 
 interface EvalProps extends TransformationProps {
   saveData?: EvalSaveData;

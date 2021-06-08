@@ -8,8 +8,7 @@ import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-// eslint-disable-next-line
-export interface CombineCasesSaveData {}
+export type CombineCasesSaveData = Record<string, never>;
 
 interface CombineCasesProps extends TransformationProps {
   saveData?: CombineCasesSaveData;

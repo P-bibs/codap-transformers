@@ -8,8 +8,7 @@ import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-// eslint-disable-next-line
-export interface CopySchemaSaveData {}
+export type CopySchemaSaveData = Record<string, never>;
 
 interface CopySchemaProps extends TransformationProps {
   saveData?: CopySchemaSaveData;

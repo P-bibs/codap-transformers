@@ -1,5 +1,5 @@
 import { DataSet } from "./types";
-import { eraseFormulas } from "./util";
+import { eraseFormulas, codapValueToString } from "./util";
 
 /**
  * Turns selected attribute names into values of a new attribute, reorganizing
@@ -22,7 +22,7 @@ export function pivotLonger(
   // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
-      `pivot longer can only be used on a single-collection dataset`
+      `Pivot longer can only be used on a single-collection dataset`
     );
   }
 
@@ -90,7 +90,7 @@ export function pivotWider(
   // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
-      `pivot wider can only be used on a single-collection dataset`
+      `Pivot wider can only be used on a single-collection dataset`
     );
   }
 
@@ -102,12 +102,12 @@ export function pivotWider(
       dataset.records.map((rec) => {
         if (rec[namesFrom] === undefined) {
           throw new Error(
-            `invalid attribute to retrieve names from: ${namesFrom}`
+            `Invalid attribute to retrieve names from: ${namesFrom}`
           );
         }
         if (typeof rec[namesFrom] === "object") {
           throw new Error(
-            `cannot use object values (${namesFrom}) as attribute names`
+            `Cannot use object values (${namesFrom}) as attribute names`
           );
         }
 
@@ -121,7 +121,7 @@ export function pivotWider(
     (attr) => attr.name === valuesFrom
   );
   if (valuesFromAttr === undefined) {
-    throw new Error(`invalid attribute to retrieve values from: ${valuesFrom}`);
+    throw new Error(`Invalid attribute to retrieve values from: ${valuesFrom}`);
   }
 
   // remove namesFrom/valuesFrom attributes from collection
@@ -165,11 +165,11 @@ export function pivotWider(
 
     if (collapsed[record[namesFrom] as string] !== undefined) {
       throw new Error(
-        `case has multiple ${valuesFrom} values (${
+        `Case has multiple ${valuesFrom} values (${codapValueToString(
           collapsed[record[namesFrom] as string]
-        } and ${record[valuesFrom]}) for same ${namesFrom} (${
-          record[namesFrom]
-        })`
+        )} and ${codapValueToString(
+          record[valuesFrom]
+        )}) for same ${namesFrom} (${codapValueToString(record[namesFrom])})`
       );
     }
 

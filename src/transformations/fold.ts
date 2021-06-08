@@ -1,7 +1,12 @@
 import { DataSet } from "./types";
-import { insertColumnInLastCollection, insertInRow } from "./util";
+import {
+  insertColumnInLastCollection,
+  insertInRow,
+  codapValueToString,
+} from "./util";
 
 function makeNumFold<T>(
+  foldName: string,
   base: T,
   f: (acc: T, input: number) => [newAcc: T, result: number]
 ) {
@@ -22,7 +27,9 @@ function makeNumFold<T>(
         return insertInRow(row, resultColumnName, result);
       } else {
         throw new Error(
-          `Fold expected number, instead got ${row[inputColumnName]}`
+          `${foldName} expected a number, instead got ${codapValueToString(
+            row[inputColumnName]
+          )}`
         );
       }
     });
@@ -40,17 +47,26 @@ function makeNumFold<T>(
   };
 }
 
-export const runningSum = makeNumFold({ sum: 0 }, (acc, input) => {
-  const newAcc = { sum: acc.sum + input };
-  return [newAcc, newAcc.sum];
-});
+export const runningSum = makeNumFold(
+  "Running Sum",
+  { sum: 0 },
+  (acc, input) => {
+    const newAcc = { sum: acc.sum + input };
+    return [newAcc, newAcc.sum];
+  }
+);
 
-export const runningMean = makeNumFold({ sum: 0, count: 0 }, (acc, input) => {
-  const newAcc = { sum: acc.sum + input, count: acc.count + 1 };
-  return [newAcc, newAcc.sum / newAcc.count];
-});
+export const runningMean = makeNumFold(
+  "Running Mean",
+  { sum: 0, count: 0 },
+  (acc, input) => {
+    const newAcc = { sum: acc.sum + input, count: acc.count + 1 };
+    return [newAcc, newAcc.sum / newAcc.count];
+  }
+);
 
 export const runningMin = makeNumFold<{ min: number | null }>(
+  "Running Min",
   { min: null },
   (acc, input) => {
     if (acc.min === null || input < acc.min) {
@@ -62,6 +78,7 @@ export const runningMin = makeNumFold<{ min: number | null }>(
 );
 
 export const runningMax = makeNumFold<{ max: number | null }>(
+  "Running Max",
   { max: null },
   (acc, input) => {
     if (acc.max === null || input > acc.max) {
@@ -73,6 +90,7 @@ export const runningMax = makeNumFold<{ max: number | null }>(
 );
 
 export const difference = makeNumFold<{ numAbove: number | null }>(
+  "Running Difference",
   { numAbove: null },
   (acc, input) => {
     if (acc.numAbove === null) {
@@ -95,7 +113,9 @@ export function differenceFrom(
       return insertInRow(row, resultColumnName, numValue - startingValue);
     } else {
       throw new Error(
-        `Fold expected number, instead got ${row[inputColumnName]}`
+        `Difference from expected number, instead got ${codapValueToString(
+          row[inputColumnName]
+        )}`
       );
     }
   });

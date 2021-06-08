@@ -20,7 +20,9 @@ export function selectAttributes(
   const selectedAttrs = attrsToSelect(dataset, attributes, allBut);
 
   if (selectedAttrs.length === 0) {
-    throw new Error(`output must contain at least one attribute`);
+    throw new Error(
+      `Transformed dataset must contain at least one attribute (0 selected)`
+    );
   }
 
   // copy records, but only the selected attributes
@@ -30,7 +32,7 @@ export function selectAttributes(
     for (const attrName of selectedAttrs) {
       // attribute does not appear on record, error
       if (record[attrName] === undefined) {
-        throw new Error(`invalid attribute name: ${attrName}`);
+        throw new Error(`Invalid attribute name: ${attrName}`);
       }
 
       copy[attrName] = record[attrName];

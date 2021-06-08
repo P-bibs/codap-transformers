@@ -161,3 +161,35 @@ export function getAttributeDataFromDataset(
 
   return attributeData;
 }
+
+/**
+ * Converts a CODAP cell value into a user-friendly string
+ * for printing in error messages.
+ *
+ * @param codapValue the value to convert to a string for printing
+ * @returns string version of the value
+ */
+export function codapValueToString(codapValue?: unknown): string {
+  // booleans
+  if (
+    codapValue === "true" ||
+    codapValue === "false" ||
+    codapValue === true ||
+    codapValue === false
+  ) {
+    return String(codapValue);
+  }
+
+  // numeric values
+  if (!isNaN(Number(codapValue))) {
+    return String(codapValue);
+  }
+
+  // objects
+  if (typeof codapValue === "object") {
+    return "an object";
+  }
+
+  // value must be string
+  return `"${codapValue}"`;
+}

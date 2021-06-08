@@ -7,7 +7,7 @@ import {
 import { useInput } from "../utils/hooks";
 import { average } from "../transformations/average";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { ctxtTitle, addUpdateTextListener } from "./util";
+import { readableName, addUpdateTextListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import AttributeSelector from "../ui-components/AttributeSelector";
@@ -50,7 +50,7 @@ export function Average({ setErrMsg, saveData }: AverageProps): ReactElement {
     const doTransform: () => Promise<[number, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const result = average(dataset, attribute);
-      return [result, `Average of ${attribute} in ${ctxtTitle(context)}`];
+      return [result, `Average of ${attribute} in ${readableName(context)}`];
     };
 
     try {

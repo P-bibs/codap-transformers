@@ -8,7 +8,7 @@ import { useInput } from "../utils/hooks";
 import { dotProduct } from "../transformations/dotProduct";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import {
-  ctxtTitle,
+  readableName,
   addUpdateTextListener,
   allAttributesFromContext,
 } from "./util";
@@ -45,7 +45,7 @@ export function DotProduct({
     const doTransform: () => Promise<[number, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const result = dotProduct(dataset, allAttributesFromContext(context));
-      return [result, `Dot Product of ${ctxtTitle(context)}`];
+      return [result, `Dot Product of ${readableName(context)}`];
     };
 
     try {

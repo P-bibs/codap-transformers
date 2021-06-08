@@ -8,7 +8,12 @@ import {
   ContextSelector,
   AttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import {
+  applyNewDataSet,
+  readableName,
+  parenthesizeName,
+  addUpdateListener,
+} from "./util";
 import {
   difference,
   runningMax,
@@ -29,7 +34,7 @@ interface FoldProps extends TransformationProps {
     dataset: DataSet,
     inputName: string,
     outputName: string,
-    outputDescrip: string
+    outputDescription: string
   ) => DataSet;
   saveData?: FoldSaveData;
 }
@@ -126,14 +131,12 @@ export function Fold({
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
       const resultAttributeName = uniqueName(
-        `${label} of ${
-          inputAttributeName.includes(" ")
-            ? `(${inputAttributeName})`
-            : inputAttributeName
-        } from ${ctxtTitle(context)}`,
+        `${label} of ${parenthesizeName(
+          inputAttributeName
+        )} from ${readableName(context)}`,
         attrs.map((attr) => attr.name)
       );
-      const resultDescription = `A ${label.toLowerCase()} of the values from the ${inputAttributeName} attribute in the ${ctxtTitle(
+      const resultDescription = `A ${label.toLowerCase()} of the values from the ${inputAttributeName} attribute in the ${readableName(
         context
       )} table.`;
       const result = foldFunc(
@@ -142,7 +145,7 @@ export function Fold({
         resultAttributeName,
         resultDescription
       );
-      return [result, `${label} of ${ctxtTitle(context)}`];
+      return [result, `${label} of ${readableName(context)}`];
     };
 
     try {

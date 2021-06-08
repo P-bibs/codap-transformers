@@ -23,10 +23,27 @@ export async function applyNewDataSet(
 }
 
 /**
- * Returns the context's title, if any, or falls back to its name.
+ * Returns the context's title, if any, or falls back to its name. Also
+ * adds parentheses around the name if it determines the name
+ * is not a single word.
+ *
+ * @param context the data context to produce a readable name for
+ * @returns readable name of the context
  */
-export function ctxtTitle(context: DataContext): string {
-  return context.title ? context.title : context.name;
+export function readableName(context: DataContext): string {
+  return parenthesizeName(context.title ? context.title : context.name);
+}
+
+/**
+ * If the given name contains spaces, this will add parentheses
+ * to it, to keep it readable as a unit. Otherwise, returns
+ * the name unchanged.
+ *
+ * @param name the name to parenthesize
+ * @returns the input name, with parentheses added or not
+ */
+export function parenthesizeName(name: string): string {
+  return name.includes(" ") ? `(${name})` : name;
 }
 
 /**

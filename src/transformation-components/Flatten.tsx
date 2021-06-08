@@ -4,7 +4,7 @@ import { useInput } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -36,7 +36,7 @@ export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const flat = flatten(dataset);
-      return [flat, `Flatten of ${ctxtTitle(context)}`];
+      return [flat, `Flatten of ${readableName(context)}`];
     };
 
     try {

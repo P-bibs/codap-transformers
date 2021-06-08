@@ -9,7 +9,7 @@ import {
   ContextSelector,
   TransformationSubmitButtons,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -68,7 +68,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
       );
       return [
         compared,
-        `Compare of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
+        `Compare of ${readableName(context1)} and ${readableName(context2)}`,
       ];
     };
 

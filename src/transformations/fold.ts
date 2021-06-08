@@ -9,7 +9,7 @@ function makeNumFold<T>(
     dataset: DataSet,
     inputColumnName: string,
     resultColumnName: string,
-    resultColumnDescrip: string
+    resultColumnDescription: string
   ): DataSet => {
     let acc = base;
 
@@ -30,7 +30,7 @@ function makeNumFold<T>(
     const newCollections = insertColumnInLastCollection(dataset.collections, {
       name: resultColumnName,
       type: "numeric",
-      description: resultColumnDescrip,
+      description: resultColumnDescription,
     });
 
     return {

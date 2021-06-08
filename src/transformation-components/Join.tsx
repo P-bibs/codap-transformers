@@ -8,7 +8,7 @@ import {
   ContextSelector,
   TransformationSubmitButtons,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -58,7 +58,7 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
       const joined = join(dataset1, inputAttribute1, dataset2, inputAttribute2);
       return [
         joined,
-        `Join of ${ctxtTitle(context1)} and ${ctxtTitle(context2)}`,
+        `Join of ${readableName(context1)} and ${readableName(context2)}`,
       ];
     };
 

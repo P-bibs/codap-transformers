@@ -16,10 +16,11 @@ export default function TransformationSaveButton({
 
   return (
     <div style={{ marginTop: "5px" }}>
+      <hr style={{ marginTop: "15px" }} />
       <h3>Save This Transformation</h3>
       <SaveTransformationContext.Consumer>
         {(saveTransformation) => (
-          <>
+          <div style={{ display: "flex", marginTop: "2px" }}>
             <CodapFlowTextInput
               value={currentName}
               onChange={(e) => setCurrentName(e.target.value)}
@@ -34,7 +35,7 @@ export default function TransformationSaveButton({
             >
               Save
             </button>
-          </>
+          </div>
         )}
       </SaveTransformationContext.Consumer>
     </div>

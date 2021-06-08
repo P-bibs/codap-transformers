@@ -85,6 +85,11 @@ function resourceFromContext(context: string) {
 function resourceFromCollection(collection: string) {
   return `collection[${collection}]`;
 }
+
+function resourceFromComponent(component: string) {
+  return `component[${component}]`;
+}
+
 function collectionListFromContext(context: string) {
   return `dataContext[${context}].collectionList`;
 }
@@ -793,6 +798,100 @@ export async function createTable(
           resolve(response.values);
         } else {
           reject(new Error("Failed to create table"));
+        }
+      }
+    )
+  );
+}
+
+export async function createText(
+  name: string,
+  content: string
+): Promise<string> {
+  const textName = await ensureUniqueName(
+    name,
+    CodapListResource.ComponentList
+  );
+
+  return new Promise<string>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Create,
+        resource: CodapResource.Component,
+        values: {
+          type: CodapComponentType.Text,
+          name: textName,
+          dimensions: {
+            width: 100,
+            height: 100,
+          },
+          text: {
+            object: "value",
+            document: {
+              children: [
+                {
+                  type: "paragraph",
+                  children: [
+                    {
+                      text: content,
+                    },
+                  ],
+                },
+              ],
+              objTypes: {
+                paragraph: "block",
+              },
+            },
+          },
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve(textName);
+        } else {
+          reject(new Error("Failed to create text"));
+        }
+      }
+    )
+  );
+}
+
+export async function updateText(name: string, content: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Update,
+        resource: resourceFromComponent(name),
+        values: {
+          dimensions: {
+            width: 100,
+            height: 100,
+          },
+          text: {
+            object: "value",
+            document: {
+              children: [
+                {
+                  type: "paragraph",
+                  children: [
+                    {
+                      text: content,
+                    },
+                  ],
+                },
+              ],
+              objTypes: {
+                paragraph: "block",
+              },
+            },
+          },
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update text"));
         }
       }
     )

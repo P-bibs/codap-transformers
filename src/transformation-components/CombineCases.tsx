@@ -1,31 +1,24 @@
-import React, { useState, useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput } from "../utils/hooks";
-import { join } from "../transformations/join";
+import { combineCases } from "../transformations/combineCases";
 import { DataSet } from "../transformations/types";
-import {
-  AttributeSelector,
-  ContextSelector,
-  TransformationSubmitButtons,
-} from "../ui-components";
+import { ContextSelector, TransformationSubmitButtons } from "../ui-components";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-export interface JoinSaveData {
-  inputAttribute1: string | null;
-  inputAttribute2: string | null;
+export type CombineCasesSaveData = Record<string, never>;
+
+interface CombineCasesProps extends TransformationProps {
+  saveData?: CombineCasesSaveData;
 }
 
-interface JoinProps extends TransformationProps {
-  saveData?: JoinSaveData;
-}
-
-export function Join({
+export function CombineCases({
   setErrMsg,
   saveData,
   errorDisplay,
-}: JoinProps): ReactElement {
+}: CombineCasesProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -34,23 +27,12 @@ export function Join({
     string | null,
     HTMLSelectElement
   >(null, () => setErrMsg(null));
-  const [inputAttribute1, inputAttribute1OnChange] = useState<string | null>(
-    saveData !== undefined ? saveData.inputAttribute1 : null
-  );
-  const [inputAttribute2, inputAttribute2OnChange] = useState<string | null>(
-    saveData !== undefined ? saveData.inputAttribute2 : null
-  );
 
   const transform = useCallback(async () => {
     setErrMsg(null);
 
-    if (
-      !inputDataContext1 ||
-      !inputDataContext2 ||
-      !inputAttribute1 ||
-      !inputAttribute2
-    ) {
-      setErrMsg("Please choose two contexts and two attributes");
+    if (!inputDataContext1 || !inputDataContext2) {
+      setErrMsg("Please choose two contexts to stack.");
       return;
     }
 
@@ -59,10 +41,12 @@ export function Join({
         await getContextAndDataSet(inputDataContext1);
       const { context: context2, dataset: dataset2 } =
         await getContextAndDataSet(inputDataContext2);
-      const joined = join(dataset1, inputAttribute1, dataset2, inputAttribute2);
+      const combined = combineCases(dataset1, dataset2);
       return [
-        joined,
-        `Join of ${readableName(context1)} and ${readableName(context2)}`,
+        combined,
+        `Combined Cases of ${readableName(context1)} and ${readableName(
+          context2
+        )}`,
       ];
     };
 
@@ -83,48 +67,26 @@ export function Join({
     } catch (e) {
       setErrMsg(e.message);
     }
-  }, [
-    inputDataContext1,
-    inputDataContext2,
-    inputAttribute1,
-    inputAttribute2,
-    setErrMsg,
-  ]);
+  }, [inputDataContext1, inputDataContext2, setErrMsg]);
 
   return (
     <>
-      <h3>Base Table</h3>
+      <p>Base Table</p>
       <ContextSelector
         value={inputDataContext1}
         onChange={inputDataContext1OnChange}
       />
-      <h3>Joining Table</h3>
+      <p>Combining Table</p>
       <ContextSelector
         value={inputDataContext2}
         onChange={inputDataContext2OnChange}
-      />
-
-      <h3>Base Attribute</h3>
-      <AttributeSelector
-        onChange={inputAttribute1OnChange}
-        value={inputAttribute1}
-        context={inputDataContext1}
-      />
-
-      <h3>Joining Attribute</h3>
-      <AttributeSelector
-        onChange={inputAttribute2OnChange}
-        value={inputAttribute2}
-        context={inputDataContext2}
       />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
       {errorDisplay}
       {saveData === undefined && (
-        <TransformationSaveButton
-          generateSaveData={() => ({ inputAttribute1, inputAttribute2 })}
-        />
+        <TransformationSaveButton generateSaveData={() => ({})} />
       )}
     </>
   );

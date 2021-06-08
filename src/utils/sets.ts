@@ -63,3 +63,16 @@ export function symmetricDifferenceWithPredicate<T>(
     pred
   );
 }
+
+/**
+ * Check if two sets are equal, given a predicate for comparing elements.
+ */
+export function setEquality<T>(
+  array1: T[],
+  array2: T[],
+  pred: (elt1: T, elt2: T) => boolean
+): boolean {
+  // symmetric difference should be empty if equal since
+  // all elements are in both array1 and array2
+  return symmetricDifferenceWithPredicate(array1, array2, pred).length === 0;
+}

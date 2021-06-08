@@ -35,6 +35,7 @@ export async function buildColumn(
   // add new attribute
   toAdd.attrs.push({
     name: newAttributeName,
+    description: `An attribute whose values were computed with the formula ${expression}`,
   });
 
   const records = dataset.records.slice();

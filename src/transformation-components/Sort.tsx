@@ -9,7 +9,7 @@ import {
   ExpressionEditor,
   ContextSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { CodapEvalError } from "../utils/codapPhone/error";
 
@@ -51,7 +51,7 @@ export function Sort({
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const result = await sort(dataset, keyExpression);
-      return [result, `Sort of ${ctxtTitle(context)}`];
+      return [result, `Sort of ${readableName(context)}`];
     };
 
     try {

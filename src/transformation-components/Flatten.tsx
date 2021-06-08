@@ -4,12 +4,11 @@ import { useInput } from "../utils/hooks";
 import { flatten } from "../transformations/flatten";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-// eslint-disable-next-line
-export interface FlattenSaveData {}
+export type FlattenSaveData = Record<string, never>;
 
 interface FlattenProps extends TransformationProps {
   saveData?: FlattenSaveData;
@@ -40,7 +39,7 @@ export function Flatten({
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const flat = flatten(dataset);
-      return [flat, `Flatten of ${ctxtTitle(context)}`];
+      return [flat, `Flatten of ${readableName(context)}`];
     };
 
     try {

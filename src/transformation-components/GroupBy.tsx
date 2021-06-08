@@ -3,7 +3,7 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput } from "../utils/hooks";
 import { groupBy } from "../transformations/groupBy";
 import { DataSet } from "../transformations/types";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import {
   TransformationSubmitButtons,
   ContextSelector,
@@ -53,7 +53,7 @@ export function GroupBy({
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const parentName = `Grouped by ${attributes.join(", ")}`;
       const grouped = groupBy(dataset, attributes, parentName);
-      return [grouped, `Group By of ${ctxtTitle(context)}`];
+      return [grouped, `Group By of ${readableName(context)}`];
     };
 
     try {

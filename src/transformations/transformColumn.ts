@@ -28,9 +28,10 @@ export async function transformColumn(
   for (const coll of collections) {
     const attr = coll.attrs?.find((attr) => attr.name === attributeName);
 
-    // erase the transformed attribute's formula
+    // erase the transformed attribute's formula and set description
     if (attr !== undefined) {
       attr.formula = undefined;
+      attr.description = `The ${attributeName} attribute, transformed by the formula ${expression}`;
       break;
     }
   }

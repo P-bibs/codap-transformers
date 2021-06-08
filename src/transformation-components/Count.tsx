@@ -8,7 +8,7 @@ import {
   ContextSelector,
   MultiAttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -54,7 +54,7 @@ export function Count({
       const counted = count(dataset, attributes);
       return [
         counted,
-        `Count of ${attributes.join(", ")} in ${ctxtTitle(context)}`,
+        `Count of ${attributes.join(", ")} in ${readableName(context)}`,
       ];
     };
 

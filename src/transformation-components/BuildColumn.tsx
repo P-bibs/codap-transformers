@@ -3,7 +3,7 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput, useAttributes } from "../utils/hooks";
 import { buildColumn } from "../transformations/buildColumn";
 import { DataSet } from "../transformations/types";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import {
   ExpressionEditor,
   CodapFlowTextInput,
@@ -84,7 +84,7 @@ export function BuildColumn({
         collectionName,
         expression
       );
-      return [built, `Build Column of ${ctxtTitle(context)}`];
+      return [built, `Build Column of ${readableName(context)}`];
     };
 
     try {

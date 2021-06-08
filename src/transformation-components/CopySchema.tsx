@@ -1,23 +1,23 @@
 import React, { useCallback, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput } from "../utils/hooks";
-import { copy } from "../transformations/copy";
+import { copySchema } from "../transformations/copySchema";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-export type CopySaveData = Record<string, never>;
+export type CopySchemaSaveData = Record<string, never>;
 
-interface CopyProps extends TransformationProps {
-  saveData?: CopySaveData;
+interface CopySchemaProps extends TransformationProps {
+  saveData?: CopySchemaSaveData;
 }
-export function Copy({
+export function CopySchema({
   setErrMsg,
   saveData,
   errorDisplay,
-}: CopyProps): ReactElement {
+}: CopySchemaProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -35,8 +35,8 @@ export function Copy({
 
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const copied = copy(dataset);
-      return [copied, `Copy of ${readableName(context)}`];
+      const copied = copySchema(dataset);
+      return [copied, `Schema Copy of ${readableName(context)}`];
     };
 
     try {
@@ -49,7 +49,7 @@ export function Copy({
 
   return (
     <>
-      <h3>Table to Copy</h3>
+      <p>Table to Copy the Schema of</p>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />

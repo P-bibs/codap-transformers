@@ -22,6 +22,10 @@ import { SavedTransformation } from "./types";
 import { Join } from "./Join";
 import { Eval } from "./Eval";
 import { Copy } from "./Copy";
+import { DotProduct } from "./DotProduct";
+import { Average } from "./Average";
+import { CopySchema } from "./CopySchema";
+import { CombineCases } from "./CombineCases";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -197,6 +201,38 @@ export const PolymorphicComponent = ({
     case "Copy":
       return (
         <Copy
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
+      );
+    case "Dot Product":
+      return (
+        <DotProduct
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
+      );
+    case "Copy Schema":
+      return (
+        <CopySchema
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
+      );
+    case "Average":
+      return (
+        <Average
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
+      );
+    case "Combine Cases":
+      return (
+        <CombineCases
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
           errorDisplay={errorDisplay}

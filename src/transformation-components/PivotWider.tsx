@@ -3,7 +3,7 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput } from "../utils/hooks";
 import { pivotWider } from "../transformations/pivot";
 import { DataSet } from "../transformations/types";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import {
   AttributeSelector,
   TransformationSubmitButtons,
@@ -13,8 +13,8 @@ import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface PivotWiderSaveData {
-  namesFrom: string;
-  valuesFrom: string;
+  namesFrom: string | null;
+  valuesFrom: string | null;
 }
 
 interface PivotWiderProps extends TransformationProps {
@@ -61,7 +61,7 @@ export function PivotWider({
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const pivoted = pivotWider(dataset, namesFrom, valuesFrom);
-      return [pivoted, `Pivot Wider of ${ctxtTitle(context)}`];
+      return [pivoted, `Pivot Wider of ${readableName(context)}`];
     };
 
     try {

@@ -58,6 +58,10 @@ function Transformation({
       "Join",
       "Eval",
       "Copy",
+      "Dot Product",
+      "Average",
+      "Copy Schema",
+      "Combine Cases",
     ],
   };
 
@@ -82,6 +86,10 @@ function Transformation({
     { name: "Join", content: { base: "Join" } },
     { name: "Eval", content: { base: "Eval" } },
     { name: "Copy", content: { base: "Copy" } },
+    { name: "Dot Product", content: { base: "Dot Product" } },
+    { name: "Average", content: { base: "Average" } },
+    { name: "Copy Schema", content: { base: "Copy Schema" } },
+    { name: "Combine Cases", content: { base: "Combine Cases" } },
   ];
 
   function addTransformation(name: string, data: TransformationSaveData) {

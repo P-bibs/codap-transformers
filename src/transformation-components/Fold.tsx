@@ -166,6 +166,7 @@ export function Fold({
         onChange={inputAttributeNameChange}
         value={inputAttributeName}
         context={inputDataCtxt}
+        disabled={saveData !== undefined}
       />
 
       <br />

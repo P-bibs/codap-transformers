@@ -92,6 +92,7 @@ export function TransformColumn({
         onChange={attributeNameChange}
         value={attributeName}
         context={inputDataCtxt}
+        disabled={saveData !== undefined}
       />
 
       <p>How to Transform Column</p>

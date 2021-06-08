@@ -107,16 +107,19 @@ export function DifferenceFrom({
         onChange={inputAttributeNameChange}
         value={inputAttributeName}
         context={inputDataCtxt}
+        disabled={saveData !== undefined}
       />
       <p>Result Attribute Name</p>
       <CodapFlowTextInput
         value={resultAttributeName}
         onChange={resultAttributeNameChange}
+        disabled={saveData !== undefined}
       />
       <p>Starting value for difference</p>
       <CodapFlowTextInput
         value={startingValue}
         onChange={startingValueChange}
+        disabled={saveData !== undefined}
       />
       <br />
       <TransformationSubmitButtons onCreate={transform} />

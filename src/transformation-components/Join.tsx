@@ -105,6 +105,7 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
         onChange={inputAttribute1OnChange}
         value={inputAttribute1}
         context={inputDataContext1}
+        disabled={saveData !== undefined}
       />
 
       <p>Joining Attribute</p>
@@ -112,6 +113,7 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
         onChange={inputAttribute2OnChange}
         value={inputAttribute2}
         context={inputDataContext2}
+        disabled={saveData !== undefined}
       />
 
       <br />

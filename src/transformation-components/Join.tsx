@@ -13,8 +13,8 @@ import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface JoinSaveData {
-  inputAttribute1: string;
-  inputAttribute2: string;
+  inputAttribute1: string | null;
+  inputAttribute2: string | null;
 }
 
 interface JoinProps extends TransformationProps {

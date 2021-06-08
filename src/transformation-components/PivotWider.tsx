@@ -13,8 +13,8 @@ import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface PivotWiderSaveData {
-  namesFrom: string;
-  valuesFrom: string;
+  namesFrom: string | null;
+  valuesFrom: string | null;
 }
 
 interface PivotWiderProps extends TransformationProps {

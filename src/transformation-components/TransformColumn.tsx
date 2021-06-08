@@ -15,7 +15,7 @@ import TransformationSaveButton from "../ui-components/TransformationSaveButton"
 import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface TransformColumnSaveData {
-  attributeName: string;
+  attributeName: string | null;
   expression: string;
 }
 

@@ -16,6 +16,8 @@ import { PivotWiderSaveData } from "./PivotWider";
 import { SelectAttributesSaveData } from "./SelectAttributes";
 import { SortSaveData } from "./Sort";
 import { TransformColumnSaveData } from "./TransformColumn";
+import { DotProductSaveData } from "./DotProduct";
+import { AverageSaveData } from "./Average";
 import { CombineCasesSaveData } from "./CombineCases";
 
 /**
@@ -107,6 +109,14 @@ export type SavedTransformationContent =
   | {
       base: "Eval";
       data?: EvalSaveData;
+    }
+  | {
+      base: "Dot Product";
+      data?: DotProductSaveData;
+    }
+  | {
+      base: "Average";
+      data?: AverageSaveData;
     }
   | {
       base: "Combine Cases";

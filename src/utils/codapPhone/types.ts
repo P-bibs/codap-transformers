@@ -85,6 +85,18 @@ type CreateTableRequest = {
   values: CaseTable;
 };
 
+interface CreateTextRequest {
+  action: CodapActions.Create;
+  resource: CodapResource.Component;
+  values: Text;
+}
+
+interface UpdateTextRequest {
+  action: CodapActions.Update;
+  resource: string;
+  values: Partial<Text>;
+}
+
 interface EvalExpressionRequest {
   action: CodapActions.Get;
   resource: CodapResource.EvalExpression;
@@ -170,6 +182,8 @@ export type CodapPhone = {
   call(r: CreateCollectionsRequest, cb: (r: ListResponse) => void): void;
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
   call(r: CreateTableRequest, cb: (r: TableResponse) => void): void;
+  call(r: CreateTextRequest, cb: (r: CodapResponse) => void): void;
+  call(r: UpdateTextRequest, cb: (r: CodapResponse) => void): void;
   call(r: EvalExpressionRequest, cb: (r: EvalExpressionResponse) => void): void;
   call(
     r: GetFunctionNamesRequest,
@@ -414,7 +428,7 @@ export interface CaseTable extends CodapComponent {
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-map-object
 export interface Map extends CodapComponent {
   type: CodapComponentType.Map;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   dataContext: string;
   legendAttributeName: string;
   center: [number, number];
@@ -424,7 +438,7 @@ export interface Map extends CodapComponent {
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-slider-object
 export interface Slider extends CodapComponent {
   type: CodapComponentType.Slider;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   globalValueName: string;
   animationDirection: number;
   animationMode: number;
@@ -435,27 +449,27 @@ export interface Slider extends CodapComponent {
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-calculator-object
 export interface Calculator extends CodapComponent {
   type: CodapComponentType.Calculator;
-  cannotClose: boolean;
+  cannotClose?: boolean;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-text-object
 export interface Text extends CodapComponent {
   type: CodapComponentType.Text;
-  cannotClose: boolean;
-  text: string;
+  cannotClose?: boolean;
+  text: Record<string, unknown>;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-webview-object
 export interface WebView extends CodapComponent {
   type: CodapComponentType.WebView;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   URL: string;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-guide-object
 export interface Guide extends CodapComponent {
   type: CodapComponentType.Guide;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   isVisible: boolean;
   currentItemIndex: number;
   items: {
@@ -477,7 +491,7 @@ type InteractiveFrame = {
   preventDataContextReorg: boolean;
   externalUndoAvailable: boolean;
   standaloneUndoModeAvailable: boolean;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   isResizable: {
     width: boolean;
     height: boolean;

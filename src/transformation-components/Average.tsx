@@ -1,10 +1,13 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import {
+  getContextAndDataSet,
+  createText,
+  updateText,
+} from "../utils/codapPhone";
 import { useInput } from "../utils/hooks";
-import { averageTable } from "../transformations/average";
-import { DataSet } from "../transformations/types";
+import { average } from "../transformations/average";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { ctxtTitle, addUpdateListener, applyNewDataSet } from "./util";
+import { ctxtTitle, addUpdateTextListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import AttributeSelector from "../ui-components/AttributeSelector";
@@ -44,15 +47,20 @@ export function Average({ setErrMsg, saveData }: AverageProps): ReactElement {
       return;
     }
 
-    const doTransform: () => Promise<[DataSet, string]> = async () => {
+    const doTransform: () => Promise<[number, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const result = averageTable(dataset, attribute);
+      const result = average(dataset, attribute);
       return [result, `Average of ${ctxtTitle(context)}`];
     };
 
     try {
-      const newContextName = await applyNewDataSet(...(await doTransform()));
-      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+      const [result, name] = await doTransform();
+      const textName = await createText(name, String(result));
+
+      // Workaround because the text doesn't show up after creation
+      // See https://codap.concord.org/forums/topic/issue-creating-and-updating-text-views-through-data-interactive-api/#post-6483
+      updateText(textName, String(result));
+      addUpdateTextListener(inputDataCtxt, textName, doTransform, setErrMsg);
     } catch (e) {
       setErrMsg(e.message);
     }

@@ -456,8 +456,7 @@ export interface Calculator extends CodapComponent {
 export interface Text extends CodapComponent {
   type: CodapComponentType.Text;
   cannotClose?: boolean;
-  text?: string;
-  apiText?: string;
+  text: Record<string, unknown>;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-webview-object

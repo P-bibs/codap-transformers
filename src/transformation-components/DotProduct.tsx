@@ -1,13 +1,15 @@
 import React, { useCallback, ReactElement } from "react";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import {
+  getContextAndDataSet,
+  createText,
+  updateText,
+} from "../utils/codapPhone";
 import { useInput } from "../utils/hooks";
-import { dotProductTable } from "../transformations/dotProduct";
-import { DataSet } from "../transformations/types";
+import { dotProduct } from "../transformations/dotProduct";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
 import {
   ctxtTitle,
-  addUpdateListener,
-  applyNewDataSet,
+  addUpdateTextListener,
   allAttributesFromContext,
 } from "./util";
 import { TransformationProps } from "./types";
@@ -40,18 +42,20 @@ export function DotProduct({
       return;
     }
 
-    const doTransform: () => Promise<[DataSet, string]> = async () => {
+    const doTransform: () => Promise<[number, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const result = dotProductTable(
-        dataset,
-        allAttributesFromContext(context)
-      );
+      const result = dotProduct(dataset, allAttributesFromContext(context));
       return [result, `Dot Product of ${ctxtTitle(context)}`];
     };
 
     try {
-      const newContextName = await applyNewDataSet(...(await doTransform()));
-      addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+      const [result, name] = await doTransform();
+      const textName = await createText(name, String(result));
+
+      // Workaround because the text doesn't show up after creation
+      // See https://codap.concord.org/forums/topic/issue-creating-and-updating-text-views-through-data-interactive-api/#post-6483
+      updateText(textName, String(result));
+      addUpdateTextListener(inputDataCtxt, textName, doTransform, setErrMsg);
     } catch (e) {
       setErrMsg(e.message);
     }

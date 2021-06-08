@@ -825,7 +825,24 @@ export async function createText(
             width: 100,
             height: 100,
           },
-          text: content,
+          text: {
+            object: "value",
+            document: {
+              children: [
+                {
+                  type: "paragraph",
+                  children: [
+                    {
+                      text: content,
+                    },
+                  ],
+                },
+              ],
+              objTypes: {
+                paragraph: "block",
+              },
+            },
+          },
         },
       },
       (response) => {
@@ -846,7 +863,28 @@ export async function updateText(name: string, content: string): Promise<void> {
         action: CodapActions.Update,
         resource: resourceFromComponent(name),
         values: {
-          text: content,
+          dimensions: {
+            width: 100,
+            height: 100,
+          },
+          text: {
+            object: "value",
+            document: {
+              children: [
+                {
+                  type: "paragraph",
+                  children: [
+                    {
+                      text: content,
+                    },
+                  ],
+                },
+              ],
+              objTypes: {
+                paragraph: "block",
+              },
+            },
+          },
         },
       },
       (response) => {

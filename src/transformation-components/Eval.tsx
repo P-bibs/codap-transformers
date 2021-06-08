@@ -1,6 +1,5 @@
 import React, { ReactElement, useState } from "react";
 import { getContextAndDataSet, evalExpression } from "../utils/codapPhone";
-import { CodapEvalError } from "../utils/codapPhone/error";
 import { useInput, useAttributes } from "../utils/hooks";
 import { ContextSelector, ExpressionEditor } from "../ui-components";
 import { TransformationProps } from "./types";
@@ -39,11 +38,7 @@ export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
       );
       setResult(JSON.stringify(evalResult));
     } catch (e) {
-      if (e instanceof CodapEvalError) {
-        setErrMsg(e.error);
-      } else {
-        setErrMsg(e.toString());
-      }
+      setErrMsg(e.message);
     }
   }
 

@@ -11,7 +11,6 @@ import {
 } from "../ui-components";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
-import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface SortSaveData {
   keyExpression: string;
@@ -54,11 +53,7 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
       const newContextName = await applyNewDataSet(...(await doTransform()));
       addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
     } catch (e) {
-      if (e instanceof CodapEvalError) {
-        setErrMsg(e.error);
-      } else {
-        setErrMsg(e.toString());
-      }
+      setErrMsg(e.message);
     }
   }, [inputDataCtxt, setErrMsg, keyExpression]);
 

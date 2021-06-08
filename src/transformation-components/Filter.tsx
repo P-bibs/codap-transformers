@@ -11,7 +11,6 @@ import {
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { TransformationProps } from "./types";
-import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface FilterSaveData {
   predicate: string;
@@ -58,11 +57,7 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
       const newContextName = await applyNewDataSet(...(await doTransform()));
       addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
     } catch (e) {
-      if (e instanceof CodapEvalError) {
-        setErrMsg(e.error);
-      } else {
-        setErrMsg(e.toString());
-      }
+      setErrMsg(e.message);
     }
   }, [inputDataCtxt, predicate, setErrMsg]);
 

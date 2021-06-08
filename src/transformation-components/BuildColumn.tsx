@@ -13,7 +13,6 @@ import {
 } from "../ui-components";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
-import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface BuildColumnSaveData {
   attributeName: string;
@@ -90,11 +89,7 @@ export function BuildColumn({
       const newContextName = await applyNewDataSet(...(await doTransform()));
       addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
     } catch (e) {
-      if (e instanceof CodapEvalError) {
-        setErrMsg(e.error);
-      } else {
-        setErrMsg(e.toString());
-      }
+      setErrMsg(e.message);
     }
   }, [inputDataCtxt, attributeName, collectionName, expression, setErrMsg]);
 

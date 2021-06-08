@@ -12,7 +12,6 @@ import {
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
-import { CodapEvalError } from "../utils/codapPhone/error";
 
 export interface TransformColumnSaveData {
   attributeName: string;
@@ -74,11 +73,7 @@ export function TransformColumn({
       const newContextName = await applyNewDataSet(...(await doTransform()));
       addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
     } catch (e) {
-      if (e instanceof CodapEvalError) {
-        setErrMsg(e.error);
-      } else {
-        setErrMsg(e.toString());
-      }
+      setErrMsg(e.message);
     }
   }, [inputDataCtxt, attributeName, expression, setErrMsg]);
 

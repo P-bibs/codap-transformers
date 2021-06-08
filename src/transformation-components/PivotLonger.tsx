@@ -3,7 +3,7 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput } from "../utils/hooks";
 import { pivotLonger } from "../transformations/pivot";
 import { DataSet } from "../transformations/types";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import {
   MultiAttributeSelector,
   TransformationSubmitButtons,
@@ -70,7 +70,7 @@ export function PivotLonger({
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const pivoted = pivotLonger(dataset, attributes, namesTo, valuesTo);
-      return [pivoted, `Pivot Longer of ${ctxtTitle(context)}`];
+      return [pivoted, `Pivot Longer of ${readableName(context)}`];
     };
 
     try {

@@ -45,6 +45,7 @@ export function groupBy(
           ...attr,
           name: groupedAttrName(attr.name), // rename attribute uniquely
           formula: undefined, // do not copy formulas
+          description: `All values of the ${attrName} attribute that appear in distinct tuples.`,
         });
         continue attrLoop;
       }

@@ -10,7 +10,7 @@ import {
   ContextSelector,
   AttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet, ctxtTitle, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface DifferenceFromSaveData {
@@ -81,7 +81,7 @@ export function DifferenceFrom({
         resultAttributeName,
         differenceStartingValue
       );
-      return [result, `Difference From of ${ctxtTitle(context)}`];
+      return [result, `Difference From of ${readableName(context)}`];
     };
 
     try {

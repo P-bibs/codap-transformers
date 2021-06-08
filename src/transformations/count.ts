@@ -42,13 +42,20 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
     countedAttrs.map((attr) => attr.name)
   );
 
+  const attributeNames = attributes.join(", ");
   // single collection with copy of counted attributes, plus
   // a new "count" attribute for the frequencies
   const collections: Collection[] = [
     {
-      name: `Count (${attributes.join(", ")})`,
+      name: `Count (${attributeNames})`,
       labels: {},
-      attrs: [...countedAttrs, { name: countAttrName }],
+      attrs: [
+        ...countedAttrs,
+        {
+          name: countAttrName,
+          description: `The frequency of each tuple of (${attributeNames})`,
+        },
+      ],
     },
   ];
 

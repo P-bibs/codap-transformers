@@ -69,7 +69,7 @@ export function DotProduct({
       <br />
       <TransformationSubmitButtons
         onCreate={transform}
-        label="Calculate dot product"
+        label="Calculate Dot Product"
       />
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />

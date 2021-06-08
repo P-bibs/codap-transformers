@@ -50,7 +50,7 @@ export function Average({ setErrMsg, saveData }: AverageProps): ReactElement {
     const doTransform: () => Promise<[number, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
       const result = average(dataset, attribute);
-      return [result, `Average of ${ctxtTitle(context)}`];
+      return [result, `Average of ${attribute} in ${ctxtTitle(context)}`];
     };
 
     try {
@@ -78,9 +78,10 @@ export function Average({ setErrMsg, saveData }: AverageProps): ReactElement {
         value={attribute}
         onChange={setAttribute}
       />
+      <br />
       <TransformationSubmitButtons
         onCreate={transform}
-        label="Calculate dot product"
+        label="Calculate Average"
       />
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />

@@ -16,7 +16,9 @@ export function dotProduct(dataset: DataSet, attributes: string[]): number {
       attributes.reduce((product, attribute) => {
         const value = Number(row[attribute]);
         if (isNaN(value)) {
-          throw new Error(`Expected number, instead got ${row[attribute]}`);
+          throw new Error(
+            `Expected number in attribute ${attribute}, instead got ${row[attribute]}`
+          );
         }
         return product * value;
       }, 1)

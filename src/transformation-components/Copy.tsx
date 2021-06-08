@@ -26,7 +26,7 @@ export function Copy({ setErrMsg, saveData }: CopyProps): ReactElement {
    */
   const transform = useCallback(async () => {
     if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to flatten.");
+      setErrMsg("Please choose a valid dataset to flatten.");
       return;
     }
 

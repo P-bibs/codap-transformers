@@ -29,7 +29,7 @@ export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
     setErrMsg(null);
 
     if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to flatten.");
+      setErrMsg("Please choose a valid dataset to flatten.");
       return;
     }
 

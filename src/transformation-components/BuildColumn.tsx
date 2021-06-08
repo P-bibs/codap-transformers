@@ -58,7 +58,7 @@ export function BuildColumn({
     setErrMsg(null);
 
     if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
+      setErrMsg("Please choose a valid dataset to transform.");
       return;
     }
     if (collectionName === null) {

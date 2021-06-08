@@ -150,11 +150,11 @@ function compareCategorical(
 
   const attributes1 = dataset1.collections[0].attrs;
   if (attributes1 === undefined) {
-    throw new Error("First data context doesn't have any collections");
+    throw new Error("First dataset doesn't have any collections");
   }
   const attributes2 = dataset2.collections[0].attrs;
   if (attributes2 === undefined) {
-    throw new Error("Second data context doesn't have any collections");
+    throw new Error("Second dataset doesn't have any collections");
   }
 
   const attributesUnion = unionWithPredicate(

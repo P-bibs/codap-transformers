@@ -38,7 +38,7 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
     setErrMsg(null);
 
     if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to transform.");
+      setErrMsg("Please choose a valid dataset to transform.");
       return;
     }
 

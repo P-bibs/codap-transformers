@@ -23,7 +23,7 @@ export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
     setResult("");
 
     if (inputDataCtxt === null) {
-      setErrMsg("Please select data context");
+      setErrMsg("Please select dataset");
       return;
     }
     const { dataset } = await getContextAndDataSet(inputDataCtxt);

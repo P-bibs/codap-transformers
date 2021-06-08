@@ -1,4 +1,5 @@
 import React, { ReactElement } from "react";
+import "./TransformationSubmitButtons.css";
 
 interface TransformationSubmitButtonsProps {
   onCreate: () => void;
@@ -9,7 +10,9 @@ export default function TransformationSubmitButtons({
 }: TransformationSubmitButtonsProps): ReactElement {
   return (
     <>
-      <button onClick={onCreate}>Create table with transformation</button>
+      <button id="applyTransformation" onClick={onCreate}>
+        Apply Transformation
+      </button>
     </>
   );
 }

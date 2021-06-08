@@ -1,4 +1,5 @@
 import React, { ReactElement } from "react";
+import "./CodapFlowTextInput.css";
 
 interface CodapFlowTextInputProps {
   onChange: React.ChangeEventHandler<HTMLInputElement>;

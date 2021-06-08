@@ -84,7 +84,7 @@ export function TransformColumn({
 
   return (
     <>
-      <h3>Table to TransformColumn</h3>
+      <h3>Table to Transform Column Of</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <h3>Attribute to Transform</h3>
@@ -94,7 +94,7 @@ export function TransformColumn({
         context={inputDataCtxt}
       />
 
-      <h3>How to Transform Column</h3>
+      <h3>Formula for Transformed Values</h3>
       <ExpressionEditor
         value={expression}
         onChange={expressionChange}

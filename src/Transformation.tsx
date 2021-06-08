@@ -120,9 +120,13 @@ function Transformation({
   return (
     <div className="Transformation">
       {urlTransformation ? (
-        <h3>
-          {urlTransformation.name} ({urlTransformation.content.base})
-        </h3>
+        <h2>
+          {urlTransformation.name}
+          <span id="transformationBase">
+            {" "}
+            ({urlTransformation.content.base})
+          </span>
+        </h2>
       ) : (
         <>
           <h3>Transformation Type</h3>

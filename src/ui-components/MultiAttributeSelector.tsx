@@ -57,7 +57,8 @@ export default function MultiAttributeSelector({
             disabled={disabled}
           />
           {i === selected.length ? null : (
-            <button className="deleteButton"
+            <button
+              className="deleteButton"
               onClick={() => {
                 setSelected([
                   ...selected.slice(0, i),

@@ -15,9 +15,7 @@ function Error(props: ErrorProps): ReactElement {
     <></>
   ) : (
     <div className="Error">
-      <p>
-        <b>{props.message}</b>
-      </p>
+      <p>{props.message}</p>
     </div>
   );
 }

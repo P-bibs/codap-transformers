@@ -154,18 +154,19 @@ function Transformation({
         {urlTransformation ? (
           <PolymorphicComponent
             setErrMsg={setErrMsg}
+            errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
             transformation={urlTransformation}
           />
         ) : (
           <PolymorphicComponent
             setErrMsg={setErrMsg}
+            errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
             transformation={transformationData.find(
               ({ name }) => name === transformType
             )}
           />
         )}
       </SaveTransformationContext.Provider>
-      <CodapFlowErrorDisplay message={errMsg} />
     </div>
   );
 }

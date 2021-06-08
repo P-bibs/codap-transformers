@@ -25,6 +25,7 @@ interface SelectAttributesProps extends TransformationProps {
 export function SelectAttributes({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: SelectAttributesProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -100,6 +101,7 @@ export function SelectAttributes({
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

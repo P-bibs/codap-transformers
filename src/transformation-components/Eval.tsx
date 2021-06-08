@@ -11,7 +11,11 @@ export interface EvalSaveData {}
 interface EvalProps extends TransformationProps {
   saveData?: EvalSaveData;
 }
-export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
+export function Eval({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: EvalProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -62,6 +66,7 @@ export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
 
       <br />
       <button onClick={evalExpr}>Eval</button>
+      {errorDisplay}
 
       <h3>Result</h3>
       <h3>{result}</h3>

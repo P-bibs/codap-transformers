@@ -15,7 +15,11 @@ interface FlattenProps extends TransformationProps {
   saveData?: FlattenSaveData;
 }
 
-export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
+export function Flatten({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: FlattenProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -54,6 +58,7 @@ export function Flatten({ setErrMsg, saveData }: FlattenProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />
       )}

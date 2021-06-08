@@ -23,7 +23,11 @@ interface CompareProps extends TransformationProps {
   saveData?: CompareSaveData;
 }
 
-export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
+export function Compare({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: CompareProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -142,6 +146,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

@@ -14,7 +14,11 @@ export interface CopySaveData {}
 interface CopyProps extends TransformationProps {
   saveData?: CopySaveData;
 }
-export function Copy({ setErrMsg, saveData }: CopyProps): ReactElement {
+export function Copy({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: CopyProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -51,6 +55,7 @@ export function Copy({ setErrMsg, saveData }: CopyProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />
       )}

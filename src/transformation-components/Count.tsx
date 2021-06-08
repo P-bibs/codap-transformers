@@ -20,7 +20,11 @@ interface CountProps extends TransformationProps {
   saveData?: CountSaveData;
 }
 
-export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
+export function Count({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: CountProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -77,6 +81,7 @@ export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

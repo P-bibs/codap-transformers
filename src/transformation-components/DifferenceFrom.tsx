@@ -26,6 +26,7 @@ interface DifferenceFromProps extends TransformationProps {
 export function DifferenceFrom({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: DifferenceFromProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -120,6 +121,7 @@ export function DifferenceFrom({
       />
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

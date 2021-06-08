@@ -21,7 +21,11 @@ interface JoinProps extends TransformationProps {
   saveData?: JoinSaveData;
 }
 
-export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
+export function Join({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: JoinProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -116,6 +120,7 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({ inputAttribute1, inputAttribute2 })}

@@ -20,7 +20,11 @@ interface GroupByProps extends TransformationProps {
   saveData?: GroupBySaveData;
 }
 
-export function GroupBy({ setErrMsg, saveData }: GroupByProps): ReactElement {
+export function GroupBy({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: GroupByProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -75,6 +79,7 @@ export function GroupBy({ setErrMsg, saveData }: GroupByProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

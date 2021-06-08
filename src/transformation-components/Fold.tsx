@@ -99,6 +99,7 @@ export function Fold({
   label,
   foldFunc,
   saveData,
+  errorDisplay,
 }: FoldProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -154,6 +155,7 @@ export function Fold({
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

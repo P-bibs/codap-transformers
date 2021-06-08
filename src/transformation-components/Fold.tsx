@@ -113,7 +113,7 @@ export function Fold({
 
   const [inputAttributeName, inputAttributeNameChange] = useState<
     string | null
-  >(saveData !== undefined ? saveData.inputAttributeName : "");
+  >(saveData !== undefined ? saveData.inputAttributeName : null);
 
   const transform = useCallback(async () => {
     setErrMsg(null);

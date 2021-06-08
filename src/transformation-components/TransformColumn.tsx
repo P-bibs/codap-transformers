@@ -31,7 +31,7 @@ export function TransformColumn({
   >(null, () => setErrMsg(null));
 
   const [attributeName, attributeNameChange] = useState<string | null>(
-    saveData !== undefined ? saveData.attributeName : ""
+    saveData !== undefined ? saveData.attributeName : null
   );
   const [expression, expressionChange] = useState<string>(
     saveData !== undefined ? saveData.expression : ""

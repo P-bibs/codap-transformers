@@ -42,18 +42,9 @@ function Transformation({
       "Pivot Longer",
       "Pivot Wider",
     ],
-    "Combining Transformations": [
-      "Join",
-      "Combine Cases",
-    ],
-    "Summarizing Transformations": [
-      "Count",
-      "Compare",
-    ],
-    "Aggregators": [
-      "Dot Product",
-      "Average",
-    ],
+    "Combining Transformations": ["Join", "Combine Cases"],
+    "Summarizing Transformations": ["Count", "Compare"],
+    Aggregators: ["Dot Product", "Average"],
     "Running Aggregators": [
       "Running Sum",
       "Running Mean",
@@ -61,10 +52,7 @@ function Transformation({
       "Running Max",
       "Running Difference",
     ],
-    "Copy Transformations": [
-      "Copy",
-      "Copy Schema",
-    ],
+    "Copy Transformations": ["Copy", "Copy Schema"],
     Others: [
       "Filter",
       "Sort",

@@ -20,7 +20,6 @@ import { PivotLonger } from "./PivotLonger";
 import { PivotWider } from "./PivotWider";
 import { SavedTransformation } from "./types";
 import { Join } from "./Join";
-import { Eval } from "./Eval";
 import { Copy } from "./Copy";
 import { DotProduct } from "./DotProduct";
 import { Average } from "./Average";
@@ -185,14 +184,6 @@ export const PolymorphicComponent = ({
     case "Join":
       return (
         <Join
-          setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
-          errorDisplay={errorDisplay}
-        />
-      );
-    case "Eval":
-      return (
-        <Eval
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
           errorDisplay={errorDisplay}

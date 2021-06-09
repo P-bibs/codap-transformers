@@ -109,6 +109,7 @@ export function Join({
         onChange={inputAttribute1OnChange}
         value={inputAttribute1}
         context={inputDataContext1}
+        disabled={saveData !== undefined}
       />
 
       <h3>Joining Attribute</h3>
@@ -116,6 +117,7 @@ export function Join({
         onChange={inputAttribute2OnChange}
         value={inputAttribute2}
         context={inputDataContext2}
+        disabled={saveData !== undefined}
       />
 
       <br />

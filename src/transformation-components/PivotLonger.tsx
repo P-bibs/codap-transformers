@@ -96,10 +96,18 @@ export function PivotLonger({
       />
 
       <h3>Names To</h3>
-      <CodapFlowTextInput value={namesTo} onChange={namesToChange} />
+      <CodapFlowTextInput
+        value={namesTo}
+        onChange={namesToChange}
+        disabled={saveData !== undefined}
+      />
 
       <h3>Values To</h3>
-      <CodapFlowTextInput value={valuesTo} onChange={valuesToChange} />
+      <CodapFlowTextInput
+        value={valuesTo}
+        onChange={valuesToChange}
+        disabled={saveData !== undefined}
+      />
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />

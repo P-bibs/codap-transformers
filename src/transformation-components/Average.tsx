@@ -81,6 +81,7 @@ export function Average({
         context={inputDataCtxt}
         value={attribute}
         onChange={setAttribute}
+        disabled={saveData !== undefined}
       />
       <br />
       <TransformationSubmitButtons

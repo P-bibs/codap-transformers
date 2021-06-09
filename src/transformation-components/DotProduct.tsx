@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement } from "react";
+import React, { useCallback, ReactElement, useState } from "react";
 import {
   getContextAndDataSet,
   createText,
@@ -7,13 +7,10 @@ import {
 import { useInput } from "../utils/hooks";
 import { dotProduct } from "../transformations/dotProduct";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import {
-  readableName,
-  addUpdateTextListener,
-  allAttributesFromContext,
-} from "./util";
+import { readableName, addUpdateTextListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { MultiAttributeSelector } from "../ui-components";
 
 export type DotProductSaveData = Record<string, never>;
 
@@ -31,6 +28,8 @@ export function DotProduct({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
+  const [attributes, setAttributes] = useState<string[]>([]);
+
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.
@@ -43,9 +42,16 @@ export function DotProduct({
       return;
     }
 
+    if (attributes.length === 0) {
+      setErrMsg(
+        "Please choose at least one attribute to take the dot product of."
+      );
+      return;
+    }
+
     const doTransform: () => Promise<[number, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const result = dotProduct(dataset, allAttributesFromContext(context));
+      const result = dotProduct(dataset, attributes);
       return [result, `Dot Product of ${readableName(context)}`];
     };
 
@@ -60,12 +66,19 @@ export function DotProduct({
     } catch (e) {
       setErrMsg(e.message);
     }
-  }, [inputDataCtxt, setErrMsg]);
+  }, [inputDataCtxt, setErrMsg, attributes]);
 
   return (
     <>
-      <p>Table to Take Dot Product of</p>
+      <h3>Table to Take Dot Product of</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
+
+      <h3>Attributes to Take Dot Product of</h3>
+      <MultiAttributeSelector
+        context={inputDataCtxt}
+        setSelected={setAttributes}
+        selected={attributes}
+      />
 
       <br />
       <TransformationSubmitButtons

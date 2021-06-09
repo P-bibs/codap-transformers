@@ -804,6 +804,9 @@ export async function createTable(
   );
 }
 
+const TEXT_WIDTH = 100;
+const TEXT_HEIGHT = 100;
+const TEXT_FONT_SIZE = 2;
 export async function createText(
   name: string,
   content: string
@@ -822,11 +825,14 @@ export async function createText(
           type: CodapComponentType.Text,
           name: textName,
           dimensions: {
-            width: 100,
-            height: 100,
+            width: TEXT_WIDTH,
+            height: TEXT_HEIGHT,
           },
           text: {
             object: "value",
+            data: {
+              fontSize: TEXT_FONT_SIZE,
+            },
             document: {
               children: [
                 {
@@ -864,11 +870,14 @@ export async function updateText(name: string, content: string): Promise<void> {
         resource: resourceFromComponent(name),
         values: {
           dimensions: {
-            width: 100,
-            height: 100,
+            width: TEXT_WIDTH,
+            height: TEXT_HEIGHT,
           },
           text: {
             object: "value",
+            data: {
+              fontSize: TEXT_FONT_SIZE,
+            },
             document: {
               children: [
                 {

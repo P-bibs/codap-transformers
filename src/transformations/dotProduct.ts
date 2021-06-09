@@ -1,4 +1,5 @@
 import { DataSet } from "./types";
+import { codapValueToString } from "./util";
 
 /**
  * Takes the dot product of the given columns.
@@ -17,7 +18,9 @@ export function dotProduct(dataset: DataSet, attributes: string[]): number {
         const value = Number(row[attribute]);
         if (isNaN(value)) {
           throw new Error(
-            `Expected number in attribute ${attribute}, instead got ${row[attribute]}`
+            `Expected number in attribute ${attribute}, instead got ${codapValueToString(
+              row[attribute]
+            )}`
           );
         }
         return product * value;

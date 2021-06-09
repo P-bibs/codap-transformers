@@ -1,4 +1,5 @@
 import { DataSet } from "./types";
+import { codapValueToString } from "./util";
 
 /**
  * Takes the average of a given column.
@@ -10,7 +11,9 @@ export function average(dataset: DataSet, attribute: string): number {
   const sum = dataset.records.reduce((acc, row) => {
     const value = Number(row[attribute]);
     if (isNaN(value)) {
-      throw new Error(`Expected number, instead got ${row[attribute]}`);
+      throw new Error(
+        `Expected number, instead got ${codapValueToString(row[attribute])}`
+      );
     }
     return acc + value;
   }, 0);

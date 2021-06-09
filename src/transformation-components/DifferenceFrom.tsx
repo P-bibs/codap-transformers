@@ -35,7 +35,7 @@ export function DifferenceFrom({
 
   const [inputAttributeName, inputAttributeNameChange] = useState<
     string | null
-  >(saveData !== undefined ? saveData.inputAttributeName : "");
+  >(saveData !== undefined ? saveData.inputAttributeName : null);
 
   const [resultAttributeName, resultAttributeNameChange] = useInput<
     string,

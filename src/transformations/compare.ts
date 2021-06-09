@@ -57,8 +57,8 @@ export function compare(
       ],
     },
   ];
-  // Only add this attribute if this is a structural diff
-  if (kind === "structural") {
+  // Only add this attribute if this is a numeric diff
+  if (kind === "numeric") {
     collections[0].attrs?.push({
       name: COMPARE_VALUE_COLUMN_NAME,
       description: "",

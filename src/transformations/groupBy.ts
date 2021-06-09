@@ -52,7 +52,7 @@ export function groupBy(
     }
 
     // attribute was not found in any collection
-    throw new Error(`bad attribute name: ${attrName}`);
+    throw new Error(`Invalid attribute name: ${attrName}`);
   }
 
   // remove any collections with no attributes after the group,

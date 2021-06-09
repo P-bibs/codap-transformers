@@ -24,7 +24,7 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
         coll.attrs?.find((attr) => attr.name === attrName)
       ) === undefined
     ) {
-      throw new Error(`invalid attribute name: ${attrName}`);
+      throw new Error(`Invalid attribute name: ${attrName}`);
     }
   }
 
@@ -64,7 +64,7 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
     const copy: Record<string, unknown> = {};
     for (const attrName of attributes) {
       if (record[attrName] === undefined) {
-        throw new Error(`invalid attribute name: ${attrName}`);
+        throw new Error(`Invalid attribute name: ${attrName}`);
       }
 
       copy[attrName] = record[attrName];

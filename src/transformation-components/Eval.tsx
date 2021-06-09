@@ -1,6 +1,5 @@
 import React, { ReactElement, useState } from "react";
 import { getContextAndDataSet, evalExpression } from "../utils/codapPhone";
-import { CodapEvalError } from "../utils/codapPhone/error";
 import { useInput, useAttributes } from "../utils/hooks";
 import { ContextSelector, ExpressionEditor } from "../ui-components";
 import { TransformationProps } from "./types";
@@ -27,7 +26,7 @@ export function Eval({
     setResult("");
 
     if (inputDataCtxt === null) {
-      setErrMsg("Please select data context");
+      setErrMsg("Please select dataset");
       return;
     }
     const { dataset } = await getContextAndDataSet(inputDataCtxt);
@@ -42,11 +41,7 @@ export function Eval({
       );
       setResult(JSON.stringify(evalResult));
     } catch (e) {
-      if (e instanceof CodapEvalError) {
-        setErrMsg(e.error);
-      } else {
-        setErrMsg(e.toString());
-      }
+      setErrMsg(e.message);
     }
   }
 

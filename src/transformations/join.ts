@@ -28,7 +28,7 @@ export function join(
     joiningCollection === undefined ||
     joiningCollection.attrs === undefined
   ) {
-    throw new Error(`invalid joining attribute: ${joiningAttr}`);
+    throw new Error(`Invalid joining attribute: ${joiningAttr}`);
   }
 
   const addedAttrs = joiningCollection.attrs.slice();
@@ -37,7 +37,7 @@ export function join(
   const collections = baseDataset.collections.slice();
   const baseCollection = findCollectionWithAttr(collections, baseAttr);
   if (baseCollection === undefined || baseCollection.attrs === undefined) {
-    throw new Error(`invalid base attribute: ${baseAttr}`);
+    throw new Error(`Invalid base attribute: ${baseAttr}`);
   }
 
   // list of attributes whose names cannot be duplicated by the added attrs

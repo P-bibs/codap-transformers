@@ -1,5 +1,6 @@
 import { DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone";
+import { codapValueToString } from "./util";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -17,9 +18,9 @@ export async function filter(
   predValues.forEach((value, i) => {
     if (value !== true && value !== false) {
       throw new Error(
-        `expected filter predicate to evaluate to true/false, but got ${value} at case ${
-          i + 1
-        }`
+        `Expected predicate to evaluate to true/false, but it evaluated to ${codapValueToString(
+          value
+        )} at case ${i + 1}`
       );
     }
 

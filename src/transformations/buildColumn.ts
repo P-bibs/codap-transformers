@@ -16,7 +16,7 @@ export async function buildColumn(
   const toAdd = collections.find((coll) => coll.name === collectionName);
 
   if (toAdd === undefined) {
-    throw new Error(`invalid collection name: ${collectionName}`);
+    throw new Error(`Invalid collection name: ${collectionName}`);
   }
 
   // ensure no duplicate attr names
@@ -25,7 +25,7 @@ export async function buildColumn(
       coll.attrs?.find((attr) => attr.name === newAttributeName)
     )
   ) {
-    throw new Error(`attribute name already in use: ${newAttributeName}`);
+    throw new Error(`Attribute name already in use: ${newAttributeName}`);
   }
 
   if (toAdd.attrs === undefined) {

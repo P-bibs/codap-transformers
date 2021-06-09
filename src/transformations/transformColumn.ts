@@ -18,7 +18,7 @@ export async function transformColumn(
     const record = records[i];
 
     if (record[attributeName] === undefined) {
-      throw new Error(`invalid attribute to transform: ${attributeName}`);
+      throw new Error(`Invalid attribute to transform: ${attributeName}`);
     }
 
     record[attributeName] = value;

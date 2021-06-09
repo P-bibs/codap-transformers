@@ -1,5 +1,6 @@
 import { DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone";
+import { codapValueToString } from "./util";
 
 function numCompareFn(a: number, b: number) {
   return a - b;
@@ -23,6 +24,12 @@ function boolCompareFn(a: boolean, b: boolean) {
   }
 }
 
+function objectCompareFn(a: unknown, b: unknown) {
+  // TODO: not sure this is a meaningful comparison,
+  // but it should at least give the same result every time.
+  return stringCompareFn(JSON.stringify(a), JSON.stringify(b));
+}
+
 function compareFn(a: unknown, b: unknown): number {
   if (typeof a === "number" && typeof b === "number") {
     return numCompareFn(a, b);
@@ -30,9 +37,15 @@ function compareFn(a: unknown, b: unknown): number {
     return stringCompareFn(a, b);
   } else if (typeof a === "boolean" && typeof b === "boolean") {
     return boolCompareFn(a, b);
+  } else if (typeof a === "object" && typeof b === "object") {
+    return objectCompareFn(a, b);
   } else {
     throw new Error(
-      `Keys must have the same type for all rows. Got ${a} and ${b}`
+      `Sort encountered keys of differing types (${codapValueToString(
+        a
+      )} and ${codapValueToString(
+        b
+      )}). Keys must have the same type for all cases.`
     );
   }
 }

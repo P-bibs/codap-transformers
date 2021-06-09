@@ -70,7 +70,7 @@ export function DotProduct({
 
   return (
     <>
-      <p>Table to Take Dot Product of</p>
+      <h3>Table to Take Dot Product of</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <h3>Attributes to Take Dot Product of</h3>

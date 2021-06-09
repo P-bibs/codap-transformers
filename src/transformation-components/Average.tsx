@@ -72,11 +72,11 @@ export function Average({
 
   return (
     <>
-      <p>Table to Take Average of</p>
+      <h3>Table to Take Average of</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <br />
-      <p>Attribute to Average</p>
+      <h3>Attribute to Average</h3>
       <AttributeSelector
         context={inputDataCtxt}
         value={attribute}

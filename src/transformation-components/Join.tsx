@@ -21,7 +21,11 @@ interface JoinProps extends TransformationProps {
   saveData?: JoinSaveData;
 }
 
-export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
+export function Join({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: JoinProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -89,18 +93,18 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
 
   return (
     <>
-      <p>Base Table</p>
+      <h3>Base Table</h3>
       <ContextSelector
         value={inputDataContext1}
         onChange={inputDataContext1OnChange}
       />
-      <p>Joining Table</p>
+      <h3>Joining Table</h3>
       <ContextSelector
         value={inputDataContext2}
         onChange={inputDataContext2OnChange}
       />
 
-      <p>Base Attribute</p>
+      <h3>Base Attribute</h3>
       <AttributeSelector
         onChange={inputAttribute1OnChange}
         value={inputAttribute1}
@@ -108,7 +112,7 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
         disabled={saveData !== undefined}
       />
 
-      <p>Joining Attribute</p>
+      <h3>Joining Attribute</h3>
       <AttributeSelector
         onChange={inputAttribute2OnChange}
         value={inputAttribute2}
@@ -118,6 +122,7 @@ export function Join({ setErrMsg, saveData }: JoinProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({ inputAttribute1, inputAttribute2 })}

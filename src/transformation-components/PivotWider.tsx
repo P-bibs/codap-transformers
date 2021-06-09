@@ -24,6 +24,7 @@ interface PivotWiderProps extends TransformationProps {
 export function PivotWider({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: PivotWiderProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -73,10 +74,10 @@ export function PivotWider({
 
   return (
     <>
-      <p>Table to Pivot</p>
+      <h3>Table to Pivot</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Names From</p>
+      <h3>Names From</h3>
       <AttributeSelector
         onChange={namesFromOnChange}
         value={namesFrom}
@@ -84,7 +85,7 @@ export function PivotWider({
         disabled={saveData !== undefined}
       />
 
-      <p>Values From</p>
+      <h3>Values From</h3>
       <AttributeSelector
         onChange={valuesFromOnChange}
         value={valuesFrom}
@@ -94,6 +95,7 @@ export function PivotWider({
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

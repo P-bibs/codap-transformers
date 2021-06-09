@@ -1,4 +1,5 @@
 import React, { ReactElement } from "react";
+import "./TransformationSubmitButtons.css";
 
 interface TransformationSubmitButtonsProps {
   onCreate: () => void;
@@ -11,7 +12,9 @@ export default function TransformationSubmitButtons({
 }: TransformationSubmitButtonsProps): ReactElement {
   return (
     <>
-      <button onClick={onCreate}>{label}</button>
+      <button id="applyTransformation" onClick={onCreate}>
+        {label}
+      </button>
     </>
   );
 }

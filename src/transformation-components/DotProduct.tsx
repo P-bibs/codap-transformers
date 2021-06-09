@@ -24,6 +24,7 @@ interface DotProductProps extends TransformationProps {
 export function DotProduct({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: DotProductProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -71,6 +72,7 @@ export function DotProduct({
         onCreate={transform}
         label="Calculate Dot Product"
       />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />
       )}

@@ -128,12 +128,16 @@ function Transformation({
   return (
     <div className="Transformation">
       {urlTransformation ? (
-        <p>
-          {urlTransformation.name} ({urlTransformation.content.base})
-        </p>
+        <h2>
+          {urlTransformation.name}
+          <span id="transformationBase">
+            {" "}
+            ({urlTransformation.content.base})
+          </span>
+        </h2>
       ) : (
         <>
-          <p>Transformation Type</p>
+          <h3>Transformation Type</h3>
 
           <select
             onChange={typeChange}
@@ -158,18 +162,19 @@ function Transformation({
         {urlTransformation ? (
           <PolymorphicComponent
             setErrMsg={setErrMsg}
+            errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
             transformation={urlTransformation}
           />
         ) : (
           <PolymorphicComponent
             setErrMsg={setErrMsg}
+            errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
             transformation={transformationData.find(
               ({ name }) => name === transformType
             )}
           />
         )}
       </SaveTransformationContext.Provider>
-      <CodapFlowErrorDisplay message={errMsg} />
     </div>
   );
 }

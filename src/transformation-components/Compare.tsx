@@ -23,7 +23,11 @@ interface CompareProps extends TransformationProps {
   saveData?: CompareSaveData;
 }
 
-export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
+export function Compare({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: CompareProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -100,18 +104,18 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
 
   return (
     <>
-      <p>First Table to Compare </p>
+      <h3>First Table to Compare </h3>
       <ContextSelector
         value={inputDataContext1}
         onChange={inputDataContext1OnChange}
       />
-      <p>Second Table to Compare</p>
+      <h3>Second Table to Compare</h3>
       <ContextSelector
         value={inputDataContext2}
         onChange={inputDataContext2OnChange}
       />
 
-      <p>First attribute to Compare</p>
+      <h3>First attribute to Compare</h3>
       <AttributeSelector
         onChange={(s) => setInputAttribute1(s)}
         value={inputAttribute1}
@@ -119,7 +123,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
         disabled={saveData !== undefined}
       />
 
-      <p>Second attribute to Compare</p>
+      <h3>Second attribute to Compare</h3>
       <AttributeSelector
         onChange={(s) => setInputAttribute2(s)}
         value={inputAttribute2}
@@ -127,7 +131,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
         disabled={saveData !== undefined}
       />
 
-      <p>What kind of Comparison?</p>
+      <h3>What kind of Comparison?</h3>
       <CodapFlowSelect
         onChange={(e) => setCompareType(e.target.value as CompareType)}
         options={[
@@ -142,6 +146,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

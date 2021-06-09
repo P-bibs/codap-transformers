@@ -3,6 +3,11 @@
   border: 1px solid black;
 }
 
+.CodeMirror * {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
 .cm-variable {
     color: magenta;
 }

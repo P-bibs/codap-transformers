@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
 import { useAttributes } from "../utils/hooks";
+import "./MultiAttributeSelector.css";
 
 interface MultiAttributeSelectorProps {
   context: string | null;
@@ -57,6 +58,7 @@ export default function MultiAttributeSelector({
           />
           {i === selected.length ? null : (
             <button
+              className="deleteButton"
               onClick={() => {
                 setSelected([
                   ...selected.slice(0, i),
@@ -65,7 +67,7 @@ export default function MultiAttributeSelector({
               }}
               disabled={disabled}
             >
-              🗙
+              ✕
             </button>
           )}
         </div>

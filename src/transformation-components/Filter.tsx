@@ -21,7 +21,11 @@ interface FilterProps extends TransformationProps {
   saveData?: FilterSaveData;
 }
 
-export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
+export function Filter({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: FilterProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -68,10 +72,10 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
 
   return (
     <>
-      <p>Table to Filter</p>
+      <h3>Table to Filter</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>How to Filter</p>
+      <h3>How to Filter</h3>
       <ExpressionEditor
         value={predicate}
         onChange={(s) => setPredicate(s)}
@@ -81,6 +85,7 @@ export function Filter({ setErrMsg, saveData }: FilterProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

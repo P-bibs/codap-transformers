@@ -20,7 +20,11 @@ interface CountProps extends TransformationProps {
   saveData?: CountSaveData;
 }
 
-export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
+export function Count({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: CountProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -64,10 +68,10 @@ export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
 
   return (
     <>
-      <p>Table to Count</p>
+      <h3>Table to Count</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attributes to Count</p>
+      <h3>Attributes to Count</h3>
       <MultiAttributeSelector
         context={inputDataCtxt}
         selected={attributes}
@@ -77,6 +81,7 @@ export function Count({ setErrMsg, saveData }: CountProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

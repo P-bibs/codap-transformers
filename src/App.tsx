@@ -10,7 +10,7 @@ export const App = (): ReactElement => {
   const transformation = parsedUrl.searchParams.get("transform");
 
   if (transformation === null) {
-    initPhone("CODAP flow");
+    initPhone("CODAP Flow");
     return <Transformation />;
   } else {
     const parsedTransformation: SavedTransformation = JSON.parse(

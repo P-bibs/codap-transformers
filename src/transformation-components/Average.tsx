@@ -20,7 +20,11 @@ interface AverageProps extends TransformationProps {
   saveData?: AverageSaveData;
 }
 
-export function Average({ setErrMsg, saveData }: AverageProps): ReactElement {
+export function Average({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: AverageProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -84,6 +88,7 @@ export function Average({ setErrMsg, saveData }: AverageProps): ReactElement {
         onCreate={transform}
         label="Calculate Average"
       />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />
       )}

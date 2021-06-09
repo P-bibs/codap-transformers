@@ -16,6 +16,7 @@ interface CopySchemaProps extends TransformationProps {
 export function CopySchema({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: CopySchemaProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -53,6 +54,7 @@ export function CopySchema({
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />
       )}

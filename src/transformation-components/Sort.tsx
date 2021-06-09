@@ -21,7 +21,11 @@ interface SortProps extends TransformationProps {
   saveData?: SortSaveData;
 }
 
-export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
+export function Sort({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: SortProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -64,10 +68,10 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
 
   return (
     <>
-      <p>Table to sort</p>
+      <h3>Table to sort</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Key expression</p>
+      <h3>Key expression</h3>
       <ExpressionEditor
         value={keyExpression}
         onChange={keyExpressionChange}
@@ -77,6 +81,7 @@ export function Sort({ setErrMsg, saveData }: SortProps): ReactElement {
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

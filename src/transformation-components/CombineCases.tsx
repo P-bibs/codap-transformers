@@ -17,6 +17,7 @@ interface CombineCasesProps extends TransformationProps {
 export function CombineCases({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: CombineCasesProps): ReactElement {
   const [inputDataContext1, inputDataContext1OnChange] = useInput<
     string | null,
@@ -83,6 +84,7 @@ export function CombineCases({
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />
       )}

@@ -10,7 +10,11 @@ export type EvalSaveData = Record<string, never>;
 interface EvalProps extends TransformationProps {
   saveData?: EvalSaveData;
 }
-export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
+export function Eval({
+  setErrMsg,
+  saveData,
+  errorDisplay,
+}: EvalProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
     HTMLSelectElement
@@ -48,10 +52,10 @@ export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
 
   return (
     <>
-      <p>Table to Evaluate On</p>
+      <h3>Table to Evaluate On</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Formula to Evaluate</p>
+      <h3>Formula to Evaluate</h3>
       <ExpressionEditor
         value={transformPgrm}
         onChange={pgrmChange}
@@ -61,9 +65,10 @@ export function Eval({ setErrMsg, saveData }: EvalProps): ReactElement {
 
       <br />
       <button onClick={evalExpr}>Eval</button>
+      {errorDisplay}
 
-      <p>Result</p>
-      <p>{result}</p>
+      <h3>Result</h3>
+      <h3>{result}</h3>
     </>
   );
 }

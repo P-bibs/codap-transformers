@@ -30,6 +30,7 @@ import { CombineCases } from "./CombineCases";
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
   setErrMsg: (s: string | null) => void;
+  errorDisplay: ReactElement;
 }
 
 /**
@@ -38,6 +39,7 @@ interface PolymorphicComponentProps {
 export const PolymorphicComponent = ({
   transformation,
   setErrMsg,
+  errorDisplay,
 }: PolymorphicComponentProps): ReactElement => {
   if (transformation === undefined) {
     return <></>;
@@ -49,6 +51,7 @@ export const PolymorphicComponent = ({
         <RunningSum
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Running Mean":
@@ -56,6 +59,7 @@ export const PolymorphicComponent = ({
         <RunningMean
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Running Min":
@@ -63,6 +67,7 @@ export const PolymorphicComponent = ({
         <RunningMin
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Running Max":
@@ -70,6 +75,7 @@ export const PolymorphicComponent = ({
         <RunningMax
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Running Difference":
@@ -77,25 +83,39 @@ export const PolymorphicComponent = ({
         <RunningDifference
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Flatten":
       return (
-        <Flatten setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Flatten
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Group By":
       return (
-        <GroupBy setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <GroupBy
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Filter":
       return (
-        <Filter setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Filter
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Transform Column":
       return (
         <TransformColumn
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Build Column":
@@ -103,6 +123,7 @@ export const PolymorphicComponent = ({
         <BuildColumn
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Select Attributes":
@@ -110,32 +131,47 @@ export const PolymorphicComponent = ({
         <SelectAttributes
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Count":
       return (
-        <Count setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Count
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Compare":
       return (
-        <Compare setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Compare
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Difference From":
       return (
         <DifferenceFrom
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Sort":
       return (
-        <Sort setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Sort
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Pivot Longer":
       return (
         <PivotLonger
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Pivot Wider":
@@ -143,25 +179,39 @@ export const PolymorphicComponent = ({
         <PivotWider
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Join":
       return (
-        <Join setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Join
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Eval":
       return (
-        <Eval setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Eval
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Copy":
       return (
-        <Copy setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Copy
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Dot Product":
       return (
         <DotProduct
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Copy Schema":
@@ -169,17 +219,23 @@ export const PolymorphicComponent = ({
         <CopySchema
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
     case "Average":
       return (
-        <Average setErrMsg={setErrMsg} saveData={transformation.content.data} />
+        <Average
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
       );
     case "Combine Cases":
       return (
         <CombineCases
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
         />
       );
   }

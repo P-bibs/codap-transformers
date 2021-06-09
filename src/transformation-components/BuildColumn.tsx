@@ -28,6 +28,7 @@ interface BuildColumnProps extends TransformationProps {
 export function BuildColumn({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: BuildColumnProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -100,16 +101,16 @@ export function BuildColumn({
 
   return (
     <>
-      <p>Table to Add Attribute To</p>
+      <h3>Table to Add Attribute To</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
-      <p>Name of New Attribute</p>
+      <h3>Name of New Attribute</h3>
       <CodapFlowTextInput
         value={attributeName}
         onChange={attributeNameChange}
         disabled={saveData !== undefined}
       />
 
-      <p>Collection to Add To</p>
+      <h3>Collection to Add To</h3>
       <CollectionSelector
         context={inputDataCtxt}
         value={collectionName}
@@ -117,7 +118,7 @@ export function BuildColumn({
         disabled={saveData !== undefined}
       />
 
-      <p>Formula for Attribute Values</p>
+      <h3>Formula for Attribute Values</h3>
       <ExpressionEditor
         value={expression}
         onChange={setExpression}
@@ -127,6 +128,7 @@ export function BuildColumn({
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

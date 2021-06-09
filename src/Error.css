@@ -1,4 +1,12 @@
 
-.Error p {
+.Error {
+    margin-top: 10px;
+    background-color: #ffeeee;
+    padding: 6px;
+    border: solid 1px red;
+    border-radius: 5px;
+}
+
+.Error * {
     color: red;
 }

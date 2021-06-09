@@ -26,6 +26,7 @@ interface DifferenceFromProps extends TransformationProps {
 export function DifferenceFrom({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: DifferenceFromProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -100,22 +101,22 @@ export function DifferenceFrom({
 
   return (
     <>
-      <p>Table to calculate difference on</p>
+      <h3>Table to calculate difference on</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
-      <p>Attribute to take difference from</p>
+      <h3>Attribute to take difference from</h3>
       <AttributeSelector
         onChange={inputAttributeNameChange}
         value={inputAttributeName}
         context={inputDataCtxt}
         disabled={saveData !== undefined}
       />
-      <p>Result Attribute Name</p>
+      <h3>Result Attribute Name</h3>
       <CodapFlowTextInput
         value={resultAttributeName}
         onChange={resultAttributeNameChange}
         disabled={saveData !== undefined}
       />
-      <p>Starting value for difference</p>
+      <h3>Starting value for difference</h3>
       <CodapFlowTextInput
         value={startingValue}
         onChange={startingValueChange}
@@ -123,6 +124,7 @@ export function DifferenceFrom({
       />
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

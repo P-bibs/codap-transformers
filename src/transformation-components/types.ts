@@ -149,6 +149,7 @@ export type SavedTransformation = {
 export interface TransformationProps {
   setErrMsg: (s: string | null) => void;
   saveData?: TransformationSaveData;
+  errorDisplay: ReactElement;
 }
 
 export type TransformationComponent = (

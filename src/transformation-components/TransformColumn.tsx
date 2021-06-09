@@ -25,6 +25,7 @@ interface TransformColumnProps extends TransformationProps {
 export function TransformColumn({
   setErrMsg,
   saveData,
+  errorDisplay,
 }: TransformColumnProps): ReactElement {
   const [inputDataCtxt, inputChange] = useInput<
     string | null,
@@ -84,10 +85,10 @@ export function TransformColumn({
 
   return (
     <>
-      <p>Table to TransformColumn</p>
+      <h3>Table to Transform Column Of</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
-      <p>Attribute to Transform</p>
+      <h3>Attribute to Transform</h3>
       <AttributeSelector
         onChange={attributeNameChange}
         value={attributeName}
@@ -95,7 +96,7 @@ export function TransformColumn({
         disabled={saveData !== undefined}
       />
 
-      <p>How to Transform Column</p>
+      <h3>Formula for Transformed Values</h3>
       <ExpressionEditor
         value={expression}
         onChange={expressionChange}
@@ -105,6 +106,7 @@ export function TransformColumn({
 
       <br />
       <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({

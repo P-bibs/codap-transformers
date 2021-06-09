@@ -77,6 +77,7 @@ export function Average({ setErrMsg, saveData }: AverageProps): ReactElement {
         context={inputDataCtxt}
         value={attribute}
         onChange={setAttribute}
+        disabled={saveData !== undefined}
       />
       <br />
       <TransformationSubmitButtons

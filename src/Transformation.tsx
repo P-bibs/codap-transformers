@@ -36,6 +36,24 @@ function Transformation({
 
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const transformGroups: Record<string, string[]> = {
+    "Structural Transformations": [
+      "Flatten",
+      "Group By",
+      "Pivot Longer",
+      "Pivot Wider",
+    ],
+    "Combining Transformations": [
+      "Join",
+      "Combine Cases",
+    ],
+    "Summarizing Transformations": [
+      "Count",
+      "Compare",
+    ],
+    "Aggregators": [
+      "Dot Product",
+      "Average",
+    ],
     "Running Aggregators": [
       "Running Sum",
       "Running Mean",
@@ -43,25 +61,17 @@ function Transformation({
       "Running Max",
       "Running Difference",
     ],
-    "Structural Transformations": ["Flatten", "Group By"],
+    "Copy Transformations": [
+      "Copy",
+      "Copy Schema",
+    ],
     Others: [
       "Filter",
+      "Sort",
       "Transform Column",
       "Build Column",
       "Select Attributes",
-      "Count",
-      "Compare",
       "Difference From",
-      "Sort",
-      "Pivot Longer",
-      "Pivot Wider",
-      "Join",
-      "Eval",
-      "Copy",
-      "Dot Product",
-      "Average",
-      "Copy Schema",
-      "Combine Cases",
     ],
   };
 
@@ -84,7 +94,6 @@ function Transformation({
     { name: "Sort", content: { base: "Sort" } },
     { name: "Transform Column", content: { base: "Transform Column" } },
     { name: "Join", content: { base: "Join" } },
-    { name: "Eval", content: { base: "Eval" } },
     { name: "Copy", content: { base: "Copy" } },
     { name: "Dot Product", content: { base: "Dot Product" } },
     { name: "Average", content: { base: "Average" } },

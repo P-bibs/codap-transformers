@@ -5,7 +5,6 @@ import { CopySaveData } from "./Copy";
 import { CopySchemaSaveData } from "./CopySchema";
 import { CountSaveData } from "./Count";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
-import { EvalSaveData } from "./Eval";
 import { FilterSaveData } from "./Filter";
 import { FlattenSaveData } from "./Flatten";
 import { FoldSaveData } from "./Fold";
@@ -105,10 +104,6 @@ export type SavedTransformationContent =
   | {
       base: "Join";
       data?: JoinSaveData;
-    }
-  | {
-      base: "Eval";
-      data?: EvalSaveData;
     }
   | {
       base: "Dot Product";

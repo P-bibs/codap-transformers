@@ -50,7 +50,7 @@ export function Compare({ setErrMsg, saveData }: CompareProps): ReactElement {
       !inputAttribute1 ||
       !inputAttribute2
     ) {
-      setErrMsg("Please choose two contexts and two attributes");
+      setErrMsg("Please choose two datasets and two attributes");
       return;
     }
 

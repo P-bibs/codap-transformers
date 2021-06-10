@@ -8,7 +8,7 @@ interface TransformationSubmitButtonsProps {
 
 export default function TransformationSubmitButtons({
   onCreate,
-  label = "Create table with transformation",
+  label = "Apply Transformation",
 }: TransformationSubmitButtonsProps): ReactElement {
   return (
     <>

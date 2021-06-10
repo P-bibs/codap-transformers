@@ -58,7 +58,7 @@ export function Partition({
     const doTransform: () => Promise<[PartitionDataset, string][]> =
       async () => {
         const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-        const partitioned = await partition(dataset, attributeName);
+        const partitioned = partition(dataset, attributeName);
 
         // assign names to each partitioned dataset
         const readableContext = readableName(context);

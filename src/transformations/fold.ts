@@ -4,6 +4,7 @@ import {
   insertInRow,
   codapValueToString,
 } from "./util";
+import { evalExpression } from "../utils/codapPhone";
 
 function makeNumFold<T>(
   foldName: string,
@@ -44,6 +45,42 @@ function makeNumFold<T>(
       collections: newCollections,
       records: resultRecords,
     };
+  };
+}
+
+export async function genericFold(
+  dataset: DataSet,
+  base: unknown,
+  expression: string,
+  inputColumnName: string,
+  resultColumnName: string,
+  accumulatorName: string,
+  resultColumnDescription = ""
+): Promise<DataSet> {
+  let acc = base;
+  const resultRecords = [];
+
+  for (const row of dataset.records) {
+    const environment = { ...row };
+    if (Object.prototype.hasOwnProperty.call(row, accumulatorName)) {
+      throw new Error(
+        `Duplicate accumulator name: there is already a column called ${accumulatorName}.`
+      );
+    }
+
+    environment[accumulatorName] = acc;
+    acc = await evalExpression(expression, [environment]);
+    resultRecords.push(insertInRow(row, resultColumnName, acc));
+  }
+
+  const newCollections = insertColumnInLastCollection(dataset.collections, {
+    name: resultColumnName,
+    description: resultColumnDescription,
+  });
+
+  return {
+    collections: newCollections,
+    records: resultRecords,
   };
 }
 

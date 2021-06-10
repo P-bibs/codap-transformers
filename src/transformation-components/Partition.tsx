@@ -16,8 +16,7 @@ import { applyNewDataSet, readableName } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { TransformationProps } from "./types";
 
-// FIXME: this should be attributeName: string, but it doesn't type check
-// and I'm not sure why.
+// FIXME: this should be attributeName: string
 export interface PartitionSaveData {
   attributeName: string | null;
 }

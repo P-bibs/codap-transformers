@@ -297,7 +297,7 @@ function compareRecordsNumerical(
       continue;
     }
 
-    const difference = parsed1 - parsed2;
+    const difference = parsed2 - parsed1;
     records.push({
       [attributeName1]: values1[i],
       [attributeName2]: values2[i],

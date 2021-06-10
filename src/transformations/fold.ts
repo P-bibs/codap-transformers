@@ -50,14 +50,14 @@ function makeNumFold<T>(
 
 export async function genericFold(
   dataset: DataSet,
-  base: unknown,
+  base: string,
   expression: string,
   inputColumnName: string,
   resultColumnName: string,
   accumulatorName: string,
   resultColumnDescription = ""
 ): Promise<DataSet> {
-  let acc = base;
+  let acc: unknown = base;
   const resultRecords = [];
 
   for (const row of dataset.records) {
@@ -69,7 +69,7 @@ export async function genericFold(
     }
 
     environment[accumulatorName] = acc;
-    acc = await evalExpression(expression, [environment]);
+    acc = (await evalExpression(expression, [environment]))[0];
     resultRecords.push(insertInRow(row, resultColumnName, acc));
   }
 

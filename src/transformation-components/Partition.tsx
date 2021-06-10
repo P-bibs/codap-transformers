@@ -1,17 +1,23 @@
 import React, { useCallback, ReactElement, useState } from "react";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import {
+  getContextAndDataSet,
+  updateContextWithDataSet,
+  deleteDataContext,
+} from "../utils/codapPhone";
+import { addContextUpdateListener } from "../utils/codapPhone/listeners";
 import { useInput } from "../utils/hooks";
 import { partition, PartitionDataset } from "../transformations/partition";
-import { DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
   ContextSelector,
   AttributeSelector,
 } from "../ui-components";
-import { applyNewDataSet, readableName, addUpdateListener } from "./util";
+import { applyNewDataSet, readableName } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { TransformationProps } from "./types";
 
+// FIXME: this should be attributeName: string, but it doesn't type check
+// and I'm not sure why.
 export interface PartitionSaveData {
   attributeName: string | null;
 }
@@ -58,27 +64,55 @@ export function Partition({
         const readableContext = readableName(context);
 
         // return both the datasets and their names
-        return partitioned.map((dataset) => [
-          dataset,
-          `Partition of ${readableContext} by ${attributeName} = ${dataset.distinctValue}`,
+        return partitioned.map((pd) => [
+          pd,
+          `Partition of ${readableContext} by ${attributeName} = ${pd.distinctValue}`,
         ]);
       };
 
     try {
       const transformed = await doTransform();
+      let valueToContext: Record<string, string> = {};
 
       for (const [partitioned, name] of transformed) {
         const newContextName = await applyNewDataSet(partitioned.dataset, name);
-
-        // FIXME: what to do about updating when a transformation
-        // generates multiple output contexts
-        // addUpdateListener(
-        //   inputDataCtxt,
-        //   newContextName,
-        //   doTransform,
-        //   setErrMsg
-        // );
+        valueToContext[partitioned.distinctValue] = newContextName;
       }
+
+      // listen for updates to the input data context
+      addContextUpdateListener(inputDataCtxt, async () => {
+        setErrMsg(null);
+
+        const transformed = await doTransform();
+        const newValueToContext: Record<string, string> = {};
+
+        for (const [partitioned, name] of transformed) {
+          const contextName = valueToContext[partitioned.distinctValue];
+          if (contextName === undefined) {
+            // this is a new table (a new distinct value)
+            newValueToContext[partitioned.distinctValue] =
+              await applyNewDataSet(partitioned.dataset, name);
+          } else {
+            // apply an update to a previous dataset
+            updateContextWithDataSet(contextName, partitioned.dataset);
+
+            // copy over existing context name into new valueToContext mapping
+            newValueToContext[partitioned.distinctValue] = contextName;
+          }
+        }
+
+        for (const [value, context] of Object.entries(valueToContext)) {
+          // if there is no longer a partition for this value
+          if (
+            transformed.find(([pd]) => pd.distinctValue === value) === undefined
+          ) {
+            deleteDataContext(context);
+          }
+        }
+
+        // update valueToContext to reflect the updates
+        valueToContext = newValueToContext;
+      });
     } catch (e) {
       setErrMsg(e.message);
     }

@@ -1,6 +1,6 @@
 import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { useInput, useAttributes } from "../utils/hooks";
+import { useInput } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { DataSet } from "../transformations/types";
 import {
@@ -58,8 +58,6 @@ export function GenericFold({
   >(saveData !== undefined ? saveData.accumulatorName : "", () =>
     setErrMsg(null)
   );
-
-  const attributes = useAttributes(inputDataCtxt);
 
   const transform = useCallback(async () => {
     setErrMsg(null);
@@ -161,7 +159,11 @@ export function GenericFold({
         value={expression}
         onChange={expressionChange}
         disabled={saveData !== undefined}
-        attributeNames={[...attributes.map((a) => a.name), accumulatorName]}
+        attributeNames={
+          inputAttributeName !== null
+            ? [inputAttributeName, accumulatorName]
+            : [accumulatorName]
+        }
       />
 
       <br />

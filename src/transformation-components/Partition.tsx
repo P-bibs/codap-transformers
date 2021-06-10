@@ -15,6 +15,7 @@ import {
 import { applyNewDataSet, readableName } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { TransformationProps } from "./types";
+import { codapValueToString } from "../transformations/util";
 
 // FIXME: this should be attributeName: string
 export interface PartitionSaveData {
@@ -65,7 +66,9 @@ export function Partition({
         // return both the datasets and their names
         return partitioned.map((pd) => [
           pd,
-          `Partition of ${readableContext} by ${attributeName} = ${pd.distinctValue}`,
+          `Partition of ${readableContext} by ${attributeName} = ${codapValueToString(
+            pd.distinctValue
+          )}`,
         ]);
       };
 
@@ -75,7 +78,7 @@ export function Partition({
 
       for (const [partitioned, name] of transformed) {
         const newContextName = await applyNewDataSet(partitioned.dataset, name);
-        valueToContext[partitioned.distinctValue] = newContextName;
+        valueToContext[partitioned.distinctValueAsStr] = newContextName;
       }
 
       // listen for updates to the input data context
@@ -86,17 +89,17 @@ export function Partition({
         const newValueToContext: Record<string, string> = {};
 
         for (const [partitioned, name] of transformed) {
-          const contextName = valueToContext[partitioned.distinctValue];
+          const contextName = valueToContext[partitioned.distinctValueAsStr];
           if (contextName === undefined) {
             // this is a new table (a new distinct value)
-            newValueToContext[partitioned.distinctValue] =
+            newValueToContext[partitioned.distinctValueAsStr] =
               await applyNewDataSet(partitioned.dataset, name);
           } else {
             // apply an update to a previous dataset
             updateContextWithDataSet(contextName, partitioned.dataset);
 
             // copy over existing context name into new valueToContext mapping
-            newValueToContext[partitioned.distinctValue] = contextName;
+            newValueToContext[partitioned.distinctValueAsStr] = contextName;
           }
         }
 

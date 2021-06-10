@@ -7,7 +7,8 @@ import { DataSet } from "./types";
  */
 export interface PartitionDataset {
   dataset: DataSet;
-  distinctValue: string;
+  distinctValue: unknown;
+  distinctValueAsStr: string;
 }
 
 /**
@@ -19,7 +20,7 @@ export function partition(
   attribute: string
 ): PartitionDataset[] {
   // map from distinct values of an attribute to all records sharing that value
-  const partitioned: Record<string, Record<string, unknown>[]> = {};
+  const partitioned: Record<string, [unknown, Record<string, unknown>[]]> = {};
 
   const records = dataset.records.slice();
   for (const record of records) {
@@ -32,23 +33,24 @@ export function partition(
 
     // initialize this category if needed
     if (partitioned[valueAsStr] === undefined) {
-      partitioned[valueAsStr] = [];
+      partitioned[valueAsStr] = [record[attribute], []];
     }
 
     // add the record to its corresponding category of records
-    partitioned[valueAsStr].push(record);
+    partitioned[valueAsStr][1].push(record);
   }
 
   const results = [];
-  for (const value in partitioned) {
+  for (const [valueStr, [value, records]] of Object.entries(partitioned)) {
     // construct new dataset with same collections but only
     // records that correspond to this value of the attribute
     results.push({
       dataset: {
         collections: dataset.collections.slice(),
-        records: partitioned[value],
+        records,
       },
       distinctValue: value,
+      distinctValueAsStr: valueStr,
     });
   }
 

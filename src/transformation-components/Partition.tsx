@@ -106,7 +106,8 @@ export function Partition({
         for (const [value, context] of Object.entries(valueToContext)) {
           // if there is no longer a partition for this value
           if (
-            transformed.find(([pd]) => pd.distinctValue === value) === undefined
+            transformed.find(([pd]) => pd.distinctValueAsStr === value) ===
+            undefined
           ) {
             deleteDataContext(context);
           }

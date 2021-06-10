@@ -148,6 +148,7 @@ export type TransformationSaveData = NonNullable<
  */
 export type SavedTransformation = {
   name: string;
+  description?: string;
   content: SavedTransformationContent;
 };
 

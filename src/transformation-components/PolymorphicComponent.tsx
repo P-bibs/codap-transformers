@@ -25,6 +25,7 @@ import { DotProduct } from "./DotProduct";
 import { Average } from "./Average";
 import { CopySchema } from "./CopySchema";
 import { CombineCases } from "./CombineCases";
+import { Partition } from "./Partition";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -224,6 +225,14 @@ export const PolymorphicComponent = ({
     case "Combine Cases":
       return (
         <CombineCases
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
+      );
+    case "Partition":
+      return (
+        <Partition
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
           errorDisplay={errorDisplay}

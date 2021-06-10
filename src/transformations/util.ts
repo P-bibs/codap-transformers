@@ -170,6 +170,11 @@ export function getAttributeDataFromDataset(
  * @returns string version of the value
  */
 export function codapValueToString(codapValue?: unknown): string {
+  // missing values
+  if (codapValue === "") {
+    return "a missing value";
+  }
+
   // booleans
   if (
     codapValue === "true" ||

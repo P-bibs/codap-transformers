@@ -33,8 +33,6 @@ export function DotProduct({
     saveData !== undefined ? saveData.attributes : []
   );
 
-  console.log(attributes);
-
   /**
    * Applies the user-defined transformation to the indicated input data,
    * and generates an output table into CODAP containing the transformed data.

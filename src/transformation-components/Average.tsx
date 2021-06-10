@@ -13,7 +13,7 @@ import TransformationSaveButton from "../ui-components/TransformationSaveButton"
 import AttributeSelector from "../ui-components/AttributeSelector";
 
 export interface AverageSaveData {
-  attribute: string;
+  attribute: string | null;
 }
 
 interface AverageProps extends TransformationProps {
@@ -90,7 +90,7 @@ export function Average({
       />
       {errorDisplay}
       {saveData === undefined && (
-        <TransformationSaveButton generateSaveData={() => ({})} />
+        <TransformationSaveButton generateSaveData={() => ({ attribute })} />
       )}
     </>
   );

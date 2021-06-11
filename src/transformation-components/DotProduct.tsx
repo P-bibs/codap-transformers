@@ -12,8 +12,9 @@ import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 import { MultiAttributeSelector } from "../ui-components";
 
-export type DotProductSaveData = Record<string, never>;
-
+export interface DotProductSaveData {
+  attributes: string[];
+}
 interface DotProductProps extends TransformationProps {
   saveData?: DotProductSaveData;
 }
@@ -28,7 +29,9 @@ export function DotProduct({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [attributes, setAttributes] = useState<string[]>([]);
+  const [attributes, setAttributes] = useState<string[]>(
+    saveData !== undefined ? saveData.attributes : []
+  );
 
   /**
    * Applies the user-defined transformation to the indicated input data,
@@ -78,6 +81,7 @@ export function DotProduct({
         context={inputDataCtxt}
         setSelected={setAttributes}
         selected={attributes}
+        disabled={saveData !== undefined}
       />
 
       <br />
@@ -87,7 +91,7 @@ export function DotProduct({
       />
       {errorDisplay}
       {saveData === undefined && (
-        <TransformationSaveButton generateSaveData={() => ({})} />
+        <TransformationSaveButton generateSaveData={() => ({ attributes })} />
       )}
     </>
   );

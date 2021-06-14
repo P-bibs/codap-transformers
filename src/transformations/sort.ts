@@ -1,6 +1,6 @@
-import { DataSet } from "./types";
+import { CodapLanguageType, DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone";
-import { codapValueToString } from "./util";
+import { codapValueToString, reportTypeErrorsForRecords } from "./util";
 
 function numCompareFn(a: number, b: number) {
   return a - b;
@@ -52,10 +52,14 @@ function compareFn(a: unknown, b: unknown): number {
 
 export async function sort(
   dataset: DataSet,
-  keyExpr: string
+  keyExpr: string,
+  outputType: CodapLanguageType
 ): Promise<DataSet> {
   const records = dataset.records.slice();
   const keyValues = await evalExpression(keyExpr, records);
+
+  // Check for type errors (might throw error and abort transformation)
+  reportTypeErrorsForRecords(records, keyValues, outputType);
 
   const sorted = records
     .map((record, i) => {

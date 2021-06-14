@@ -8,3 +8,5 @@ export type DataSet = {
   collections: Collection[];
   records: Record<string, unknown>[];
 };
+
+export type CodapLanguageType = "string" | "any" | "number" | "boolean";

@@ -3,17 +3,19 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput, useAttributes } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { sort } from "../transformations/sort";
-import { DataSet } from "../transformations/types";
+import { CodapLanguageType, DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
   ExpressionEditor,
   ContextSelector,
+  TypeSelector,
 } from "../ui-components";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface SortSaveData {
   keyExpression: string;
+  outputType: CodapLanguageType;
 }
 
 interface SortProps extends TransformationProps {
@@ -33,6 +35,9 @@ export function Sort({
   const [keyExpression, keyExpressionChange] = useState<string>(
     saveData !== undefined ? saveData.keyExpression : ""
   );
+  const [outputType, setOutputType] = useState<CodapLanguageType>(
+    saveData !== undefined ? saveData.outputType : "any"
+  );
   const attributes = useAttributes(inputDataCtxt);
 
   const transform = useCallback(async () => {
@@ -49,7 +54,7 @@ export function Sort({
 
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const result = await sort(dataset, keyExpression);
+      const result = await sort(dataset, keyExpression, outputType);
       return [result, `Sort of ${readableName(context)}`];
     };
 
@@ -59,7 +64,7 @@ export function Sort({
     } catch (e) {
       setErrMsg(e.message);
     }
-  }, [inputDataCtxt, setErrMsg, keyExpression]);
+  }, [inputDataCtxt, setErrMsg, keyExpression, outputType]);
 
   return (
     <>
@@ -67,6 +72,18 @@ export function Sort({
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <h3>Key expression</h3>
+      <TypeSelector
+        inputTypes={["Row"]}
+        selectedInputType={"Row"}
+        inputTypeDisabled={true}
+        outputTypes={["any", "string", "number", "boolean"]}
+        selectedOutputType={outputType}
+        outputTypeOnChange={(e) => {
+          setOutputType(e.target.value as CodapLanguageType);
+        }}
+        outputTypeDisabled={saveData !== undefined}
+      />
+      <br />
       <ExpressionEditor
         value={keyExpression}
         onChange={keyExpressionChange}

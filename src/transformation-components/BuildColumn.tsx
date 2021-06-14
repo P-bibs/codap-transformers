@@ -2,7 +2,7 @@ import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { useInput, useAttributes } from "../utils/hooks";
 import { buildColumn } from "../transformations/buildColumn";
-import { DataSet } from "../transformations/types";
+import { CodapLanguageType, DataSet } from "../transformations/types";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import {
   ExpressionEditor,
@@ -10,14 +10,16 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
   CollectionSelector,
+  TypeSelector,
+  TransformationSaveButton,
 } from "../ui-components";
 import { TransformationProps } from "./types";
-import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface BuildColumnSaveData {
   attributeName: string;
   collectionName: string;
   expression: string;
+  outputType: CodapLanguageType;
 }
 
 interface BuildColumnProps extends TransformationProps {
@@ -44,6 +46,9 @@ export function BuildColumn({
     HTMLSelectElement
   >(saveData !== undefined ? saveData.collectionName : "", () =>
     setErrMsg(null)
+  );
+  const [outputType, setOutputType] = useState<CodapLanguageType>(
+    saveData !== undefined ? saveData.outputType : "any"
   );
   const [expression, setExpression] = useState<string>(
     saveData !== undefined ? saveData.expression : ""
@@ -81,7 +86,8 @@ export function BuildColumn({
         dataset,
         attributeName,
         collectionName,
-        expression
+        expression,
+        outputType
       );
       return [built, `Build Column of ${readableName(context)}`];
     };
@@ -92,7 +98,14 @@ export function BuildColumn({
     } catch (e) {
       setErrMsg(e.message);
     }
-  }, [inputDataCtxt, attributeName, collectionName, expression, setErrMsg]);
+  }, [
+    inputDataCtxt,
+    attributeName,
+    collectionName,
+    expression,
+    setErrMsg,
+    outputType,
+  ]);
 
   return (
     <>
@@ -114,6 +127,19 @@ export function BuildColumn({
       />
 
       <h3>Formula for Attribute Values</h3>
+      {outputType}
+      <TypeSelector
+        inputTypes={["Row"]}
+        selectedInputType={"Row"}
+        inputTypeDisabled={true}
+        outputTypes={["any", "string", "number", "boolean"]}
+        selectedOutputType={outputType}
+        outputTypeOnChange={(e) => {
+          setOutputType(e.target.value as CodapLanguageType);
+        }}
+        outputTypeDisabled={saveData !== undefined}
+      />
+      <br />
       <ExpressionEditor
         value={expression}
         onChange={setExpression}
@@ -130,6 +156,7 @@ export function BuildColumn({
             attributeName,
             collectionName,
             expression,
+            outputType,
           })}
         />
       )}

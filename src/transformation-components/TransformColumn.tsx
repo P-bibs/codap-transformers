@@ -1,7 +1,7 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { useInput, useAttributes } from "../utils/hooks";
 import { transformColumn } from "../transformations/transformColumn";
-import { DataSet } from "../transformations/types";
+import { CodapLanguageType, DataSet } from "../transformations/types";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import {
   ExpressionEditor,
@@ -13,7 +13,6 @@ import {
 } from "../ui-components";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { TransformationProps } from "./types";
-import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface TransformColumnSaveData {
   attributeName: string | null;
@@ -126,6 +125,7 @@ export function TransformColumn({
           generateSaveData={() => ({
             attributeName,
             expression,
+            outputType,
           })}
         />
       )}

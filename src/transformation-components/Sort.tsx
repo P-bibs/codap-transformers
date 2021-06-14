@@ -98,6 +98,7 @@ export function Sort({
         <TransformationSaveButton
           generateSaveData={() => ({
             keyExpression,
+            outputType,
           })}
         />
       )}

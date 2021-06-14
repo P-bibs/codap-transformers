@@ -22,14 +22,30 @@ export enum CodapActions {
   Notify = "notify",
 }
 
-type CreateInteractiveFrameRequest = {
+export type CodapRequest =
+  | CreateInteractiveFrameRequest
+  | UpdateInteractiveFrameRequest
+  | GetContextListRequest
+  | GetListRequest
+  | GetRequest
+  | CreateContextRequest
+  | CreateDataItemsRequest
+  | CreateCollectionsRequest
+  | DeleteRequest
+  | CreateTableRequest
+  | CreateTextRequest
+  | UpdateTextRequest
+  | EvalExpressionRequest
+  | GetFunctionNamesRequest;
+
+export type CreateInteractiveFrameRequest = {
   action: CodapActions.Create;
   resource: CodapResource.InteractiveFrame;
 
   values: { url: string; name: string };
 };
 
-type UpdateInteractiveFrameRequest = {
+export type UpdateInteractiveFrameRequest = {
   action: CodapActions.Update;
   resource: CodapResource.InteractiveFrame;
 
@@ -37,22 +53,22 @@ type UpdateInteractiveFrameRequest = {
   values: Partial<Omit<InteractiveFrame, "interactiveState">>;
 };
 
-type GetContextListRequest = {
+export type GetContextListRequest = {
   action: CodapActions.Get;
   resource: CodapResource.DataContextList;
 };
 
-type GetRequest = {
+export type GetRequest = {
   action: CodapActions.Get;
   resource: string;
 };
 
-type GetListRequest = {
+export type GetListRequest = {
   action: CodapActions.Get;
   resource: CodapListResource;
 };
 
-type CreateContextRequest = {
+export type CreateContextRequest = {
   action: CodapActions.Create;
   resource: CodapResource.DataContext;
   values: {
@@ -62,42 +78,42 @@ type CreateContextRequest = {
   };
 };
 
-type CreateCollectionsRequest = {
+export type CreateCollectionsRequest = {
   action: CodapActions.Create;
   resource: string;
   values: Collection[];
 };
 
-type CreateDataItemsRequest = {
+export type CreateDataItemsRequest = {
   action: CodapActions.Create;
   resource: string;
   values: Record<string, unknown>[];
 };
 
-type DeleteRequest = {
+export type DeleteRequest = {
   action: CodapActions.Delete;
   resource: string;
 };
 
-type CreateTableRequest = {
+export type CreateTableRequest = {
   action: CodapActions.Create;
   resource: CodapResource.Component;
   values: CaseTable;
 };
 
-interface CreateTextRequest {
+export interface CreateTextRequest {
   action: CodapActions.Create;
   resource: CodapResource.Component;
   values: Text;
 }
 
-interface UpdateTextRequest {
+export interface UpdateTextRequest {
   action: CodapActions.Update;
   resource: string;
   values: Partial<Text>;
 }
 
-interface EvalExpressionRequest {
+export interface EvalExpressionRequest {
   action: CodapActions.Get;
   resource: CodapResource.EvalExpression;
   values: {
@@ -106,7 +122,7 @@ interface EvalExpressionRequest {
   };
 }
 
-interface GetFunctionNamesRequest {
+export interface GetFunctionNamesRequest {
   action: CodapActions.Get;
   resource: CodapResource.FunctionNames;
 }
@@ -189,6 +205,7 @@ export type CodapPhone = {
     r: GetFunctionNamesRequest,
     cb: (r: GetFunctionNamesResponse) => void
   ): void;
+  call(r: CodapRequest[], cb: (r: CodapResponse[]) => void): void;
 };
 
 export enum CodapInitiatedResource {

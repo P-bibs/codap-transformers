@@ -4,6 +4,7 @@ import {
   CodapResource,
   CodapActions,
   CodapResponse,
+  CodapRequest,
   GetContextResponse,
   GetCasesResponse,
   GetCaseResponse,
@@ -32,19 +33,17 @@ import {
 import {
   resourceFromContext,
   itemFromContext,
-  collectionFromContext,
-  collectionOfContext,
   resourceFromComponent,
   collectionListFromContext,
   attributeListFromCollection,
   caseById,
   allCasesWithSearch,
-  allCases,
 } from "./resource";
 import { fillCollectionWithDefaults, collectionsEqual } from "./util";
 import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
 import { uniqueName } from "../names";
+import * as Actions from "./actions";
 
 export {
   addNewContextListener,
@@ -153,6 +152,12 @@ function codapRequestHandler(
   }
 
   callback({ success: true });
+}
+
+function callMultiple(requests: CodapRequest[]): Promise<CodapResponse[]> {
+  return new Promise<CodapResponse[]>((resolve) => {
+    phone.call(requests, (responses) => resolve(responses));
+  });
 }
 
 export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {
@@ -487,9 +492,10 @@ export async function updateContextWithDataSet(
   dataset: DataSet
 ): Promise<void> {
   const context = await getDataContext(contextName);
+  const requests = [];
 
   for (const collection of context.collections) {
-    await deleteAllCases(contextName, collection.name);
+    requests.push(Actions.deleteAllCases(contextName, collection.name));
   }
 
   const normalizedCollections = dataset.collections.map(
@@ -509,24 +515,33 @@ export async function updateContextWithDataSet(
 
     // Create placeholder empty collection, since data contexts must have at least
     // one collection
-    await createCollections(contextName, [
-      {
-        name: uniqueName,
-        labels: {},
-      },
-    ]);
+    requests.push(
+      Actions.createCollections(contextName, [
+        {
+          name: uniqueName,
+          labels: {},
+        },
+      ])
+    );
 
     // Delete old collections
     for (const collection of context.collections) {
-      await deleteCollection(contextName, collection.name);
+      requests.push(Actions.deleteCollection(contextName, collection.name));
     }
 
     // Insert new collections and delete placeholder
-    await createCollections(contextName, dataset.collections);
-    await deleteCollection(contextName, uniqueName);
+    requests.push(Actions.createCollections(contextName, dataset.collections));
+    requests.push(Actions.deleteCollection(contextName, uniqueName));
   }
 
-  await insertDataItems(contextName, dataset.records);
+  requests.push(Actions.insertDataItems(contextName, dataset.records));
+
+  const responses = await callMultiple(requests);
+  for (const response of responses) {
+    if (!response.success) {
+      throw new Error(`Failed to update ${contextName}`);
+    }
+  }
 }
 
 function createCollections(
@@ -534,40 +549,27 @@ function createCollections(
   collections: Collection[]
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Create,
-        resource: collectionFromContext(context),
-        values: collections,
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(new Error(`Failed to create collections in ${context}`));
-        }
+    phone.call(Actions.createCollections(context, collections), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error(`Failed to create collections in ${context}`));
       }
-    )
+    })
   );
 }
 
 function deleteCollection(context: string, collection: string): Promise<void> {
   return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Delete,
-        resource: collectionOfContext(context, collection),
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(
-            new Error(`Failed to delete collection ${collection} in ${context}`)
-          );
-        }
+    phone.call(Actions.deleteCollection(context, collection), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(
+          new Error(`Failed to delete collection ${collection} in ${context}`)
+        );
       }
-    )
+    })
   );
 }
 
@@ -576,19 +578,13 @@ export async function deleteAllCases(
   collection: string
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Delete,
-        resource: allCases(context, collection),
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(new Error("Failed to delete all cases"));
-        }
+    phone.call(Actions.deleteAllCases(context, collection), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to delete all cases"));
       }
-    )
+    })
   );
 }
 

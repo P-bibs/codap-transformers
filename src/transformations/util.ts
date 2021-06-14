@@ -1,7 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { DataSet } from "./types";
+import { CodapLanguageType, DataSet } from "./types";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -207,4 +207,148 @@ export function allAttrNames(dataset: DataSet): string[] {
     .map((coll) => coll.attrs || [])
     .flat()
     .map((attr) => attr.name);
+}
+
+/**
+ * Type checks a certain attribute within a set of records. These checks are
+ * fairly permissive since we can't count on the data returned from CODAP
+ * being in a consistent format/type schema
+ * @param records list of records to type check
+ * @param attribute attribute to type check
+ * @param type type to match against
+ * @returns a record (row) that doesn't match the type, or null if all
+ * records match
+ */
+export function findTypeErrors(
+  records: Record<string, unknown>[],
+  attribute: string,
+  type: CodapLanguageType
+): Record<string, unknown> | null {
+  switch (type) {
+    case "any":
+      // All values are allowed for any, so we can return immediately
+      return null;
+    case "number":
+      return findTypeErrorsNumber(records, attribute);
+    case "string":
+      return findTypeErrorsString(records, attribute);
+    case "boolean":
+      return findTypeErrorsBoolean(records, attribute);
+  }
+}
+
+/**
+ * Type checks for string values. This allows numbers and strings, but disallows others.
+ * @returns a record (row) that doesn't match the type, or null if all
+ * records match
+ */
+function findTypeErrorsString(
+  records: Record<string, unknown>[],
+  attribute: string
+): Record<string, unknown> | null {
+  for (const record of records) {
+    const value = record[attribute];
+    switch (typeof value) {
+      case "number":
+        // All numbers are valid
+        continue;
+      case "string":
+        // All strings are valid
+        continue;
+      default:
+        // Any other value is an error
+        return record;
+    }
+  }
+  return null;
+}
+
+/**
+ * Type checks for number values. This allows numbers and strings that
+ * parse to numbers, but disallows others.
+ * @returns a record (row) that doesn't match the type, or null if all
+ * records match
+ */
+function findTypeErrorsNumber(
+  records: Record<string, unknown>[],
+  attribute: string
+): Record<string, unknown> | null {
+  // To type-check for numbers, all values must be either strings that can
+  // parsed to numbers, or actual numbers
+  for (const record of records) {
+    const value = record[attribute];
+    switch (typeof value) {
+      case "number":
+        // All numbers are valid
+        continue;
+      case "string":
+        // Strings are invalid if we can't parse them to numbers
+        if (isNaN(parseFloat(value))) {
+          return record;
+        }
+        // Otherwise the string is a valid number
+        continue;
+      default:
+        // Any other value is an error
+        return record;
+    }
+  }
+  return null;
+}
+
+/**
+ * Type checks for boolean values. Many different boolean encodings are allowed,
+ * including 0/1, true/false, and yes/no. However, once one boolean encoding
+ * is chosen it can't be changed. This means that a valid column can't include
+ * both yes/no values and 0/1 values.
+ * @returns a record (row) that doesn't match the type, or null if all
+ * records match
+ */
+function findTypeErrorsBoolean(
+  records: Record<string, unknown>[],
+  attribute: string
+): Record<string, unknown> | null {
+  if (records.length === 0) {
+    return null;
+  }
+  // These are the set of valid booleans that will type check
+  const validBooleanSets = [
+    ["0", "1"],
+    [0, 1],
+    [false, true],
+    ["false", "true"],
+    ["False", "True"],
+    ["FALSE", "TRUE"],
+    ["yes", "no"],
+    ["Yes", "No"],
+    ["YES", "NO"],
+  ];
+
+  // First we have to determine which boolean set we're using
+  let validBooleanSet;
+  const firstValue = records[0][attribute];
+  for (const [firstBool, secondBool] of validBooleanSets) {
+    if (firstValue === firstBool || firstValue === secondBool) {
+      validBooleanSet = [firstBool, secondBool];
+      break;
+    }
+  }
+  // If no boolean set was found then the first record isn't a boolean
+  // and we return it as an error
+  if (!validBooleanSet) {
+    return records[0];
+  }
+
+  // Search the remaining records and make sure they match the selected
+  // boolean set
+  for (const record of records) {
+    if (
+      record[attribute] !== validBooleanSet[0] &&
+      record[attribute] !== validBooleanSet[1]
+    ) {
+      return record;
+    }
+  }
+
+  return null;
 }

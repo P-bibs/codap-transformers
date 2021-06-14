@@ -498,14 +498,3 @@ type InteractiveFrame = {
   };
   savedState: Record<string, unknown>;
 };
-
-// Conditional type
-// https://www.typescriptlang.org/docs/handbook/2/conditional-types.html
-export type ExcludeNonObject<T> = T extends
-  | number
-  | boolean
-  | string
-  | null
-  | undefined
-  ? never
-  : T;

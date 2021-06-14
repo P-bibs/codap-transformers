@@ -15,6 +15,9 @@ export function dotProduct(dataset: DataSet, attributes: string[]): number {
   return dataset.records
     .map((row) =>
       attributes.reduce((product, attribute) => {
+        if (row[attribute] === undefined) {
+          throw new Error(`Invalid attribute name: ${attribute}`);
+        }
         const value = Number(row[attribute]);
         if (isNaN(value)) {
           throw new Error(

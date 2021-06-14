@@ -19,7 +19,7 @@ export function combineCases(base: DataSet, combining: DataSet): DataSet {
     !setEquality(baseAttrs, combiningAttrs, (name1, name2) => name1 === name2)
   ) {
     throw new Error(
-      `base and combining tables must have the same attribute names`
+      `Base and combining tables must have the same attribute names`
     );
   }
 

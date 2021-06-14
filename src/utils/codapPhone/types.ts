@@ -288,6 +288,7 @@ export type CodapInitiatedCommand =
       resource: CodapInitiatedResource.DataContextChangeNotice;
       values: {
         operation: ContextChangeOperation;
+        result?: Record<string, unknown>;
       }[];
     };
 

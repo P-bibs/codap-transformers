@@ -44,6 +44,7 @@ import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
 import { uniqueName } from "../names";
 import * as Actions from "./actions";
+import * as Cache from "./cache";
 
 export {
   addNewContextListener,
@@ -130,24 +131,44 @@ function codapRequestHandler(
     ) &&
     Array.isArray(command.values)
   ) {
+    // FIXME: Using flags here we can process all notifications in the list
+    // without needlessly updating for each one, but this doesn't seem like
+    // the most elegant solution.
+    let contextUpdate = false;
+    let contextListUpdate = false;
+
+    // Context name is between the first pair of brackets
+    const contextName = command.resource.slice(
+      command.resource.search("\\[") + 1,
+      command.resource.length - 1
+    );
+
     for (const value of command.values) {
-      if (mutatingOperations.includes(value.operation)) {
-        // Context name is between the first pair of brackets
-        const contextName = command.resource.slice(
-          command.resource.search("\\[") + 1,
-          command.resource.length - 1
-        );
-        callUpdateListenersForContext(contextName);
-        callback({ success: true });
-        return;
-      }
+      contextUpdate =
+        contextUpdate || mutatingOperations.includes(value.operation);
+      contextListUpdate =
+        contextListUpdate ||
+        value.operation === ContextChangeOperation.UpdateContext;
+
+      // Check for case update or deletion and invalidate case cache
       if (
-        command.values[0].operation === ContextChangeOperation.UpdateContext
+        value.operation === ContextChangeOperation.DeleteCases ||
+        value.operation === ContextChangeOperation.UpdateCases
       ) {
-        callAllContextListeners();
-        callback({ success: true });
-        return;
+        const caseIDs = value.result?.caseIDs;
+        if (Array.isArray(caseIDs)) {
+          caseIDs.map(Cache.invalidateCase);
+        }
       }
+    }
+
+    if (contextUpdate) {
+      Cache.invalidateContext(contextName);
+      callUpdateListenersForContext(contextName);
+    }
+
+    if (contextListUpdate) {
+      callAllContextListeners();
     }
   }
 
@@ -199,7 +220,12 @@ export function getAllCollections(
 }
 
 function getCaseById(context: string, id: number): Promise<ReturnedCase> {
-  return new Promise<ReturnedCase>((resolve, reject) =>
+  return new Promise<ReturnedCase>((resolve, reject) => {
+    const cached = Cache.getCase(id);
+    if (cached !== undefined) {
+      resolve(cached);
+      return;
+    }
     phone.call(
       {
         action: CodapActions.Get,
@@ -207,13 +233,15 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
       },
       (response: GetCaseResponse) => {
         if (response.success) {
-          resolve(response.values.case);
+          const result = response.values.case;
+          Cache.setCase(id, result);
+          resolve(result);
         } else {
           reject(new Error(`Failed to get case in ${context} with id ${id}`));
         }
       }
-    )
-  );
+    );
+  });
 }
 
 export async function getAllAttributes(
@@ -261,17 +289,10 @@ export async function getAllAttributes(
 export async function getDataFromContext(
   context: string
 ): Promise<Record<string, unknown>[]> {
-  const getCaseByIdCached = (function () {
-    const caseMap: Record<number, ReturnedCase> = {};
-    return async (id: number) => {
-      if (caseMap[id] !== undefined) {
-        return caseMap[id];
-      }
-      const result = await getCaseById(context, id);
-      caseMap[id] = result;
-      return result;
-    };
-  })();
+  const cached = Cache.getRecords(context);
+  if (cached !== undefined) {
+    return cached;
+  }
 
   async function dataItemFromChildCase(
     c: ReturnedCase
@@ -279,7 +300,7 @@ export async function getDataFromContext(
     if (c.parent === null || c.parent === undefined) {
       return c.values;
     }
-    const parent = await getCaseByIdCached(c.parent);
+    const parent = await getCaseById(context, c.parent);
     const results = {
       ...c.values,
       ...(await dataItemFromChildCase(parent)),
@@ -297,9 +318,13 @@ export async function getDataFromContext(
         action: CodapActions.Get,
         resource: allCasesWithSearch(context, childCollection.name),
       },
-      (response: GetCasesResponse) => {
+      async (response: GetCasesResponse) => {
         if (response.success) {
-          resolve(Promise.all(response.values.map(dataItemFromChildCase)));
+          const records = await Promise.all(
+            response.values.map(dataItemFromChildCase)
+          );
+          Cache.setRecords(context, records);
+          resolve(records);
         } else {
           reject(new Error("Failed to get data items"));
         }
@@ -327,7 +352,12 @@ export async function getContextAndDataSet(contextName: string): Promise<{
 }
 
 export function getDataContext(contextName: string): Promise<DataContext> {
-  return new Promise<DataContext>((resolve, reject) =>
+  return new Promise<DataContext>((resolve, reject) => {
+    const cached = Cache.getContext(contextName);
+    if (cached !== undefined) {
+      resolve(cached);
+      return;
+    }
     phone.call(
       {
         action: CodapActions.Get,
@@ -335,13 +365,15 @@ export function getDataContext(contextName: string): Promise<DataContext> {
       },
       (response: GetContextResponse) => {
         if (response.success) {
-          resolve(normalizeDataContext(response.values));
+          const context = normalizeDataContext(response.values);
+          Cache.setContext(contextName, context);
+          resolve(context);
         } else {
           reject(new Error(`Failed to get context ${contextName}`));
         }
       }
-    )
-  );
+    );
+  });
 }
 
 // Copies a list of attributes, only copying the fields relevant to our
@@ -503,10 +535,6 @@ export async function updateContextWithDataSet(
   );
 
   if (!collectionsEqual(context.collections, normalizedCollections)) {
-    console.group("Equality");
-    console.log(context.collections);
-    console.log(normalizedCollections);
-    console.groupEnd();
     const concatNames = (nameAcc: string, collection: Collection) =>
       nameAcc + collection.name;
     const uniqueName =

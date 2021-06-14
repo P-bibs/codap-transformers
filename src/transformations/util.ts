@@ -2,6 +2,7 @@ import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
 import { CodapLanguageType, DataSet } from "./types";
+import { prettyPrintCase } from "../utils/prettyPrint";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -197,6 +198,21 @@ export function codapValueToString(codapValue?: unknown): string {
 
   // value must be string
   return `"${codapValue}"`;
+}
+
+export function checkAndReportTypeErrors(
+  records: Record<string, unknown>[],
+  attribute: string,
+  type: CodapLanguageType
+): void {
+  const caseWithTypeError = findTypeErrors(records, attribute, type);
+  if (caseWithTypeError !== null) {
+    throw new Error(
+      `Formula did not evaluate to ${type} for case ${prettyPrintCase(
+        caseWithTypeError
+      )}`
+    );
+  }
 }
 
 /**

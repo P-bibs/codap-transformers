@@ -25,7 +25,7 @@ import {
   GetFunctionNamesResponse,
   CodapAttribute,
   ExcludeNonObject,
-  selectCasesCommandValue,
+  SelectCasesCommandValue,
 } from "./types";
 import {
   callUpdateListenersForContext,
@@ -41,6 +41,8 @@ export {
   removeNewContextListener,
   addContextUpdateListener,
   removeContextUpdateListener,
+  addSelectionListener,
+  removeSelectionListener,
 } from "./listeners";
 
 const phone: CodapPhone = new IframePhoneRpcEndpoint(
@@ -200,7 +202,7 @@ function codapRequestHandler(
       }
       // change in selected cases
       if (value.operation === ContextChangeOperation.SelectCases) {
-        const selection = value as selectCasesCommandValue;
+        const selection = value as SelectCasesCommandValue;
         const contextName = contextNameFromResource(command.resource);
 
         callSelectionListenersForContext(contextName, selection.result.cases);

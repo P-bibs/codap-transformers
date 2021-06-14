@@ -295,7 +295,7 @@ export interface SelectedCase {
   values: Record<string, unknown>;
 }
 
-export interface selectCasesCommandValue {
+export interface SelectCasesCommandValue {
   operation: ContextChangeOperation.SelectCases;
   result: {
     cases: SelectedCase[];

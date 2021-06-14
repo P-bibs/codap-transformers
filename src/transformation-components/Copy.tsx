@@ -4,7 +4,12 @@ import { useInput } from "../utils/hooks";
 import { copy } from "../transformations/copy";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { applyNewDataSet, readableName, addUpdateListener } from "./util";
+import {
+  applyNewDataSet,
+  readableName,
+  addUpdateListener,
+  addOneToOneSelectionListener,
+} from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -42,6 +47,16 @@ export function Copy({
     try {
       const newContextName = await applyNewDataSet(...(await doTransform()));
       addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+
+      // TODO: somehow implement the mappings for input table ids -> output
+      // table IDs and vice versa here
+      addOneToOneSelectionListener(
+        inputDataCtxt,
+        newContextName,
+        {},
+        {},
+        setErrMsg
+      );
     } catch (e) {
       setErrMsg(e.message);
     }

@@ -1,3 +1,5 @@
+import { SelectedCase } from "./types";
+
 // Listen for new or removed data contexts
 
 export let newContextListeners: Array<() => void> = [];
@@ -44,5 +46,43 @@ export function removeContextUpdateListener(
 export function callUpdateListenersForContext(context: string): void {
   if (contextUpdateListeners[context] !== undefined) {
     contextUpdateListeners[context].forEach((f) => f());
+  }
+}
+
+// Listen for case selection changes
+
+export const selectionListeners: Record<
+  string,
+  Array<(cases: SelectedCase[]) => void>
+> = {};
+
+export function addSelectionListener(
+  context: string,
+  listener: (cases: SelectedCase[]) => void
+): void {
+  if (selectionListeners[context] === undefined) {
+    selectionListeners[context] = [];
+  }
+  selectionListeners[context].push(listener);
+}
+
+export function removeSelectionListener(
+  context: string,
+  listener: (cases: SelectedCase[]) => void
+): void {
+  if (selectionListeners[context] !== undefined) {
+    selectionListeners[context] = selectionListeners[context].filter(
+      (f) => f !== listener
+    );
+  }
+}
+
+export function callSelectionListenersForContext(
+  context: string,
+  selectedCases: SelectedCase[]
+): void {
+  if (selectionListeners[context] !== undefined) {
+    // call each listener with the updated info about selected cases
+    selectionListeners[context].forEach((f) => f(selectedCases));
   }
 }

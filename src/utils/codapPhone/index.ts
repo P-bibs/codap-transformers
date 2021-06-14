@@ -25,10 +25,12 @@ import {
   GetFunctionNamesResponse,
   CodapAttribute,
   ExcludeNonObject,
+  selectCasesCommandValue,
 } from "./types";
 import {
   callUpdateListenersForContext,
   callAllContextListeners,
+  callSelectionListenersForContext,
 } from "./listeners";
 import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
@@ -98,6 +100,10 @@ function attributeListFromCollection(context: string, collection: string) {
   return `dataContext[${context}].collection[${collection}].attributeList`;
 }
 
+function selectionListFromContext(context: string) {
+  return `${resourceFromContext(context)}.selectionList`;
+}
+
 function itemFromContext(context: string) {
   return `${resourceFromContext(context)}.item`;
 }
@@ -144,6 +150,15 @@ const getNewName = (function () {
 })();
 
 /**
+ * Extracts the data context name given a resource field of a change
+ * notification. For example, for "dataContextChangeNotice[Context Name]",
+ * this will extract the "Context Name" portion.
+ */
+function contextNameFromResource(resource: CodapInitiatedResource): string {
+  return resource.slice(resource.search("\\[") + 1, resource.length - 1);
+}
+
+/**
  * Catch notifications from CODAP and call appropriate listeners
  */
 function codapRequestHandler(
@@ -178,14 +193,19 @@ function codapRequestHandler(
     for (const value of command.values) {
       if (mutatingOperations.includes(value.operation)) {
         // Context name is between the first pair of brackets
-        const contextName = command.resource.slice(
-          command.resource.search("\\[") + 1,
-          command.resource.length - 1
-        );
+        const contextName = contextNameFromResource(command.resource);
         callUpdateListenersForContext(contextName);
         callback({ success: true });
         return;
       }
+      // change in selected cases
+      if (value.operation === ContextChangeOperation.SelectCases) {
+        const selection = value as selectCasesCommandValue;
+        const contextName = contextNameFromResource(command.resource);
+
+        callSelectionListenersForContext(contextName, selection.result.cases);
+      }
+
       if (
         command.values[0].operation === ContextChangeOperation.UpdateContext
       ) {
@@ -197,6 +217,28 @@ function codapRequestHandler(
   }
 
   callback({ success: true });
+}
+
+export function createSelectionList(
+  context: string,
+  caseIDs: number[]
+): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Create,
+        resource: selectionListFromContext(context),
+        values: caseIDs,
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to create dataset"));
+        }
+      }
+    )
+  );
 }
 
 export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {

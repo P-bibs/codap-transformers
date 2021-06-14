@@ -111,6 +111,12 @@ interface GetFunctionNamesRequest {
   resource: CodapResource.FunctionNames;
 }
 
+interface CreateSelectionListRequest {
+  action: CodapActions.Create;
+  resource: string;
+  values: number[]; // list of case IDs
+}
+
 export interface CodapResponse {
   success: boolean;
 }
@@ -189,6 +195,7 @@ export type CodapPhone = {
     r: GetFunctionNamesRequest,
     cb: (r: GetFunctionNamesResponse) => void
   ): void;
+  call(r: CreateSelectionListRequest, cb: (r: CodapResponse) => void): void;
 };
 
 export enum CodapInitiatedResource {
@@ -273,6 +280,32 @@ export type CodapInitiatedCommand =
         operation: ContextChangeOperation;
       }[];
     };
+
+// Identifying info from select cases notifications includes name and id,
+// but no title. Collections also may indicate a parent collection's info.
+interface SelectIdentifyingInfo extends Omit<CodapIdentifyingInfo, "title"> {
+  parent?: SelectIdentifyingInfo;
+}
+
+export interface SelectedCase {
+  id: number;
+  parent: number;
+  collection: SelectIdentifyingInfo;
+  context: SelectIdentifyingInfo;
+  values: Record<string, unknown>;
+}
+
+export interface selectCasesCommandValue {
+  operation: ContextChangeOperation.SelectCases;
+  result: {
+    cases: SelectedCase[];
+    // "The "extend" property indicates whether the given cases have been
+    // added to the selection (true) or represent a new selection (false)."
+    // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#selection-list-change-notifications
+    extend: boolean;
+    success: boolean;
+  };
+}
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#datacontexts
 export interface DataContext {

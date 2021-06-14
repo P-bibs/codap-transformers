@@ -30,6 +30,18 @@ import {
   callUpdateListenersForContext,
   callAllContextListeners,
 } from "./listeners";
+import {
+  resourceFromContext,
+  itemFromContext,
+  collectionFromContext,
+  collectionOfContext,
+  resourceFromComponent,
+  collectionListFromContext,
+  attributeListFromCollection,
+  caseById,
+  allCasesWithSearch,
+  allCases,
+} from "./resource";
 import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
 import { uniqueName } from "../names";
@@ -76,62 +88,6 @@ export async function initPhone(title: string): Promise<void> {
       }
     )
   );
-}
-
-function resourceFromContext(context: string) {
-  return `dataContext[${context}]`;
-}
-
-function resourceFromCollection(collection: string) {
-  return `collection[${collection}]`;
-}
-
-function resourceFromComponent(component: string) {
-  return `component[${component}]`;
-}
-
-function collectionListFromContext(context: string) {
-  return `dataContext[${context}].collectionList`;
-}
-
-function attributeListFromCollection(context: string, collection: string) {
-  return `dataContext[${context}].collection[${collection}].attributeList`;
-}
-
-function itemFromContext(context: string) {
-  return `${resourceFromContext(context)}.item`;
-}
-
-function collectionFromContext(context: string) {
-  return `${resourceFromContext(context)}.collection`;
-}
-
-function collectionOfContext(context: string, collection: string) {
-  return `${resourceFromContext(context)}.${resourceFromCollection(
-    collection
-  )}`;
-}
-
-// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-item-get-by-search
-function itemSearchAllFromContext(context: string) {
-  return `${resourceFromContext(context)}.itemSearch[*]`;
-}
-
-// This only works for delete
-// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#cases
-function allCases(context: string, collection: string) {
-  return `dataContext[${context}].collection[${collection}].allCases`;
-}
-
-// Resource for getting all cases in a collection
-function allCasesWithSearch(context: string, collection: string) {
-  const contextResource = resourceFromContext(context);
-  const collectionResource = resourceFromCollection(collection);
-  return `${contextResource}.${collectionResource}.caseFormulaSearch[true]`;
-}
-
-function caseById(context: string, id: number) {
-  return `${resourceFromContext(context)}.caseByID[${id}]`;
 }
 
 const getNewName = (function () {

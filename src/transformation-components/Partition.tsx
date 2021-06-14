@@ -83,38 +83,41 @@ export function Partition({
 
       // listen for updates to the input data context
       addContextUpdateListener(inputDataCtxt, async () => {
-        setErrMsg(null);
+        try {
+          setErrMsg(null);
+          const transformed = await doTransform();
+          const newValueToContext: Record<string, string> = {};
 
-        const transformed = await doTransform();
-        const newValueToContext: Record<string, string> = {};
+          for (const [partitioned, name] of transformed) {
+            const contextName = valueToContext[partitioned.distinctValueAsStr];
+            if (contextName === undefined) {
+              // this is a new table (a new distinct value)
+              newValueToContext[partitioned.distinctValueAsStr] =
+                await applyNewDataSet(partitioned.dataset, name);
+            } else {
+              // apply an update to a previous dataset
+              updateContextWithDataSet(contextName, partitioned.dataset);
 
-        for (const [partitioned, name] of transformed) {
-          const contextName = valueToContext[partitioned.distinctValueAsStr];
-          if (contextName === undefined) {
-            // this is a new table (a new distinct value)
-            newValueToContext[partitioned.distinctValueAsStr] =
-              await applyNewDataSet(partitioned.dataset, name);
-          } else {
-            // apply an update to a previous dataset
-            updateContextWithDataSet(contextName, partitioned.dataset);
-
-            // copy over existing context name into new valueToContext mapping
-            newValueToContext[partitioned.distinctValueAsStr] = contextName;
+              // copy over existing context name into new valueToContext mapping
+              newValueToContext[partitioned.distinctValueAsStr] = contextName;
+            }
           }
-        }
 
-        for (const [value, context] of Object.entries(valueToContext)) {
-          // if there is no longer a partition for this value
-          if (
-            transformed.find(([pd]) => pd.distinctValueAsStr === value) ===
-            undefined
-          ) {
-            deleteDataContext(context);
+          for (const [value, context] of Object.entries(valueToContext)) {
+            // if there is no longer a partition for this value
+            if (
+              transformed.find(([pd]) => pd.distinctValueAsStr === value) ===
+              undefined
+            ) {
+              deleteDataContext(context);
+            }
           }
-        }
 
-        // update valueToContext to reflect the updates
-        valueToContext = newValueToContext;
+          // update valueToContext to reflect the updates
+          valueToContext = newValueToContext;
+        } catch (e) {
+          setErrMsg(`Error updating partitioned tables: ${e.message}`);
+        }
       });
     } catch (e) {
       setErrMsg(e.message);

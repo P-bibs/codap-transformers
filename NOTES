@@ -1,0 +1,48 @@
+
+:: Case Selection ::
+
+generic transformation is [inputs] => [outputs] for n inputs and m outputs.
+
+Idea:
+  [1] on selection update, translate into selection of cases in 
+    lowest level of hierarchy (at item level effectively)
+  [2] map these selections onto lowest level selections in the output
+  [3] propagate these mapped selections back up the hierarchy, if possible.
+
+in_1, in_2     ==> forwardMap  ==>      out_1, out_2, out_3
+               <== backwardMap <==
+
+Maps are: (context: string, id: number) => (context: string, ids: number[])[]
+
+Listening / propagating updates:
+
+  On each input table, setup a selection listener:
+    (cases) => {
+      cases = translateToLowestLevel(inContext, cases)
+      updatedSelections = {}
+
+      for each case of cases {
+        translated = forwardMap[inContext, case.id]
+
+        for each (outContext, ids) in translated {
+          updatedSelections[outContext].add(ids)
+        }
+      }
+
+      for (outContext, ids) in updatedSelections {
+        selection = translateToHigherLevels(outContext, ids)
+        createSelectionList(outContext, selection)
+      }
+    }
+
+  On each output table, same except replace forwardMap with backwardMap
+
+
+:: How to encode IDs? ::
+
+Need:
+ - lookup ID to get all child IDs (high to low translation)
+ - have access to list of all IDs at a given level (low to high)
+
+
+:: How do transformations get ID info to construct the maps? ::

@@ -299,6 +299,25 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
   );
 }
 
+export function getAllCasesInCollection(context: string, collection: string):
+Promise<ReturnedCase[]> {
+  return new Promise<ReturnedCase[]>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: allCasesWithSearch(context, collection),
+      },
+      (response: GetCasesResponse) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get data items"));
+        }
+      }
+    )
+  );
+}
+
 export async function getAllAttributes(
   context: string
 ): Promise<CodapIdentifyingInfo[]> {

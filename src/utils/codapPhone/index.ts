@@ -364,7 +364,16 @@ export async function getAllAttributes(
  */
 export async function getDataFromContext(
   context: string
-): Promise<DataSetCase[]> {
+): Promise<[DataSetCase[], Record<number, Set<number>>]> {
+  // map from parent ID to child IDs for this context
+  const idMap: Record<number, Set<number>> = {};
+  function addToIDMap(parent: number, child: number): void {
+    if (idMap[parent] === undefined) {
+      idMap[parent] = new Set();
+    }
+    idMap[parent] = idMap[parent].add(child);
+  }
+
   const getCaseByIdCached = (function () {
     const caseMap: Record<number, ReturnedCase> = {};
     return async (id: number) => {
@@ -386,6 +395,9 @@ export async function getDataFromContext(
       };
     }
 
+    // add parent/child ID pairing to map
+    addToIDMap(c.parent, c.id);
+
     const parentItem = await dataItemFromChildCase(
       await getCaseByIdCached(c.parent)
     );
@@ -403,20 +415,24 @@ export async function getDataFromContext(
   const collections = (await getDataContext(context)).collections;
   const childCollection = collections[collections.length - 1];
 
-  return new Promise<DataSetCase[]>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Get,
-        resource: allCasesWithSearch(context, childCollection.name),
-      },
-      (response: GetCasesResponse) => {
-        if (response.success) {
-          resolve(Promise.all(response.values.map(dataItemFromChildCase)));
-        } else {
-          reject(new Error("Failed to get data items"));
+  return new Promise<[DataSetCase[], Record<number, Set<number>>]>(
+    (resolve, reject) =>
+      phone.call(
+        {
+          action: CodapActions.Get,
+          resource: allCasesWithSearch(context, childCollection.name),
+        },
+        async (response: GetCasesResponse) => {
+          if (response.success) {
+            resolve([
+              await Promise.all(response.values.map(dataItemFromChildCase)),
+              idMap,
+            ]);
+          } else {
+            reject(new Error("Failed to get data items"));
+          }
         }
-      }
-    )
+      )
   );
 }
 
@@ -427,14 +443,18 @@ export async function getDataFromContext(
 export async function getContextAndDataSet(contextName: string): Promise<{
   context: DataContext;
   dataset: DataSet;
+  idMap: Record<number, Set<number>>;
 }> {
   const context = await getDataContext(contextName);
+  const [records, idMap] = await getDataFromContext(contextName);
+
   return {
     context,
     dataset: {
       collections: context.collections,
-      records: await getDataFromContext(contextName),
+      records,
     },
+    idMap,
   };
 }
 

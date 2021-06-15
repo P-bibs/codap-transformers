@@ -42,7 +42,7 @@ Listening / propagating updates:
 
 Need:
  - lookup ID to get all child IDs (high to low translation)
- - have access to list of all IDs at a given level (low to high)
+ - TODO: have access to list of all IDs at a given level (low to high)
 
 - can modify getDataFromContext to return a data structure that encapsulates
   this information about ID structure

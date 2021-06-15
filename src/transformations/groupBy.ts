@@ -84,7 +84,7 @@ export function groupBy(
   for (const record of records) {
     for (const attrName of attrNames) {
       // make copy of record data from original attr into grouped attr
-      record[groupedAttrName(attrName)] = record[attrName];
+      record.values[groupedAttrName(attrName)] = record.values[attrName];
     }
   }
 

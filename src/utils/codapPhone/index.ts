@@ -32,7 +32,7 @@ import {
   callAllContextListeners,
   callSelectionListenersForContext,
 } from "./listeners";
-import { DataSet } from "../../transformations/types";
+import { DataSet, DataSetCase } from "../../transformations/types";
 import { CodapEvalError } from "./error";
 import { uniqueName } from "../names";
 
@@ -364,7 +364,7 @@ export async function getAllAttributes(
  */
 export async function getDataFromContext(
   context: string
-): Promise<Record<string, unknown>[]> {
+): Promise<DataSetCase[]> {
   const getCaseByIdCached = (function () {
     const caseMap: Record<number, ReturnedCase> = {};
     return async (id: number) => {
@@ -377,25 +377,33 @@ export async function getDataFromContext(
     };
   })();
 
-  async function dataItemFromChildCase(
-    c: ReturnedCase
-  ): Promise<Record<string, unknown>> {
+  async function dataItemFromChildCase(c: ReturnedCase): Promise<DataSetCase> {
+    // top-level of collections hierarchy
     if (c.parent === null || c.parent === undefined) {
-      return c.values;
+      return {
+        id: c.id,
+        values: c.values,
+      };
     }
-    const parent = await getCaseByIdCached(c.parent);
-    const results = {
-      ...c.values,
-      ...(await dataItemFromChildCase(parent)),
-    };
 
-    return results;
+    const parentItem = await dataItemFromChildCase(
+      await getCaseByIdCached(c.parent)
+    );
+
+    // dataset case with parent+child's values but child's ID
+    return {
+      id: c.id,
+      values: {
+        ...c.values,
+        ...parentItem.values,
+      },
+    };
   }
 
   const collections = (await getDataContext(context)).collections;
   const childCollection = collections[collections.length - 1];
 
-  return new Promise<Record<string, unknown>[]>((resolve, reject) =>
+  return new Promise<DataSetCase[]>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Get,
@@ -565,7 +573,10 @@ export async function createContextWithDataSet(
     title
   );
 
-  await insertDataItems(newDatasetDescription.name, dataset.records);
+  await insertDataItems(
+    newDatasetDescription.name,
+    dataset.records.map((rec) => rec.values)
+  );
   return newDatasetDescription;
 }
 

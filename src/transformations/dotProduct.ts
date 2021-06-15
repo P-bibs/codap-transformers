@@ -15,14 +15,14 @@ export function dotProduct(dataset: DataSet, attributes: string[]): number {
   return dataset.records
     .map((row) =>
       attributes.reduce((product, attribute) => {
-        if (row[attribute] === undefined) {
+        if (row.values[attribute] === undefined) {
           throw new Error(`Invalid attribute name: ${attribute}`);
         }
-        const value = Number(row[attribute]);
+        const value = Number(row.values[attribute]);
         if (isNaN(value)) {
           throw new Error(
             `Expected number in attribute ${attribute}, instead got ${codapValueToString(
-              row[attribute]
+              row.values[attribute]
             )}`
           );
         }
@@ -42,7 +42,9 @@ export function dotProductTable(
 ): DataSet {
   const records = [
     {
-      "Dot Product": dotProduct(dataset, attributes),
+      values: {
+        "Dot Product": dotProduct(dataset, attributes),
+      },
     },
   ];
   const collections = [

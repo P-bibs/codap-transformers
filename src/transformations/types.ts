@@ -6,5 +6,15 @@ import { Collection } from "../utils/codapPhone/types";
  */
 export type DataSet = {
   collections: Collection[];
-  records: Record<string, unknown>[];
+  records: DataSetCase[];
+};
+
+/**
+ * DataSetCase represents a single case within a dataset. It is effectively
+ * a data item along with the case ID from the lowest (child-most) collection in
+ * the hierarchy.
+ */
+export type DataSetCase = {
+  id?: number;
+  values: Record<string, unknown>;
 };

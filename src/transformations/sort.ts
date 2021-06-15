@@ -1,6 +1,6 @@
 import { DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone";
-import { codapValueToString } from "./util";
+import { codapValueToString, datasetCaseToValues } from "./util";
 
 function numCompareFn(a: number, b: number) {
   return a - b;
@@ -55,7 +55,7 @@ export async function sort(
   keyExpr: string
 ): Promise<DataSet> {
   const records = dataset.records.slice();
-  const keyValues = await evalExpression(keyExpr, records);
+  const keyValues = await evalExpression(keyExpr, datasetCaseToValues(records));
 
   const sorted = records
     .map((record, i) => {

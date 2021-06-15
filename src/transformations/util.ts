@@ -1,7 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { DataSet } from "./types";
+import { DataSet, DataSetCase } from "./types";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -101,12 +101,12 @@ export function insertColumnInLastCollection(
  * @returns A copy of `row` with `newValue` inserted
  */
 export function insertInRow(
-  row: Record<string, unknown>,
+  row: DataSetCase,
   newProp: string,
   newValue: unknown
-): Record<string, unknown> {
+): DataSetCase {
   const newRow = { ...row };
-  newRow[newProp] = newValue;
+  newRow.values[newProp] = newValue;
   return newRow;
 }
 
@@ -197,4 +197,14 @@ export function codapValueToString(codapValue?: unknown): string {
 
   // value must be string
   return `"${codapValue}"`;
+}
+
+/**
+ * Converts a list of dataset cases into a list of their internal
+ * values (the contents of each case)
+ */
+export function datasetCaseToValues(
+  cases: DataSetCase[]
+): Record<string, unknown>[] {
+  return cases.map((cs) => cs.values);
 }

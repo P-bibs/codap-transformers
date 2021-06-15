@@ -63,11 +63,11 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
   const tuples = dataset.records.map((record) => {
     const copy: Record<string, unknown> = {};
     for (const attrName of attributes) {
-      if (record[attrName] === undefined) {
+      if (record.values[attrName] === undefined) {
         throw new Error(`Invalid attribute name: ${attrName}`);
       }
 
-      copy[attrName] = record[attrName];
+      copy[attrName] = record.values[attrName];
     }
     return copy;
   });
@@ -92,7 +92,9 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
   });
 
   // the distinct, counted tuples become the records of the new dataset
-  const records = Object.values(tupleToCount);
+  const records = Object.values(tupleToCount).map((tuple) => {
+    return { values: tuple };
+  });
 
   return {
     collections,

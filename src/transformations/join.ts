@@ -65,14 +65,14 @@ export function join(
   // joiningDataset for each record from baseDataset.
   for (const record of records) {
     const matchingRecord = joiningDataset.records.find(
-      (rec) => rec[joiningAttr] === record[baseAttr]
+      (rec) => rec.values[joiningAttr] === record.values[baseAttr]
     );
 
     if (matchingRecord !== undefined) {
       // copy values for added attrs in matching record into current record
       for (const attrName of addedAttrOriginalNames) {
         const unique = attrToUnique[attrName];
-        record[unique] = matchingRecord[attrName];
+        record.values[unique] = matchingRecord.values[attrName];
       }
     }
   }

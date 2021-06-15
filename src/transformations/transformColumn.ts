@@ -1,5 +1,6 @@
 import { DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone";
+import { datasetCaseToValues } from "./util";
 
 /**
  * Produces a dataset with the indicated attribute's values transformed
@@ -12,16 +13,19 @@ export async function transformColumn(
   expression: string
 ): Promise<DataSet> {
   const records = dataset.records.slice();
-  const exprValues = await evalExpression(expression, records);
+  const exprValues = await evalExpression(
+    expression,
+    datasetCaseToValues(records)
+  );
 
   exprValues.forEach((value, i) => {
     const record = records[i];
 
-    if (record[attributeName] === undefined) {
+    if (record.values[attributeName] === undefined) {
       throw new Error(`Invalid attribute to transform: ${attributeName}`);
     }
 
-    record[attributeName] = value;
+    record.values[attributeName] = value;
   });
 
   const collections = dataset.collections.slice();

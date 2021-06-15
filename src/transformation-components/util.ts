@@ -5,8 +5,6 @@ import {
   updateContextWithDataSet,
   addContextUpdateListener,
   updateText,
-  addSelectionListener,
-  createSelectionList,
 } from "../utils/codapPhone";
 
 /**

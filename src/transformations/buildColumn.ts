@@ -1,5 +1,6 @@
 import { DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone/index";
+import { datasetCaseToValues } from "./util";
 
 /**
  * Builds a dataset with a new attribute added to one of the collections,
@@ -39,11 +40,14 @@ export async function buildColumn(
   });
 
   const records = dataset.records.slice();
-  const colValues = await evalExpression(expression, records);
+  const colValues = await evalExpression(
+    expression,
+    datasetCaseToValues(records)
+  );
 
   // add values for new attribute to all records
   colValues.forEach((value, i) => {
-    records[i][newAttributeName] = value;
+    records[i].values[newAttributeName] = value;
   });
 
   return {

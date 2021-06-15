@@ -9,13 +9,15 @@ import { codapValueToString } from "./util";
  */
 export function average(dataset: DataSet, attribute: string): number {
   const sum = dataset.records.reduce((acc, row) => {
-    if (row[attribute] === undefined) {
+    if (row.values[attribute] === undefined) {
       throw new Error(`Invalid attribute name: ${attribute}`);
     }
-    const value = Number(row[attribute]);
+    const value = Number(row.values[attribute]);
     if (isNaN(value)) {
       throw new Error(
-        `Expected number, instead got ${codapValueToString(row[attribute])}`
+        `Expected number, instead got ${codapValueToString(
+          row.values[attribute]
+        )}`
       );
     }
     return acc + value;
@@ -24,13 +26,15 @@ export function average(dataset: DataSet, attribute: string): number {
 }
 
 /**
- * Temporray solution. Until text gets fixed, use a single celled table for
+ * Temporary solution. Until text gets fixed, use a single celled table for
  * scalar values
  */
 export function averageTable(dataset: DataSet, attribute: string): DataSet {
   const records = [
     {
-      Average: average(dataset, attribute),
+      values: {
+        Average: average(dataset, attribute),
+      },
     },
   ];
   const collections = [

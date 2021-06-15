@@ -1,6 +1,6 @@
-import { DataSet } from "./types";
+import { DataSet, DataSetCase } from "./types";
 import { evalExpression } from "../utils/codapPhone";
-import { codapValueToString } from "./util";
+import { codapValueToString, datasetCaseToValues } from "./util";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -10,10 +10,13 @@ export async function filter(
   dataset: DataSet,
   predicate: string
 ): Promise<DataSet> {
-  const filteredRecords: Record<string, unknown>[] = [];
+  const filteredRecords: DataSetCase[] = [];
 
   // evaluate predicate at each case in the dataset
-  const predValues = await evalExpression(predicate, dataset.records);
+  const predValues = await evalExpression(
+    predicate,
+    datasetCaseToValues(dataset.records)
+  );
 
   predValues.forEach((value, i) => {
     if (value !== true && value !== false) {

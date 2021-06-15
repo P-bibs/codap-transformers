@@ -1,4 +1,4 @@
-import { DataSet } from "./types";
+import { DataSet, DataSetCase } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
 import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
@@ -75,8 +75,12 @@ export function compare(
     type: "categorical",
   });
 
-  const values1 = dataset1.records.map((record) => record[attributeName1]);
-  const values2 = dataset2.records.map((record) => record[attributeName2]);
+  const values1 = dataset1.records.map(
+    (record) => record.values[attributeName1]
+  );
+  const values2 = dataset2.records.map(
+    (record) => record.values[attributeName2]
+  );
 
   const records =
     kind === "structural"
@@ -104,7 +108,7 @@ function compareRecordsStructural(
   attributeName2: string,
   values1: unknown[],
   values2: unknown[]
-): Record<string, unknown>[] {
+): DataSetCase[] {
   const changeObjects = diffArrays(values1, values2);
 
   const records = [];
@@ -116,21 +120,27 @@ function compareRecordsStructural(
     for (let j = 0; j < change.count; j++) {
       if (change.removed) {
         records.push({
-          [attributeName1]: change.value[j],
-          [attributeName2]: "",
-          [COMPARE_STATUS_COLUMN_NAME]: RED,
+          values: {
+            [attributeName1]: change.value[j],
+            [attributeName2]: "",
+            [COMPARE_STATUS_COLUMN_NAME]: RED,
+          },
         });
       } else if (change.added) {
         records.push({
-          [attributeName1]: "",
-          [attributeName2]: change.value[j],
-          [COMPARE_STATUS_COLUMN_NAME]: GREEN,
+          values: {
+            [attributeName1]: "",
+            [attributeName2]: change.value[j],
+            [COMPARE_STATUS_COLUMN_NAME]: GREEN,
+          },
         });
       } else {
         records.push({
-          [attributeName1]: change.value[j],
-          [attributeName2]: change.value[j],
-          [COMPARE_STATUS_COLUMN_NAME]: GREY,
+          values: {
+            [attributeName1]: change.value[j],
+            [attributeName2]: change.value[j],
+            [COMPARE_STATUS_COLUMN_NAME]: GREY,
+          },
         });
       }
     }
@@ -212,7 +222,7 @@ function compareCategorical(
       // If we didn't find a duplicate then just push the record
       records.push({
         ...record1,
-        [DECISION_1_COLUMN_NAME]: record1[attribute1Data.name],
+        [DECISION_1_COLUMN_NAME]: record1.values[attribute1Data.name],
       });
     } else {
       // If we did find a duplicate then merge the records, set the decision
@@ -220,8 +230,8 @@ function compareCategorical(
       records.push({
         ...record1,
         ...duplicate,
-        [DECISION_1_COLUMN_NAME]: record1[attribute1Data.name],
-        [DECISION_2_COLUMN_NAME]: duplicate[attribute2Data.name],
+        [DECISION_1_COLUMN_NAME]: record1.values[attribute1Data.name],
+        [DECISION_2_COLUMN_NAME]: duplicate.values[attribute2Data.name],
       });
     }
   }
@@ -240,7 +250,7 @@ function compareCategorical(
     } else {
       records.push({
         ...record2,
-        [DECISION_2_COLUMN_NAME]: record2[attribute2Data.name],
+        [DECISION_2_COLUMN_NAME]: record2.values[attribute2Data.name],
       });
     }
   }
@@ -266,7 +276,7 @@ function compareRecordsNumerical(
   attributeName2: string,
   values1: unknown[],
   values2: unknown[]
-): Record<string, unknown>[] {
+): DataSetCase[] {
   const records = [];
   for (let i = 0; i < Math.max(values1.length, values2.length); i++) {
     const v1 = values1[i];
@@ -275,10 +285,12 @@ function compareRecordsNumerical(
     // If either is null/undefined, skip and continue
     if (v1 === null || v2 === null || v1 === undefined || v2 === undefined) {
       records.push({
-        [attributeName1]: values1[i],
-        [attributeName2]: values2[i],
-        [COMPARE_VALUE_COLUMN_NAME]: "",
-        [COMPARE_STATUS_COLUMN_NAME]: "",
+        values: {
+          [attributeName1]: values1[i],
+          [attributeName2]: values2[i],
+          [COMPARE_VALUE_COLUMN_NAME]: "",
+          [COMPARE_STATUS_COLUMN_NAME]: "",
+        },
       });
       continue;
     }
@@ -289,21 +301,25 @@ function compareRecordsNumerical(
     // If either is not a number, skip and continue
     if (isNaN(parsed1) || isNaN(parsed2)) {
       records.push({
-        [attributeName1]: values1[i],
-        [attributeName2]: values2[i],
-        [COMPARE_VALUE_COLUMN_NAME]: "",
-        [COMPARE_STATUS_COLUMN_NAME]: "",
+        values: {
+          [attributeName1]: values1[i],
+          [attributeName2]: values2[i],
+          [COMPARE_VALUE_COLUMN_NAME]: "",
+          [COMPARE_STATUS_COLUMN_NAME]: "",
+        },
       });
       continue;
     }
 
     const difference = parsed2 - parsed1;
     records.push({
-      [attributeName1]: values1[i],
-      [attributeName2]: values2[i],
-      [COMPARE_VALUE_COLUMN_NAME]: difference,
-      [COMPARE_STATUS_COLUMN_NAME]:
-        difference > 0 ? GREEN : difference < 0 ? RED : GREY,
+      values: {
+        [attributeName1]: values1[i],
+        [attributeName2]: values2[i],
+        [COMPARE_VALUE_COLUMN_NAME]: difference,
+        [COMPARE_STATUS_COLUMN_NAME]:
+          difference > 0 ? GREEN : difference < 0 ? RED : GREY,
+      },
     });
   }
 

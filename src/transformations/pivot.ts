@@ -1,4 +1,4 @@
-import { DataSet } from "./types";
+import { DataSet, DataSetCase } from "./types";
 import { eraseFormulas, codapValueToString } from "./util";
 
 /**
@@ -59,8 +59,8 @@ export function pivotLonger(
 
       // put pivoted attribute name under namesTo attribute,
       // value of record at toPivotAttr under valuesTo attribute
-      shortRecord[namesTo] = toPivotAttr;
-      shortRecord[valuesTo] = record[toPivotAttr];
+      shortRecord.values[namesTo] = toPivotAttr;
+      shortRecord.values[valuesTo] = record.values[toPivotAttr];
 
       records.push(shortRecord);
     }
@@ -100,18 +100,18 @@ export function pivotWider(
   const newAttrs = Array.from(
     new Set(
       dataset.records.map((rec) => {
-        if (rec[namesFrom] === undefined) {
+        if (rec.values[namesFrom] === undefined) {
           throw new Error(
             `Invalid attribute to retrieve names from: ${namesFrom}`
           );
         }
-        if (typeof rec[namesFrom] === "object") {
+        if (typeof rec.values[namesFrom] === "object") {
           throw new Error(
             `Cannot use object values (${namesFrom}) as attribute names`
           );
         }
 
-        return String(rec[namesFrom]);
+        return String(rec.values[namesFrom]);
       })
     )
   );
@@ -152,9 +152,8 @@ export function pivotWider(
   for (const record of dataset.records) {
     // find the collapsed record that is equivalent to this
     // original record in all fields except namesFrom / valuesFrom
-    let collapsed: undefined | Record<string, unknown> = wideRecords.find(
-      (wide) =>
-        equivExcept(record, wide, newAttrs.concat([namesFrom, valuesFrom]))
+    let collapsed: undefined | DataSetCase = wideRecords.find((wide) =>
+      equivExcept(record, wide, newAttrs.concat([namesFrom, valuesFrom]))
     );
 
     // no collapsed record exists yet for this class of records, create one
@@ -163,18 +162,21 @@ export function pivotWider(
       wideRecords.push(collapsed);
     }
 
-    if (collapsed[record[namesFrom] as string] !== undefined) {
+    if (collapsed.values[record.values[namesFrom] as string] !== undefined) {
       throw new Error(
         `Case has multiple ${valuesFrom} values (${codapValueToString(
-          collapsed[record[namesFrom] as string]
+          collapsed.values[record.values[namesFrom] as string]
         )} and ${codapValueToString(
-          record[valuesFrom]
-        )}) for same ${namesFrom} (${codapValueToString(record[namesFrom])})`
+          record.values[valuesFrom]
+        )}) for same ${namesFrom} (${codapValueToString(
+          record.values[namesFrom]
+        )})`
       );
     }
 
     // update existing collapsed record under attribute record[namesFrom]
-    collapsed[record[namesFrom] as string] = record[valuesFrom];
+    collapsed.values[record.values[namesFrom] as string] =
+      record.values[valuesFrom];
   }
 
   return {
@@ -187,8 +189,8 @@ export function pivotWider(
  * Determines if the two records are equivalent, ignoring the indicated fields.
  */
 function equivExcept(
-  recA: Record<string, unknown>,
-  recB: Record<string, unknown>,
+  recA: DataSetCase,
+  recB: DataSetCase,
   except: string[]
 ): boolean {
   // NOTE: assumes the records have the same fields to begin with.
@@ -197,7 +199,7 @@ function equivExcept(
     if (except.includes(key)) {
       continue;
     }
-    if (recA[key] !== recB[key]) {
+    if (recA.values[key] !== recB.values[key]) {
       return false;
     }
   }
@@ -208,12 +210,9 @@ function equivExcept(
 /**
  * Removes the indicated fields from the given record.
  */
-function removeFields(
-  record: Record<string, unknown>,
-  fields: string[]
-): Record<string, unknown> {
+function removeFields(record: DataSetCase, fields: string[]): DataSetCase {
   for (const field of fields) {
-    delete record[field];
+    delete record.values[field];
   }
   return record;
 }

@@ -1,4 +1,4 @@
-import { DataSet } from "./types";
+import { DataSet, DataSetCase } from "./types";
 import { reparent, eraseFormulas } from "./util";
 
 /**
@@ -28,14 +28,14 @@ export function selectAttributes(
   // copy records, but only the selected attributes
   const records = [];
   for (const record of dataset.records) {
-    const copy: Record<string, unknown> = {};
+    const copy: DataSetCase = { values: {} };
     for (const attrName of selectedAttrs) {
       // attribute does not appear on record, error
-      if (record[attrName] === undefined) {
+      if (record.values[attrName] === undefined) {
         throw new Error(`Invalid attribute name: ${attrName}`);
       }
 
-      copy[attrName] = record[attrName];
+      copy.values[attrName] = record.values[attrName];
     }
     records.push(copy);
   }

@@ -19,11 +19,11 @@ function makeNumFold<T>(
     let acc = base;
 
     const resultRecords = dataset.records.map((row) => {
-      if (row[inputColumnName] === undefined) {
+      if (row.values[inputColumnName] === undefined) {
         throw new Error(`Invalid attribute name: ${inputColumnName}`);
       }
 
-      const numValue = Number(row[inputColumnName]);
+      const numValue = Number(row.values[inputColumnName]);
       if (!isNaN(numValue)) {
         const [newAcc, result] = f(acc, numValue);
         acc = newAcc;
@@ -32,7 +32,7 @@ function makeNumFold<T>(
       } else {
         throw new Error(
           `${foldName} expected a number, instead got ${codapValueToString(
-            row[inputColumnName]
+            row.values[inputColumnName]
           )}`
         );
       }
@@ -112,17 +112,17 @@ export function differenceFrom(
   startingValue = 0
 ): DataSet {
   const resultRecords = dataset.records.map((row) => {
-    if (row[inputColumnName] === undefined) {
+    if (row.values[inputColumnName] === undefined) {
       throw new Error(`Invalid attribute name: ${inputColumnName}`);
     }
 
-    const numValue = Number(row[inputColumnName]);
+    const numValue = Number(row.values[inputColumnName]);
     if (!isNaN(numValue)) {
       return insertInRow(row, resultColumnName, numValue - startingValue);
     } else {
       throw new Error(
         `Difference from expected number, instead got ${codapValueToString(
-          row[inputColumnName]
+          row.values[inputColumnName]
         )}`
       );
     }

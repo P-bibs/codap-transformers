@@ -75,55 +75,6 @@ export function addUpdateListener(
   });
 }
 
-type CaseIDMap = Record<number, number[]>;
-
-function translateCaseIDs(caseIDs: number[], map: CaseIDMap): number[] {
-  return Array.from(new Set(caseIDs.map((id) => map[id] || []).flat()));
-}
-
-export function addOneToOneSelectionListener(
-  inputContext: string,
-  outputContext: string,
-  forwardMap: CaseIDMap,
-  backwardMap: CaseIDMap,
-  setErrMsg: (msg: string | null) => void
-): void {
-  // listen to input, apply changes to output
-  addSelectionListener(inputContext, async (selectedCases) => {
-    setErrMsg(null);
-    try {
-      await createSelectionList(
-        outputContext,
-        translateCaseIDs(
-          selectedCases.map((selectedCase) => selectedCase.id),
-          forwardMap
-        )
-      );
-    } catch (e) {
-      setErrMsg(
-        `Error updating case selections for ${outputContext}: ${e.message}`
-      );
-    }
-  });
-  // listen to output, apply changes to input
-  addSelectionListener(outputContext, async (selectedCases) => {
-    setErrMsg(null);
-    try {
-      await createSelectionList(
-        inputContext,
-        translateCaseIDs(
-          selectedCases.map((selectedCase) => selectedCase.id),
-          backwardMap
-        )
-      );
-    } catch (e) {
-      setErrMsg(
-        `Error updating case selections for ${inputContext}: ${e.message}`
-      );
-    }
-  });
-}
-
 export function addUpdateTextListener(
   inputContext: string,
   textName: string,

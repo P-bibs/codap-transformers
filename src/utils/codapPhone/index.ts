@@ -299,8 +299,10 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
   );
 }
 
-export function getAllCasesInCollection(context: string, collection: string):
-Promise<ReturnedCase[]> {
+export function getAllCasesInCollection(
+  context: string,
+  collection: string
+): Promise<ReturnedCase[]> {
   return new Promise<ReturnedCase[]>((resolve, reject) =>
     phone.call(
       {

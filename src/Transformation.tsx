@@ -10,7 +10,7 @@ import {
   TransformationSaveData,
 } from "./transformation-components/types";
 import { PolymorphicComponent } from "./transformation-components/PolymorphicComponent";
-import { addSelectionListener, createDataInteractive, createSelectionList, getAllCasesInCollection } from "./utils/codapPhone";
+import { createDataInteractive } from "./utils/codapPhone";
 
 /**
  * Subscribing to this context allows adding new saved transformations
@@ -122,14 +122,8 @@ function Transformation({
     setErrMsg(null);
   }
 
-  async function debug(): Promise<void> {
-    // createSelectionList("US Microdata", [149, 157]);
-    console.log(await getAllCasesInCollection("US Microdata", "people"));
-  }
-
   return (
     <div className="Transformation">
-      <button onClick={debug}>Debug</button>
       {urlTransformation ? (
         <h2>
           {urlTransformation.name}

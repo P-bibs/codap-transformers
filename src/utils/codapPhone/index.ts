@@ -383,6 +383,24 @@ export function getDataContext(contextName: string): Promise<DataContext> {
   );
 }
 
+export async function deleteDataContext(contextName: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Delete,
+        resource: resourceFromContext(contextName),
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to delete data context"));
+        }
+      }
+    )
+  );
+}
+
 // Copies a list of attributes, only copying the fields relevant to our
 // representation of attributes and omitting any extra fields (cid, etc).
 function copyAttrs(

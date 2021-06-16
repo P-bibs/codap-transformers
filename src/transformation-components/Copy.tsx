@@ -4,9 +4,16 @@ import { useInput } from "../utils/hooks";
 import { copy } from "../transformations/copy";
 import { DataSet } from "../transformations/types";
 import { TransformationSubmitButtons, ContextSelector } from "../ui-components";
-import { applyNewDataSet, readableName, addUpdateListener } from "./util";
+import {
+  applyNewDataSet,
+  readableName,
+  addUpdateListener,
+  setupSelectionListener,
+  identityIndexMap,
+} from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { indexMapToIDMap } from "../transformations/util";
 
 export type CopySaveData = Record<string, never>;
 
@@ -42,6 +49,27 @@ export function Copy({
     try {
       const newContextName = await applyNewDataSet(...(await doTransform()));
       addUpdateListener(inputDataCtxt, newContextName, doTransform, setErrMsg);
+
+      // NOTE: very rough draft of how selection listening would work
+      // in the simple case (identity map). Note how we have to query
+      // for the dataset info *after* the output context(s) have been created.
+      const { dataset: inDataset, parentToChildMap } =
+        await getContextAndDataSet(inputDataCtxt);
+      const { dataset: outDataset } = await getContextAndDataSet(
+        newContextName
+      );
+      const indexMap = identityIndexMap(
+        inputDataCtxt,
+        inDataset,
+        newContextName,
+        outDataset
+      );
+      const idMap = indexMapToIDMap(
+        indexMap,
+        [[inputDataCtxt, inDataset]],
+        [[newContextName, outDataset]]
+      );
+      setupSelectionListener(inputDataCtxt, parentToChildMap, idMap);
     } catch (e) {
       setErrMsg(e.message);
     }

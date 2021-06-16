@@ -205,7 +205,10 @@ function codapRequestHandler(
         const selection = value as SelectCasesCommandValue;
         const contextName = contextNameFromResource(command.resource);
 
-        callSelectionListenersForContext(contextName, selection.result.cases);
+        // FIXME: why is selection.result.cases sometimes undefined
+        if (selection.result && selection.result.cases) {
+          callSelectionListenersForContext(contextName, selection.result.cases);
+        }
       }
 
       if (
@@ -366,12 +369,12 @@ export async function getDataFromContext(
   context: string
 ): Promise<[DataSetCase[], Record<number, Set<number>>]> {
   // map from parent ID to child IDs for this context
-  const idMap: Record<number, Set<number>> = {};
-  function addToIDMap(parent: number, child: number): void {
-    if (idMap[parent] === undefined) {
-      idMap[parent] = new Set();
+  const parentToChildMap: Record<number, Set<number>> = {};
+  function addToMap(parent: number, child: number): void {
+    if (parentToChildMap[parent] === undefined) {
+      parentToChildMap[parent] = new Set();
     }
-    idMap[parent] = idMap[parent].add(child);
+    parentToChildMap[parent] = parentToChildMap[parent].add(child);
   }
 
   const getCaseByIdCached = (function () {
@@ -396,7 +399,7 @@ export async function getDataFromContext(
     }
 
     // add parent/child ID pairing to map
-    addToIDMap(c.parent, c.id);
+    addToMap(c.parent, c.id);
 
     const parentItem = await dataItemFromChildCase(
       await getCaseByIdCached(c.parent)
@@ -426,7 +429,7 @@ export async function getDataFromContext(
           if (response.success) {
             resolve([
               await Promise.all(response.values.map(dataItemFromChildCase)),
-              idMap,
+              parentToChildMap,
             ]);
           } else {
             reject(new Error("Failed to get data items"));
@@ -443,10 +446,10 @@ export async function getDataFromContext(
 export async function getContextAndDataSet(contextName: string): Promise<{
   context: DataContext;
   dataset: DataSet;
-  idMap: Record<number, Set<number>>;
+  parentToChildMap: Record<number, Set<number>>;
 }> {
   const context = await getDataContext(contextName);
-  const [records, idMap] = await getDataFromContext(contextName);
+  const [records, parentToChildMap] = await getDataFromContext(contextName);
 
   return {
     context,
@@ -454,7 +457,7 @@ export async function getContextAndDataSet(contextName: string): Promise<{
       collections: context.collections,
       records,
     },
-    idMap,
+    parentToChildMap,
   };
 }
 
@@ -1119,3 +1122,33 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
     });
   };
 })();
+
+/**
+ * Converts a list of IDs that may contain IDs of cases in non-child
+ * collections into a list of IDs consisting only of child case IDs.
+ * This is accomplished using a parent-to-child map, which maps case IDs
+ * to their child IDs.
+ */
+export function convertToChildmost(
+  ids: number[],
+  parentToChildMap: Record<number, Set<number>>
+): number[] {
+  let converted = true;
+  while (converted) {
+    converted = false;
+
+    // convert any IDs that have children to their children IDs
+    ids = ids
+      .map((id) => {
+        if (parentToChildMap[id] !== undefined) {
+          converted = true;
+          return Array.from(parentToChildMap[id]);
+        } else {
+          return [id];
+        }
+      })
+      .flat();
+  }
+
+  return ids;
+}

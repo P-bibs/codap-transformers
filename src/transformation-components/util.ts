@@ -1,10 +1,13 @@
-import { DataSet } from "../transformations/types";
+import { CaseMap, DataSet } from "../transformations/types";
 import { DataContext } from "../utils/codapPhone/types";
 import {
   createTableWithDataSet,
   updateContextWithDataSet,
   addContextUpdateListener,
   updateText,
+  addSelectionListener,
+  convertToChildmost,
+  createSelectionList,
 } from "../utils/codapPhone";
 
 /**
@@ -93,4 +96,81 @@ export function allAttributesFromContext(context: DataContext): string[] {
   return context.collections.flatMap((c) =>
     c.attrs ? c.attrs.map((a) => a.name) : []
   );
+}
+
+/**
+ * Sets up a listener for case selection notifications that converts
+ * selected IDs to childmost IDs, translates these into IDs in output contexts,
+ * and then updates the selection lists of these output contexts accordingly.
+ */
+export function setupSelectionListener(
+  inContext: string,
+  parentToChildMap: Record<number, Set<number>>,
+  idMap: CaseMap
+): void {
+  console.log(`Setting up selection listener for context ${inContext}`);
+
+  addSelectionListener(inContext, (cases) => {
+    const ids = cases.map((c) => c.id);
+    const childmostIDs = convertToChildmost(ids, parentToChildMap);
+    const updatedSelections: Record<string, number[]> = {};
+
+    for (const id of childmostIDs) {
+      // map to IDs from output contexts
+      const translated = idMap.get(inContext)?.get(id);
+
+      // some cases may have no corresponding output cases
+      if (translated === undefined) {
+        continue;
+      }
+
+      // add output contexts/IDs to collection of output contexts that need updating
+      for (const [outContext, outIDs] of translated) {
+        if (updatedSelections[outContext] === undefined) {
+          updatedSelections[outContext] = [];
+        }
+        updatedSelections[outContext] =
+          updatedSelections[outContext].concat(outIDs);
+      }
+    }
+
+    // apply the new selection lists to the updated output contexts
+    for (const [outContext, outIDs] of Object.entries(updatedSelections)) {
+      // FIXME: check if we are making a no-op update and abort
+
+      console.log(
+        `Updating selection list of ${outContext} to be ${outIDs.join(", ")}`
+      );
+      createSelectionList(outContext, outIDs);
+    }
+  });
+}
+
+/**
+ * Constructs the identity index map for a single input and output context.
+ * The identity map maps the records of inContext one-to-one to the records
+ * of outContext. I.e. every entry in the case map looks like:
+ *
+ *    [inContext, i] => [[outContext, [i]]]
+ */
+export function identityIndexMap(
+  inContext: string,
+  inDataset: DataSet,
+  outContext: string,
+  outDataset: DataSet
+): CaseMap {
+  if (inDataset.records.length !== outDataset.records.length) {
+    throw new Error(
+      `Tried to construct identity index map for datasets with differing number of cases`
+    );
+  }
+  const indexMap: CaseMap = new Map();
+  const mapForInContext = new Map();
+  inDataset.records.forEach((record, i) => {
+    // map the ith record of inContext to *only* the ith record of outContext
+    mapForInContext.set(i, [[outContext, [i]]]);
+  });
+  indexMap.set(inContext, mapForInContext);
+
+  return indexMap;
 }

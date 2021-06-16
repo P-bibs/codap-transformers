@@ -1,7 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { DataSet, DataSetCase } from "./types";
+import { CaseMap, DataSet, DataSetCase } from "./types";
 
 /**
  * Converts a data item object into an environment for our language. Only
@@ -206,5 +206,82 @@ export function codapValueToString(codapValue?: unknown): string {
 export function datasetCaseToValues(
   cases: DataSetCase[]
 ): Record<string, unknown>[] {
-  return cases.map((cs) => cs.values);
+  return cases.map((c) => c.values);
+}
+
+/**
+ * Converts a CaseMap that uses case indices to use case IDs.
+ *
+ * @param indexMap the map using indices
+ * @param inputs pairs of (contextName, dataset) for input contexts
+ * @param outputs pairs of (contextName, dataset) for output contexts
+ * @returns the new CaseMap using IDs
+ */
+export function indexMapToIDMap(
+  indexMap: CaseMap,
+  inputs: [string, DataSet][],
+  outputs: [string, DataSet][]
+): CaseMap {
+  const idMap: CaseMap = new Map();
+
+  console.log(indexMap);
+
+  inputs.forEach(([inContext, inDataset]) => {
+    inDataset.records.forEach((record, i) => {
+      const mappedTo = indexMap.get(inContext)?.get(i);
+
+      // not every case is mapped
+      if (mappedTo !== undefined) {
+        const withIDs: [string, number[]][] = mappedTo.map(
+          ([outContext, outIndices]) => {
+            const outDataset = getDatasetByName(outContext, outputs);
+            if (outDataset === undefined) {
+              throw new Error(
+                `No output dataset with given context name: ${outContext}`
+              );
+            }
+
+            // map indices to IDs in the output
+            return [
+              outContext,
+              outIndices.map((idx) => getIDFromIndex(idx, outDataset)),
+            ];
+          }
+        );
+
+        // in the new map, map IDs to IDs
+        let m = idMap.get(inContext);
+        if (m === undefined) {
+          m = new Map();
+          idMap.set(inContext, m);
+        }
+        m.set(getIDFromIndex(i, inDataset), withIDs);
+      }
+    });
+  });
+
+  return idMap;
+}
+
+/**
+ * Gets a dataset from a list of (context, dataset) pairs, given the
+ * name of the dataset.
+ */
+function getDatasetByName(
+  context: string,
+  datasets: [string, DataSet][]
+): DataSet | undefined {
+  const out = datasets.find(([ctxt]) => ctxt === context);
+  if (out === undefined) {
+    return;
+  }
+  return out[1];
+}
+
+function getIDFromIndex(index: number, dataset: DataSet): number {
+  const id = dataset.records[index].id;
+  if (id === undefined) {
+    throw new Error(`Invalid index in case-to-case index map.`);
+  }
+  return id;
 }

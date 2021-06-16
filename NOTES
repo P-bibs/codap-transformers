@@ -30,7 +30,7 @@ Listening / propagating updates:
       }
 
       for (outContext, ids) in updatedSelections {
-        selection = translateToHigherLevels(outContext, ids)
+        TODO: selection = translateToHigherLevels(outContext, ids)
         createSelectionList(outContext, selection)
       }
     }

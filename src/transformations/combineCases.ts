@@ -1,6 +1,6 @@
 import { DataSet } from "./types";
 import { setEquality } from "../utils/sets";
-import { eraseFormulas } from "./util";
+import { eraseFormulas, allAttrNames } from "./util";
 
 /**
  * Stack combines a top and bottom table which have matching attributes
@@ -36,14 +36,4 @@ export function combineCases(base: DataSet, combining: DataSet): DataSet {
     collections: base.collections.slice(),
     records,
   };
-}
-
-/**
- * Extract all attribute names from the given dataset.
- */
-function allAttrNames(dataset: DataSet): string[] {
-  return dataset.collections
-    .map((coll) => coll.attrs || [])
-    .flat()
-    .map((attr) => attr.name);
 }

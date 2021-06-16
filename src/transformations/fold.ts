@@ -3,8 +3,10 @@ import {
   insertColumnInLastCollection,
   insertInRow,
   codapValueToString,
+  allAttrNames,
 } from "./util";
 import { evalExpression } from "../utils/codapPhone";
+import { uniqueName } from "../utils/names";
 
 function makeNumFold<T>(
   foldName: string,
@@ -17,6 +19,7 @@ function makeNumFold<T>(
     resultColumnName: string,
     resultColumnDescription: string
   ): DataSet => {
+    resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
     let acc = base;
 
     const resultRecords = dataset.records.map((row) => {
@@ -60,6 +63,8 @@ export async function genericFold(
   accumulatorName: string,
   resultColumnDescription = ""
 ): Promise<DataSet> {
+  resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
+
   let acc = (await evalExpression(base, [{}]))[0];
   const resultRecords = [];
 
@@ -147,6 +152,7 @@ export function differenceFrom(
   resultColumnName: string,
   startingValue = 0
 ): DataSet {
+  resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
   const resultRecords = dataset.records.map((row) => {
     if (row[inputColumnName] === undefined) {
       throw new Error(`Invalid attribute name: ${inputColumnName}`);

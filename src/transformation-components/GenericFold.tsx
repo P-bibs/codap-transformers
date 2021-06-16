@@ -1,12 +1,11 @@
 import React, { useCallback, ReactElement, useState } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { useInput } from "../utils/hooks";
+import { useInput, useAttributes } from "../utils/hooks";
 import { TransformationProps } from "./types";
 import { DataSet } from "../transformations/types";
 import {
   TransformationSubmitButtons,
   ContextSelector,
-  AttributeSelector,
   CodapFlowTextInput,
   ExpressionEditor,
 } from "../ui-components";
@@ -15,7 +14,6 @@ import { genericFold } from "../transformations/fold";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface GenericFoldSaveData {
-  inputAttributeName: string | null;
   outputAttributeName: string;
   expression: string;
   base: string;
@@ -36,9 +34,6 @@ export function GenericFold({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
-  const [inputAttributeName, inputAttributeNameChange] = useState<
-    string | null
-  >(saveData !== undefined ? saveData.inputAttributeName : null);
   const [outputAttributeName, outputAttributeNameChange] = useInput<
     string,
     HTMLInputElement
@@ -59,15 +54,13 @@ export function GenericFold({
     setErrMsg(null)
   );
 
+  const attributes = useAttributes(inputDataCtxt).map((a) => a.name);
+
   const transform = useCallback(async () => {
     setErrMsg(null);
 
     if (inputDataCtxt === null) {
       setErrMsg("Please choose a valid dataset to transform.");
-      return;
-    }
-    if (inputAttributeName === null) {
-      setErrMsg("Please select an attribute to aggregate");
       return;
     }
     if (outputAttributeName === "") {
@@ -89,14 +82,13 @@ export function GenericFold({
 
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const resultDescription = `A reduce of the values from the ${inputAttributeName} attribute in the ${readableName(
+      const resultDescription = `A reduce of the ${readableName(
         context
       )} table.`;
       const result = await genericFold(
         dataset,
         base,
         expression,
-        inputAttributeName,
         outputAttributeName,
         accumulatorName,
         resultDescription
@@ -112,7 +104,6 @@ export function GenericFold({
     }
   }, [
     inputDataCtxt,
-    inputAttributeName,
     outputAttributeName,
     expression,
     accumulatorName,
@@ -124,14 +115,6 @@ export function GenericFold({
     <>
       <h3>Table to reduce</h3>
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
-
-      <h3>Attribute to Aggregate</h3>
-      <AttributeSelector
-        onChange={inputAttributeNameChange}
-        value={inputAttributeName}
-        context={inputDataCtxt}
-        disabled={saveData !== undefined}
-      />
 
       <h3>Result Attribute Name</h3>
       <CodapFlowTextInput
@@ -159,11 +142,7 @@ export function GenericFold({
         value={expression}
         onChange={expressionChange}
         disabled={saveData !== undefined}
-        attributeNames={
-          inputAttributeName !== null
-            ? [inputAttributeName, accumulatorName]
-            : [accumulatorName]
-        }
+        attributeNames={[...attributes, accumulatorName]}
       />
 
       <br />
@@ -172,7 +151,6 @@ export function GenericFold({
       {saveData === undefined && (
         <TransformationSaveButton
           generateSaveData={() => ({
-            inputAttributeName,
             outputAttributeName,
             expression,
             base,

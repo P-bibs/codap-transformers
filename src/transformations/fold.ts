@@ -56,7 +56,6 @@ export async function genericFold(
   dataset: DataSet,
   base: string,
   expression: string,
-  inputColumnName: string,
   resultColumnName: string,
   accumulatorName: string,
   resultColumnDescription = ""

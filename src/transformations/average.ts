@@ -9,6 +9,9 @@ import { codapValueToString } from "./util";
  */
 export function average(dataset: DataSet, attribute: string): number {
   const sum = dataset.records.reduce((acc, row) => {
+    if (row[attribute] === undefined) {
+      throw new Error(`Invalid attribute name: ${attribute}`);
+    }
     const value = Number(row[attribute]);
     if (isNaN(value)) {
       throw new Error(

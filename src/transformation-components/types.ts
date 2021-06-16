@@ -19,6 +19,7 @@ import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
 import { CombineCasesSaveData } from "./CombineCases";
 import { GenericFoldSaveData } from "./GenericFold";
+import { PartitionSaveData } from "./Partition";
 
 /**
  * The content associated with a saved transformation. Includes the base
@@ -121,6 +122,10 @@ export type SavedTransformationContent =
   | {
       base: "Reduce";
       data?: GenericFoldSaveData;
+    }
+  | {
+      base: "Partition";
+      data?: PartitionSaveData;
     };
 
 /**

@@ -32,7 +32,7 @@ export function CombineCases({
     setErrMsg(null);
 
     if (!inputDataContext1 || !inputDataContext2) {
-      setErrMsg("Please choose two contexts to stack.");
+      setErrMsg("Please choose two datasets to combine.");
       return;
     }
 

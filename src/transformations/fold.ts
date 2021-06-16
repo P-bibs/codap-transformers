@@ -20,6 +20,10 @@ function makeNumFold<T>(
     let acc = base;
 
     const resultRecords = dataset.records.map((row) => {
+      if (row[inputColumnName] === undefined) {
+        throw new Error(`Invalid attribute name: ${inputColumnName}`);
+      }
+
       const numValue = Number(row[inputColumnName]);
       if (!isNaN(numValue)) {
         const [newAcc, result] = f(acc, numValue);
@@ -145,6 +149,10 @@ export function differenceFrom(
   startingValue = 0
 ): DataSet {
   const resultRecords = dataset.records.map((row) => {
+    if (row[inputColumnName] === undefined) {
+      throw new Error(`Invalid attribute name: ${inputColumnName}`);
+    }
+
     const numValue = Number(row[inputColumnName]);
     if (!isNaN(numValue)) {
       return insertInRow(row, resultColumnName, numValue - startingValue);

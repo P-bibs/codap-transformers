@@ -61,6 +61,7 @@ function Transformation({
       "Build Column",
       "Select Attributes",
       "Difference From",
+      "Partition",
     ],
   };
 
@@ -89,6 +90,7 @@ function Transformation({
     { name: "Average", content: { base: "Average" } },
     { name: "Copy Schema", content: { base: "Copy Schema" } },
     { name: "Combine Cases", content: { base: "Combine Cases" } },
+    { name: "Partition", content: { base: "Partition" } },
   ];
 
   function addTransformation(name: string, data: TransformationSaveData) {

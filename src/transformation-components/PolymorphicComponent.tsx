@@ -26,6 +26,7 @@ import { Average } from "./Average";
 import { CopySchema } from "./CopySchema";
 import { CombineCases } from "./CombineCases";
 import { GenericFold } from "./GenericFold";
+import { Partition } from "./Partition";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -233,6 +234,14 @@ export const PolymorphicComponent = ({
     case "Reduce":
       return (
         <GenericFold
+          setErrMsg={setErrMsg}
+          saveData={transformation.content.data}
+          errorDisplay={errorDisplay}
+        />
+      );
+    case "Partition":
+      return (
+        <Partition
           setErrMsg={setErrMsg}
           saveData={transformation.content.data}
           errorDisplay={errorDisplay}

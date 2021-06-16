@@ -29,7 +29,7 @@ export function CopySchema({
    */
   const transform = useCallback(async () => {
     if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid data context to flatten.");
+      setErrMsg("Please choose a valid data context to transform.");
       return;
     }
 

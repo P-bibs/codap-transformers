@@ -29,7 +29,7 @@ export function Copy({
    */
   const transform = useCallback(async () => {
     if (inputDataCtxt === null) {
-      setErrMsg("Please choose a valid dataset to flatten.");
+      setErrMsg("Please choose a valid dataset to transform.");
       return;
     }
 

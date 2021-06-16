@@ -60,7 +60,7 @@ export async function genericFold(
   accumulatorName: string,
   resultColumnDescription = ""
 ): Promise<DataSet> {
-  let acc: unknown = base;
+  let acc = (await evalExpression(base, [{}]))[0];
   const resultRecords = [];
 
   for (const row of dataset.records) {

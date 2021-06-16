@@ -40,9 +40,8 @@ export function GenericFold({
   >(saveData !== undefined ? saveData.outputAttributeName : "", () =>
     setErrMsg(null)
   );
-  const [base, baseChange] = useInput<string, HTMLInputElement>(
-    saveData !== undefined ? saveData.base : "",
-    () => setErrMsg(null)
+  const [base, baseChange] = useState<string>(
+    saveData !== undefined ? saveData.base : ""
   );
   const [expression, expressionChange] = useState<string>(
     saveData !== undefined ? saveData.expression : ""
@@ -124,7 +123,7 @@ export function GenericFold({
       />
 
       <h3>Starting Value</h3>
-      <CodapFlowTextInput
+      <ExpressionEditor
         value={base}
         onChange={baseChange}
         disabled={saveData !== undefined}

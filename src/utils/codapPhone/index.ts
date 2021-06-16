@@ -1152,3 +1152,40 @@ export function convertToChildmost(
 
   return ids;
 }
+
+export function convertToParentmost(
+  ids: number[],
+  parentToChildMap: Record<number, Set<number>>
+): number[] {
+  function isSubsetOf(a: Set<number>, b: Set<number>): boolean {
+    for (const elt of a) {
+      if (!b.has(elt)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function removeAll(subset: Set<number>, set: Set<number>): void {
+    for (const elt of subset) {
+      set.delete(elt);
+    }
+  }
+
+  const idSet = new Set(ids);
+
+  let converted = true;
+  while (converted) {
+    converted = false;
+
+    for (const [parentID, childIDs] of Object.entries(parentToChildMap)) {
+      if (isSubsetOf(childIDs, idSet)) {
+        removeAll(childIDs, idSet);
+        idSet.add(Number(parentID));
+        converted = true;
+      }
+    }
+  }
+
+  return Array.from(idSet);
+}

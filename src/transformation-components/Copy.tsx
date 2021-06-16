@@ -55,9 +55,8 @@ export function Copy({
       // for the dataset info *after* the output context(s) have been created.
       const { dataset: inDataset, parentToChildMap } =
         await getContextAndDataSet(inputDataCtxt);
-      const { dataset: outDataset } = await getContextAndDataSet(
-        newContextName
-      );
+      const { dataset: outDataset, parentToChildMap: outParentToChildMap } =
+        await getContextAndDataSet(newContextName);
       const indexMap = identityIndexMap(
         inputDataCtxt,
         inDataset,
@@ -69,7 +68,9 @@ export function Copy({
         [[inputDataCtxt, inDataset]],
         [[newContextName, outDataset]]
       );
-      setupSelectionListener(inputDataCtxt, parentToChildMap, idMap);
+      setupSelectionListener(inputDataCtxt, parentToChildMap, idMap, {
+        [newContextName]: outParentToChildMap,
+      });
     } catch (e) {
       setErrMsg(e.message);
     }

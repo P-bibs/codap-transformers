@@ -8,6 +8,7 @@ import {
   addSelectionListener,
   convertToChildmost,
   createSelectionList,
+  convertToParentmost,
 } from "../utils/codapPhone";
 
 /**
@@ -106,7 +107,8 @@ export function allAttributesFromContext(context: DataContext): string[] {
 export function setupSelectionListener(
   inContext: string,
   parentToChildMap: Record<number, Set<number>>,
-  idMap: CaseMap
+  idMap: CaseMap,
+  outputToPCMap: Record<string, Record<number, Set<number>>>
 ): void {
   console.log(`Setting up selection listener for context ${inContext}`);
 
@@ -138,10 +140,11 @@ export function setupSelectionListener(
     for (const [outContext, outIDs] of Object.entries(updatedSelections)) {
       // FIXME: check if we are making a no-op update and abort
 
+      const parentMost = convertToParentmost(outIDs, outputToPCMap[outContext]);
       console.log(
         `Updating selection list of ${outContext} to be ${outIDs.join(", ")}`
       );
-      createSelectionList(outContext, outIDs);
+      createSelectionList(outContext, parentMost);
     }
   });
 }

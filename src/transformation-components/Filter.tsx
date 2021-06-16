@@ -76,7 +76,7 @@ export function Filter({
         inputTypes={["Row"]}
         selectedInputType={"Row"}
         inputTypeDisabled={true}
-        outputTypes={["auto", "string", "number", "boolean"]}
+        outputTypes={["auto", "string", "number", "boolean", "boundary"]}
         selectedOutputType={"boolean"}
         outputTypeDisabled={true}
       />

@@ -132,7 +132,7 @@ export function BuildColumn({
         inputTypes={["Row"]}
         selectedInputType={"Row"}
         inputTypeDisabled={true}
-        outputTypes={["any", "string", "number", "boolean"]}
+        outputTypes={["any", "string", "number", "boolean", "boundary"]}
         selectedOutputType={outputType}
         outputTypeOnChange={(e) => {
           setOutputType(e.target.value as CodapLanguageType);

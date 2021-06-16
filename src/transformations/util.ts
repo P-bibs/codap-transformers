@@ -248,6 +248,8 @@ export function findTypeErrors(
       return findTypeErrorsString(values);
     case "boolean":
       return findTypeErrorsBoolean(values);
+    case "boundary":
+      return findTypeErrorsBoundary(values);
   }
 }
 
@@ -270,6 +272,25 @@ function findTypeErrorsString(values: unknown[]): number | null {
       default:
         // Any other value is an error
         return i;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Type checks for boundary values.
+ * @returns index that doesn't match the type, or null if all
+ * values match
+ */
+function findTypeErrorsBoundary(values: unknown[]): number | null {
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
+
+    if (typeof value === "object" && value && "jsonBoundaryObject" in value) {
+      // value is a boundary and we're all set
+    } else {
+      return i;
     }
   }
 

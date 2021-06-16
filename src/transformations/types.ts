@@ -9,4 +9,9 @@ export type DataSet = {
   records: Record<string, unknown>[];
 };
 
-export type CodapLanguageType = "string" | "any" | "number" | "boolean";
+export type CodapLanguageType =
+  | "string"
+  | "any"
+  | "number"
+  | "boolean"
+  | "boundary";

@@ -75,31 +75,38 @@ export function Partition({
     try {
       const transformed = await doTransform();
       let valueToContext: Record<string, string> = {};
+      const outputContexts: string[] = [];
 
       for (const [partitioned, name] of transformed) {
         const newContextName = await applyNewDataSet(partitioned.dataset, name);
         valueToContext[partitioned.distinctValueAsStr] = newContextName;
+        outputContexts.push(newContextName);
       }
 
       // listen for updates to the input data context
-      addContextUpdateListener(inputDataCtxt, async () => {
+      addContextUpdateListener(inputDataCtxt, outputContexts, async () => {
         try {
           setErrMsg(null);
           const transformed = await doTransform();
           const newValueToContext: Record<string, string> = {};
+          while (outputContexts.length > 0) {
+            outputContexts.pop();
+          }
 
           for (const [partitioned, name] of transformed) {
             const contextName = valueToContext[partitioned.distinctValueAsStr];
             if (contextName === undefined) {
+              const newName = await applyNewDataSet(partitioned.dataset, name);
               // this is a new table (a new distinct value)
-              newValueToContext[partitioned.distinctValueAsStr] =
-                await applyNewDataSet(partitioned.dataset, name);
+              newValueToContext[partitioned.distinctValueAsStr] = newName;
+              outputContexts.push(newName);
             } else {
               // apply an update to a previous dataset
               updateContextWithDataSet(contextName, partitioned.dataset);
 
               // copy over existing context name into new valueToContext mapping
               newValueToContext[partitioned.distinctValueAsStr] = contextName;
+              outputContexts.push(contextName);
             }
           }
 

@@ -29,6 +29,8 @@ import {
 import {
   callUpdateListenersForContext,
   callAllContextListeners,
+  removeContextUpdateListenersForContext,
+  removeListenersWithDependency,
 } from "./listeners";
 import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
@@ -155,6 +157,16 @@ function codapRequestHandler(
   console.groupEnd();
 
   if (command.action !== CodapActions.Notify) {
+    callback({ success: true });
+    return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.DocumentChangeNotice &&
+    command.values.operation === DocumentChangeOperations.DataContextDeleted
+  ) {
+    removeContextUpdateListenersForContext(command.values.deletedContext);
+    removeListenersWithDependency(command.values.deletedContext);
     callback({ success: true });
     return;
   }

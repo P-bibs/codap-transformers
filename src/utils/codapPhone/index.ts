@@ -4,6 +4,7 @@ import {
   CodapResource,
   CodapActions,
   CodapResponse,
+  CodapRequest,
   GetContextResponse,
   GetCasesResponse,
   GetCaseResponse,
@@ -24,7 +25,6 @@ import {
   GetDataListResponse,
   GetFunctionNamesResponse,
   CodapAttribute,
-  ExcludeNonObject,
 } from "./types";
 import {
   callUpdateListenersForContext,
@@ -32,9 +32,21 @@ import {
   removeContextUpdateListenersForContext,
   removeListenersWithDependency,
 } from "./listeners";
+import {
+  resourceFromContext,
+  itemFromContext,
+  resourceFromComponent,
+  collectionListFromContext,
+  attributeListFromCollection,
+  caseById,
+  allCasesWithSearch,
+} from "./resource";
+import { fillCollectionWithDefaults, collectionsEqual } from "./util";
 import { DataSet } from "../../transformations/types";
 import { CodapEvalError } from "./error";
 import { uniqueName } from "../names";
+import * as Actions from "./actions";
+import * as Cache from "./cache";
 
 export {
   addNewContextListener,
@@ -78,62 +90,6 @@ export async function initPhone(title: string): Promise<void> {
       }
     )
   );
-}
-
-function resourceFromContext(context: string) {
-  return `dataContext[${context}]`;
-}
-
-function resourceFromCollection(collection: string) {
-  return `collection[${collection}]`;
-}
-
-function resourceFromComponent(component: string) {
-  return `component[${component}]`;
-}
-
-function collectionListFromContext(context: string) {
-  return `dataContext[${context}].collectionList`;
-}
-
-function attributeListFromCollection(context: string, collection: string) {
-  return `dataContext[${context}].collection[${collection}].attributeList`;
-}
-
-function itemFromContext(context: string) {
-  return `${resourceFromContext(context)}.item`;
-}
-
-function collectionFromContext(context: string) {
-  return `${resourceFromContext(context)}.collection`;
-}
-
-function collectionOfContext(context: string, collection: string) {
-  return `${resourceFromContext(context)}.${resourceFromCollection(
-    collection
-  )}`;
-}
-
-// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-item-get-by-search
-function itemSearchAllFromContext(context: string) {
-  return `${resourceFromContext(context)}.itemSearch[*]`;
-}
-
-// This only works for delete
-// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#cases
-function allCases(context: string, collection: string) {
-  return `dataContext[${context}].collection[${collection}].allCases`;
-}
-
-// Resource for getting all cases in a collection
-function allCasesWithSearch(context: string, collection: string) {
-  const contextResource = resourceFromContext(context);
-  const collectionResource = resourceFromCollection(collection);
-  return `${contextResource}.${collectionResource}.caseFormulaSearch[true]`;
-}
-
-function caseById(context: string, id: number) {
-  return `${resourceFromContext(context)}.caseByID[${id}]`;
 }
 
 const getNewName = (function () {
@@ -187,28 +143,54 @@ function codapRequestHandler(
     ) &&
     Array.isArray(command.values)
   ) {
+    // FIXME: Using flags here we can process all notifications in the list
+    // without needlessly updating for each one, but this doesn't seem like
+    // the most elegant solution.
+    let contextUpdate = false;
+    let contextListUpdate = false;
+
+    // Context name is between the first pair of brackets
+    const contextName = command.resource.slice(
+      command.resource.search("\\[") + 1,
+      command.resource.length - 1
+    );
+
     for (const value of command.values) {
-      if (mutatingOperations.includes(value.operation)) {
-        // Context name is between the first pair of brackets
-        const contextName = command.resource.slice(
-          command.resource.search("\\[") + 1,
-          command.resource.length - 1
-        );
-        callUpdateListenersForContext(contextName);
-        callback({ success: true });
-        return;
-      }
+      contextUpdate =
+        contextUpdate || mutatingOperations.includes(value.operation);
+      contextListUpdate =
+        contextListUpdate ||
+        value.operation === ContextChangeOperation.UpdateContext;
+
+      // Check for case update or deletion and invalidate case cache
       if (
-        command.values[0].operation === ContextChangeOperation.UpdateContext
+        value.operation === ContextChangeOperation.DeleteCases ||
+        value.operation === ContextChangeOperation.UpdateCases
       ) {
-        callAllContextListeners();
-        callback({ success: true });
-        return;
+        const caseIDs = value.result?.caseIDs;
+        if (Array.isArray(caseIDs)) {
+          caseIDs.map(Cache.invalidateCase);
+        }
       }
+    }
+
+    if (contextUpdate) {
+      Cache.invalidateContext(contextName);
+      callUpdateListenersForContext(contextName);
+    }
+
+    if (contextListUpdate) {
+      callAllContextListeners();
     }
   }
 
   callback({ success: true });
+}
+
+function callMultiple(requests: CodapRequest[]): Promise<CodapResponse[]> {
+  return new Promise<CodapResponse[]>((resolve) => {
+    phone.call(requests, (responses) => resolve(responses));
+  });
 }
 
 export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {
@@ -250,7 +232,12 @@ export function getAllCollections(
 }
 
 function getCaseById(context: string, id: number): Promise<ReturnedCase> {
-  return new Promise<ReturnedCase>((resolve, reject) =>
+  return new Promise<ReturnedCase>((resolve, reject) => {
+    const cached = Cache.getCase(id);
+    if (cached !== undefined) {
+      resolve(cached);
+      return;
+    }
     phone.call(
       {
         action: CodapActions.Get,
@@ -258,13 +245,15 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
       },
       (response: GetCaseResponse) => {
         if (response.success) {
-          resolve(response.values.case);
+          const result = response.values.case;
+          Cache.setCase(id, result);
+          resolve(result);
         } else {
           reject(new Error(`Failed to get case in ${context} with id ${id}`));
         }
       }
-    )
-  );
+    );
+  });
 }
 
 export async function getAllAttributes(
@@ -312,17 +301,10 @@ export async function getAllAttributes(
 export async function getDataFromContext(
   context: string
 ): Promise<Record<string, unknown>[]> {
-  const getCaseByIdCached = (function () {
-    const caseMap: Record<number, ReturnedCase> = {};
-    return async (id: number) => {
-      if (caseMap[id] !== undefined) {
-        return caseMap[id];
-      }
-      const result = await getCaseById(context, id);
-      caseMap[id] = result;
-      return result;
-    };
-  })();
+  const cached = Cache.getRecords(context);
+  if (cached !== undefined) {
+    return cached;
+  }
 
   async function dataItemFromChildCase(
     c: ReturnedCase
@@ -330,7 +312,7 @@ export async function getDataFromContext(
     if (c.parent === null || c.parent === undefined) {
       return c.values;
     }
-    const parent = await getCaseByIdCached(c.parent);
+    const parent = await getCaseById(context, c.parent);
     const results = {
       ...c.values,
       ...(await dataItemFromChildCase(parent)),
@@ -348,9 +330,13 @@ export async function getDataFromContext(
         action: CodapActions.Get,
         resource: allCasesWithSearch(context, childCollection.name),
       },
-      (response: GetCasesResponse) => {
+      async (response: GetCasesResponse) => {
         if (response.success) {
-          resolve(Promise.all(response.values.map(dataItemFromChildCase)));
+          const records = await Promise.all(
+            response.values.map(dataItemFromChildCase)
+          );
+          Cache.setRecords(context, records);
+          resolve(records);
         } else {
           reject(new Error("Failed to get data items"));
         }
@@ -378,7 +364,12 @@ export async function getContextAndDataSet(contextName: string): Promise<{
 }
 
 export function getDataContext(contextName: string): Promise<DataContext> {
-  return new Promise<DataContext>((resolve, reject) =>
+  return new Promise<DataContext>((resolve, reject) => {
+    const cached = Cache.getContext(contextName);
+    if (cached !== undefined) {
+      resolve(cached);
+      return;
+    }
     phone.call(
       {
         action: CodapActions.Get,
@@ -386,13 +377,15 @@ export function getDataContext(contextName: string): Promise<DataContext> {
       },
       (response: GetContextResponse) => {
         if (response.success) {
-          resolve(normalizeDataContext(response.values));
+          const context = normalizeDataContext(response.values);
+          Cache.setContext(contextName, context);
+          resolve(context);
         } else {
           reject(new Error(`Failed to get context ${contextName}`));
         }
       }
-    )
-  );
+    );
+  });
 }
 
 export async function deleteDataContext(contextName: string): Promise<void> {
@@ -556,150 +549,15 @@ export function insertDataItems(
   );
 }
 
-/**
- * Shallow equal
- *
- * Compares two objects for equality. This should not be used as a
- * shallowEquals because of the way it treats `undefined` fields. A canonical
- * shallowEquals will treat a field with a value of `undefined` and a missing
- * field differently, but for our use case, we need to treat them the same. For
- * example, if we send an attribute to CODAP with a missing field, the next
- * time we query that object, it will be returned with the missing fields
- * filled in with `undefined`. This will cause it to not be canonically equal
- * to an identical objects with the undefined fields missing. This version of
- * shallowEquals treats those objects as equal.
- *
- * @param a - The first object
- * @param b - The second object
- * @returns Whether the objects are equal
- */
-function shallowEqual<T>(
-  a: ExcludeNonObject<T>,
-  b: ExcludeNonObject<T>
-): boolean {
-  // The type signature makes sure that the two arguments passed in have the
-  // same type, and that they are not a primitive value (they are objects). The
-  // casts allow us to use string keys. This is safe because the keys are
-  // obtained through `Object.keys`.
-  const aAsRecord = a as unknown as Record<string, unknown>;
-  const bAsRecord = b as unknown as Record<string, unknown>;
-
-  if (a === b) {
-    return true;
-  }
-
-  const allKeys = new Set(Object.keys(a));
-  Object.keys(b).forEach((k) => allKeys.add(k));
-
-  for (const key of allKeys) {
-    if (aAsRecord[key] !== bAsRecord[key]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function attributesEqual(
-  attributes1?: CodapAttribute[],
-  attributes2?: CodapAttribute[]
-): boolean {
-  if (attributes1 === undefined || attributes2 === undefined) {
-    return attributes1 === attributes2;
-  }
-  return listEqual(attributes1, attributes2, shallowEqual);
-}
-
-/**
- * Fill attribute with defaults
- *
- * These are the defaults that CODAP will automatically fill in.
- * @param attr - Attribute to fill
- * @returns Filled attribute
- */
-function fillAttrWithDefaults(attr: CodapAttribute): CodapAttribute {
-  const withDefaults = {
-    ...attr,
-    title: attr.title === undefined ? attr.name : attr.title,
-    editable: attr.editable === undefined ? true : attr.editable,
-    hidden: attr.hidden === undefined ? false : attr.hidden,
-    description: attr.description === undefined ? "" : attr.description,
-  };
-  if (withDefaults.type === undefined) {
-    return {
-      ...withDefaults,
-      type: null,
-    };
-  }
-  if (withDefaults.type === "numeric") {
-    return {
-      ...withDefaults,
-      precision: 2,
-      unit: null,
-    };
-  }
-  return withDefaults;
-}
-
-/**
- * Fill collection with defaults
- *
- * If the title is undefined, use the name as the title. Also fill the titles of
- * the attrs.
- * @param c - Collection to fill
- * @returns Filled collection
- */
-function fillCollectionWithDefaults(c: Collection): Collection {
-  return {
-    ...c,
-    attrs: c.attrs?.map(fillAttrWithDefaults),
-    title: c.title === undefined ? c.name : c.title,
-  };
-}
-
-function collectionEqual(c1: Collection, c2: Collection): boolean {
-  return (
-    c1.name === c2.name &&
-    c1.title === c2.title &&
-    c1.description === c2.description &&
-    shallowEqual(c1.labels, c2.labels) &&
-    attributesEqual(c1.attrs, c2.attrs)
-  );
-}
-
-function listEqual<T>(
-  l1: T[],
-  l2: T[],
-  equalityFunc: (a: T, b: T) => boolean
-): boolean {
-  if (l1.length !== l2.length) {
-    return false;
-  }
-
-  for (let i = 0; i < l1.length; i++) {
-    if (!equalityFunc(l1[i], l2[i])) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function collectionsEqual(
-  collections1: Collection[],
-  collections2: Collection[]
-) {
-  return listEqual(collections1, collections2, collectionEqual);
-}
-
 export async function updateContextWithDataSet(
   contextName: string,
   dataset: DataSet
 ): Promise<void> {
   const context = await getDataContext(contextName);
+  const requests = [];
 
   for (const collection of context.collections) {
-    await deleteAllCases(contextName, collection.name);
+    requests.push(Actions.deleteAllCases(contextName, collection.name));
   }
 
   const normalizedCollections = dataset.collections.map(
@@ -707,10 +565,6 @@ export async function updateContextWithDataSet(
   );
 
   if (!collectionsEqual(context.collections, normalizedCollections)) {
-    console.group("Equality");
-    console.log(context.collections);
-    console.log(normalizedCollections);
-    console.groupEnd();
     const concatNames = (nameAcc: string, collection: Collection) =>
       nameAcc + collection.name;
     const uniqueName =
@@ -719,24 +573,33 @@ export async function updateContextWithDataSet(
 
     // Create placeholder empty collection, since data contexts must have at least
     // one collection
-    await createCollections(contextName, [
-      {
-        name: uniqueName,
-        labels: {},
-      },
-    ]);
+    requests.push(
+      Actions.createCollections(contextName, [
+        {
+          name: uniqueName,
+          labels: {},
+        },
+      ])
+    );
 
     // Delete old collections
     for (const collection of context.collections) {
-      await deleteCollection(contextName, collection.name);
+      requests.push(Actions.deleteCollection(contextName, collection.name));
     }
 
     // Insert new collections and delete placeholder
-    await createCollections(contextName, dataset.collections);
-    await deleteCollection(contextName, uniqueName);
+    requests.push(Actions.createCollections(contextName, dataset.collections));
+    requests.push(Actions.deleteCollection(contextName, uniqueName));
   }
 
-  await insertDataItems(contextName, dataset.records);
+  requests.push(Actions.insertDataItems(contextName, dataset.records));
+
+  const responses = await callMultiple(requests);
+  for (const response of responses) {
+    if (!response.success) {
+      throw new Error(`Failed to update ${contextName}`);
+    }
+  }
 }
 
 function createCollections(
@@ -744,40 +607,27 @@ function createCollections(
   collections: Collection[]
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Create,
-        resource: collectionFromContext(context),
-        values: collections,
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(new Error(`Failed to create collections in ${context}`));
-        }
+    phone.call(Actions.createCollections(context, collections), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error(`Failed to create collections in ${context}`));
       }
-    )
+    })
   );
 }
 
 function deleteCollection(context: string, collection: string): Promise<void> {
   return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Delete,
-        resource: collectionOfContext(context, collection),
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(
-            new Error(`Failed to delete collection ${collection} in ${context}`)
-          );
-        }
+    phone.call(Actions.deleteCollection(context, collection), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(
+          new Error(`Failed to delete collection ${collection} in ${context}`)
+        );
       }
-    )
+    })
   );
 }
 
@@ -786,19 +636,13 @@ export async function deleteAllCases(
   collection: string
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Delete,
-        resource: allCases(context, collection),
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(new Error("Failed to delete all cases"));
-        }
+    phone.call(Actions.deleteAllCases(context, collection), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to delete all cases"));
       }
-    )
+    })
   );
 }
 

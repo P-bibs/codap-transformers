@@ -51,6 +51,7 @@ function Transformation({
       "Running Min",
       "Running Max",
       "Running Difference",
+      "Reduce",
     ],
     "Copy Transformations": ["Copy", "Copy Schema"],
     Others: [
@@ -76,6 +77,7 @@ function Transformation({
     { name: "Running Min", content: { base: "Running Min" } },
     { name: "Running Max", content: { base: "Running Max" } },
     { name: "Running Difference", content: { base: "Running Difference" } },
+    { name: "Reduce", content: { base: "Reduce" } },
     { name: "Group By", content: { base: "Group By" } },
     { name: "Pivot Longer", content: { base: "Pivot Longer" } },
     { name: "Pivot Wider", content: { base: "Pivot Wider" } },

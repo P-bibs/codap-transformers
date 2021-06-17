@@ -198,3 +198,13 @@ export function codapValueToString(codapValue?: unknown): string {
   // value must be string
   return `"${codapValue}"`;
 }
+
+/**
+ * Extract all attribute names from the given dataset.
+ */
+export function allAttrNames(dataset: DataSet): string[] {
+  return dataset.collections
+    .map((coll) => coll.attrs || [])
+    .flat()
+    .map((attr) => attr.name);
+}

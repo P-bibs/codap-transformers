@@ -9,13 +9,16 @@ import {
   ExpressionEditor,
   ContextSelector,
   TypeSelector,
+  CodapFlowSelect,
 } from "../ui-components";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
+export type SortDirection = "ascending" | "descending";
 export interface SortSaveData {
   keyExpression: string;
   outputType: CodapLanguageType;
+  sortDirection: SortDirection;
 }
 
 interface SortProps extends TransformationProps {
@@ -32,6 +35,9 @@ export function Sort({
     HTMLSelectElement
   >(null, () => setErrMsg(null));
 
+  const [sortDirection, sortDirectionChange] = useState<SortDirection>(
+    saveData !== undefined ? saveData.sortDirection : "ascending"
+  );
   const [keyExpression, keyExpressionChange] = useState<string>(
     saveData !== undefined ? saveData.keyExpression : ""
   );
@@ -54,8 +60,13 @@ export function Sort({
 
     const doTransform: () => Promise<[DataSet, string]> = async () => {
       const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-      const result = await sort(dataset, keyExpression, outputType);
-      return [result, `Sort of ${readableName(context)}`];
+      const result = await sort(
+        dataset,
+        keyExpression,
+        outputType,
+        sortDirection
+      );
+      return [result, `Sort ${sortDirection} of ${readableName(context)}`];
     };
 
     try {
@@ -64,7 +75,7 @@ export function Sort({
     } catch (e) {
       setErrMsg(e.message);
     }
-  }, [inputDataCtxt, setErrMsg, keyExpression, outputType]);
+  }, [inputDataCtxt, setErrMsg, keyExpression, outputType, sortDirection]);
 
   return (
     <>
@@ -90,8 +101,18 @@ export function Sort({
         attributeNames={attributes.map((a) => a.name)}
         disabled={saveData !== undefined}
       />
-
       <br />
+      <h3>Direction</h3>
+      <CodapFlowSelect
+        onChange={(e) => sortDirectionChange(e.target.value as SortDirection)}
+        options={[
+          { value: "descending", title: "descending" },
+          { value: "ascending", title: "ascending" },
+        ]}
+        value={sortDirection}
+        defaultValue="Select sort direction"
+        disabled={saveData !== undefined}
+      />
       <TransformationSubmitButtons onCreate={transform} />
       {errorDisplay}
       {saveData === undefined && (
@@ -99,6 +120,7 @@ export function Sort({
           generateSaveData={() => ({
             keyExpression,
             outputType,
+            sortDirection,
           })}
         />
       )}

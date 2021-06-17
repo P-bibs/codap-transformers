@@ -1,6 +1,7 @@
 import { CodapLanguageType, DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
+import { SortDirection } from "../transformation-components/Sort";
 
 function numCompareFn(a: number, b: number) {
   return a - b;
@@ -53,7 +54,8 @@ function compareFn(a: unknown, b: unknown): number {
 export async function sort(
   dataset: DataSet,
   keyExpr: string,
-  outputType: CodapLanguageType
+  outputType: CodapLanguageType,
+  sortDirection: SortDirection
 ): Promise<DataSet> {
   const records = dataset.records.slice();
   const keyValues = await evalExpression(keyExpr, records);
@@ -66,7 +68,9 @@ export async function sort(
       return { record, i };
     })
     .sort(({ i: i1 }, { i: i2 }) => {
-      return compareFn(keyValues[i1], keyValues[i2]);
+      return sortDirection === "ascending"
+        ? compareFn(keyValues[i1], keyValues[i2])
+        : compareFn(keyValues[i2], keyValues[i1]);
     })
     .map(({ record }) => record);
 

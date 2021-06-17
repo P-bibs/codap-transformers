@@ -18,6 +18,7 @@ import { TransformColumnSaveData } from "./TransformColumn";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
 import { CombineCasesSaveData } from "./CombineCases";
+import { GenericFoldSaveData } from "./GenericFold";
 import { PartitionSaveData } from "./Partition";
 
 /**
@@ -117,6 +118,10 @@ export type SavedTransformationContent =
   | {
       base: "Combine Cases";
       data?: CombineCasesSaveData;
+    }
+  | {
+      base: "Reduce";
+      data?: GenericFoldSaveData;
     }
   | {
       base: "Partition";

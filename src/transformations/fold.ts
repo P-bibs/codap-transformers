@@ -3,7 +3,10 @@ import {
   insertColumnInLastCollection,
   insertInRow,
   codapValueToString,
+  allAttrNames,
 } from "./util";
+import { evalExpression } from "../utils/codapPhone";
+import { uniqueName } from "../utils/names";
 
 function makeNumFold<T>(
   foldName: string,
@@ -16,6 +19,7 @@ function makeNumFold<T>(
     resultColumnName: string,
     resultColumnDescription: string
   ): DataSet => {
+    resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
     let acc = base;
 
     const resultRecords = dataset.records.map((row) => {
@@ -48,6 +52,43 @@ function makeNumFold<T>(
       collections: newCollections,
       records: resultRecords,
     };
+  };
+}
+
+export async function genericFold(
+  dataset: DataSet,
+  base: string,
+  expression: string,
+  resultColumnName: string,
+  accumulatorName: string,
+  resultColumnDescription = ""
+): Promise<DataSet> {
+  resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
+
+  let acc = (await evalExpression(base, [{}]))[0];
+  const resultRecords = [];
+
+  for (const row of dataset.records) {
+    const environment = { ...row };
+    if (Object.prototype.hasOwnProperty.call(row, accumulatorName)) {
+      throw new Error(
+        `Duplicate accumulator name: there is already a column called ${accumulatorName}.`
+      );
+    }
+
+    environment[accumulatorName] = acc;
+    acc = (await evalExpression(expression, [environment]))[0];
+    resultRecords.push(insertInRow(row, resultColumnName, acc));
+  }
+
+  const newCollections = insertColumnInLastCollection(dataset.collections, {
+    name: resultColumnName,
+    description: resultColumnDescription,
+  });
+
+  return {
+    collections: newCollections,
+    records: resultRecords,
   };
 }
 
@@ -111,6 +152,7 @@ export function differenceFrom(
   resultColumnName: string,
   startingValue = 0
 ): DataSet {
+  resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
   const resultRecords = dataset.records.map((row) => {
     if (row[inputColumnName] === undefined) {
       throw new Error(`Invalid attribute name: ${inputColumnName}`);

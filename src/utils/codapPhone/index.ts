@@ -117,6 +117,7 @@ function codapRequestHandler(
     return;
   }
 
+  // notification of which data context was deleted
   if (
     command.resource === CodapInitiatedResource.DocumentChangeNotice &&
     command.values.operation === DocumentChangeOperations.DataContextDeleted
@@ -127,6 +128,7 @@ function codapRequestHandler(
     return;
   }
 
+  // data context was added/deleted
   if (
     command.resource === CodapInitiatedResource.DocumentChangeNotice &&
     command.values.operation ===

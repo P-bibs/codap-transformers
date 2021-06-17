@@ -52,13 +52,9 @@ export function removeContextUpdateListener(
 
 export function removeContextUpdateListenersForContext(context: string): void {
   delete contextUpdateListeners[context];
-  console.log(
-    `Just removed all update listeners for ${context}: now ${contextUpdateListeners[context]}`
-  );
 }
 
 export function removeListenersWithDependency(dep: string): void {
-  console.log(`Removing update listeners that have a dependency on ${dep}`);
   for (const [context, values] of Object.entries(contextUpdateListeners)) {
     const keep: [string[], () => void][] = [];
     for (const [dependencies, listener] of values) {
@@ -71,9 +67,6 @@ export function removeListenersWithDependency(dep: string): void {
 }
 
 export function callUpdateListenersForContext(context: string): void {
-  console.log(
-    `Calling update listeners for ${context}: ${contextUpdateListeners[context]}`
-  );
   if (contextUpdateListeners[context] !== undefined) {
     contextUpdateListeners[context].forEach(([, f]) => f());
   }

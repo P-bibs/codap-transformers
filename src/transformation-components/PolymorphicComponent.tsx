@@ -7,7 +7,7 @@ import {
   RunningMin,
   RunningSum,
 } from "./Fold";
-import { Filter } from "./Filter";
+// import { Filter } from "./Filter";
 import { TransformColumn } from "./TransformColumn";
 import { GroupBy } from "./GroupBy";
 import { SelectAttributes } from "./SelectAttributes";
@@ -27,6 +27,7 @@ import { CopySchema } from "./CopySchema";
 import { CombineCases } from "./CombineCases";
 import { GenericFold } from "./GenericFold";
 import { Partition } from "./Partition";
+import DDTransformation from "./DDTransformation";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -105,10 +106,26 @@ export const PolymorphicComponent = ({
       );
     case "Filter":
       return (
-        <Filter
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Filter",
+            },
+            typeContract1: {
+              title: "How to Filter",
+              inputTypes: ["Row"],
+              outputTypes: ["boolean"],
+              inputTypeDisabled: true,
+              outputTypeDisabled: true,
+            },
+            expression1: {},
+          }}
+          order={["context1", "typeContract1", "expression1"]}
+          initialState={{}}
+          name="Filter"
+          title="Filter"
         />
       );
     case "Transform Column":

@@ -119,6 +119,8 @@ type DDTransformationProps = {
   name: string;
   title?: string;
   order?: (keyof DDTransformationInit)[];
+  setErrMsg: (s: string | null) => void;
+  errorDisplay: ReactElement;
   init: DDTransformationInit;
   initialState: Partial<DDTransformationState>;
 };
@@ -170,8 +172,8 @@ const contextFromAttribute = (attribute: string) =>
 const contextFromAttributeSet = (attributeSet: string) =>
   convertNames(attributeSet, "attributeSet", "context");
 
-const attributeFromExpression = (expression: string) =>
-  convertNames(expression, "expression", "context");
+const attributeSetFromExpression = (expression: string) =>
+  convertNames(expression, "expression", "attributes");
 
 const convertNames = (
   sourceName: string,
@@ -184,7 +186,7 @@ const titleFromComponent = (
   init: DDTransformationInit
 ): ReactElement => {
   const tmp = init[component];
-  return tmp && tmp.title ? <h3>tmp.title</h3> : <></>;
+  return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
 const DDTransformation = ({
@@ -321,7 +323,7 @@ const DDTransformation = ({
                 value={state[component]}
                 onChange={(s) => setState({ [component]: s })}
                 attributeNames={attributes[
-                  attributeFromExpression(component) as
+                  attributeSetFromExpression(component) as
                     | "attributes1"
                     | "attributes2"
                 ].map((a) => a.name)}

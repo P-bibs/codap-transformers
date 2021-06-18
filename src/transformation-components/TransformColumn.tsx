@@ -1,21 +1,23 @@
 import React, { useState, useCallback, ReactElement } from "react";
 import { useInput, useAttributes } from "../utils/hooks";
 import { transformColumn } from "../transformations/transformColumn";
-import { DataSet } from "../transformations/types";
+import { CodapLanguageType, DataSet } from "../transformations/types";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import {
   ExpressionEditor,
   AttributeSelector,
   TransformationSubmitButtons,
   ContextSelector,
+  TypeSelector,
+  TransformationSaveButton,
 } from "../ui-components";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { TransformationProps } from "./types";
-import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 export interface TransformColumnSaveData {
   attributeName: string | null;
   expression: string;
+  outputType: CodapLanguageType;
 }
 
 interface TransformColumnProps extends TransformationProps {
@@ -36,6 +38,9 @@ export function TransformColumn({
   );
   const [expression, expressionChange] = useState<string>(
     saveData !== undefined ? saveData.expression : ""
+  );
+  const [outputType, setOutputType] = useState<CodapLanguageType>(
+    saveData !== undefined ? saveData.outputType : "any"
   );
   const attributes = useAttributes(inputDataCtxt);
 
@@ -64,7 +69,8 @@ export function TransformColumn({
       const transformed = await transformColumn(
         dataset,
         attributeName,
-        expression
+        expression,
+        outputType
       );
       const newName = `Transform Column of ${readableName(context)}`;
       return [transformed, newName];
@@ -76,7 +82,7 @@ export function TransformColumn({
     } catch (e) {
       setErrMsg(e.message);
     }
-  }, [inputDataCtxt, attributeName, expression, setErrMsg]);
+  }, [inputDataCtxt, attributeName, expression, setErrMsg, outputType]);
 
   return (
     <>
@@ -92,6 +98,18 @@ export function TransformColumn({
       />
 
       <h3>Formula for Transformed Values</h3>
+      <TypeSelector
+        inputTypes={["Row"]}
+        selectedInputType={"Row"}
+        inputTypeDisabled={true}
+        outputTypes={["any", "string", "number", "boolean", "boundary"]}
+        selectedOutputType={outputType}
+        outputTypeOnChange={(e) => {
+          setOutputType(e.target.value as CodapLanguageType);
+        }}
+        outputTypeDisabled={saveData !== undefined}
+      />
+      <br />
       <ExpressionEditor
         value={expression}
         onChange={expressionChange}
@@ -107,6 +125,7 @@ export function TransformColumn({
           generateSaveData={() => ({
             attributeName,
             expression,
+            outputType,
           })}
         />
       )}

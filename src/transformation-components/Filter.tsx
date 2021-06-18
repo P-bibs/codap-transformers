@@ -7,6 +7,7 @@ import {
   TransformationSubmitButtons,
   ContextSelector,
   ExpressionEditor,
+  TypeSelector,
 } from "../ui-components";
 import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
@@ -71,6 +72,15 @@ export function Filter({
       <ContextSelector onChange={inputChange} value={inputDataCtxt} />
 
       <h3>How to Filter</h3>
+      <TypeSelector
+        inputTypes={["Row"]}
+        selectedInputType={"Row"}
+        inputTypeDisabled={true}
+        outputTypes={["auto", "string", "number", "boolean", "boundary"]}
+        selectedOutputType={"boolean"}
+        outputTypeDisabled={true}
+      />
+      <br />
       <ExpressionEditor
         value={predicate}
         onChange={(s) => setPredicate(s)}

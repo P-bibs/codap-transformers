@@ -16,7 +16,11 @@ import { createDataInteractive } from "./utils/codapPhone";
  * Subscribing to this context allows adding new saved transformations
  */
 export const SaveTransformationContext = React.createContext<
-  (name: string, d: TransformationSaveData) => void
+  (
+    name: string,
+    description: string | undefined,
+    d: TransformationSaveData
+  ) => void
 >(() => {
   // If someone tries to subscribe to this context without a valid
   // provider higher up, then throw an error.
@@ -93,7 +97,11 @@ function Transformation({
     { name: "Partition", content: { base: "Partition" } },
   ];
 
-  function addTransformation(name: string, data: TransformationSaveData) {
+  function addTransformation(
+    name: string,
+    description: string | undefined,
+    data: TransformationSaveData
+  ) {
     if (name === "") {
       return;
     }
@@ -116,7 +124,7 @@ function Transformation({
       data,
     } as SavedTransformationContent;
 
-    const savedTransformation = { name, content };
+    const savedTransformation = { name, description, content };
     const encoded = encodeURIComponent(JSON.stringify(savedTransformation));
     createDataInteractive(name, `http://localhost:3000?transform=${encoded}`);
   }
@@ -129,13 +137,18 @@ function Transformation({
   return (
     <div className="Transformation">
       {urlTransformation ? (
-        <h2>
-          {urlTransformation.name}
-          <span id="transformationBase">
-            {" "}
-            ({urlTransformation.content.base})
-          </span>
-        </h2>
+        <>
+          <h2>
+            {urlTransformation.name}
+            <span id="transformationBase">
+              {" "}
+              ({urlTransformation.content.base})
+            </span>
+          </h2>
+          {urlTransformation.description && (
+            <p>{urlTransformation.description}</p>
+          )}
+        </>
       ) : (
         <>
           <h3>Transformation Type</h3>

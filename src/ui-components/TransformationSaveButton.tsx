@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from "react";
+import { CodapFlowTextArea, CodapFlowTextInput } from ".";
 import { SaveTransformationContext } from "../Transformation";
 import { TransformationSaveData } from "../transformation-components/types";
-import CodapFlowTextInput from "./CodapFlowTextInput";
 
 interface TransformationSaveButtonProps {
   generateSaveData: () => TransformationSaveData;
@@ -13,6 +13,7 @@ export default function TransformationSaveButton({
   disabled,
 }: TransformationSaveButtonProps): ReactElement {
   const [currentName, setCurrentName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
 
   return (
     <div style={{ marginTop: "5px" }}>
@@ -20,17 +21,34 @@ export default function TransformationSaveButton({
       <h3>Save This Transformation</h3>
       <SaveTransformationContext.Consumer>
         {(saveTransformation) => (
-          <div style={{ display: "flex", marginTop: "2px" }}>
+          <div
+            style={{
+              height: "175px",
+              display: "flex",
+              marginTop: "2px",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
             <CodapFlowTextInput
               value={currentName}
               onChange={(e) => setCurrentName(e.target.value)}
               placeholder={"Transformation Name"}
             />
+            <CodapFlowTextArea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Purpose Statement"
+            />
             <button
-              style={{ marginLeft: "5px" }}
               disabled={disabled}
               onClick={() =>
-                saveTransformation(currentName, generateSaveData())
+                saveTransformation(
+                  currentName,
+                  description === "" ? undefined : description,
+                  generateSaveData()
+                )
               }
             >
               Save

@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 
 interface CodapFlowSelectProps<T extends string | number> {
-  onChange: React.ChangeEventHandler<HTMLSelectElement>;
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>;
   defaultValue: T;
   value: T | null;
   options: {

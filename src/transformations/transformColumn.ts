@@ -1,5 +1,6 @@
-import { DataSet } from "./types";
+import { CodapLanguageType, DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone";
+import { reportTypeErrorsForRecords } from "./util";
 
 /**
  * Produces a dataset with the indicated attribute's values transformed
@@ -9,10 +10,14 @@ import { evalExpression } from "../utils/codapPhone";
 export async function transformColumn(
   dataset: DataSet,
   attributeName: string,
-  expression: string
+  expression: string,
+  outputType: CodapLanguageType
 ): Promise<DataSet> {
   const records = dataset.records.slice();
   const exprValues = await evalExpression(expression, records);
+
+  // Check for type errors (might throw error and abort transformation)
+  reportTypeErrorsForRecords(records, exprValues, outputType);
 
   exprValues.forEach((value, i) => {
     const record = records[i];

@@ -124,8 +124,6 @@ export const PolymorphicComponent = ({
           }}
           order={["context1", "typeContract1", "expression1"]}
           initialState={{}}
-          name="Filter"
-          title="Filter"
         />
       );
     case "Transform Column":

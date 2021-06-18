@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useCallback, ReactElement } from "react";
+import React, { useReducer, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { useAttributes, useInput } from "../utils/hooks";
 import { compare, CompareType } from "../transformations/compare";
@@ -115,35 +115,6 @@ export type DDTransformationState = {
   typeContract2: TypeContractState;
 };
 
-type DDTransformationProps = {
-  name: string;
-  title?: string;
-  order?: (keyof DDTransformationInit)[];
-  setErrMsg: (s: string | null) => void;
-  errorDisplay: ReactElement;
-  init: DDTransformationInit;
-  initialState: Partial<DDTransformationState>;
-};
-
-const DEFAULT_ORDER: (keyof DDTransformationInit)[] = [
-  "context1",
-  "context2",
-  "collection1",
-  "collection2",
-  "attribute1",
-  "attribute2",
-  "attributeSet1",
-  "attributeSet2",
-  "textInput1",
-  "textInput2",
-  "dropdown1",
-  "dropdown2",
-  "expression1",
-  "expression2",
-  "typeContract1",
-  "typeContract2",
-];
-
 const DEFAULT_STATE: DDTransformationState = {
   context1: null,
   context2: null,
@@ -189,12 +160,22 @@ const titleFromComponent = (
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
+type DDTransformationProps = {
+  transformationFunction: (state: DDTransformationState) => [DataSet, string];
+  order: (keyof DDTransformationInit)[];
+  setErrMsg: (s: string | null) => void;
+  errorDisplay: ReactElement;
+  init: DDTransformationInit;
+  initialState: Partial<DDTransformationState>;
+};
+
 const DDTransformation = ({
-  title,
-  name,
+  transformationFunction,
   order,
   init,
   initialState,
+  errorDisplay,
+  setErrMsg,
 }: DDTransformationProps): ReactElement => {
   const [state, setState] = useReducer(
     (
@@ -204,13 +185,88 @@ const DDTransformation = ({
     { ...DEFAULT_STATE, ...initialState }
   );
 
-  if (order === undefined) {
-    order = DEFAULT_ORDER;
-  }
-
   const attributes = {
     attributes1: useAttributes(state["context1"]),
     attributes2: useAttributes(state["context2"]),
+  };
+
+  const transform = async () => {
+    setErrMsg(null);
+
+    for (const component of order) {
+      if (component === "context1" || component === "context2") {
+        if (state[component] === null) {
+          setErrMsg("Please choose a valid dataset.");
+          return;
+        }
+      } else if (component === "collection1" || component === "collection2") {
+        if (state[component] === null) {
+          setErrMsg("Please choose a valid collection.");
+          return;
+        }
+      } else if (component === "attribute1" || component === "attribute2") {
+        if (state[component] === null) {
+          setErrMsg("Please choose a valid attribute.");
+          return;
+        }
+      } else if (
+        component === "attributeSet1" ||
+        component === "attributeSet2"
+      ) {
+        if (state[component] === []) {
+          setErrMsg("Please choose valid attributes.");
+          return;
+        }
+      } else if (component === "textInput1" || component === "textInput2") {
+        if (state[component] === "") {
+          setErrMsg("Please enter text.");
+          return;
+        }
+      } else if (component === "dropdown1" || component === "dropdown2") {
+        if (state[component] === null) {
+          setErrMsg("Please choose a valid option.");
+          return;
+        }
+      } else if (
+        component === "typeContract1" ||
+        component === "typeContract2"
+      ) {
+        setErrMsg("Please enter a type.");
+        return;
+      } else if (component === "expression1" || component === "expression2") {
+        setErrMsg("Please enter a valid expression.");
+        return;
+      }
+    }
+
+    const doTransform: () => Promise<[DataSet, string]> = async () => {
+      const [transformOutput, contextName] = await transformationFunction(
+        state
+      );
+      return [transformOutput, contextName];
+    };
+
+    try {
+      const newContextName = await applyNewDataSet(...(await doTransform()));
+      if (order.includes("context1") && state["context1"] !== null) {
+        addUpdateListener(
+          state["context1"],
+          newContextName,
+          doTransform,
+          setErrMsg
+        );
+      }
+      if (order.includes("context2") && state["context2"] !== null) {
+        addUpdateListener(
+          state["context2"],
+          newContextName,
+          doTransform,
+          setErrMsg
+        );
+      }
+    } catch (e) {
+      setErrMsg(e.message);
+    }
   };
 
   return (
@@ -334,6 +390,12 @@ const DDTransformation = ({
           return "UNRECOGNIZED COMPONENT";
         }
       })}
+      <br />
+      <TransformationSubmitButtons onCreate={transform} />
+      {errorDisplay}
+      {/* {saveData === undefined && (
+        <TransformationSaveButton generateSaveData={() => ({})} />
+      )} */}
     </>
   );
 };

@@ -460,7 +460,7 @@ async function createDataContext(
         resource: CodapResource.DataContext,
         values: {
           name: name,
-          title: title,
+          title: title !== undefined ? title : name,
           collections: collections,
         },
       },

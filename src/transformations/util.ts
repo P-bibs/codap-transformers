@@ -84,7 +84,7 @@ export function insertColumnInLastCollection(
   collections: Collection[],
   attr: CodapAttribute
 ): Collection[] {
-  const newCollections = collections.slice();
+  const newCollections = collections.map(cloneCollection);
   const lastCollection = newCollections[newCollections.length - 1];
   newCollections[newCollections.length - 1] = insertColumn(
     lastCollection,
@@ -377,3 +377,16 @@ function findTypeErrorsBoolean(values: unknown[]): number | null {
 
   return null;
 }
+
+export function cloneCollection(c: Collection): Collection {
+  return {
+    ...c,
+    attrs: c.attrs?.map(shallowCopy),
+  };
+}
+
+export function shallowCopy<T>(x: T): T {
+  return { ...x };
+}
+
+export const cloneAttribute = shallowCopy;

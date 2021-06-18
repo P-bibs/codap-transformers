@@ -57,7 +57,7 @@ export async function sort(
   outputType: CodapLanguageType,
   sortDirection: SortDirection
 ): Promise<DataSet> {
-  const records = dataset.records.slice();
+  const records = dataset.records;
   const keyValues = await evalExpression(keyExpr, records);
 
   // Check for type errors (might throw error and abort transformation)
@@ -76,7 +76,7 @@ export async function sort(
 
   return new Promise((resolve) =>
     resolve({
-      collections: dataset.collections.slice(),
+      collections: dataset.collections,
       records: sorted,
     })
   );

@@ -6,7 +6,6 @@ import { FoldSaveData } from "./Fold";
 import { JoinSaveData } from "./Join";
 import { PivotLongerSaveData } from "./PivotLonger";
 import { PivotWiderSaveData } from "./PivotWider";
-import { SortSaveData } from "./Sort";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
 import { CombineCasesSaveData } from "./CombineCases";
@@ -14,6 +13,7 @@ import { GenericFoldSaveData } from "./GenericFold";
 import { PartitionSaveData } from "./Partition";
 import { CodapLanguageType } from "../transformations/types";
 import { CompareType } from "../transformations/compare";
+import { SortDirection } from "../transformations/sort";
 
 export interface FilterSaveData {
   predicate: string;
@@ -50,6 +50,12 @@ export interface CompareSaveData {
   inputAttribute1: string | null;
   inputAttribute2: string | null;
   compareType: CompareType;
+}
+
+export interface SortSaveData {
+  keyExpression: string;
+  outputType: CodapLanguageType;
+  sortDirection: SortDirection;
 }
 
 /**

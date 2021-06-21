@@ -7,7 +7,6 @@ import {
   RunningSum,
 } from "./Fold";
 import { DifferenceFrom } from "./DifferenceFrom";
-import { Sort } from "./Sort";
 import { PivotLonger } from "./PivotLonger";
 import { PivotWider } from "./PivotWider";
 import { SavedTransformation } from "./types";
@@ -27,6 +26,7 @@ import { groupBy } from "../transformations/groupBy";
 import { selectAttributes } from "../transformations/selectAttributes";
 import { count } from "../transformations/count";
 import { compare } from "../transformations/compare";
+import { sort } from "../transformations/sort";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -276,10 +276,30 @@ export const PolymorphicComponent = ({
       );
     case "Sort":
       return (
-        <Sort
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to sort",
+            },
+            typeContract1: {
+              title: "Key expression",
+              inputTypes: ["Row"],
+              outputTypes: ["any", "string", "number", "boolean", "boundary"],
+              inputTypeDisabled: true,
+            },
+            expression1: { title: "" },
+            dropdown1: {
+              title: "Direction",
+              options: [
+                { value: "descending", title: "descending" },
+                { value: "ascending", title: "ascending" },
+              ],
+              defaultValue: "Select a sort direction",
+            },
+          }}
+          transformationFunction={sort}
         />
       );
     case "Pivot Longer":

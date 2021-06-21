@@ -8,7 +8,6 @@ import {
 } from "./Fold";
 // import { Filter } from "./Filter";
 import { TransformColumn } from "./TransformColumn";
-import { GroupBy } from "./GroupBy";
 import { SelectAttributes } from "./SelectAttributes";
 import { Count } from "./Count";
 import { Compare } from "./Compare";
@@ -29,6 +28,7 @@ import DDTransformation from "./DDTransformation";
 import { filter } from "../transformations/filter";
 import { buildColumn } from "../transformations/buildColumn";
 import { flatten } from "../transformations/flatten";
+import { groupBy } from "../transformations/groupBy";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -104,10 +104,18 @@ export const PolymorphicComponent = ({
       );
     case "Group By":
       return (
-        <GroupBy
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Group",
+            },
+            attributeSet1: {
+              title: "Attributes to Group By",
+            },
+          }}
+          transformationFunction={groupBy}
         />
       );
     case "Filter":

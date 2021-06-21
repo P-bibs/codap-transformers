@@ -5,7 +5,6 @@ import { CopySchemaSaveData } from "./CopySchema";
 import { CountSaveData } from "./Count";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { FoldSaveData } from "./Fold";
-import { GroupBySaveData } from "./GroupBy";
 import { JoinSaveData } from "./Join";
 import { PivotLongerSaveData } from "./PivotLonger";
 import { PivotWiderSaveData } from "./PivotWider";
@@ -28,6 +27,10 @@ export interface BuildColumnSaveData {
   collectionName: string;
   expression: string;
   outputType: CodapLanguageType;
+}
+
+export interface GroupBySaveData {
+  attributes: string[];
 }
 
 export type FlattenSaveData = Record<string, never>;

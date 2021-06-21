@@ -1,6 +1,9 @@
 import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { reparent } from "./util";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { DDTransformationState } from "../transformation-components/DDTransformation";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that
@@ -14,13 +17,39 @@ import { reparent } from "./util";
  * their current positions and putting them all together in a new
  * parent collection. CODAP handles the grouping of cases with the
  * same content for us.
+ */
+export async function groupBy({
+  context1: contextName,
+  attributeSet1: attributes,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (attributes.length === 0) {
+    throw new Error("Please choose at least one attribute to group by");
+  }
+
+  const parentName = `Grouped by ${attributes.join(", ")}`;
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedGroupBy(dataset, attributes, parentName),
+    `Group By of ${readableName(context)}`,
+  ];
+}
+
+/**
+ * Groups a dataset by the indicated attributes, by removing them from
+ * their current positions and putting them all together in a new
+ * parent collection. CODAP handles the grouping of cases with the
+ * same content for us.
  *
  * @param dataset the dataset to group
  * @param groupByAttrs the attributes to separate into a parent collection
  * @param newParentName the name of newly-created parent collection
  * @returns the grouped dataset
  */
-export function groupBy(
+export function uncheckedGroupBy(
   dataset: DataSet,
   attrNames: string[],
   newParentName: string

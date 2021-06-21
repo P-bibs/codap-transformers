@@ -1,12 +1,33 @@
 import { DataSet } from "./types";
-import { evalExpression } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString } from "./util";
+import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { readableName } from "../transformation-components/util";
 
 /**
  * Filter produces a dataset with certain records excluded
  * depending on a given predicate.
  */
-export async function filter(
+export async function filter({
+  context1: contextName,
+  expression1: predicate,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (predicate === "") {
+    throw new Error("Please enter a non-empty expression to filter by");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+
+  return [
+    await uncheckedFilter(dataset, predicate),
+    `Filter of ${readableName(context)}`,
+  ];
+}
+
+export async function uncheckedFilter(
   dataset: DataSet,
   predicate: string
 ): Promise<DataSet> {

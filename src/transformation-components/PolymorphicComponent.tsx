@@ -28,6 +28,7 @@ import { CombineCases } from "./CombineCases";
 import { GenericFold } from "./GenericFold";
 import { Partition } from "./Partition";
 import DDTransformation from "./DDTransformation";
+import { filter } from "../transformations/filter";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -120,10 +121,10 @@ export const PolymorphicComponent = ({
               inputTypeDisabled: true,
               outputTypeDisabled: true,
             },
-            expression1: {},
+            expression1: { title: "" },
           }}
-          order={["context1", "typeContract1", "expression1"]}
           initialState={{}}
+          transformationFunction={filter}
         />
       );
     case "Transform Column":

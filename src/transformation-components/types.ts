@@ -5,7 +5,6 @@ import { CopySaveData } from "./Copy";
 import { CopySchemaSaveData } from "./CopySchema";
 import { CountSaveData } from "./Count";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
-import { FilterSaveData } from "./Filter";
 import { FlattenSaveData } from "./Flatten";
 import { FoldSaveData } from "./Fold";
 import { GroupBySaveData } from "./GroupBy";
@@ -45,7 +44,7 @@ export type SavedTransformationContent =
     }
   | {
       base: "Filter";
-      data?: FilterSaveData;
+      data?: {};
     }
   | {
       base: "Flatten";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import React, { useReducer, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { useAttributes, useInput } from "../utils/hooks";
@@ -18,46 +19,36 @@ import { applyNewDataSet, readableName, addUpdateListener } from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
-type ContextInit = {
-  title?: string;
-};
+interface ComponentInit {
+  title: string;
+}
 
-type CollectionInit = {
-  title?: string;
-};
+interface ContextInit extends ComponentInit {}
 
-type AttributeInit = {
-  title?: string;
-};
+interface CollectionInit extends ComponentInit {}
 
-type AttributeSetInit = {
-  title?: string;
-};
+interface AttributeInit extends ComponentInit {}
 
-type TextInputInit = {
-  title?: string;
-};
+interface AttributeSetInit extends ComponentInit {}
 
-type DropdownInit = {
-  title?: string;
+interface TextInputInit extends ComponentInit {}
+
+interface DropdownInit extends ComponentInit {
   defaultValue: string;
   options: {
     title: string;
     value: string;
   }[];
-};
+}
 
-type ExpressionInit = {
-  title?: string;
-};
+interface ExpressionInit extends ComponentInit {}
 
-type TypeContractInit = {
-  title?: string;
+interface TypeContractInit extends ComponentInit {
   inputTypes: string[];
   inputTypeDisabled?: boolean;
   outputTypes: string[];
   outputTypeDisabled?: boolean;
-};
+}
 
 export type DDTransformationInit = {
   context1?: ContextInit;
@@ -161,8 +152,9 @@ const titleFromComponent = (
 };
 
 type DDTransformationProps = {
-  transformationFunction: (state: DDTransformationState) => [DataSet, string];
-  order: (keyof DDTransformationInit)[];
+  transformationFunction: (
+    state: DDTransformationState
+  ) => Promise<[DataSet, string]>;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
   init: DDTransformationInit;
@@ -171,7 +163,6 @@ type DDTransformationProps = {
 
 const DDTransformation = ({
   transformationFunction,
-  order,
   init,
   initialState,
   errorDisplay,
@@ -185,6 +176,11 @@ const DDTransformation = ({
     { ...DEFAULT_STATE, ...initialState }
   );
 
+  // The order here is guaranteed to be stable since ES2015 as long as we don't
+  // use numeric keys
+  const order = Object.keys(init);
+
+  // Use these attributes to facilitate auto-fill in expression editor
   const attributes = {
     attributes1: useAttributes(state["context1"]),
     attributes2: useAttributes(state["context2"]),
@@ -193,57 +189,9 @@ const DDTransformation = ({
   const transform = async () => {
     setErrMsg(null);
 
-    for (const component of order) {
-      if (component === "context1" || component === "context2") {
-        if (state[component] === null) {
-          setErrMsg("Please choose a valid dataset.");
-          return;
-        }
-      } else if (component === "collection1" || component === "collection2") {
-        if (state[component] === null) {
-          setErrMsg("Please choose a valid collection.");
-          return;
-        }
-      } else if (component === "attribute1" || component === "attribute2") {
-        if (state[component] === null) {
-          setErrMsg("Please choose a valid attribute.");
-          return;
-        }
-      } else if (
-        component === "attributeSet1" ||
-        component === "attributeSet2"
-      ) {
-        if (state[component] === []) {
-          setErrMsg("Please choose valid attributes.");
-          return;
-        }
-      } else if (component === "textInput1" || component === "textInput2") {
-        if (state[component] === "") {
-          setErrMsg("Please enter text.");
-          return;
-        }
-      } else if (component === "dropdown1" || component === "dropdown2") {
-        if (state[component] === null) {
-          setErrMsg("Please choose a valid option.");
-          return;
-        }
-      } else if (
-        component === "typeContract1" ||
-        component === "typeContract2"
-      ) {
-        setErrMsg("Please enter a type.");
-        return;
-      } else if (component === "expression1" || component === "expression2") {
-        setErrMsg("Please enter a valid expression.");
-        return;
-      }
-    }
-
     const doTransform: () => Promise<[DataSet, string]> = async () => {
-      const [transformOutput, contextName] = await transformationFunction(
-        state
-      );
-      return [transformOutput, contextName];
+      // Might throw an error, which we handle in the below try/catch block
+      return await transformationFunction(state);
     };
 
     try {

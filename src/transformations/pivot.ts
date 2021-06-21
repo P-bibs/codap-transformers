@@ -99,7 +99,7 @@ export function pivotWider(
   // get list of names to make attributes for
   const newAttrs = Array.from(
     new Set(
-      dataset.records.map((rec) => {
+      dataset.records.map((rec, i) => {
         if (rec[namesFrom] === undefined) {
           throw new Error(
             `Invalid attribute to retrieve names from: ${namesFrom}`
@@ -107,7 +107,11 @@ export function pivotWider(
         }
         if (typeof rec[namesFrom] === "object") {
           throw new Error(
-            `Cannot use object values (${namesFrom}) as attribute names`
+            `Cannot use ${codapValueToString(
+              rec[namesFrom]
+            )} (from attribute ${namesFrom} at case ${
+              i + 1
+            }) as an attribute name`
           );
         }
 

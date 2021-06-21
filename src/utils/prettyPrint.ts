@@ -1,3 +1,5 @@
+import { isBoundary, isBoundaryMap } from "../transformations/util";
+
 export function prettyPrintCase(record: Record<string, unknown>): string {
   const keyValuePairs = [];
 
@@ -7,9 +9,10 @@ export function prettyPrintCase(record: Record<string, unknown>): string {
     if (value === null) {
       keyValuePairs.push(`${key}: <missing>`);
     } else if (typeof value === "object") {
-      // @ts-expect-error - typescript erroneously raises a null error below
-      if ("jsonBoundaryObject" in value) {
+      if (isBoundary(value)) {
         keyValuePairs.push(`${key}: <boundary>`);
+      } else if (isBoundaryMap(value)) {
+        keyValuePairs.push(`${key}: <boundary map>`);
       } else {
         keyValuePairs.push(`${key}: <unknown object>`);
       }

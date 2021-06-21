@@ -58,8 +58,7 @@ function compareFn(a: unknown, b: unknown): number {
 }
 
 /**
- * Builds a dataset with a new attribute added to one of the collections,
- * whose case values are computed by evaluating the given expression.
+ * Sorts a dataset
  */
 export async function sort({
   context1: contextName,

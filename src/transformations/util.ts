@@ -170,7 +170,7 @@ export function getAttributeDataFromDataset(
  * @param codapValue the value to convert to a string for printing
  * @returns string version of the value
  */
-export function codapValueToString(codapValue?: unknown): string {
+export function codapValueToString(codapValue: unknown): string {
   // missing values
   if (codapValue === "") {
     return "a missing value";
@@ -191,6 +191,11 @@ export function codapValueToString(codapValue?: unknown): string {
     return String(codapValue);
   }
 
+  // boundaries
+  if (isBoundary(codapValue)) {
+    return "a boundary";
+  }
+
   // objects
   if (typeof codapValue === "object") {
     return "an object";
@@ -198,6 +203,15 @@ export function codapValueToString(codapValue?: unknown): string {
 
   // value must be string
   return `"${codapValue}"`;
+}
+
+/**
+ * Determines if a given CODAP value is a boundary object.
+ */
+export function isBoundary(value: unknown): boolean {
+  return (
+    typeof value === "object" && value !== null && "jsonBoundaryObject" in value
+  );
 }
 
 export function reportTypeErrorsForRecords(
@@ -287,7 +301,7 @@ function findTypeErrorsBoundary(values: unknown[]): number | null {
   for (let i = 0; i < values.length; i++) {
     const value = values[i];
 
-    if (typeof value === "object" && value && "jsonBoundaryObject" in value) {
+    if (isBoundary(value)) {
       // value is a boundary and we're all set
     } else {
       return i;

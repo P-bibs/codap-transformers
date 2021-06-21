@@ -1,5 +1,5 @@
 import { DataSet } from "./types";
-import { eraseFormulas, codapValueToString } from "./util";
+import { eraseFormulas, codapValueToString, isBoundary } from "./util";
 
 /**
  * Turns selected attribute names into values of a new attribute, reorganizing
@@ -105,9 +105,14 @@ export function pivotWider(
             `Invalid attribute to retrieve names from: ${namesFrom}`
           );
         }
+        if (isBoundary(rec[namesFrom])) {
+          throw new Error(
+            `Cannot use boundaries (from attribute ${namesFrom}) as attribute names`
+          );
+        }
         if (typeof rec[namesFrom] === "object") {
           throw new Error(
-            `Cannot use object values (${namesFrom}) as attribute names`
+            `Cannot use object values (from attribute ${namesFrom}) as attribute names`
           );
         }
 

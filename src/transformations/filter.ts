@@ -27,7 +27,7 @@ export async function filter({
   ];
 }
 
-export async function uncheckedFilter(
+async function uncheckedFilter(
   dataset: DataSet,
   predicate: string
 ): Promise<DataSet> {

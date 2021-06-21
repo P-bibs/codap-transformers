@@ -11,7 +11,6 @@ import { TransformColumn } from "./TransformColumn";
 import { GroupBy } from "./GroupBy";
 import { SelectAttributes } from "./SelectAttributes";
 import { Count } from "./Count";
-import { Flatten } from "./Flatten";
 import { Compare } from "./Compare";
 import { DifferenceFrom } from "./DifferenceFrom";
 import { Sort } from "./Sort";
@@ -29,6 +28,7 @@ import { Partition } from "./Partition";
 import DDTransformation from "./DDTransformation";
 import { filter } from "../transformations/filter";
 import { buildColumn } from "../transformations/buildColumn";
+import { flatten } from "../transformations/flatten";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -91,10 +91,15 @@ export const PolymorphicComponent = ({
       );
     case "Flatten":
       return (
-        <Flatten
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Flatten",
+            },
+          }}
+          transformationFunction={flatten}
         />
       );
     case "Group By":

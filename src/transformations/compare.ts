@@ -2,7 +2,7 @@ import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
 import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
-import { flatten } from "./flatten";
+import { flatten, uncheckedFlatten } from "./flatten";
 import { eraseFormulas, getAttributeDataFromDataset } from "./util";
 
 const COMPARE_STATUS_COLUMN_NAME = "Compare Status";
@@ -145,8 +145,8 @@ function compareCategorical(
   attribute1Data: CodapAttribute,
   attribute2Data: CodapAttribute
 ): DataSet {
-  dataset1 = flatten(dataset1);
-  dataset2 = flatten(dataset2);
+  dataset1 = uncheckedFlatten(dataset1);
+  dataset2 = uncheckedFlatten(dataset2);
 
   const attributes1 = dataset1.collections[0].attrs;
   if (attributes1 === undefined) {

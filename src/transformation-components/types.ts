@@ -4,7 +4,6 @@ import { CopySaveData } from "./Copy";
 import { CopySchemaSaveData } from "./CopySchema";
 import { CountSaveData } from "./Count";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
-import { FlattenSaveData } from "./Flatten";
 import { FoldSaveData } from "./Fold";
 import { GroupBySaveData } from "./GroupBy";
 import { JoinSaveData } from "./Join";
@@ -30,6 +29,8 @@ export interface BuildColumnSaveData {
   expression: string;
   outputType: CodapLanguageType;
 }
+
+export type FlattenSaveData = Record<string, never>;
 
 /**
  * The content associated with a saved transformation. Includes the base

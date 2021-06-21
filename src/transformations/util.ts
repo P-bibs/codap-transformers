@@ -196,6 +196,11 @@ export function codapValueToString(codapValue: unknown): string {
     return "a boundary";
   }
 
+  // boundary maps
+  if (isBoundaryMap(codapValue)) {
+    return "a boundary map";
+  }
+
   // objects
   if (typeof codapValue === "object") {
     return "an object";
@@ -203,6 +208,15 @@ export function codapValueToString(codapValue: unknown): string {
 
   // value must be string
   return `"${codapValue}"`;
+}
+
+/**
+ * Maps such as `US_county_boundaries` contain a `map` property that has
+ * names as keys and boundary objects as values. These are used to lookup
+ * boundaries for a particular name (ie state, province, etc)
+ */
+export function isBoundaryMap(value: unknown): boolean {
+  return typeof value === "object" && value != null && "map" in value;
 }
 
 /**

@@ -7,8 +7,6 @@ import {
   RunningSum,
 } from "./Fold";
 // import { Filter } from "./Filter";
-import { TransformColumn } from "./TransformColumn";
-import { SelectAttributes } from "./SelectAttributes";
 import { Count } from "./Count";
 import { Compare } from "./Compare";
 import { DifferenceFrom } from "./DifferenceFrom";
@@ -29,6 +27,7 @@ import { filter } from "../transformations/filter";
 import { buildColumn } from "../transformations/buildColumn";
 import { flatten } from "../transformations/flatten";
 import { groupBy } from "../transformations/groupBy";
+import { selectAttributes } from "../transformations/selectAttributes";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -190,10 +189,35 @@ export const PolymorphicComponent = ({
       );
     case "Select Attributes":
       return (
-        <SelectAttributes
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Select Attributes From",
+            },
+            textInput1: {
+              title: "Name of New Attribute",
+            },
+            dropdown1: {
+              title: "Mode",
+              options: [
+                {
+                  value: "selectOnly",
+                  title: "Select only the following attributes",
+                },
+                {
+                  value: "selectAllBut",
+                  title: "Select all but the following attributes",
+                },
+              ],
+              defaultValue: "Mode",
+            },
+            attributeSet1: {
+              title: "Attributes",
+            },
+          }}
+          transformationFunction={selectAttributes}
         />
       );
     case "Count":

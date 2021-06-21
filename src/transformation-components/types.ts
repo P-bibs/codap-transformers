@@ -8,7 +8,6 @@ import { FoldSaveData } from "./Fold";
 import { JoinSaveData } from "./Join";
 import { PivotLongerSaveData } from "./PivotLonger";
 import { PivotWiderSaveData } from "./PivotWider";
-import { SelectAttributesSaveData } from "./SelectAttributes";
 import { SortSaveData } from "./Sort";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
@@ -19,6 +18,11 @@ import { CodapLanguageType } from "../transformations/types";
 
 export interface FilterSaveData {
   predicate: string;
+}
+
+export interface SelectAttributesSaveData {
+  attributes: string[];
+  mode: string;
 }
 
 export interface BuildColumnSaveData {

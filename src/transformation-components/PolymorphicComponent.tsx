@@ -123,7 +123,6 @@ export const PolymorphicComponent = ({
             },
             expression1: { title: "" },
           }}
-          initialState={{}}
           transformationFunction={filter}
         />
       );

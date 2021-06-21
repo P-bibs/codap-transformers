@@ -158,13 +158,13 @@ type DDTransformationProps = {
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
   init: DDTransformationInit;
-  initialState: Partial<DDTransformationState>;
+  saveData?: DDTransformationState;
 };
 
 const DDTransformation = ({
   transformationFunction,
   init,
-  initialState,
+  saveData,
   errorDisplay,
   setErrMsg,
 }: DDTransformationProps): ReactElement => {
@@ -173,7 +173,7 @@ const DDTransformation = ({
       oldState: DDTransformationState,
       newState: Partial<DDTransformationState>
     ): DDTransformationState => ({ ...oldState, ...newState }),
-    { ...DEFAULT_STATE, ...initialState }
+    saveData !== undefined ? saveData : DEFAULT_STATE
   );
 
   // The order here is guaranteed to be stable since ES2015 as long as we don't
@@ -240,6 +240,7 @@ const DDTransformation = ({
                 context={contextFromCollection(component)}
                 value={component}
                 onChange={(e) => setState({ [component]: e.target.value })}
+                disabled={saveData !== undefined}
               />
             </>
           );
@@ -251,6 +252,7 @@ const DDTransformation = ({
                 context={contextFromAttribute(component)}
                 value={state[component]}
                 onChange={(s) => setState({ [component]: s })}
+                disabled={saveData !== undefined}
               />
             </>
           );
@@ -265,6 +267,7 @@ const DDTransformation = ({
                 context={contextFromAttributeSet(component)}
                 setSelected={(s) => setState({ [component]: s })}
                 selected={state[component]}
+                disabled={saveData !== undefined}
               />
             </>
           );
@@ -275,6 +278,7 @@ const DDTransformation = ({
               <CodapFlowTextInput
                 value={state[component]}
                 onChange={(e) => setState({ [component]: e.target.value })}
+                disabled={saveData !== undefined}
               />
             </>
           );
@@ -288,6 +292,7 @@ const DDTransformation = ({
                 options={tmp.options}
                 value={state[component]}
                 defaultValue={tmp.defaultValue}
+                disabled={saveData !== undefined}
               />
             </>
           ) : (
@@ -307,13 +312,17 @@ const DDTransformation = ({
                 inputTypeOnChange={(e) => {
                   setState({ [component]: e.target.value });
                 }}
-                inputTypeDisabled={init[component]?.inputTypeDisabled}
+                inputTypeDisabled={
+                  init[component]?.inputTypeDisabled || saveData !== undefined
+                }
                 outputTypes={tmp.outputTypes}
                 selectedOutputType={state[component].outputType}
                 outputTypeOnChange={(e) => {
                   setState({ [component]: e.target.value });
                 }}
-                outputTypeDisabled={init[component]?.outputTypeDisabled}
+                outputTypeDisabled={
+                  init[component]?.outputTypeDisabled || saveData !== undefined
+                }
               />
             </>
           ) : (
@@ -331,6 +340,7 @@ const DDTransformation = ({
                     | "attributes1"
                     | "attributes2"
                 ].map((a) => a.name)}
+                disabled={saveData !== undefined}
               />
             </>
           );
@@ -341,9 +351,9 @@ const DDTransformation = ({
       <br />
       <TransformationSubmitButtons onCreate={transform} />
       {errorDisplay}
-      {/* {saveData === undefined && (
+      {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />
-      )} */}
+      )}
     </>
   );
 };

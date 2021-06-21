@@ -20,6 +20,10 @@ import { CombineCasesSaveData } from "./CombineCases";
 import { GenericFoldSaveData } from "./GenericFold";
 import { PartitionSaveData } from "./Partition";
 
+export interface FilterSaveData {
+  predicate: string;
+}
+
 /**
  * The content associated with a saved transformation. Includes the base
  * transformation type and the saved data (for instance attribute names,
@@ -44,7 +48,7 @@ export type SavedTransformationContent =
     }
   | {
       base: "Filter";
-      data?: {};
+      data?: FilterSaveData;
     }
   | {
       base: "Flatten";

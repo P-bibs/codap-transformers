@@ -4,7 +4,6 @@ import { CopySchemaSaveData } from "./CopySchema";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { FoldSaveData } from "./Fold";
 import { JoinSaveData } from "./Join";
-import { PivotLongerSaveData } from "./PivotLonger";
 import { PivotWiderSaveData } from "./PivotWider";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
@@ -56,6 +55,12 @@ export interface SortSaveData {
   keyExpression: string;
   outputType: CodapLanguageType;
   sortDirection: SortDirection;
+}
+
+export interface PivotLongerSaveData {
+  attributes: string[];
+  namesTo: string;
+  valuesTo: string;
 }
 
 /**

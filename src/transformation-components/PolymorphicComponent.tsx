@@ -7,7 +7,6 @@ import {
   RunningSum,
 } from "./Fold";
 import { DifferenceFrom } from "./DifferenceFrom";
-import { PivotLonger } from "./PivotLonger";
 import { PivotWider } from "./PivotWider";
 import { SavedTransformation } from "./types";
 import { Join } from "./Join";
@@ -27,6 +26,7 @@ import { selectAttributes } from "../transformations/selectAttributes";
 import { count } from "../transformations/count";
 import { compare } from "../transformations/compare";
 import { sort } from "../transformations/sort";
+import { pivotLonger } from "../transformations/pivot";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -304,10 +304,24 @@ export const PolymorphicComponent = ({
       );
     case "Pivot Longer":
       return (
-        <PivotLonger
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Pivot",
+            },
+            attributeSet1: {
+              title: "Attributes to Pivot",
+            },
+            textInput1: {
+              title: "Names to",
+            },
+            textInput2: {
+              title: "Values to",
+            },
+          }}
+          transformationFunction={pivotLonger}
         />
       );
     case "Pivot Wider":

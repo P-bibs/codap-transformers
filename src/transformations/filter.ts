@@ -31,7 +31,7 @@ export async function filter(
 
   return new Promise((resolve) =>
     resolve({
-      collections: dataset.collections.slice(),
+      collections: dataset.collections,
       records: filteredRecords,
     })
   );

@@ -1,6 +1,6 @@
 import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { reparent } from "./util";
+import { reparent, cloneCollection, shallowCopy } from "./util";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that
@@ -26,7 +26,7 @@ export function groupBy(
   newParentName: string
 ): DataSet {
   const groupedAttrs: CodapAttribute[] = [];
-  let collections = dataset.collections.slice();
+  let collections = dataset.collections.map(cloneCollection);
 
   // extract attributes from collections into a list
   attrLoop: for (const attrName of attrNames) {
@@ -80,7 +80,7 @@ export function groupBy(
     labels: {},
   };
 
-  const records = dataset.records.slice();
+  const records = dataset.records.map(shallowCopy);
   for (const record of records) {
     for (const attrName of attrNames) {
       // make copy of record data from original attr into grouped attr

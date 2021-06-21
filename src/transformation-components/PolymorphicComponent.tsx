@@ -6,7 +6,6 @@ import {
   RunningMin,
   RunningSum,
 } from "./Fold";
-import { Compare } from "./Compare";
 import { DifferenceFrom } from "./DifferenceFrom";
 import { Sort } from "./Sort";
 import { PivotLonger } from "./PivotLonger";
@@ -27,6 +26,7 @@ import { flatten } from "../transformations/flatten";
 import { groupBy } from "../transformations/groupBy";
 import { selectAttributes } from "../transformations/selectAttributes";
 import { count } from "../transformations/count";
+import { compare } from "../transformations/compare";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -237,10 +237,33 @@ export const PolymorphicComponent = ({
       );
     case "Compare":
       return (
-        <Compare
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "First Table to Compare",
+            },
+            context2: {
+              title: "Second Table to Compare",
+            },
+            attribute1: {
+              title: "First attribute to Compare",
+            },
+            attribute2: {
+              title: "Second attribute to Compare",
+            },
+            dropdown1: {
+              title: "What kind of Comparison?",
+              options: [
+                { value: "categorical", title: "Categorical" },
+                { value: "numeric", title: "Numeric" },
+                { value: "structural", title: "Structural" },
+              ],
+              defaultValue: "Select a type",
+            },
+          }}
+          transformationFunction={compare}
         />
       );
     case "Difference From":

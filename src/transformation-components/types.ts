@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { CompareSaveData } from "./Compare";
 import { CopySaveData } from "./Copy";
 import { CopySchemaSaveData } from "./CopySchema";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
@@ -14,6 +13,7 @@ import { CombineCasesSaveData } from "./CombineCases";
 import { GenericFoldSaveData } from "./GenericFold";
 import { PartitionSaveData } from "./Partition";
 import { CodapLanguageType } from "../transformations/types";
+import { CompareType } from "../transformations/compare";
 
 export interface FilterSaveData {
   predicate: string;
@@ -44,6 +44,12 @@ export type FlattenSaveData = Record<string, never>;
 
 export interface CountSaveData {
   attributes: string[];
+}
+
+export interface CompareSaveData {
+  inputAttribute1: string | null;
+  inputAttribute2: string | null;
+  compareType: CompareType;
 }
 
 /**

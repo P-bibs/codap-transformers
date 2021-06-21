@@ -224,6 +224,9 @@ export enum ContextChangeOperation {
   SelectCases = "selectCases",
   UpdateContext = "updateDataContext",
 
+  // Triggered when sorting a column.
+  MoveCases = "moveCases",
+
   // Despite the documentation, the first three of these are plural, while the
   // last is singular
   CreateAttribute = "createAttributes",
@@ -248,6 +251,7 @@ export const mutatingOperations = [
   ContextChangeOperation.UpdateCases,
   ContextChangeOperation.CreateCases,
   ContextChangeOperation.DeleteCases,
+  ContextChangeOperation.MoveCases,
   ContextChangeOperation.CreateAttribute,
   ContextChangeOperation.UpdateAttribute,
   ContextChangeOperation.DeleteAttribute,

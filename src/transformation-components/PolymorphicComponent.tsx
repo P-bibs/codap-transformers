@@ -6,8 +6,6 @@ import {
   RunningMin,
   RunningSum,
 } from "./Fold";
-// import { Filter } from "./Filter";
-import { Count } from "./Count";
 import { Compare } from "./Compare";
 import { DifferenceFrom } from "./DifferenceFrom";
 import { Sort } from "./Sort";
@@ -28,6 +26,7 @@ import { buildColumn } from "../transformations/buildColumn";
 import { flatten } from "../transformations/flatten";
 import { groupBy } from "../transformations/groupBy";
 import { selectAttributes } from "../transformations/selectAttributes";
+import { count } from "../transformations/count";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -222,10 +221,18 @@ export const PolymorphicComponent = ({
       );
     case "Count":
       return (
-        <Count
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Count",
+            },
+            attributeSet1: {
+              title: "Attributes to Count",
+            },
+          }}
+          transformationFunction={count}
         />
       );
     case "Compare":

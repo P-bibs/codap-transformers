@@ -2,6 +2,9 @@ import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { eraseFormulas } from "./util";
 import { uniqueName } from "../utils/names";
+import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { readableName } from "../transformation-components/util";
 
 // TODO: allow for two modes:
 //  1) treat data like one table, values are counted across all cases
@@ -16,7 +19,25 @@ import { uniqueName } from "../utils/names";
  * (with their distinct tuples), as well as a `count` attribute, which lists
  * the frequency of a given tuple.
  */
-export function count(dataset: DataSet, attributes: string[]): DataSet {
+export async function count({
+  context1: contextName,
+  attributeSet1: attributes,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (attributes.length === 0) {
+    throw new Error("Please choose at least one attribute to count");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedCount(dataset, attributes),
+    `Count of ${attributes.join(", ")} in ${readableName(context)}`,
+  ];
+}
+
+function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
   // validate attribute names
   for (const attrName of attributes) {
     if (

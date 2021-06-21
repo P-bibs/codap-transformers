@@ -2,7 +2,6 @@ import { ReactElement } from "react";
 import { CompareSaveData } from "./Compare";
 import { CopySaveData } from "./Copy";
 import { CopySchemaSaveData } from "./CopySchema";
-import { CountSaveData } from "./Count";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { FoldSaveData } from "./Fold";
 import { JoinSaveData } from "./Join";
@@ -42,6 +41,10 @@ export interface GroupBySaveData {
 }
 
 export type FlattenSaveData = Record<string, never>;
+
+export interface CountSaveData {
+  attributes: string[];
+}
 
 /**
  * The content associated with a saved transformation. Includes the base

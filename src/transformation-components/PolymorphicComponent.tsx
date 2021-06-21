@@ -1,5 +1,4 @@
 import React, { ReactElement } from "react";
-import { BuildColumn } from "./BuildColumn";
 import {
   RunningDifference,
   RunningMax,
@@ -29,6 +28,7 @@ import { GenericFold } from "./GenericFold";
 import { Partition } from "./Partition";
 import DDTransformation from "./DDTransformation";
 import { filter } from "../transformations/filter";
+import { buildColumn } from "../transformations/buildColumn";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -136,10 +136,28 @@ export const PolymorphicComponent = ({
       );
     case "Build Column":
       return (
-        <BuildColumn
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Add Attribute To",
+            },
+            textInput1: {
+              title: "Name of New Attribute",
+            },
+            collection1: {
+              title: "Collection to Add To",
+            },
+            typeContract1: {
+              title: "Formula for Attribute Values",
+              inputTypes: ["Row"],
+              outputTypes: ["any", "string", "number", "boolean", "boundary"],
+              inputTypeDisabled: true,
+            },
+            expression1: { title: "" },
+          }}
+          transformationFunction={buildColumn}
         />
       );
     case "Select Attributes":

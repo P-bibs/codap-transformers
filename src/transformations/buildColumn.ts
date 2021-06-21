@@ -1,12 +1,57 @@
 import { CodapLanguageType, DataSet } from "./types";
-import { evalExpression } from "../utils/codapPhone/index";
-import { findTypeErrors, reportTypeErrorsForRecords } from "./util";
+import {
+  evalExpression,
+  getContextAndDataSet,
+} from "../utils/codapPhone/index";
+import { reportTypeErrorsForRecords } from "./util";
+import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { readableName } from "../transformation-components/util";
 
 /**
  * Builds a dataset with a new attribute added to one of the collections,
  * whose case values are computed by evaluating the given expression.
  */
-export async function buildColumn(
+export async function buildColumn({
+  context1: contextName,
+  collection1: collectionName,
+  textInput1: attributeName,
+  expression1: expression,
+  typeContract1: { outputType },
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (collectionName === null) {
+    throw new Error("Please select a collection to add to");
+  }
+  if (attributeName === null) {
+    throw new Error("Please enter a non-empty name for the new attribute");
+  }
+  if (expression === "") {
+    throw new Error("Please enter a non-empty expression");
+  }
+  if (outputType === null) {
+    throw new Error("Please enter a valid output type");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedBuildColumn(
+      dataset,
+      attributeName,
+      collectionName,
+      expression,
+      outputType
+    ),
+    `Build Column of ${readableName(context)}`,
+  ];
+}
+
+/**
+ * Builds a dataset with a new attribute added to one of the collections,
+ * whose case values are computed by evaluating the given expression.
+ */
+async function uncheckedBuildColumn(
   dataset: DataSet,
   newAttributeName: string,
   collectionName: string,

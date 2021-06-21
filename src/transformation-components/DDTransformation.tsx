@@ -3,7 +3,7 @@ import React, { useReducer, ReactElement } from "react";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { useAttributes, useInput } from "../utils/hooks";
 import { compare, CompareType } from "../transformations/compare";
-import { DataSet } from "../transformations/types";
+import { CodapLanguageType, DataSet } from "../transformations/types";
 import {
   CodapFlowSelect,
   AttributeSelector,
@@ -84,8 +84,8 @@ type DropdownState = string | null;
 type ExpressionState = string;
 
 type TypeContractState = {
-  inputType: string;
-  outputType: string;
+  inputType: CodapLanguageType;
+  outputType: CodapLanguageType;
 };
 export type DDTransformationState = {
   context1: ContextState;
@@ -125,17 +125,29 @@ const DEFAULT_STATE: DDTransformationState = {
   typeContract2: { inputType: "any", outputType: "any" },
 };
 
-const contextFromCollection = (collection: string) =>
-  convertNames(collection, "collection", "context");
+const contextFromCollection = (
+  collection: string
+): "collection1" | "collection2" =>
+  convertNames(collection, "collection", "context") as
+    | "collection1"
+    | "collection2";
 
-const contextFromAttribute = (attribute: string) =>
-  convertNames(attribute, "attribute", "context");
+const contextFromAttribute = (attribute: string): "context1" | "context2" =>
+  convertNames(attribute, "attribute", "context") as "context1" | "context2";
 
-const contextFromAttributeSet = (attributeSet: string) =>
-  convertNames(attributeSet, "attributeSet", "context");
+const contextFromAttributeSet = (
+  attributeSet: string
+): "context1" | "context2" =>
+  convertNames(attributeSet, "attributeSet", "context") as
+    | "context1"
+    | "context2";
 
-const attributeSetFromExpression = (expression: string) =>
-  convertNames(expression, "expression", "attributes");
+const attributeSetFromExpression = (
+  expression: string
+): "attributeSet1" | "attributeSet2" =>
+  convertNames(expression, "expression", "attributes") as
+    | "attributeSet1"
+    | "attributeSet2";
 
 const convertNames = (
   sourceName: string,
@@ -237,8 +249,8 @@ const DDTransformation = ({
             <>
               {titleFromComponent(component, init)}
               <CollectionSelector
-                context={contextFromCollection(component)}
-                value={component}
+                context={state[contextFromCollection(component)]}
+                value={state[component]}
                 onChange={(e) => setState({ [component]: e.target.value })}
                 disabled={saveData !== undefined}
               />
@@ -249,7 +261,7 @@ const DDTransformation = ({
             <>
               {titleFromComponent(component, init)}
               <AttributeSelector
-                context={contextFromAttribute(component)}
+                context={state[contextFromAttribute(component)]}
                 value={state[component]}
                 onChange={(s) => setState({ [component]: s })}
                 disabled={saveData !== undefined}
@@ -264,7 +276,7 @@ const DDTransformation = ({
             <>
               {titleFromComponent(component, init)}
               <MultiAttributeSelector
-                context={contextFromAttributeSet(component)}
+                context={state[contextFromAttributeSet(component)]}
                 setSelected={(s) => setState({ [component]: s })}
                 selected={state[component]}
                 disabled={saveData !== undefined}
@@ -310,7 +322,12 @@ const DDTransformation = ({
                 inputTypes={tmp.inputTypes}
                 selectedInputType={state[component].outputType}
                 inputTypeOnChange={(e) => {
-                  setState({ [component]: e.target.value });
+                  setState({
+                    [component]: {
+                      inputType: e.target.value,
+                      outputType: state[component].outputType,
+                    },
+                  });
                 }}
                 inputTypeDisabled={
                   init[component]?.inputTypeDisabled || saveData !== undefined
@@ -318,7 +335,12 @@ const DDTransformation = ({
                 outputTypes={tmp.outputTypes}
                 selectedOutputType={state[component].outputType}
                 outputTypeOnChange={(e) => {
-                  setState({ [component]: e.target.value });
+                  setState({
+                    [component]: {
+                      inputType: state[component].inputType,
+                      outputType: e.target.value,
+                    },
+                  });
                 }}
                 outputTypeDisabled={
                   init[component]?.outputTypeDisabled || saveData !== undefined

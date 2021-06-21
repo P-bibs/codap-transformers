@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { BuildColumnSaveData } from "./BuildColumn";
 import { CompareSaveData } from "./Compare";
 import { CopySaveData } from "./Copy";
 import { CopySchemaSaveData } from "./CopySchema";
@@ -19,9 +18,17 @@ import { AverageSaveData } from "./Average";
 import { CombineCasesSaveData } from "./CombineCases";
 import { GenericFoldSaveData } from "./GenericFold";
 import { PartitionSaveData } from "./Partition";
+import { CodapLanguageType } from "../transformations/types";
 
 export interface FilterSaveData {
   predicate: string;
+}
+
+export interface BuildColumnSaveData {
+  attributeName: string;
+  collectionName: string;
+  expression: string;
+  outputType: CodapLanguageType;
 }
 
 /**

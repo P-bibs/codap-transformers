@@ -10,7 +10,6 @@ import { PivotLongerSaveData } from "./PivotLonger";
 import { PivotWiderSaveData } from "./PivotWider";
 import { SelectAttributesSaveData } from "./SelectAttributes";
 import { SortSaveData } from "./Sort";
-import { TransformColumnSaveData } from "./TransformColumn";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
 import { CombineCasesSaveData } from "./CombineCases";
@@ -29,6 +28,11 @@ export interface BuildColumnSaveData {
   outputType: CodapLanguageType;
 }
 
+export interface TransformColumnSaveData {
+  attributeName: string | null;
+  expression: string;
+  outputType: CodapLanguageType;
+}
 export interface GroupBySaveData {
   attributes: string[];
 }

@@ -141,10 +141,25 @@ export const PolymorphicComponent = ({
       );
     case "Transform Column":
       return (
-        <TransformColumn
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Transform Column Of",
+            },
+            attribute1: {
+              title: "Attribute to Transform",
+            },
+            typeContract1: {
+              title: "Formula for Transformed Values",
+              inputTypes: ["Row"],
+              outputTypes: ["any", "string", "number", "boolean", "boundary"],
+              inputTypeDisabled: true,
+            },
+            expression1: { title: "" },
+          }}
+          transformationFunction={buildColumn}
         />
       );
     case "Build Column":

@@ -10,8 +10,6 @@ import { DifferenceFrom } from "./DifferenceFrom";
 import { SavedTransformation } from "./types";
 import { DotProduct } from "./DotProduct";
 import { Average } from "./Average";
-import { CopySchema } from "./CopySchema";
-import { CombineCases } from "./CombineCases";
 import { GenericFold } from "./GenericFold";
 import { Partition } from "./Partition";
 import DDTransformation from "./DDTransformation";
@@ -26,6 +24,8 @@ import { sort } from "../transformations/sort";
 import { pivotLonger, pivotWider } from "../transformations/pivot";
 import { join } from "../transformations/join";
 import { copy } from "../transformations/copy";
+import { copySchema } from "../transformations/copySchema";
+import { combineCases } from "../transformations/combineCases";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -387,10 +387,15 @@ export const PolymorphicComponent = ({
       );
     case "Copy Schema":
       return (
-        <CopySchema
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Copy",
+            }
+          }}
+          transformationFunction={copySchema}
         />
       );
     case "Average":
@@ -403,10 +408,18 @@ export const PolymorphicComponent = ({
       );
     case "Combine Cases":
       return (
-        <CombineCases
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Base Table",
+            },
+            context2: {
+              title: "Combining Table",
+            }
+          }}
+          transformationFunction={combineCases}
         />
       );
     case "Reduce":

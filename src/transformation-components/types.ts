@@ -1,10 +1,8 @@
 import { ReactElement } from "react";
-import { CopySchemaSaveData } from "./CopySchema";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { FoldSaveData } from "./Fold";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
-import { CombineCasesSaveData } from "./CombineCases";
 import { GenericFoldSaveData } from "./GenericFold";
 import { PartitionSaveData } from "./Partition";
 import { CodapLanguageType } from "../transformations/types";
@@ -72,6 +70,9 @@ export interface JoinSaveData {
 
 export type CopySaveData = Record<string, never>;
 
+export type CopySchemaSaveData = Record<string, never>;
+
+export type CombineCasesSaveData = Record<string, never>;
 
 /**
  * The content associated with a saved transformation. Includes the base

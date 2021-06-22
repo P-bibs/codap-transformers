@@ -5,7 +5,7 @@ import { DataSet } from "./types";
  */
 export function copy(dataset: DataSet): DataSet {
   return {
-    collections: dataset.collections.slice(),
-    records: dataset.records.slice(),
+    collections: dataset.collections,
+    records: dataset.records,
   };
 }

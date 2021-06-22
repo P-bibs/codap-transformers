@@ -1,5 +1,5 @@
 import { DataSet } from "./types";
-import { reparent, eraseFormulas } from "./util";
+import { reparent, eraseFormulas, cloneCollection } from "./util";
 
 /**
  * Constructs a dataset with only the indicated attributes from the
@@ -41,7 +41,7 @@ export function selectAttributes(
   }
 
   // copy collections
-  const allCollections = dataset.collections.slice();
+  const allCollections = dataset.collections.map(cloneCollection);
   const collections = [];
 
   // filter out any attributes that aren't in the selected list

@@ -29,6 +29,8 @@ import {
 import {
   callUpdateListenersForContext,
   callAllContextListeners,
+  removeContextUpdateListenersForContext,
+  removeListenersWithDependency,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -115,6 +117,18 @@ function codapRequestHandler(
     return;
   }
 
+  // notification of which data context was deleted
+  if (
+    command.resource === CodapInitiatedResource.DocumentChangeNotice &&
+    command.values.operation === DocumentChangeOperations.DataContextDeleted
+  ) {
+    removeContextUpdateListenersForContext(command.values.deletedContext);
+    removeListenersWithDependency(command.values.deletedContext);
+    callback({ success: true });
+    return;
+  }
+
+  // data context was added/deleted
   if (
     command.resource === CodapInitiatedResource.DocumentChangeNotice &&
     command.values.operation ===
@@ -460,7 +474,7 @@ async function createDataContext(
         resource: CodapResource.DataContext,
         values: {
           name: name,
-          title: title,
+          title: title !== undefined ? title : name,
           collections: collections,
         },
       },

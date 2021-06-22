@@ -1,6 +1,6 @@
 import { DataSet } from "./types";
 import { setEquality } from "../utils/sets";
-import { eraseFormulas, allAttrNames } from "./util";
+import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
 
 /**
  * Stack combines a top and bottom table which have matching attributes
@@ -28,12 +28,12 @@ export function combineCases(base: DataSet, combining: DataSet): DataSet {
 
   // NOTE: do not preserve base table's formulas. It is possible the combining
   // table's values get clobbered by a formula.
-  const collections = base.collections.slice();
+  const collections = base.collections.map(cloneCollection);
   collections.forEach((coll) => eraseFormulas(coll.attrs || []));
 
   // same schema as base, with combined records
   return {
-    collections: base.collections.slice(),
+    collections,
     records,
   };
 }

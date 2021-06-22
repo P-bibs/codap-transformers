@@ -22,7 +22,7 @@ export function partition(
   // map from distinct values of an attribute to all records sharing that value
   const partitioned: Record<string, [unknown, Record<string, unknown>[]]> = {};
 
-  const records = dataset.records.slice();
+  const records = dataset.records;
   for (const record of records) {
     if (record[attribute] === undefined) {
       throw new Error(`Invalid attribute: ${attribute}`);
@@ -46,7 +46,7 @@ export function partition(
     // records that correspond to this value of the attribute
     results.push({
       dataset: {
-        collections: dataset.collections.slice(),
+        collections: dataset.collections,
         records,
       },
       distinctValue: value,

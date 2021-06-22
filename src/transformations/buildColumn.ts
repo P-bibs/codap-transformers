@@ -1,6 +1,6 @@
 import { CodapLanguageType, DataSet } from "./types";
 import { evalExpression } from "../utils/codapPhone/index";
-import { findTypeErrors, reportTypeErrorsForRecords } from "./util";
+import { reportTypeErrorsForRecords, cloneCollection } from "./util";
 
 /**
  * Builds a dataset with a new attribute added to one of the collections,
@@ -14,7 +14,7 @@ export async function buildColumn(
   outputType: CodapLanguageType
 ): Promise<DataSet> {
   // find collection to add attribute to
-  const collections = dataset.collections.slice();
+  const collections = dataset.collections.map(cloneCollection);
   const toAdd = collections.find((coll) => coll.name === collectionName);
 
   if (toAdd === undefined) {
@@ -40,15 +40,16 @@ export async function buildColumn(
     description: `An attribute whose values were computed with the formula ${expression}`,
   });
 
-  const records = dataset.records.slice();
-  const colValues = await evalExpression(expression, records);
+  const colValues = await evalExpression(expression, dataset.records);
 
   // Check for type errors (might throw error and abort transformation)
-  reportTypeErrorsForRecords(records, colValues, outputType);
+  reportTypeErrorsForRecords(dataset.records, colValues, outputType);
 
   // add values for new attribute to all records
-  colValues.forEach((value, i) => {
-    records[i][newAttributeName] = value;
+  const records = dataset.records.map((record, i) => {
+    const recordCopy = { ...record };
+    recordCopy[newAttributeName] = colValues[i];
+    return recordCopy;
   });
 
   return {

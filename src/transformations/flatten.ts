@@ -8,7 +8,7 @@ import { DataSet } from "./types";
 export function flatten(dataset: DataSet): DataSet {
   // flatten attributes of all collections into single list of attributes
   const attrs = dataset.collections
-    .map((collection) => collection.attrs?.slice() || [])
+    .map((collection) => collection.attrs || [])
     .flat();
 
   // create combined name for collection
@@ -24,6 +24,6 @@ export function flatten(dataset: DataSet): DataSet {
   // dataset with same records but single collection
   return {
     collections: [collection],
-    records: dataset.records.slice(),
+    records: dataset.records,
   };
 }

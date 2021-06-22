@@ -62,7 +62,7 @@ export function addUpdateListener(
   doTransform: () => Promise<[DataSet, string]>,
   setErrMsg: (msg: string | null) => void
 ): void {
-  addContextUpdateListener(inputContext, async () => {
+  addContextUpdateListener(inputContext, [outputContext], async () => {
     setErrMsg(null);
     try {
       const [transformed] = await doTransform();
@@ -79,7 +79,7 @@ export function addUpdateTextListener(
   doTransform: () => Promise<[number, string]>,
   setErrMsg: (msg: string) => void
 ): void {
-  addContextUpdateListener(inputContext, async () => {
+  addContextUpdateListener(inputContext, [textName], async () => {
     try {
       const [result] = await doTransform();
       updateText(textName, String(result));

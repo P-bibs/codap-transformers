@@ -17,7 +17,7 @@ export async function copy({
   return [await uncheckedCopy(dataset), `Copy of ${readableName(context)}`];
 }
 
-export function uncheckedCopy(dataset: DataSet): DataSet {
+function uncheckedCopy(dataset: DataSet): DataSet {
   return {
     collections: dataset.collections.slice(),
     records: dataset.records.slice(),

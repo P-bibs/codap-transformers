@@ -49,7 +49,7 @@ export async function groupBy({
  * @param newParentName the name of newly-created parent collection
  * @returns the grouped dataset
  */
-export function uncheckedGroupBy(
+function uncheckedGroupBy(
   dataset: DataSet,
   attrNames: string[],
   newParentName: string

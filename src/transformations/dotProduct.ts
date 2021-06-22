@@ -34,10 +34,7 @@ export async function dotProduct({
  * @param dataset - The input DataSet
  * @param attributes - The columns to take the dot product of.
  */
-export function uncheckedDotProduct(
-  dataset: DataSet,
-  attributes: string[]
-): number {
+function uncheckedDotProduct(dataset: DataSet, attributes: string[]): number {
   if (attributes.length === 0) {
     throw new Error("Cannot take the dot product of zero columns.");
   }

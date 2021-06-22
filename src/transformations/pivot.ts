@@ -147,7 +147,7 @@ export async function pivotWider({
  * @param valuesFrom name of attribute holding the values that will go
  *  under the new attribute names
  */
-export function uncheckedPivotWider(
+function uncheckedPivotWider(
   dataset: DataSet,
   namesFrom: string,
   valuesFrom: string

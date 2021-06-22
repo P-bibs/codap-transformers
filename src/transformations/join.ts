@@ -50,7 +50,7 @@ export async function join({
  * @param joiningDataset dataset to take cases from and add to baseDataset
  * @param joiningAttr attribute to join on from joiningDataset
  */
-export function uncheckedJoin(
+function uncheckedJoin(
   baseDataset: DataSet,
   baseAttr: string,
   joiningDataset: DataSet,

@@ -143,7 +143,7 @@ export async function genericFold({
   ];
 }
 
-export async function uncheckedGenericFold(
+async function uncheckedGenericFold(
   dataset: DataSet,
   base: string,
   expression: string,
@@ -272,7 +272,7 @@ export async function differenceFrom({
   ];
 }
 
-export function uncheckedDifferenceFrom(
+function uncheckedDifferenceFrom(
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,

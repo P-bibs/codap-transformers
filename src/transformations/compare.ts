@@ -63,7 +63,7 @@ export async function compare({
   ];
 }
 
-export function uncheckedCompare(
+function uncheckedCompare(
   dataset1: DataSet,
   dataset2: DataSet,
   attributeName1: string,

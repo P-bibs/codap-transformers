@@ -22,7 +22,7 @@ export async function flatten({
   ];
 }
 
-export function uncheckedFlatten(dataset: DataSet): DataSet {
+function uncheckedFlatten(dataset: DataSet): DataSet {
   // flatten attributes of all collections into single list of attributes
   const attrs = dataset.collections
     .map((collection) => collection.attrs?.slice() || [])

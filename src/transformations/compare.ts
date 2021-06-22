@@ -2,7 +2,7 @@ import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
 import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
-import { flatten, uncheckedFlatten } from "./flatten";
+import { uncheckedFlatten } from "./flatten";
 import { eraseFormulas, getAttributeDataFromDataset } from "./util";
 import { DDTransformationState } from "../transformation-components/DDTransformation";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -18,7 +18,7 @@ const DECISION_1_COLUMN_NAME = "Category 1";
 const DECISION_2_COLUMN_NAME = "Category 2";
 
 export type CompareType = "numeric" | "categorical" | "structural";
-function isCompareType(s: any): s is CompareType {
+function isCompareType(s: unknown): s is CompareType {
   return s === "numeric" || s === "categorical" || s === "structural";
 }
 

@@ -5,7 +5,7 @@ import { DDTransformationState } from "../transformation-components/DDTransforma
 import { readableName } from "../transformation-components/util";
 
 export type SortDirection = "ascending" | "descending";
-function isSortDirection(s: any): s is SortDirection {
+function isSortDirection(s: unknown): s is SortDirection {
   return s === "ascending" || s === "descending";
 }
 

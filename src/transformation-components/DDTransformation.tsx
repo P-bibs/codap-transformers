@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import React, { useReducer, ReactElement } from "react";
-import {
-  addContextUpdateListener,
-  createText,
-  getContextAndDataSet,
-  updateText,
-} from "../utils/codapPhone";
-import { useAttributes, useInput } from "../utils/hooks";
-import { compare, CompareType } from "../transformations/compare";
+import { createText, updateText } from "../utils/codapPhone";
+import { useAttributes } from "../utils/hooks";
 import { CodapLanguageType, DataSet } from "../transformations/types";
 import {
   CodapFlowSelect,
@@ -22,11 +16,9 @@ import {
 } from "../ui-components";
 import {
   applyNewDataSet,
-  readableName,
   addUpdateListener,
   addUpdateTextListener,
 } from "./util";
-import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
 interface ComponentInit {

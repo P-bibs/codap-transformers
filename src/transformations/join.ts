@@ -1,6 +1,49 @@
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { DataSet } from "./types";
 import { uniqueName } from "../utils/names";
+import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { readableName } from "../transformation-components/util";
+
+
+/**
+ * Joins two datasets together, using the baseDataset as a starting point
+ * and incorporating values from the joiningDataset for any cases whose
+ * value for baseAttr matches the value for joiningAttr of a case in the
+ * joiningDataset.
+ */
+ export async function join({
+  context1: inputDataContext1,
+  context2: inputDataContext2,
+  attribute1: inputAttribute1,
+  attribute2: inputAttribute2,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (
+    !inputDataContext1 ||
+    !inputDataContext2 ||
+    !inputAttribute1 ||
+    !inputAttribute2
+  ) {
+    throw new Error("Please choose two datasets and two attributes");
+  }
+
+  const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
+    inputDataContext1
+  );
+  const { context: context2, dataset: dataset2 } = await getContextAndDataSet(
+    inputDataContext2
+  );
+
+  return [
+    await uncheckedJoin(
+      dataset1,
+      inputAttribute1,
+      dataset2,
+      inputAttribute2
+    ),
+    `Join of ${readableName(context1)} and ${readableName(context2)}`,
+  ];
+}
 
 /**
  * Joins two datasets together, using the baseDataset as a starting point
@@ -13,7 +56,7 @@ import { uniqueName } from "../utils/names";
  * @param joiningDataset dataset to take cases from and add to baseDataset
  * @param joiningAttr attribute to join on from joiningDataset
  */
-export function join(
+export function uncheckedJoin(
   baseDataset: DataSet,
   baseAttr: string,
   joiningDataset: DataSet,

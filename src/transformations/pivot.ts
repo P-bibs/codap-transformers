@@ -110,8 +110,11 @@ function uncheckedPivotLonger(
   };
 }
 
-
-
+/**
+ * Extracts the values of the namesFrom attribute into new attributes,
+ * with the values from the valuesFrom attribute as their values. The dataset
+ * gets "wider" (more attributes), but less long (fewer cases).
+ */
 export async function pivotWider({
   context1: contextName,
   attribute1: namesFrom,

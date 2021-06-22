@@ -3,7 +3,6 @@ import { CopySaveData } from "./Copy";
 import { CopySchemaSaveData } from "./CopySchema";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { FoldSaveData } from "./Fold";
-import { JoinSaveData } from "./Join";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
 import { CombineCasesSaveData } from "./CombineCases";
@@ -65,6 +64,11 @@ export interface PivotLongerSaveData {
 export interface PivotWiderSaveData {
   namesFrom: string | null;
   valuesFrom: string | null;
+}
+
+export interface JoinSaveData {
+  inputAttribute1: string | null;
+  inputAttribute2: string | null;
 }
 
 /**

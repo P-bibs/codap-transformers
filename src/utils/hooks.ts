@@ -58,7 +58,7 @@ export function useAttributes(context: string | null): CodapIdentifyingInfo[] {
         refreshAttributes(context);
       };
       refreshAttributes(context);
-      addContextUpdateListener(context, updateFunc);
+      addContextUpdateListener(context, [], updateFunc);
       return () => removeContextUpdateListener(context, updateFunc);
     }
   }, [context]);
@@ -98,7 +98,7 @@ export function useContextUpdateListener(
   callback: () => void
 ): void {
   useEffect(() => {
-    addContextUpdateListener(contextName, callback);
+    addContextUpdateListener(contextName, [], callback);
     return () => removeContextUpdateListener(contextName, callback);
   }, [contextName, callback]);
 }

@@ -264,6 +264,7 @@ export const mutatingOperations = [
 
 export enum DocumentChangeOperations {
   DataContextCountChanged = "dataContextCountChanged",
+  DataContextDeleted = "dataContextDeleted",
 }
 
 export type CodapInitiatedCommand =
@@ -284,7 +285,15 @@ export type CodapInitiatedCommand =
       action: CodapActions.Notify;
       resource: CodapInitiatedResource.DocumentChangeNotice;
       values: {
-        operation: DocumentChangeOperations;
+        operation: DocumentChangeOperations.DataContextCountChanged;
+      };
+    }
+  | {
+      action: CodapActions.Notify;
+      resource: CodapInitiatedResource.DocumentChangeNotice;
+      values: {
+        operation: DocumentChangeOperations.DataContextDeleted;
+        deletedContext: string;
       };
     }
   | {

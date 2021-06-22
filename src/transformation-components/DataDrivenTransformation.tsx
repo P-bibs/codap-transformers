@@ -21,20 +21,15 @@ import {
 } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
+// These types represent the configuration required for different UI elements
 interface ComponentInit {
   title: string;
 }
-
 interface ContextInit extends ComponentInit {}
-
 interface CollectionInit extends ComponentInit {}
-
 interface AttributeInit extends ComponentInit {}
-
 interface AttributeSetInit extends ComponentInit {}
-
 interface TextInputInit extends ComponentInit {}
-
 interface DropdownInit extends ComponentInit {
   defaultValue: string;
   options: {
@@ -42,16 +37,13 @@ interface DropdownInit extends ComponentInit {
     value: string;
   }[];
 }
-
 interface ExpressionInit extends ComponentInit {}
-
 interface TypeContractInit extends ComponentInit {
   inputTypes: string[];
   inputTypeDisabled?: boolean;
   outputTypes: string[];
   outputTypeDisabled?: boolean;
 }
-
 export type DDTransformationInit = {
   context1?: ContextInit;
   context2?: ContextInit;
@@ -71,20 +63,14 @@ export type DDTransformationInit = {
   typeContract2?: TypeContractInit;
 };
 
+// All the state types for different UI elements
 type ContextState = string | null;
-
 type CollectionState = string | null;
-
 type AttributeState = string | null;
-
 type AttributeSetState = string[];
-
 type TextInputState = string;
-
 type DropdownState = string | null;
-
 type ExpressionState = string;
-
 type TypeContractState = {
   inputType: CodapLanguageType;
   outputType: CodapLanguageType;
@@ -186,6 +172,14 @@ type DDTransformationProps = {
   saveData?: DDTransformationState;
 };
 
+/**
+ * Creates a transformation from a variety of ui elements. Requires a transformation
+ * function that consumes state from all ui elements and returns a dataset and a
+ * table name for a new context. Also requires an `init` object that has details on
+ * which ui elements to include in the transformation and how to configure them.
+ *
+ * Only UI elements in `init` will be included and they will appear in order.
+ */
 const DataDrivenTransformation = ({
   transformationFunction,
   init,
@@ -221,7 +215,11 @@ const DataDrivenTransformation = ({
 
     try {
       const [result, name] = await doTransform();
+
+      // Determine whether the transformationFunction returns a textbox or a table
       if (typeof result === "number") {
+        // This is the case where the transformation returns a number
+
         const textName = await createText(name, String(result));
 
         // Workaround because the text doesn't show up after creation
@@ -245,6 +243,7 @@ const DataDrivenTransformation = ({
           );
         }
       } else if (typeof result === "object") {
+        // This is the case where the transformation returns a dataset
         const newContextName = await applyNewDataSet(result, name);
         if (order.includes("context1") && state["context1"] !== null) {
           addUpdateListener(

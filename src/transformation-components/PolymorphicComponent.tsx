@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
 import { SavedTransformation } from "./types";
-import { DotProduct } from "./DotProduct";
 import { Average } from "./Average";
 import { GenericFold } from "./GenericFold";
 import { Partition } from "./Partition";
@@ -26,6 +25,7 @@ import {
   runningMin,
   runningSum,
 } from "../transformations/fold";
+import { dotProduct } from "../transformations/dotProduct";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -433,10 +433,18 @@ export const PolymorphicComponent = ({
       );
     case "Dot Product":
       return (
-        <DotProduct
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Take Dot Product of",
+            },
+            attributeSet1: {
+              title: "Attributes to Take Dot Product of",
+            },
+          }}
+          transformationFunction={dotProduct}
         />
       );
     case "Copy Schema":

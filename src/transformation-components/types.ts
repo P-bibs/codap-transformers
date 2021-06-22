@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
 import { GenericFoldSaveData } from "./GenericFold";
 import { PartitionSaveData } from "./Partition";
@@ -80,6 +79,10 @@ export interface DifferenceFromSaveData {
   inputAttributeName: string | null;
   resultAttributeName: string;
   startingValue: string;
+}
+
+export interface DotProductSaveData {
+  attributes: string[];
 }
 
 /**

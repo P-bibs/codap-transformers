@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import React, { useReducer, ReactElement } from "react";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import {
+  addContextUpdateListener,
+  createText,
+  getContextAndDataSet,
+  updateText,
+} from "../utils/codapPhone";
 import { useAttributes, useInput } from "../utils/hooks";
 import { compare, CompareType } from "../transformations/compare";
 import { CodapLanguageType, DataSet } from "../transformations/types";
@@ -15,7 +20,12 @@ import {
   TypeSelector,
   ExpressionEditor,
 } from "../ui-components";
-import { applyNewDataSet, readableName, addUpdateListener } from "./util";
+import {
+  applyNewDataSet,
+  readableName,
+  addUpdateListener,
+  addUpdateTextListener,
+} from "./util";
 import { TransformationProps } from "./types";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
 
@@ -166,7 +176,7 @@ const titleFromComponent = (
 type DDTransformationProps = {
   transformationFunction: (
     state: DDTransformationState
-  ) => Promise<[DataSet, string]>;
+  ) => Promise<[DataSet | number, string]>;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
   init: DDTransformationInit;
@@ -201,28 +211,54 @@ const DDTransformation = ({
   const transform = async () => {
     setErrMsg(null);
 
-    const doTransform: () => Promise<[DataSet, string]> = async () => {
+    const doTransform: () => Promise<[DataSet | number, string]> = async () => {
       // Might throw an error, which we handle in the below try/catch block
       return await transformationFunction(state);
     };
 
     try {
-      const newContextName = await applyNewDataSet(...(await doTransform()));
-      if (order.includes("context1") && state["context1"] !== null) {
-        addUpdateListener(
-          state["context1"],
-          newContextName,
-          doTransform,
-          setErrMsg
-        );
-      }
-      if (order.includes("context2") && state["context2"] !== null) {
-        addUpdateListener(
-          state["context2"],
-          newContextName,
-          doTransform,
-          setErrMsg
-        );
+      const [result, name] = await doTransform();
+      if (typeof result === "number") {
+        const textName = await createText(name, String(result));
+
+        // Workaround because the text doesn't show up after creation
+        // See https://codap.concord.org/forums/topic/issue-creating-and-updating-text-views-through-data-interactive-api/#post-6483
+        updateText(textName, String(result));
+
+        if (order.includes("context1") && state["context1"] !== null) {
+          addUpdateTextListener(
+            state["context1"],
+            textName,
+            doTransform as () => Promise<[number, string]>,
+            setErrMsg
+          );
+        }
+        if (order.includes("context2") && state["context2"] !== null) {
+          addUpdateTextListener(
+            state["context2"],
+            textName,
+            doTransform as () => Promise<[number, string]>,
+            setErrMsg
+          );
+        }
+      } else if (typeof result === "object") {
+        const newContextName = await applyNewDataSet(result, name);
+        if (order.includes("context1") && state["context1"] !== null) {
+          addUpdateListener(
+            state["context1"],
+            newContextName,
+            doTransform as () => Promise<[DataSet, string]>,
+            setErrMsg
+          );
+        }
+        if (order.includes("context2") && state["context2"] !== null) {
+          addUpdateListener(
+            state["context2"],
+            newContextName,
+            doTransform as () => Promise<[DataSet, string]>,
+            setErrMsg
+          );
+        }
       }
     } catch (e) {
       setErrMsg(e.message);

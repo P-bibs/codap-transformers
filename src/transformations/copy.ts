@@ -6,7 +6,7 @@ import { DataSet } from "./types";
 /**
  * Produces a dataset identical to the original.
  */
- export async function copy({
+export async function copy({
   context1: contextName,
 }: DDTransformationState): Promise<[DataSet, string]> {
   if (contextName === null) {
@@ -14,10 +14,7 @@ import { DataSet } from "./types";
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  return [
-    await uncheckedCopy(dataset),
-    `Copy of ${readableName(context)}`
-  ];
+  return [await uncheckedCopy(dataset), `Copy of ${readableName(context)}`];
 }
 
 export function uncheckedCopy(dataset: DataSet): DataSet {

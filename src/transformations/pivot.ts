@@ -132,12 +132,8 @@ export async function pivotWider({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   return [
-    await uncheckedPivotWider(
-      dataset,
-      namesFrom,
-      valuesFrom
-    ),
-    `Pivot Wider of ${readableName(context)}`
+    await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
+    `Pivot Wider of ${readableName(context)}`,
   ];
 }
 

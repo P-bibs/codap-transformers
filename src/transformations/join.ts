@@ -5,14 +5,13 @@ import { DDTransformationState } from "../transformation-components/DDTransforma
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformation-components/util";
 
-
 /**
  * Joins two datasets together, using the baseDataset as a starting point
  * and incorporating values from the joiningDataset for any cases whose
  * value for baseAttr matches the value for joiningAttr of a case in the
  * joiningDataset.
  */
- export async function join({
+export async function join({
   context1: inputDataContext1,
   context2: inputDataContext2,
   attribute1: inputAttribute1,
@@ -35,12 +34,7 @@ import { readableName } from "../transformation-components/util";
   );
 
   return [
-    await uncheckedJoin(
-      dataset1,
-      inputAttribute1,
-      dataset2,
-      inputAttribute2
-    ),
+    await uncheckedJoin(dataset1, inputAttribute1, dataset2, inputAttribute2),
     `Join of ${readableName(context1)} and ${readableName(context2)}`,
   ];
 }

@@ -16,7 +16,7 @@ import { readableName } from "../transformation-components/util";
  */
 export async function combineCases({
   context1: inputDataContext1,
-  context2: inputDataContext2
+  context2: inputDataContext2,
 }: DDTransformationState): Promise<[DataSet, string]> {
   if (!inputDataContext1 || !inputDataContext2) {
     throw new Error("Please choose two datasets to combine.");
@@ -29,16 +29,15 @@ export async function combineCases({
     inputDataContext2
   );
   return [
-    await uncheckedCombineCases(
-      dataset1, dataset2
-    ),
-    `Combined Cases of ${readableName(context1)} and ${readableName(
-      context2
-    )}`,
+    await uncheckedCombineCases(dataset1, dataset2),
+    `Combined Cases of ${readableName(context1)} and ${readableName(context2)}`,
   ];
 }
 
-export function uncheckedCombineCases(base: DataSet, combining: DataSet): DataSet {
+export function uncheckedCombineCases(
+  base: DataSet,
+  combining: DataSet
+): DataSet {
   const baseAttrs = allAttrNames(base);
   const combiningAttrs = allAttrNames(combining);
 

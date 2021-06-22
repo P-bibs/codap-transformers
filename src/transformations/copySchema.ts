@@ -21,7 +21,6 @@ export async function copySchema({
   ];
 }
 
-
 export function uncheckedCopySchema(dataset: DataSet): DataSet {
   return {
     collections: dataset.collections.slice(),

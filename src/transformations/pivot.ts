@@ -110,6 +110,34 @@ function uncheckedPivotLonger(
   };
 }
 
+
+
+export async function pivotWider({
+  context1: contextName,
+  attribute1: namesFrom,
+  attribute2: valuesFrom,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (namesFrom === null) {
+    throw new Error("Please choose an attribute to get names from");
+  }
+  if (valuesFrom === null) {
+    throw new Error("Please choose an attribute to get values from");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedPivotWider(
+      dataset,
+      namesFrom,
+      valuesFrom
+    ),
+    `Pivot Wider of ${readableName(context)}`
+  ];
+}
+
 /**
  * Extracts the values of the namesFrom attribute into new attributes,
  * with the values from the valuesFrom attribute as their values. The dataset
@@ -120,7 +148,7 @@ function uncheckedPivotLonger(
  * @param valuesFrom name of attribute holding the values that will go
  *  under the new attribute names
  */
-export function pivotWider(
+export function uncheckedPivotWider(
   dataset: DataSet,
   namesFrom: string,
   valuesFrom: string

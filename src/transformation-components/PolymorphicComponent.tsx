@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
 import { SavedTransformation } from "./types";
-import { GenericFold } from "./GenericFold";
 import { Partition } from "./Partition";
 import DDTransformation from "./DataDrivenTransformation";
 import { filter } from "../transformations/filter";
@@ -19,6 +18,7 @@ import { combineCases } from "../transformations/combineCases";
 import {
   difference,
   differenceFrom,
+  genericFold,
   runningMax,
   runningMean,
   runningMin,
@@ -494,10 +494,27 @@ export const PolymorphicComponent = ({
       );
     case "Reduce":
       return (
-        <GenericFold
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to reduce",
+            },
+            textInput1: {
+              title: "Result Attribute Name",
+            },
+            expression1: {
+              title: "Starting Value",
+            },
+            textInput2: {
+              title: "Accumulator Name",
+            },
+            expression2: {
+              title: "Formula for Next Accumulator",
+            },
+          }}
+          transformationFunction={genericFold}
         />
       );
     case "Partition":

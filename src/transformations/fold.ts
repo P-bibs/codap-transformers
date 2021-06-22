@@ -103,7 +103,47 @@ function makeNumFold<T>(
   };
 }
 
-export async function genericFold(
+export async function genericFold({
+  context1: contextName,
+  textInput1: resultColumnName,
+  expression1: base,
+  textInput2: accumulatorName,
+  expression2: expression,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (resultColumnName === "") {
+    throw new Error("Please enter a name for the new attribute");
+  }
+  if (expression === "") {
+    throw new Error("Please enter an expression");
+  }
+  if (base === "") {
+    throw new Error("Please enter a base value");
+  }
+  if (accumulatorName === "") {
+    throw new Error("Please enter an accumulator name");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+
+  const resultDescription = `A reduce of the ${readableName(context)} table.`;
+
+  return [
+    await uncheckedGenericFold(
+      dataset,
+      base,
+      expression,
+      resultColumnName,
+      accumulatorName,
+      resultDescription
+    ),
+    `Reduce of ${readableName(context)}`,
+  ];
+}
+
+export async function uncheckedGenericFold(
   dataset: DataSet,
   base: string,
   expression: string,

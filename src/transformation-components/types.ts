@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { GenericFoldSaveData } from "./GenericFold";
 import { PartitionSaveData } from "./Partition";
 import { CodapLanguageType } from "../transformations/types";
 import { CompareType } from "../transformations/compare";
@@ -86,6 +85,13 @@ export interface DotProductSaveData {
 
 export interface AverageSaveData {
   attribute: string | null;
+}
+
+export interface GenericFoldSaveData {
+  outputAttributeName: string;
+  expression: string;
+  base: string;
+  accumulatorName: string;
 }
 
 /**

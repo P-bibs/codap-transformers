@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
 import { SavedTransformation } from "./types";
-import { Average } from "./Average";
 import { GenericFold } from "./GenericFold";
 import { Partition } from "./Partition";
 import DDTransformation from "./DDTransformation";
@@ -26,6 +25,7 @@ import {
   runningSum,
 } from "../transformations/fold";
 import { dotProduct } from "../transformations/dotProduct";
+import { average } from "../transformations/average";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -462,10 +462,18 @@ export const PolymorphicComponent = ({
       );
     case "Average":
       return (
-        <Average
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Take Average of",
+            },
+            attribute1: {
+              title: "Attribute to Average",
+            },
+          }}
+          transformationFunction={average}
         />
       );
     case "Combine Cases":

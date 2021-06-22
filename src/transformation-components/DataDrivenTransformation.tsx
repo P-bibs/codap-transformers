@@ -151,12 +151,23 @@ const attributeSetFromExpression = (
     | "attributeSet1"
     | "attributeSet2";
 
+/**
+ * Converts component name and index of one type to a component of
+ * another name but with the same index. Example: converts attribute1
+ * to context1
+ * @param sourceName the name you want to convert (eg: attribute1)
+ * @param sourceNameRoot the root of the name you want to convert (eg: attribute)
+ * @param destinationNameRoot the root of the name to convert to (eg: context)
+ */
 const convertNames = (
   sourceName: string,
   sourceNameRoot: string,
   destinationNameRoot: string
 ) => destinationNameRoot + sourceName.slice(sourceNameRoot.length);
 
+/**
+ * Makes a header from a ui component's title
+ */
 const titleFromComponent = (
   component: keyof DDTransformationInit,
   init: DDTransformationInit
@@ -408,4 +419,4 @@ const DataDrivenTransformation = ({
   );
 };
 
-export default DDTransformation;
+export default DataDrivenTransformation;

@@ -7,7 +7,7 @@ import {
 } from "./util";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { uniqueName } from "../utils/names";
-import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 import {
   parenthesizeName,
   readableName,

@@ -1,7 +1,7 @@
 import { DataSet } from "./types";
 import { setEquality } from "../utils/sets";
 import { eraseFormulas, allAttrNames } from "./util";
-import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformation-components/util";
 

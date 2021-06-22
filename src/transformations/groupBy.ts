@@ -3,7 +3,7 @@ import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { reparent } from "./util";
 import { readableName } from "../transformation-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that

@@ -1,7 +1,7 @@
 import { CodapLanguageType, DataSet } from "./types";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
-import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 import { readableName } from "../transformation-components/util";
 
 export type SortDirection = "ascending" | "descending";

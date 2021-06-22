@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import { SavedTransformation } from "./types";
 import { GenericFold } from "./GenericFold";
 import { Partition } from "./Partition";
-import DDTransformation from "./DDTransformation";
+import DDTransformation from "./DataDrivenTransformation";
 import { filter } from "../transformations/filter";
 import { buildColumn } from "../transformations/buildColumn";
 import { flatten } from "../transformations/flatten";

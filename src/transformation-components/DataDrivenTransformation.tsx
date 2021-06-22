@@ -175,7 +175,7 @@ type DDTransformationProps = {
   saveData?: DDTransformationState;
 };
 
-const DDTransformation = ({
+const DataDrivenTransformation = ({
   transformationFunction,
   init,
   saveData,

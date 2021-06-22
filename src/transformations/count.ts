@@ -2,7 +2,7 @@ import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { eraseFormulas } from "./util";
 import { uniqueName } from "../utils/names";
-import { DDTransformationState } from "../transformation-components/DDTransformation";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformation-components/util";
 

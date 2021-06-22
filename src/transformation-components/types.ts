@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { CopySaveData } from "./Copy";
 import { CopySchemaSaveData } from "./CopySchema";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { FoldSaveData } from "./Fold";
@@ -70,6 +69,9 @@ export interface JoinSaveData {
   inputAttribute1: string | null;
   inputAttribute2: string | null;
 }
+
+export type CopySaveData = Record<string, never>;
+
 
 /**
  * The content associated with a saved transformation. Includes the base

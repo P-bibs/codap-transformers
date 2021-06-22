@@ -8,7 +8,6 @@ import {
 } from "./Fold";
 import { DifferenceFrom } from "./DifferenceFrom";
 import { SavedTransformation } from "./types";
-import { Copy } from "./Copy";
 import { DotProduct } from "./DotProduct";
 import { Average } from "./Average";
 import { CopySchema } from "./CopySchema";
@@ -26,6 +25,7 @@ import { compare } from "../transformations/compare";
 import { sort } from "../transformations/sort";
 import { pivotLonger, pivotWider } from "../transformations/pivot";
 import { join } from "../transformations/join";
+import { copy } from "../transformations/copy";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -350,7 +350,8 @@ export const PolymorphicComponent = ({
           init={{
             context1: {
               title: "Base Table",
-            },context2: {
+            },
+            context2: {
               title: "Joining Table",
             },
             attribute1: {
@@ -365,10 +366,15 @@ export const PolymorphicComponent = ({
       );
     case "Copy":
       return (
-        <Copy
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Copy",
+            }
+          }}
+          transformationFunction={copy}
         />
       );
     case "Dot Product":

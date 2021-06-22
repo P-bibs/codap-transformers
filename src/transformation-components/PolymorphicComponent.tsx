@@ -1,11 +1,4 @@
 import React, { ReactElement } from "react";
-import {
-  RunningDifference,
-  RunningMax,
-  RunningMean,
-  RunningMin,
-  RunningSum,
-} from "./Fold";
 import { DifferenceFrom } from "./DifferenceFrom";
 import { SavedTransformation } from "./types";
 import { DotProduct } from "./DotProduct";
@@ -26,6 +19,13 @@ import { join } from "../transformations/join";
 import { copy } from "../transformations/copy";
 import { copySchema } from "../transformations/copySchema";
 import { combineCases } from "../transformations/combineCases";
+import {
+  difference,
+  runningMax,
+  runningMean,
+  runningMin,
+  runningSum,
+} from "../transformations/fold";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -48,42 +48,82 @@ export const PolymorphicComponent = ({
   switch (transformation.content.base) {
     case "Running Sum":
       return (
-        <RunningSum
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to calculate running sum on",
+            },
+            attribute1: {
+              title: "Attribute to Aggregate",
+            },
+          }}
+          transformationFunction={runningSum}
         />
       );
     case "Running Mean":
       return (
-        <RunningMean
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to calculate running mean on",
+            },
+            attribute1: {
+              title: "Attribute to Aggregate",
+            },
+          }}
+          transformationFunction={runningMean}
         />
       );
     case "Running Min":
       return (
-        <RunningMin
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to calculate running min on",
+            },
+            attribute1: {
+              title: "Attribute to Aggregate",
+            },
+          }}
+          transformationFunction={runningMin}
         />
       );
     case "Running Max":
       return (
-        <RunningMax
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to calculate running max on",
+            },
+            attribute1: {
+              title: "Attribute to Aggregate",
+            },
+          }}
+          transformationFunction={runningMax}
         />
       );
     case "Running Difference":
       return (
-        <RunningDifference
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to calculate running difference on",
+            },
+            attribute1: {
+              title: "Attribute to Aggregate",
+            },
+          }}
+          transformationFunction={difference}
         />
       );
     case "Flatten":
@@ -372,7 +412,7 @@ export const PolymorphicComponent = ({
           init={{
             context1: {
               title: "Table to Copy",
-            }
+            },
           }}
           transformationFunction={copy}
         />
@@ -393,7 +433,7 @@ export const PolymorphicComponent = ({
           init={{
             context1: {
               title: "Table to Copy",
-            }
+            },
           }}
           transformationFunction={copySchema}
         />
@@ -417,7 +457,7 @@ export const PolymorphicComponent = ({
             },
             context2: {
               title: "Combining Table",
-            }
+            },
           }}
           transformationFunction={combineCases}
         />

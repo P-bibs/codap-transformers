@@ -1,6 +1,5 @@
 import { ReactElement } from "react";
 import { DifferenceFromSaveData } from "./DifferenceFrom";
-import { FoldSaveData } from "./Fold";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
 import { GenericFoldSaveData } from "./GenericFold";
@@ -73,6 +72,10 @@ export type CopySaveData = Record<string, never>;
 export type CopySchemaSaveData = Record<string, never>;
 
 export type CombineCasesSaveData = Record<string, never>;
+
+export interface FoldSaveData {
+  inputAttributeName: string | null;
+}
 
 /**
  * The content associated with a saved transformation. Includes the base

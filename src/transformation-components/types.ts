@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { DifferenceFromSaveData } from "./DifferenceFrom";
 import { DotProductSaveData } from "./DotProduct";
 import { AverageSaveData } from "./Average";
 import { GenericFoldSaveData } from "./GenericFold";
@@ -75,6 +74,12 @@ export type CombineCasesSaveData = Record<string, never>;
 
 export interface FoldSaveData {
   inputAttributeName: string | null;
+}
+
+export interface DifferenceFromSaveData {
+  inputAttributeName: string | null;
+  resultAttributeName: string;
+  startingValue: string;
 }
 
 /**

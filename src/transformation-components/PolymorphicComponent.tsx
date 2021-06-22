@@ -1,5 +1,4 @@
 import React, { ReactElement } from "react";
-import { DifferenceFrom } from "./DifferenceFrom";
 import { SavedTransformation } from "./types";
 import { DotProduct } from "./DotProduct";
 import { Average } from "./Average";
@@ -21,6 +20,7 @@ import { copySchema } from "../transformations/copySchema";
 import { combineCases } from "../transformations/combineCases";
 import {
   difference,
+  differenceFrom,
   runningMax,
   runningMean,
   runningMin,
@@ -307,10 +307,24 @@ export const PolymorphicComponent = ({
       );
     case "Difference From":
       return (
-        <DifferenceFrom
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to calculate difference on",
+            },
+            attribute1: {
+              title: "Attribute to take difference from",
+            },
+            textInput1: {
+              title: "Result Attribute Name",
+            },
+            textInput2: {
+              title: "Starting value for difference",
+            },
+          }}
+          transformationFunction={differenceFrom}
         />
       );
     case "Sort":

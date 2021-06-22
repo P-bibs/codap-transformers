@@ -12,6 +12,7 @@ import {
   parenthesizeName,
   readableName,
 } from "../transformation-components/util";
+import { start } from "repl";
 
 type FoldFunction = (
   dataset: DataSet,
@@ -199,7 +200,40 @@ export const runningMin = makeFoldWrapper("Running Min", uncheckedRunningMin);
 export const runningMax = makeFoldWrapper("Running Max", uncheckedRunningMax);
 export const difference = makeFoldWrapper("Difference", uncheckedDifference);
 
-export function differenceFrom(
+export async function differenceFrom({
+  context1: contextName,
+  attribute1: inputAttributeName,
+  textInput1: resultAttributeName,
+  textInput2: startingValue,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (inputAttributeName === null) {
+    throw new Error("Please choose an attribute to take the difference from");
+  }
+  if (resultAttributeName === "") {
+    throw new Error("Please choose a non-empty result column name.");
+  }
+  if (isNaN(Number(startingValue))) {
+    throw new Error(
+      `Expected numeric starting value, instead got ${startingValue}`
+    );
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedDifferenceFrom(
+      dataset,
+      inputAttributeName,
+      resultAttributeName,
+      Number(startingValue)
+    ),
+    `Difference From of ${readableName(context)}`,
+  ];
+}
+
+export function uncheckedDifferenceFrom(
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,

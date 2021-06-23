@@ -170,6 +170,7 @@ type DDTransformationProps = {
   errorDisplay: ReactElement;
   init: DDTransformationInit;
   saveData?: DDTransformationState;
+  transformOverride?: () => void;
 };
 
 /**
@@ -186,6 +187,7 @@ const DataDrivenTransformation = ({
   saveData,
   errorDisplay,
   setErrMsg,
+  transformOverride,
 }: DDTransformationProps): ReactElement => {
   const [state, setState] = useReducer(
     (
@@ -409,7 +411,7 @@ const DataDrivenTransformation = ({
         }
       })}
       <br />
-      <TransformationSubmitButtons onCreate={transform} />
+      <TransformationSubmitButtons onCreate={transformOverride || transform} />
       {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />

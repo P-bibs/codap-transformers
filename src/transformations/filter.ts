@@ -52,7 +52,7 @@ async function uncheckedFilter(
 
   return new Promise((resolve) =>
     resolve({
-      collections: dataset.collections.slice(),
+      collections: dataset.collections,
       records: filteredRecords,
     })
   );

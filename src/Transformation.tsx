@@ -45,6 +45,7 @@ function Transformation({
       "Group By",
       "Pivot Longer",
       "Pivot Wider",
+      "Partition",
     ],
     "Combining Transformations": ["Join", "Combine Cases"],
     "Summarizing Transformations": ["Count", "Compare"],
@@ -65,7 +66,6 @@ function Transformation({
       "Build Column",
       "Select Attributes",
       "Difference From",
-      "Partition",
     ],
   };
 

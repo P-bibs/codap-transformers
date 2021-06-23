@@ -1,8 +1,12 @@
 import { CodapLanguageType, DataSet } from "./types";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
-import { reportTypeErrorsForRecords } from "./util";
 import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 import { readableName } from "../transformation-components/util";
+import {
+  reportTypeErrorsForRecords,
+  cloneCollection,
+  shallowCopy,
+} from "./util";
 
 /**
  * Produces a dataset with the indicated attribute's values transformed
@@ -46,7 +50,7 @@ async function uncheckedTransformColumn(
   expression: string,
   outputType: CodapLanguageType
 ): Promise<DataSet> {
-  const records = dataset.records.slice();
+  const records = dataset.records.map(shallowCopy);
   const exprValues = await evalExpression(expression, records);
 
   // Check for type errors (might throw error and abort transformation)
@@ -62,7 +66,7 @@ async function uncheckedTransformColumn(
     record[attributeName] = value;
   });
 
-  const collections = dataset.collections.slice();
+  const collections = dataset.collections.map(cloneCollection);
   for (const coll of collections) {
     const attr = coll.attrs?.find((attr) => attr.name === attributeName);
 

@@ -19,7 +19,7 @@ export async function copy({
 
 function uncheckedCopy(dataset: DataSet): DataSet {
   return {
-    collections: dataset.collections.slice(),
-    records: dataset.records.slice(),
+    collections: dataset.collections,
+    records: dataset.records,
   };
 }

@@ -1,9 +1,9 @@
 import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { reparent } from "./util";
 import { readableName } from "../transformation-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { reparent, cloneCollection, shallowCopy } from "./util";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that
@@ -55,7 +55,7 @@ function uncheckedGroupBy(
   newParentName: string
 ): DataSet {
   const groupedAttrs: CodapAttribute[] = [];
-  let collections = dataset.collections.slice();
+  let collections = dataset.collections.map(cloneCollection);
 
   // extract attributes from collections into a list
   attrLoop: for (const attrName of attrNames) {
@@ -109,7 +109,7 @@ function uncheckedGroupBy(
     labels: {},
   };
 
-  const records = dataset.records.slice();
+  const records = dataset.records.map(shallowCopy);
   for (const record of records) {
     for (const attrName of attrNames) {
       // make copy of record data from original attr into grouped attr

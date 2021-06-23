@@ -4,6 +4,7 @@ import { uniqueName } from "../utils/names";
 import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformation-components/util";
+import { shallowCopy, cloneCollection, cloneAttribute } from "./util";
 
 /**
  * Joins two datasets together, using the baseDataset as a starting point
@@ -68,10 +69,10 @@ function uncheckedJoin(
     throw new Error(`Invalid joining attribute: ${joiningAttr}`);
   }
 
-  const addedAttrs = joiningCollection.attrs.slice();
+  const addedAttrs = joiningCollection.attrs.map(cloneAttribute);
   const addedAttrOriginalNames = addedAttrs.map((attr) => attr.name);
 
-  const collections = baseDataset.collections.slice();
+  const collections = baseDataset.collections.map(cloneCollection);
   const baseCollection = findCollectionWithAttr(collections, baseAttr);
   if (baseCollection === undefined || baseCollection.attrs === undefined) {
     throw new Error(`Invalid base attribute: ${baseAttr}`);
@@ -96,7 +97,7 @@ function uncheckedJoin(
   baseCollection.attrs = baseCollection.attrs.concat(addedAttrs);
 
   // start with a copy of the base dataset's records
-  const records = baseDataset.records.slice();
+  const records = baseDataset.records.map(shallowCopy);
 
   // copy into the joined table the first matching record from
   // joiningDataset for each record from baseDataset.

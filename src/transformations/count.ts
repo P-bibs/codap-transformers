@@ -1,6 +1,6 @@
 import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { eraseFormulas } from "./util";
+import { eraseFormulas, shallowCopy } from "./util";
 import { uniqueName } from "../utils/names";
 import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -52,7 +52,9 @@ function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
   let countedAttrs: CodapAttribute[] = [];
   for (const coll of dataset.collections) {
     countedAttrs = countedAttrs.concat(
-      coll.attrs?.filter((attr) => attributes.includes(attr.name)).slice() || []
+      coll.attrs
+        ?.filter((attr) => attributes.includes(attr.name))
+        .map(shallowCopy) || []
     );
   }
   eraseFormulas(countedAttrs);

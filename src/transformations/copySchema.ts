@@ -23,7 +23,7 @@ export async function copySchema({
 
 function uncheckedCopySchema(dataset: DataSet): DataSet {
   return {
-    collections: dataset.collections.slice(),
+    collections: dataset.collections,
     records: [],
   };
 }

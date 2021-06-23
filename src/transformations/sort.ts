@@ -89,7 +89,7 @@ async function uncheckedSort(
   outputType: CodapLanguageType,
   sortDirection: SortDirection
 ): Promise<DataSet> {
-  const records = dataset.records.slice();
+  const records = dataset.records;
   const keyValues = await evalExpression(keyExpr, records);
 
   // Check for type errors (might throw error and abort transformation)
@@ -108,7 +108,7 @@ async function uncheckedSort(
 
   return new Promise((resolve) =>
     resolve({
-      collections: dataset.collections.slice(),
+      collections: dataset.collections,
       records: sorted,
     })
   );

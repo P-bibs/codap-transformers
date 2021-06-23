@@ -84,7 +84,7 @@ export function insertColumnInLastCollection(
   collections: Collection[],
   attr: CodapAttribute
 ): Collection[] {
-  const newCollections = collections.slice();
+  const newCollections = collections.map(cloneCollection);
   const lastCollection = newCollections[newCollections.length - 1];
   newCollections[newCollections.length - 1] = insertColumn(
     lastCollection,
@@ -170,7 +170,7 @@ export function getAttributeDataFromDataset(
  * @param codapValue the value to convert to a string for printing
  * @returns string version of the value
  */
-export function codapValueToString(codapValue?: unknown): string {
+export function codapValueToString(codapValue: unknown): string {
   // missing values
   if (codapValue === "") {
     return "a missing value";
@@ -191,6 +191,16 @@ export function codapValueToString(codapValue?: unknown): string {
     return String(codapValue);
   }
 
+  // boundaries
+  if (isBoundary(codapValue)) {
+    return "a boundary";
+  }
+
+  // boundary maps
+  if (isBoundaryMap(codapValue)) {
+    return "a boundary map";
+  }
+
   // objects
   if (typeof codapValue === "object") {
     return "an object";
@@ -198,6 +208,24 @@ export function codapValueToString(codapValue?: unknown): string {
 
   // value must be string
   return `"${codapValue}"`;
+}
+
+/**
+ * Maps such as `US_county_boundaries` contain a `map` property that has
+ * names as keys and boundary objects as values. These are used to lookup
+ * boundaries for a particular name (ie state, province, etc)
+ */
+export function isBoundaryMap(value: unknown): boolean {
+  return typeof value === "object" && value != null && "map" in value;
+}
+
+/**
+ * Determines if a given CODAP value is a boundary object.
+ */
+export function isBoundary(value: unknown): boolean {
+  return (
+    typeof value === "object" && value !== null && "jsonBoundaryObject" in value
+  );
 }
 
 export function reportTypeErrorsForRecords(
@@ -287,7 +315,7 @@ function findTypeErrorsBoundary(values: unknown[]): number | null {
   for (let i = 0; i < values.length; i++) {
     const value = values[i];
 
-    if (typeof value === "object" && value && "jsonBoundaryObject" in value) {
+    if (isBoundary(value)) {
       // value is a boundary and we're all set
     } else {
       return i;
@@ -377,3 +405,16 @@ function findTypeErrorsBoolean(values: unknown[]): number | null {
 
   return null;
 }
+
+export function cloneCollection(c: Collection): Collection {
+  return {
+    ...c,
+    attrs: c.attrs?.map(shallowCopy),
+  };
+}
+
+export function shallowCopy<T>(x: T): T {
+  return { ...x };
+}
+
+export const cloneAttribute = shallowCopy;

@@ -433,7 +433,7 @@ const DataDrivenTransformation = (
       />
       {errorDisplay}
       {saveData === undefined && (
-        <TransformationSaveButton generateSaveData={() => ({})} />
+        <TransformationSaveButton generateSaveData={() => state} />
       )}
     </>
   );

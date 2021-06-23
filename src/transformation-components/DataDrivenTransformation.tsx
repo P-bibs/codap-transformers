@@ -207,6 +207,7 @@ const DataDrivenTransformation = (
     saveData !== undefined ? saveData : DEFAULT_STATE
   );
 
+  // Make sure we reset state if the underlying transformation changes
   useEffect(() => {
     setState(DEFAULT_STATE);
   }, [init]);

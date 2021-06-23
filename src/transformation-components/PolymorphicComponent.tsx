@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
 import { SavedTransformation } from "./types";
-import { Partition } from "./Partition";
 import DDTransformation from "./DataDrivenTransformation";
 import { filter } from "../transformations/filter";
 import { buildColumn } from "../transformations/buildColumn";
@@ -26,6 +25,7 @@ import {
 } from "../transformations/fold";
 import { dotProduct } from "../transformations/dotProduct";
 import { average } from "../transformations/average";
+import { partitionOverride } from "../transformations/partition";
 
 interface PolymorphicComponentProps {
   transformation?: SavedTransformation;
@@ -59,7 +59,7 @@ export const PolymorphicComponent = ({
               title: "Attribute to Aggregate",
             },
           }}
-          transformationFunction={runningSum}
+          transformationFunction={{ kind: "datasetCreator", func: runningSum }}
         />
       );
     case "Running Mean":
@@ -75,7 +75,7 @@ export const PolymorphicComponent = ({
               title: "Attribute to Aggregate",
             },
           }}
-          transformationFunction={runningMean}
+          transformationFunction={{ kind: "datasetCreator", func: runningMean }}
         />
       );
     case "Running Min":
@@ -91,7 +91,7 @@ export const PolymorphicComponent = ({
               title: "Attribute to Aggregate",
             },
           }}
-          transformationFunction={runningMin}
+          transformationFunction={{ kind: "datasetCreator", func: runningMin }}
         />
       );
     case "Running Max":
@@ -107,7 +107,7 @@ export const PolymorphicComponent = ({
               title: "Attribute to Aggregate",
             },
           }}
-          transformationFunction={runningMax}
+          transformationFunction={{ kind: "datasetCreator", func: runningMax }}
         />
       );
     case "Running Difference":
@@ -123,7 +123,7 @@ export const PolymorphicComponent = ({
               title: "Attribute to Aggregate",
             },
           }}
-          transformationFunction={difference}
+          transformationFunction={{ kind: "datasetCreator", func: difference }}
         />
       );
     case "Flatten":
@@ -136,7 +136,7 @@ export const PolymorphicComponent = ({
               title: "Table to Flatten",
             },
           }}
-          transformationFunction={flatten}
+          transformationFunction={{ kind: "datasetCreator", func: flatten }}
         />
       );
     case "Group By":
@@ -152,7 +152,7 @@ export const PolymorphicComponent = ({
               title: "Attributes to Group By",
             },
           }}
-          transformationFunction={groupBy}
+          transformationFunction={{ kind: "datasetCreator", func: groupBy }}
         />
       );
     case "Filter":
@@ -173,7 +173,7 @@ export const PolymorphicComponent = ({
             },
             expression1: { title: "" },
           }}
-          transformationFunction={filter}
+          transformationFunction={{ kind: "datasetCreator", func: filter }}
         />
       );
     case "Transform Column":
@@ -196,7 +196,7 @@ export const PolymorphicComponent = ({
             },
             expression1: { title: "" },
           }}
-          transformationFunction={buildColumn}
+          transformationFunction={{ kind: "datasetCreator", func: buildColumn }}
         />
       );
     case "Build Column":
@@ -222,7 +222,7 @@ export const PolymorphicComponent = ({
             },
             expression1: { title: "" },
           }}
-          transformationFunction={buildColumn}
+          transformationFunction={{ kind: "datasetCreator", func: buildColumn }}
         />
       );
     case "Select Attributes":
@@ -255,7 +255,10 @@ export const PolymorphicComponent = ({
               title: "Attributes",
             },
           }}
-          transformationFunction={selectAttributes}
+          transformationFunction={{
+            kind: "datasetCreator",
+            func: selectAttributes,
+          }}
         />
       );
     case "Count":
@@ -271,7 +274,7 @@ export const PolymorphicComponent = ({
               title: "Attributes to Count",
             },
           }}
-          transformationFunction={count}
+          transformationFunction={{ kind: "datasetCreator", func: count }}
         />
       );
     case "Compare":
@@ -302,7 +305,7 @@ export const PolymorphicComponent = ({
               defaultValue: "Select a type",
             },
           }}
-          transformationFunction={compare}
+          transformationFunction={{ kind: "datasetCreator", func: compare }}
         />
       );
     case "Difference From":
@@ -324,7 +327,10 @@ export const PolymorphicComponent = ({
               title: "Starting value for difference",
             },
           }}
-          transformationFunction={differenceFrom}
+          transformationFunction={{
+            kind: "datasetCreator",
+            func: differenceFrom,
+          }}
         />
       );
     case "Sort":
@@ -352,7 +358,7 @@ export const PolymorphicComponent = ({
               defaultValue: "Select a sort direction",
             },
           }}
-          transformationFunction={sort}
+          transformationFunction={{ kind: "datasetCreator", func: sort }}
         />
       );
     case "Pivot Longer":
@@ -374,7 +380,7 @@ export const PolymorphicComponent = ({
               title: "Values to",
             },
           }}
-          transformationFunction={pivotLonger}
+          transformationFunction={{ kind: "datasetCreator", func: pivotLonger }}
         />
       );
     case "Pivot Wider":
@@ -393,7 +399,7 @@ export const PolymorphicComponent = ({
               title: "Values From",
             },
           }}
-          transformationFunction={pivotWider}
+          transformationFunction={{ kind: "datasetCreator", func: pivotWider }}
         />
       );
     case "Join":
@@ -415,7 +421,7 @@ export const PolymorphicComponent = ({
               title: "Joining Attribute",
             },
           }}
-          transformationFunction={join}
+          transformationFunction={{ kind: "datasetCreator", func: join }}
         />
       );
     case "Copy":
@@ -428,7 +434,7 @@ export const PolymorphicComponent = ({
               title: "Table to Copy",
             },
           }}
-          transformationFunction={copy}
+          transformationFunction={{ kind: "datasetCreator", func: copy }}
         />
       );
     case "Dot Product":
@@ -444,7 +450,7 @@ export const PolymorphicComponent = ({
               title: "Attributes to Take Dot Product of",
             },
           }}
-          transformationFunction={dotProduct}
+          transformationFunction={{ kind: "datasetCreator", func: dotProduct }}
         />
       );
     case "Copy Schema":
@@ -457,7 +463,7 @@ export const PolymorphicComponent = ({
               title: "Table to Copy",
             },
           }}
-          transformationFunction={copySchema}
+          transformationFunction={{ kind: "datasetCreator", func: copySchema }}
         />
       );
     case "Average":
@@ -473,7 +479,7 @@ export const PolymorphicComponent = ({
               title: "Attribute to Average",
             },
           }}
-          transformationFunction={average}
+          transformationFunction={{ kind: "datasetCreator", func: average }}
         />
       );
     case "Combine Cases":
@@ -489,7 +495,10 @@ export const PolymorphicComponent = ({
               title: "Combining Table",
             },
           }}
-          transformationFunction={combineCases}
+          transformationFunction={{
+            kind: "datasetCreator",
+            func: combineCases,
+          }}
         />
       );
     case "Reduce":
@@ -514,15 +523,26 @@ export const PolymorphicComponent = ({
               title: "Formula for Next Accumulator",
             },
           }}
-          transformationFunction={genericFold}
+          transformationFunction={{ kind: "datasetCreator", func: genericFold }}
         />
       );
     case "Partition":
       return (
-        <Partition
+        <DDTransformation
           setErrMsg={setErrMsg}
-          saveData={transformation.content.data}
           errorDisplay={errorDisplay}
+          init={{
+            context1: {
+              title: "Table to Partition",
+            },
+            attribute1: {
+              title: "Attribute to Partition By",
+            },
+          }}
+          transformationFunction={{
+            kind: "fullOverride",
+            func: partitionOverride,
+          }}
         />
       );
   }

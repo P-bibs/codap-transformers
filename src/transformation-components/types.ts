@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { PartitionSaveData } from "./Partition";
 import { CodapLanguageType } from "../transformations/types";
 import { CompareType } from "../transformations/compare";
 import { SortDirection } from "../transformations/sort";
@@ -92,6 +91,10 @@ export interface GenericFoldSaveData {
   expression: string;
   base: string;
   accumulatorName: string;
+}
+
+export interface PartitionSaveData {
+  attributeName: string | null;
 }
 
 /**

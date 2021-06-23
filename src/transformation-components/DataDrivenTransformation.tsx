@@ -162,15 +162,27 @@ const titleFromComponent = (
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
-type DDTransformationProps = {
-  transformationFunction: (
-    state: DDTransformationState
-  ) => Promise<[DataSet | number, string]>;
+export type TransformFunction =
+  | {
+      kind: "datasetCreator";
+      func: (
+        state: DDTransformationState
+      ) => Promise<[DataSet | number, string]>;
+    }
+  | {
+      kind: "fullOverride";
+      func: (
+        props: DDTransformationProps,
+        state: DDTransformationState
+      ) => void;
+    };
+
+export type DDTransformationProps = {
+  transformationFunction: TransformFunction;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
   init: DDTransformationInit;
   saveData?: DDTransformationState;
-  transformOverride?: () => void;
 };
 
 /**
@@ -181,14 +193,12 @@ type DDTransformationProps = {
  *
  * Only UI elements in `init` will be included and they will appear in order.
  */
-const DataDrivenTransformation = ({
-  transformationFunction,
-  init,
-  saveData,
-  errorDisplay,
-  setErrMsg,
-  transformOverride,
-}: DDTransformationProps): ReactElement => {
+const DataDrivenTransformation = (
+  props: DDTransformationProps
+): ReactElement => {
+  const { transformationFunction, init, saveData, errorDisplay, setErrMsg } =
+    props;
+
   const [state, setState] = useReducer(
     (
       oldState: DDTransformationState,
@@ -211,8 +221,11 @@ const DataDrivenTransformation = ({
     setErrMsg(null);
 
     const doTransform: () => Promise<[DataSet | number, string]> = async () => {
+      if (transformationFunction.kind !== "datasetCreator") {
+        throw new Error("Improper transformationFunction supplied");
+      }
       // Might throw an error, which we handle in the below try/catch block
-      return await transformationFunction(state);
+      return await transformationFunction.func(state);
     };
 
     try {
@@ -411,7 +424,13 @@ const DataDrivenTransformation = ({
         }
       })}
       <br />
-      <TransformationSubmitButtons onCreate={transformOverride || transform} />
+      <TransformationSubmitButtons
+        onCreate={
+          transformationFunction.kind === "fullOverride"
+            ? () => transformationFunction.func(props, state)
+            : transform
+        }
+      />
       {errorDisplay}
       {saveData === undefined && (
         <TransformationSaveButton generateSaveData={() => ({})} />

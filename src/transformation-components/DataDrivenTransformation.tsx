@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import React, { useReducer, ReactElement } from "react";
+import React, { useReducer, ReactElement, useEffect } from "react";
 import { createText, updateText } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
 import { CodapLanguageType, DataSet } from "../transformations/types";
@@ -206,6 +206,10 @@ const DataDrivenTransformation = (
     ): DDTransformationState => ({ ...oldState, ...newState }),
     saveData !== undefined ? saveData : DEFAULT_STATE
   );
+
+  useEffect(() => {
+    setState(DEFAULT_STATE);
+  }, [init]);
 
   // The order here is guaranteed to be stable since ES2015 as long as we don't
   // use numeric keys

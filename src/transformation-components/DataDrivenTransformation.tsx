@@ -207,10 +207,13 @@ const DataDrivenTransformation = (
     saveData !== undefined ? saveData : DEFAULT_STATE
   );
 
-  // Make sure we reset state if the underlying transformation changes
+  // Make sure we reset state if the underlying transformation changes (but only
+  // if there isn't any save data)
   useEffect(() => {
-    setState(DEFAULT_STATE);
-  }, [init]);
+    if (saveData === undefined) {
+      setState(DEFAULT_STATE);
+    }
+  }, [init, saveData]);
 
   // The order here is guaranteed to be stable since ES2015 as long as we don't
   // use numeric keys

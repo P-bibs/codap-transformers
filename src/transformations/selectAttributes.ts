@@ -1,5 +1,31 @@
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 import { reparent, eraseFormulas, cloneCollection } from "./util";
+
+/**
+ * Constructs a dataset with only the indicated attributes from the
+ * input dataset included, and all others removed.
+ */
+export async function selectAttributes({
+  context1: contextName,
+  attributeSet1: attributeName,
+  dropdown1: mode,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+
+  // select all but the given attributes?
+  const allBut = mode === "selectAllBut";
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedSelectAttributes(dataset, attributeName, allBut),
+    `Select Attributes of ${readableName(context)}`,
+  ];
+}
 
 /**
  * Constructs a dataset with only the indicated attributes from the
@@ -11,7 +37,7 @@ import { reparent, eraseFormulas, cloneCollection } from "./util";
  * @param allBut should "all but" the given attributes be selected,
  *  or only the given attributes
  */
-export function selectAttributes(
+function uncheckedSelectAttributes(
   dataset: DataSet,
   attributes: string[],
   allBut: boolean

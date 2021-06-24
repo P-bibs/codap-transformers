@@ -1,5 +1,8 @@
 import { DataSet } from "./types";
 import { setEquality } from "../utils/sets";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { readableName } from "../transformation-components/util";
 import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
 
 /**
@@ -11,7 +14,27 @@ import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
  * The top and bottom must have the same set of attributes for stack
  * to succeed.
  */
-export function combineCases(base: DataSet, combining: DataSet): DataSet {
+export async function combineCases({
+  context1: inputDataContext1,
+  context2: inputDataContext2,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (!inputDataContext1 || !inputDataContext2) {
+    throw new Error("Please choose two datasets to combine.");
+  }
+
+  const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
+    inputDataContext1
+  );
+  const { context: context2, dataset: dataset2 } = await getContextAndDataSet(
+    inputDataContext2
+  );
+  return [
+    await uncheckedCombineCases(dataset1, dataset2),
+    `Combined Cases of ${readableName(context1)} and ${readableName(context2)}`,
+  ];
+}
+
+function uncheckedCombineCases(base: DataSet, combining: DataSet): DataSet {
   const baseAttrs = allAttrNames(base);
   const combiningAttrs = allAttrNames(combining);
 

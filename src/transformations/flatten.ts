@@ -1,3 +1,6 @@
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 
 /**
@@ -5,7 +8,21 @@ import { DataSet } from "./types";
  * among collections collapsed into a single collection containing
  * all attributes.
  */
-export function flatten(dataset: DataSet): DataSet {
+export async function flatten({
+  context1: contextName,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedFlatten(dataset),
+    `Flatten of ${readableName(context)}`,
+  ];
+}
+
+export function uncheckedFlatten(dataset: DataSet): DataSet {
   // flatten attributes of all collections into single list of attributes
   const attrs = dataset.collections
     .map((collection) => collection.attrs || [])

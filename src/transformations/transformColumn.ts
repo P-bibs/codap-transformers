@@ -42,7 +42,8 @@ export async function transformColumn({
       outputType
     ),
     `Transform Column of ${ctxtName}`,
-    `A copy of ${ctxtName}, with the ${attributeName} attribute's values determined by the formula \`${expression}\`.`,
+    `A copy of ${ctxtName}, with the ${attributeName} attribute's values ` +
+      `determined by the formula \`${expression}\`.`,
   ];
 }
 

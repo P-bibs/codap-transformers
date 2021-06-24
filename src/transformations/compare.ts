@@ -63,8 +63,8 @@ export async function compare({
       kind
     ),
     `Compare of ${ctxtName1} and ${ctxtName2}`,
-    // FIXME: this could be a better, more specific description
-    `A comparison of the attributes ${inputAttribute1} (from ${ctxtName1}) and ${inputAttribute2} (from ${ctxtName2})`,
+    `A ${kind} comparison of the attributes ${inputAttribute1} (from ` +
+      `${ctxtName1}) and ${inputAttribute2} (from ${ctxtName2})`,
   ];
 }
 

@@ -24,7 +24,7 @@ export async function filter({
   return [
     await uncheckedFilter(dataset, predicate),
     `Filter of ${ctxtName}`,
-    `A copy of ${ctxtName} that only includes the cases for which the predicate \`${predicate}\` is satisfied.`,
+    `A copy of ${ctxtName} that only includes the cases for which the predicate \`${predicate}\` is true.`,
   ];
 }
 

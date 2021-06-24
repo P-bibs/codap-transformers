@@ -26,9 +26,8 @@ export async function dotProduct({
   return [
     await uncheckedDotProduct(dataset, attributes),
     `Dot Product of ${ctxtName}`,
-    `The sum across all cases in ${ctxtName} of the product of the attributes ${attributes.join(
-      ", "
-    )}`,
+    `The sum across all cases in ${ctxtName} of the product ` +
+      `of the attributes ${attributes.join(", ")}.`,
   ];
 }
 

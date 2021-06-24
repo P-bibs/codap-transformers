@@ -37,7 +37,7 @@ export async function count({
   return [
     await uncheckedCount(dataset, attributes),
     `Count of ${attributeNames} in ${ctxtName}`,
-    `A summary of the frequency of all tuples of the attributes ${attributeNames} that appear in ${ctxtName}`,
+    `A summary of the frequency of all tuples of the attributes ${attributeNames} that appear in ${ctxtName}.`,
   ];
 }
 

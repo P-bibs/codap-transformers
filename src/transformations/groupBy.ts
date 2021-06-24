@@ -36,7 +36,8 @@ export async function groupBy({
   return [
     await uncheckedGroupBy(dataset, attributes, parentName),
     `Group By of ${ctxtName}`,
-    `A copy of ${ctxtName} with a new parent collection added which contains copies of the attributes ${attributeNames}.`,
+    `A copy of ${ctxtName} with a new parent collection added ` +
+      `which contains copies of the attributes ${attributeNames}.`,
   ];
 }
 

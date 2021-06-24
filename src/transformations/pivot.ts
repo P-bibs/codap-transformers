@@ -40,7 +40,9 @@ export async function pivotLonger({
     `Pivot Longer of ${ctxtName}`,
     `A copy of ${ctxtName} with the attributes ${attributes.join(
       ", "
-    )} turned into values under a new attribute (${namesTo}), and the values previously under those attributes moved under a new attribute (${valuesTo}).`,
+    )} turned ` +
+      `into values under a new attribute (${namesTo}), and the values previously ` +
+      `under those attributes moved under a new attribute (${valuesTo}).`,
   ];
 }
 
@@ -140,7 +142,8 @@ export async function pivotWider({
   return [
     await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
     `Pivot Wider of ${ctxtName}`,
-    `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted into new attributes, which get their values from the attribute ${valuesFrom}.`,
+    `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
+      `into new attributes, which get their values from the attribute ${valuesFrom}.`,
   ];
 }
 

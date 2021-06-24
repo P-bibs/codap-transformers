@@ -1,22 +1,71 @@
-import { DataSet } from "./types";
-import { evalExpression } from "../utils/codapPhone/index";
+import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  evalExpression,
+  getContextAndDataSet,
+} from "../utils/codapPhone/index";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+import { reportTypeErrorsForRecords, cloneCollection } from "./util";
 
 /**
  * Builds a dataset with a new attribute added to one of the collections,
  * whose case values are computed by evaluating the given expression.
  */
-export async function buildColumn(
+export async function buildColumn({
+  context1: contextName,
+  collection1: collectionName,
+  textInput1: attributeName,
+  expression1: expression,
+  typeContract1: { outputType },
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (collectionName === null) {
+    throw new Error("Please select a collection to add to");
+  }
+  if (attributeName === null) {
+    throw new Error("Please enter a non-empty name for the new attribute");
+  }
+  if (expression === "") {
+    throw new Error("Please enter a non-empty expression");
+  }
+  if (outputType === null) {
+    throw new Error("Please enter a valid output type");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  return [
+    await uncheckedBuildColumn(
+      dataset,
+      attributeName,
+      collectionName,
+      expression,
+      outputType
+    ),
+    `Build Column of ${ctxtName}`,
+    `A copy of ${ctxtName} with a new attribute (${attributeName}) added to the ${collectionName} collection, whose value is determined by the formula \`${expression}\``,
+  ];
+}
+
+/**
+ * Builds a dataset with a new attribute added to one of the collections,
+ * whose case values are computed by evaluating the given expression.
+ */
+async function uncheckedBuildColumn(
   dataset: DataSet,
   newAttributeName: string,
   collectionName: string,
-  expression: string
+  expression: string,
+  outputType: CodapLanguageType
 ): Promise<DataSet> {
   // find collection to add attribute to
-  const collections = dataset.collections.slice();
+  const collections = dataset.collections.map(cloneCollection);
   const toAdd = collections.find((coll) => coll.name === collectionName);
 
   if (toAdd === undefined) {
-    throw new Error(`invalid collection name: ${collectionName}`);
+    throw new Error(`Invalid collection name: ${collectionName}`);
   }
 
   // ensure no duplicate attr names
@@ -25,7 +74,7 @@ export async function buildColumn(
       coll.attrs?.find((attr) => attr.name === newAttributeName)
     )
   ) {
-    throw new Error(`attribute name already in use: ${newAttributeName}`);
+    throw new Error(`Attribute name already in use: ${newAttributeName}`);
   }
 
   if (toAdd.attrs === undefined) {
@@ -35,14 +84,19 @@ export async function buildColumn(
   // add new attribute
   toAdd.attrs.push({
     name: newAttributeName,
+    description: `An attribute whose values were computed with the formula ${expression}`,
   });
 
-  const records = dataset.records.slice();
-  const colValues = await evalExpression(expression, records);
+  const colValues = await evalExpression(expression, dataset.records);
+
+  // Check for type errors (might throw error and abort transformation)
+  reportTypeErrorsForRecords(dataset.records, colValues, outputType);
 
   // add values for new attribute to all records
-  colValues.forEach((value, i) => {
-    records[i][newAttributeName] = value;
+  const records = dataset.records.map((record, i) => {
+    const recordCopy = { ...record };
+    recordCopy[newAttributeName] = colValues[i];
+    return recordCopy;
   });
 
   return {

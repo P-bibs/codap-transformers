@@ -1,6 +1,48 @@
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import { uniqueName } from "../utils/names";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { readableName } from "../transformation-components/util";
+import { shallowCopy, cloneCollection, cloneAttribute } from "./util";
+
+/**
+ * Joins two datasets together, using the baseDataset as a starting point
+ * and incorporating values from the joiningDataset for any cases whose
+ * value for baseAttr matches the value for joiningAttr of a case in the
+ * joiningDataset.
+ */
+export async function join({
+  context1: inputDataContext1,
+  context2: inputDataContext2,
+  attribute1: inputAttribute1,
+  attribute2: inputAttribute2,
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (
+    !inputDataContext1 ||
+    !inputDataContext2 ||
+    !inputAttribute1 ||
+    !inputAttribute2
+  ) {
+    throw new Error("Please choose two datasets and two attributes");
+  }
+
+  const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
+    inputDataContext1
+  );
+  const { context: context2, dataset: dataset2 } = await getContextAndDataSet(
+    inputDataContext2
+  );
+
+  const ctxtName1 = readableName(context1);
+  const ctxtName2 = readableName(context2);
+
+  return [
+    await uncheckedJoin(dataset1, inputAttribute1, dataset2, inputAttribute2),
+    `Join of ${ctxtName1} and ${ctxtName2}`,
+    `A copy of ${ctxtName1}, with all the attributes/values from the collection containing ${inputAttribute2} in ${ctxtName2} added into the collection containing ${inputAttribute1} in ${ctxtName1}.`,
+  ];
+}
 
 /**
  * Joins two datasets together, using the baseDataset as a starting point
@@ -13,7 +55,7 @@ import { uniqueName } from "../utils/names";
  * @param joiningDataset dataset to take cases from and add to baseDataset
  * @param joiningAttr attribute to join on from joiningDataset
  */
-export function join(
+function uncheckedJoin(
   baseDataset: DataSet,
   baseAttr: string,
   joiningDataset: DataSet,
@@ -28,16 +70,16 @@ export function join(
     joiningCollection === undefined ||
     joiningCollection.attrs === undefined
   ) {
-    throw new Error(`invalid joining attribute: ${joiningAttr}`);
+    throw new Error(`Invalid joining attribute: ${joiningAttr}`);
   }
 
-  const addedAttrs = joiningCollection.attrs.slice();
+  const addedAttrs = joiningCollection.attrs.map(cloneAttribute);
   const addedAttrOriginalNames = addedAttrs.map((attr) => attr.name);
 
-  const collections = baseDataset.collections.slice();
+  const collections = baseDataset.collections.map(cloneCollection);
   const baseCollection = findCollectionWithAttr(collections, baseAttr);
   if (baseCollection === undefined || baseCollection.attrs === undefined) {
-    throw new Error(`invalid base attribute: ${baseAttr}`);
+    throw new Error(`Invalid base attribute: ${baseAttr}`);
   }
 
   // list of attributes whose names cannot be duplicated by the added attrs
@@ -59,7 +101,7 @@ export function join(
   baseCollection.attrs = baseCollection.attrs.concat(addedAttrs);
 
   // start with a copy of the base dataset's records
-  const records = baseDataset.records.slice();
+  const records = baseDataset.records.map(shallowCopy);
 
   // copy into the joined table the first matching record from
   // joiningDataset for each record from baseDataset.

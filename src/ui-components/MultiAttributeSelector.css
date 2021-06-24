@@ -1,0 +1,9 @@
+.deleteButton {
+  padding: 2px;
+  margin-left: 2px;
+}
+
+.deleteButton:disabled:hover {
+  background-color: inherit;
+  cursor: default;
+}

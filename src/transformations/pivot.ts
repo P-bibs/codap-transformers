@@ -1,5 +1,48 @@
-import { DataSet } from "./types";
-import { eraseFormulas } from "./util";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { DataSet, TransformationOutput } from "./types";
+import { eraseFormulas, codapValueToString } from "./util";
+
+/**
+ * Turns selected attribute names into values of a new attribute, reorganizing
+ * the values under the original attributes into a new column, thus making the
+ * dataset "longer" (more cases), but less wide (fewer attributes).
+ */
+export async function pivotLonger({
+  context1: contextName,
+  attributeSet1: attributes,
+  textInput1: namesTo,
+  textInput2: valuesTo,
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (attributes.length === 0) {
+    throw new Error("Please choose at least one attribute to pivot on");
+  }
+  if (namesTo === "") {
+    throw new Error(
+      "Please choose a non-empty name for the Names To attribute"
+    );
+  }
+  if (valuesTo === "") {
+    throw new Error(
+      "Please choose a non-empty name for the Values To attribute"
+    );
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+
+  return [
+    await uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
+    `Pivot Longer of ${ctxtName}`,
+    `A copy of ${ctxtName} with the attributes ${attributes.join(
+      ", "
+    )} turned into values under a new attribute (${namesTo}), and the values previously under those attributes moved under a new attribute (${valuesTo}).`,
+  ];
+}
 
 /**
  * Turns selected attribute names into values of a new attribute, reorganizing
@@ -13,7 +56,7 @@ import { eraseFormulas } from "./util";
  *  attributes will go
  * @returns pivoted dataset
  */
-export function pivotLonger(
+function uncheckedPivotLonger(
   dataset: DataSet,
   toPivot: string[],
   namesTo: string,
@@ -22,7 +65,7 @@ export function pivotLonger(
   // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
-      `pivot longer can only be used on a single-collection dataset`
+      `Pivot longer can only be used on a single-collection dataset`
     );
   }
 
@@ -34,6 +77,8 @@ export function pivotLonger(
   // NOTE: do not copy formulas: dependencies may be removed by the pivot
   eraseFormulas(collection.attrs);
 
+  const toPivotNames = toPivot.join(", ");
+
   // add namesTo and valuesTo attributes
   // NOTE: valuesTo might hold values of different types
   // so we can't be sure it's either numeric / categorical
@@ -41,9 +86,11 @@ export function pivotLonger(
     {
       name: namesTo,
       type: "categorical",
+      description: `Contains the names of attributes (${toPivotNames}) that were pivoted into values.`,
     },
     {
       name: valuesTo,
+      description: `Contains the values previously under the ${toPivotNames} attributes.`,
     }
   );
 
@@ -72,13 +119,42 @@ export function pivotLonger(
  * Extracts the values of the namesFrom attribute into new attributes,
  * with the values from the valuesFrom attribute as their values. The dataset
  * gets "wider" (more attributes), but less long (fewer cases).
+ */
+export async function pivotWider({
+  context1: contextName,
+  attribute1: namesFrom,
+  attribute2: valuesFrom,
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (namesFrom === null) {
+    throw new Error("Please choose an attribute to get names from");
+  }
+  if (valuesFrom === null) {
+    throw new Error("Please choose an attribute to get values from");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  return [
+    await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
+    `Pivot Wider of ${ctxtName}`,
+    `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted into new attributes, which get their values from the attribute ${valuesFrom}.`,
+  ];
+}
+
+/**
+ * Extracts the values of the namesFrom attribute into new attributes,
+ * with the values from the valuesFrom attribute as their values. The dataset
+ * gets "wider" (more attributes), but less long (fewer cases).
  *
  * @param dataset the dataset to pivot
  * @param namesFrom name of attribute from which to extract new attribute names
  * @param valuesFrom name of attribute holding the values that will go
  *  under the new attribute names
  */
-export function pivotWider(
+function uncheckedPivotWider(
   dataset: DataSet,
   namesFrom: string,
   valuesFrom: string
@@ -86,7 +162,7 @@ export function pivotWider(
   // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
-      `pivot wider can only be used on a single-collection dataset`
+      `Pivot wider can only be used on a single-collection dataset`
     );
   }
 
@@ -95,15 +171,19 @@ export function pivotWider(
   // get list of names to make attributes for
   const newAttrs = Array.from(
     new Set(
-      dataset.records.map((rec) => {
+      dataset.records.map((rec, i) => {
         if (rec[namesFrom] === undefined) {
           throw new Error(
-            `invalid attribute to retrieve names from: ${namesFrom}`
+            `Invalid attribute to retrieve names from: ${namesFrom}`
           );
         }
         if (typeof rec[namesFrom] === "object") {
           throw new Error(
-            `cannot use object values (${namesFrom}) as attribute names`
+            `Cannot use ${codapValueToString(
+              rec[namesFrom]
+            )} (from attribute ${namesFrom} at case ${
+              i + 1
+            }) as an attribute name`
           );
         }
 
@@ -117,7 +197,7 @@ export function pivotWider(
     (attr) => attr.name === valuesFrom
   );
   if (valuesFromAttr === undefined) {
-    throw new Error(`invalid attribute to retrieve values from: ${valuesFrom}`);
+    throw new Error(`Invalid attribute to retrieve values from: ${valuesFrom}`);
   }
 
   // remove namesFrom/valuesFrom attributes from collection
@@ -140,6 +220,7 @@ export function pivotWider(
       ...valuesFromAttr,
       formula: undefined,
       name: attrName,
+      description: `Attribute created by pivoting the values of ${namesFrom} into separate attributes.`,
     });
   }
 
@@ -160,11 +241,11 @@ export function pivotWider(
 
     if (collapsed[record[namesFrom] as string] !== undefined) {
       throw new Error(
-        `case has multiple ${valuesFrom} values (${
+        `Case has multiple ${valuesFrom} values (${codapValueToString(
           collapsed[record[namesFrom] as string]
-        } and ${record[valuesFrom]}) for same ${namesFrom} (${
-          record[namesFrom]
-        })`
+        )} and ${codapValueToString(
+          record[valuesFrom]
+        )}) for same ${namesFrom} (${codapValueToString(record[namesFrom])})`
       );
     }
 

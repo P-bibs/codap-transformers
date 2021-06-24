@@ -21,7 +21,7 @@ export default function ContextSelector({
         title: dataContext.title,
       }))}
       value={value}
-      defaultValue="Select a Data Context"
+      defaultValue="Select a Dataset"
     />
   );
 }

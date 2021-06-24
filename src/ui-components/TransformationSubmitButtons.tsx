@@ -1,21 +1,19 @@
 import React, { ReactElement } from "react";
+import "./TransformationSubmitButtons.css";
 
 interface TransformationSubmitButtonsProps {
   onCreate: () => void;
-  onUpdate: () => void;
-  updateDisabled: boolean;
+  label?: string;
 }
 
 export default function TransformationSubmitButtons({
   onCreate,
-  onUpdate,
-  updateDisabled,
+  label = "Apply Transformation",
 }: TransformationSubmitButtonsProps): ReactElement {
   return (
     <>
-      <button onClick={onCreate}>Create table with transformation</button>
-      <button onClick={onUpdate} disabled={updateDisabled}>
-        Update previous table with transformation
+      <button id="applyTransformation" onClick={onCreate}>
+        {label}
       </button>
     </>
   );

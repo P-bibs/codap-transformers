@@ -1,7 +1,10 @@
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { eraseFormulas } from "./util";
+import { eraseFormulas, shallowCopy } from "./util";
 import { uniqueName } from "../utils/names";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { readableName } from "../transformation-components/util";
 
 // TODO: allow for two modes:
 //  1) treat data like one table, values are counted across all cases
@@ -16,7 +19,29 @@ import { uniqueName } from "../utils/names";
  * (with their distinct tuples), as well as a `count` attribute, which lists
  * the frequency of a given tuple.
  */
-export function count(dataset: DataSet, attributes: string[]): DataSet {
+export async function count({
+  context1: contextName,
+  attributeSet1: attributes,
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (attributes.length === 0) {
+    throw new Error("Please choose at least one attribute to count");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  const attributeNames = attributes.join(", ");
+
+  return [
+    await uncheckedCount(dataset, attributes),
+    `Count of ${attributeNames} in ${ctxtName}`,
+    `A summary of the frequency of all tuples of the attributes ${attributeNames} that appear in ${ctxtName}`,
+  ];
+}
+
+function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
   // validate attribute names
   for (const attrName of attributes) {
     if (
@@ -24,14 +49,16 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
         coll.attrs?.find((attr) => attr.name === attrName)
       ) === undefined
     ) {
-      throw new Error(`invalid attribute name: ${attrName}`);
+      throw new Error(`Invalid attribute name: ${attrName}`);
     }
   }
 
   let countedAttrs: CodapAttribute[] = [];
   for (const coll of dataset.collections) {
     countedAttrs = countedAttrs.concat(
-      coll.attrs?.filter((attr) => attributes.includes(attr.name)).slice() || []
+      coll.attrs
+        ?.filter((attr) => attributes.includes(attr.name))
+        .map(shallowCopy) || []
     );
   }
   eraseFormulas(countedAttrs);
@@ -42,13 +69,20 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
     countedAttrs.map((attr) => attr.name)
   );
 
+  const attributeNames = attributes.join(", ");
   // single collection with copy of counted attributes, plus
   // a new "count" attribute for the frequencies
   const collections: Collection[] = [
     {
-      name: `Count (${attributes.join(", ")})`,
+      name: `Count (${attributeNames})`,
       labels: {},
-      attrs: [...countedAttrs, { name: countAttrName }],
+      attrs: [
+        ...countedAttrs,
+        {
+          name: countAttrName,
+          description: `The frequency of each tuple of (${attributeNames})`,
+        },
+      ],
     },
   ];
 
@@ -57,7 +91,7 @@ export function count(dataset: DataSet, attributes: string[]): DataSet {
     const copy: Record<string, unknown> = {};
     for (const attrName of attributes) {
       if (record[attrName] === undefined) {
-        throw new Error(`invalid attribute name: ${attrName}`);
+        throw new Error(`Invalid attribute name: ${attrName}`);
       }
 
       copy[attrName] = record[attrName];

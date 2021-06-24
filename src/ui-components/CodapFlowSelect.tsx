@@ -1,13 +1,14 @@
 import React, { ReactElement } from "react";
 
 interface CodapFlowSelectProps<T extends string | number> {
-  onChange: React.ChangeEventHandler<HTMLSelectElement>;
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>;
   defaultValue: T;
   value: T | null;
   options: {
     value: T;
     title: string;
   }[];
+  disabled?: boolean;
 }
 
 export default function CodapFlowSelect<T extends string | number>({
@@ -15,6 +16,7 @@ export default function CodapFlowSelect<T extends string | number>({
   value,
   defaultValue,
   options,
+  disabled,
 }: CodapFlowSelectProps<T>): ReactElement {
   const titles = options.map((option) => option.title);
 
@@ -24,7 +26,11 @@ export default function CodapFlowSelect<T extends string | number>({
   }
 
   return (
-    <select onChange={onChange} value={value || defaultValue}>
+    <select
+      onChange={onChange}
+      value={value || defaultValue}
+      disabled={disabled}
+    >
       <option disabled value={defaultValue}>
         {defaultValue}
       </option>

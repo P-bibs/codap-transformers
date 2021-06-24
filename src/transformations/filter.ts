@@ -1,11 +1,34 @@
-import { DataSet } from "./types";
-import { evalExpression } from "../utils/codapPhone";
+import { DataSet, TransformationOutput } from "./types";
+import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
+import { codapValueToString } from "./util";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
 
 /**
  * Filter produces a dataset with certain records excluded
  * depending on a given predicate.
  */
-export async function filter(
+export async function filter({
+  context1: contextName,
+  expression1: predicate,
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (predicate === "") {
+    throw new Error("Please enter a non-empty expression to filter by");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  return [
+    await uncheckedFilter(dataset, predicate),
+    `Filter of ${ctxtName}`,
+    `A copy of ${ctxtName} that only includes the cases for which the predicate \`${predicate}\` is satisfied.`,
+  ];
+}
+
+async function uncheckedFilter(
   dataset: DataSet,
   predicate: string
 ): Promise<DataSet> {
@@ -17,9 +40,9 @@ export async function filter(
   predValues.forEach((value, i) => {
     if (value !== true && value !== false) {
       throw new Error(
-        `expected filter predicate to evaluate to true/false, but got ${value} at case ${
-          i + 1
-        }`
+        `Expected predicate to evaluate to true/false, but it evaluated to ${codapValueToString(
+          value
+        )} at case ${i + 1}`
       );
     }
 
@@ -30,7 +53,7 @@ export async function filter(
 
   return new Promise((resolve) =>
     resolve({
-      collections: dataset.collections.slice(),
+      collections: dataset.collections,
       records: filteredRecords,
     })
   );

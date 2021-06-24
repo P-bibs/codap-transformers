@@ -3,7 +3,7 @@ export class CodapEvalError extends Error {
   error: string;
 
   constructor(expression: string, error: string) {
-    super(`${expression} failed with error: ${error}`);
+    super(`Evaluating \`${expression}\` failed: ${error}`);
     this.expression = expression;
     this.error = error;
   }

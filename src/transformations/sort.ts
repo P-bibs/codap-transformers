@@ -1,5 +1,13 @@
-import { DataSet } from "./types";
-import { evalExpression } from "../utils/codapPhone";
+import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
+import { codapValueToString, reportTypeErrorsForRecords } from "./util";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+
+export type SortDirection = "ascending" | "descending";
+function isSortDirection(s: unknown): s is SortDirection {
+  return s === "ascending" || s === "descending";
+}
 
 function numCompareFn(a: number, b: number) {
   return a - b;
@@ -23,6 +31,12 @@ function boolCompareFn(a: boolean, b: boolean) {
   }
 }
 
+function objectCompareFn(a: unknown, b: unknown) {
+  // TODO: not sure this is a meaningful comparison,
+  // but it should at least give the same result every time.
+  return stringCompareFn(JSON.stringify(a), JSON.stringify(b));
+}
+
 function compareFn(a: unknown, b: unknown): number {
   if (typeof a === "number" && typeof b === "number") {
     return numCompareFn(a, b);
@@ -30,32 +44,73 @@ function compareFn(a: unknown, b: unknown): number {
     return stringCompareFn(a, b);
   } else if (typeof a === "boolean" && typeof b === "boolean") {
     return boolCompareFn(a, b);
+  } else if (typeof a === "object" && typeof b === "object") {
+    return objectCompareFn(a, b);
   } else {
     throw new Error(
-      `Keys must have the same type for all rows. Got ${a} and ${b}`
+      `Sort encountered keys of differing types (${codapValueToString(
+        a
+      )} and ${codapValueToString(
+        b
+      )}). Keys must have the same type for all cases.`
     );
   }
 }
 
-export async function sort(
+/**
+ * Sorts a dataset
+ */
+export async function sort({
+  context1: contextName,
+  expression1: expression,
+  dropdown1: sortDirection,
+  typeContract1: { outputType },
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (expression === "") {
+    throw new Error("Please enter a non-empty key expression");
+  }
+  if (!isSortDirection(sortDirection)) {
+    throw new Error("Please select a valid sort direction");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  return [
+    await uncheckedSort(dataset, expression, outputType, sortDirection),
+    `Sort ${sortDirection} of ${ctxtName}`,
+    `A copy of ${ctxtName}, sorted by the value of the key formula: \`${expression}\`.`,
+  ];
+}
+
+async function uncheckedSort(
   dataset: DataSet,
-  keyExpr: string
+  keyExpr: string,
+  outputType: CodapLanguageType,
+  sortDirection: SortDirection
 ): Promise<DataSet> {
-  const records = dataset.records.slice();
+  const records = dataset.records;
   const keyValues = await evalExpression(keyExpr, records);
+
+  // Check for type errors (might throw error and abort transformation)
+  reportTypeErrorsForRecords(records, keyValues, outputType);
 
   const sorted = records
     .map((record, i) => {
       return { record, i };
     })
     .sort(({ i: i1 }, { i: i2 }) => {
-      return compareFn(keyValues[i1], keyValues[i2]);
+      return sortDirection === "ascending"
+        ? compareFn(keyValues[i1], keyValues[i2])
+        : compareFn(keyValues[i2], keyValues[i1]);
     })
     .map(({ record }) => record);
 
   return new Promise((resolve) =>
     resolve({
-      collections: dataset.collections.slice(),
+      collections: dataset.collections,
       records: sorted,
     })
   );

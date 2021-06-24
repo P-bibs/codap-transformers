@@ -1,28 +1,36 @@
 import React, { ReactElement, useEffect } from "react";
 import CodapFlowSelect from "./CodapFlowSelect";
 import { useAttributes } from "../utils/hooks";
+import "./MultiAttributeSelector.css";
 
 interface MultiAttributeSelectorProps {
   context: string | null;
   selected: string[];
-  onChange: (selected: string[]) => void;
+  setSelected: (selected: string[]) => void;
+  disabled?: boolean;
+  frozen?: boolean;
 }
 
 export default function MultiAttributeSelector({
   context,
+  disabled,
   selected,
-  onChange,
+  setSelected,
 }: MultiAttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
 
   // If selected contains an outdated value (attribute name that has been)
   // deleted, then filter out the value
   useEffect(() => {
+    // Only filter out attributes if this selector is enabled
+    if (disabled) {
+      return;
+    }
     const attrNames = attributes.map((a) => a.name);
     if (selected.some((a) => !attrNames.includes(a))) {
-      onChange(selected.filter((a) => attrNames.includes(a)));
+      setSelected(selected.filter((a) => attrNames.includes(a)));
     }
-  }, [attributes, selected, onChange]);
+  }, [attributes, selected, setSelected, disabled]);
 
   return (
     <>
@@ -38,7 +46,7 @@ export default function MultiAttributeSelector({
             onChange={(e) => {
               const newSelected = [...selected];
               newSelected[i] = e.target.value;
-              onChange(newSelected);
+              setSelected(newSelected);
             }}
             options={attributes.map((attribute) => ({
               value: attribute.name,
@@ -46,14 +54,20 @@ export default function MultiAttributeSelector({
             }))}
             value={selected[i]}
             defaultValue="Select an attribute"
+            disabled={disabled}
           />
           {i === selected.length ? null : (
             <button
+              className="deleteButton"
               onClick={() => {
-                onChange([...selected.slice(0, i), ...selected.slice(i + 1)]);
+                setSelected([
+                  ...selected.slice(0, i),
+                  ...selected.slice(i + 1),
+                ]);
               }}
+              disabled={disabled}
             >
-              🗙
+              ✕
             </button>
           )}
         </div>

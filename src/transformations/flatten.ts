@@ -1,14 +1,33 @@
-import { DataSet } from "./types";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { DataSet, TransformationOutput } from "./types";
 
 /**
  * Flatten produces an identical dataset with all hierarchical relationships
  * among collections collapsed into a single collection containing
  * all attributes.
  */
-export function flatten(dataset: DataSet): DataSet {
+export async function flatten({
+  context1: contextName,
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  return [
+    await uncheckedFlatten(dataset),
+    `Flatten of ${ctxtName}`,
+    `A copy of ${ctxtName} in which all collections have been flattened into one collection.`,
+  ];
+}
+
+export function uncheckedFlatten(dataset: DataSet): DataSet {
   // flatten attributes of all collections into single list of attributes
   const attrs = dataset.collections
-    .map((collection) => collection.attrs?.slice() || [])
+    .map((collection) => collection.attrs || [])
     .flat();
 
   // create combined name for collection
@@ -24,6 +43,6 @@ export function flatten(dataset: DataSet): DataSet {
   // dataset with same records but single collection
   return {
     collections: [collection],
-    records: dataset.records.slice(),
+    records: dataset.records,
   };
 }

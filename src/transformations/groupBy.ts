@@ -1,6 +1,9 @@
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { reparent } from "./util";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { reparent, cloneCollection, shallowCopy } from "./util";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that
@@ -14,19 +17,47 @@ import { reparent } from "./util";
  * their current positions and putting them all together in a new
  * parent collection. CODAP handles the grouping of cases with the
  * same content for us.
+ */
+export async function groupBy({
+  context1: contextName,
+  attributeSet1: attributes,
+}: DDTransformationState): Promise<TransformationOutput> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (attributes.length === 0) {
+    throw new Error("Please choose at least one attribute to group by");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const attributeNames = attributes.join(", ");
+  const parentName = `Grouped by ${attributeNames}`;
+  const ctxtName = readableName(context);
+  return [
+    await uncheckedGroupBy(dataset, attributes, parentName),
+    `Group By of ${ctxtName}`,
+    `A copy of ${ctxtName} with a new parent collection added which contains copies of the attributes ${attributeNames}.`,
+  ];
+}
+
+/**
+ * Groups a dataset by the indicated attributes, by removing them from
+ * their current positions and putting them all together in a new
+ * parent collection. CODAP handles the grouping of cases with the
+ * same content for us.
  *
  * @param dataset the dataset to group
  * @param groupByAttrs the attributes to separate into a parent collection
  * @param newParentName the name of newly-created parent collection
  * @returns the grouped dataset
  */
-export function groupBy(
+function uncheckedGroupBy(
   dataset: DataSet,
   attrNames: string[],
   newParentName: string
 ): DataSet {
   const groupedAttrs: CodapAttribute[] = [];
-  let collections = dataset.collections.slice();
+  let collections = dataset.collections.map(cloneCollection);
 
   // extract attributes from collections into a list
   attrLoop: for (const attrName of attrNames) {
@@ -45,13 +76,14 @@ export function groupBy(
           ...attr,
           name: groupedAttrName(attr.name), // rename attribute uniquely
           formula: undefined, // do not copy formulas
+          description: `All values of the ${attrName} attribute that appear in distinct tuples.`,
         });
         continue attrLoop;
       }
     }
 
     // attribute was not found in any collection
-    throw new Error(`bad attribute name: ${attrName}`);
+    throw new Error(`Invalid attribute name: ${attrName}`);
   }
 
   // remove any collections with no attributes after the group,
@@ -79,7 +111,7 @@ export function groupBy(
     labels: {},
   };
 
-  const records = dataset.records.slice();
+  const records = dataset.records.map(shallowCopy);
   for (const record of records) {
     for (const attrName of attrNames) {
       // make copy of record data from original attr into grouped attr

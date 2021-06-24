@@ -60,8 +60,36 @@ export const partitionOverride = async (
     ]);
   };
 
+  // At or more than this number of output datasets triggers a warning
+  const OUTPUT_WARN_THRESHOLD = 10;
+
+  /**
+   * If the indicated number of output datasets is at or beyond OUTPUT_WARN_THRESHOLD,
+   * this warns the user and prompts them to confirm that they'd like
+   * to go ahead with creating/updating the output.
+   *
+   * @returns true if the number is below threshold or the user
+   *  has confirmed they want the output. false otherwise.
+   */
+  function confirmLargeOutput(outputDatasets: number, msg: string): boolean {
+    if (outputDatasets >= OUTPUT_WARN_THRESHOLD) {
+      return confirm(`${msg}. Are you sure you want to proceed?`);
+    }
+    return true;
+  }
+
   try {
     const transformed = await doTransform();
+
+    if (
+      !confirmLargeOutput(
+        transformed.length,
+        `This partition will create ${transformed.length} new datasets`
+      )
+    ) {
+      return;
+    }
+
     let valueToContext: Record<string, string> = {};
     const outputContexts: string[] = [];
 
@@ -76,6 +104,16 @@ export const partitionOverride = async (
       try {
         setErrMsg(null);
         const transformed = await doTransform();
+
+        if (
+          !confirmLargeOutput(
+            transformed.length,
+            `Updating the partition of ${inputDataCtxt} will lead to ${transformed.length} total output datasets`
+          )
+        ) {
+          return;
+        }
+
         const newValueToContext: Record<string, string> = {};
         while (outputContexts.length > 0) {
           outputContexts.pop();

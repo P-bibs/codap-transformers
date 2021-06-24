@@ -1,5 +1,32 @@
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 import { codapValueToString } from "./util";
+
+/**
+ * Takes the dot product of the given columns.
+ */
+export async function dotProduct({
+  context1: contextName,
+  attributeSet1: attributes,
+}: DDTransformationState): Promise<[number, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+
+  if (attributes.length === 0) {
+    throw new Error(
+      "Please choose at least one attribute to take the dot product of."
+    );
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedDotProduct(dataset, attributes),
+    `Dot Product of ${readableName(context)}`,
+  ];
+}
 
 /**
  * Takes the dot product of the given columns.
@@ -7,7 +34,7 @@ import { codapValueToString } from "./util";
  * @param dataset - The input DataSet
  * @param attributes - The columns to take the dot product of.
  */
-export function dotProduct(dataset: DataSet, attributes: string[]): number {
+function uncheckedDotProduct(dataset: DataSet, attributes: string[]): number {
   if (attributes.length === 0) {
     throw new Error("Cannot take the dot product of zero columns.");
   }
@@ -42,7 +69,7 @@ export function dotProductTable(
 ): DataSet {
   const records = [
     {
-      "Dot Product": dotProduct(dataset, attributes),
+      "Dot Product": uncheckedDotProduct(dataset, attributes),
     },
   ];
   const collections = [

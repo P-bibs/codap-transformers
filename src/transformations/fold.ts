@@ -5,8 +5,56 @@ import {
   codapValueToString,
   allAttrNames,
 } from "./util";
-import { evalExpression } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { uniqueName } from "../utils/names";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import {
+  parenthesizeName,
+  readableName,
+} from "../transformation-components/util";
+
+type FoldFunction = (
+  dataset: DataSet,
+  inputColumnName: string,
+  resultColumnName: string,
+  resultColumnDescription: string
+) => DataSet;
+
+function makeFoldWrapper(label: string, innerFoldFunction: FoldFunction) {
+  return async ({
+    context1: contextName,
+    attribute1: inputAttributeName,
+  }: DDTransformationState): Promise<[DataSet, string]> => {
+    if (contextName === null) {
+      throw new Error("Please choose a valid dataset to transform.");
+    }
+    if (inputAttributeName === null) {
+      throw new Error("Please select an attribute to aggregate");
+    }
+
+    const { context, dataset } = await getContextAndDataSet(contextName);
+    const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
+    const resultAttributeName = uniqueName(
+      `${label} of ${parenthesizeName(inputAttributeName)} from ${readableName(
+        context
+      )}`,
+      attrs.map((attr) => attr.name)
+    );
+    const resultDescription = `A ${label.toLowerCase()} of the values from the ${inputAttributeName} attribute in the ${readableName(
+      context
+    )} table.`;
+
+    return [
+      await innerFoldFunction(
+        dataset,
+        inputAttributeName,
+        resultAttributeName,
+        resultDescription
+      ),
+      `${label} of ${readableName(context)}`,
+    ];
+  };
+}
 
 function makeNumFold<T>(
   foldName: string,
@@ -55,7 +103,47 @@ function makeNumFold<T>(
   };
 }
 
-export async function genericFold(
+export async function genericFold({
+  context1: contextName,
+  textInput1: resultColumnName,
+  expression1: base,
+  textInput2: accumulatorName,
+  expression2: expression,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (resultColumnName === "") {
+    throw new Error("Please enter a name for the new attribute");
+  }
+  if (expression === "") {
+    throw new Error("Please enter an expression");
+  }
+  if (base === "") {
+    throw new Error("Please enter a base value");
+  }
+  if (accumulatorName === "") {
+    throw new Error("Please enter an accumulator name");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+
+  const resultDescription = `A reduce of the ${readableName(context)} table.`;
+
+  return [
+    await uncheckedGenericFold(
+      dataset,
+      base,
+      expression,
+      resultColumnName,
+      accumulatorName,
+      resultDescription
+    ),
+    `Reduce of ${readableName(context)}`,
+  ];
+}
+
+async function uncheckedGenericFold(
   dataset: DataSet,
   base: string,
   expression: string,
@@ -92,7 +180,7 @@ export async function genericFold(
   };
 }
 
-export const runningSum = makeNumFold(
+const uncheckedRunningSum = makeNumFold(
   "Running Sum",
   { sum: 0 },
   (acc, input) => {
@@ -100,8 +188,7 @@ export const runningSum = makeNumFold(
     return [newAcc, newAcc.sum];
   }
 );
-
-export const runningMean = makeNumFold(
+const uncheckedRunningMean = makeNumFold(
   "Running Mean",
   { sum: 0, count: 0 },
   (acc, input) => {
@@ -109,8 +196,7 @@ export const runningMean = makeNumFold(
     return [newAcc, newAcc.sum / newAcc.count];
   }
 );
-
-export const runningMin = makeNumFold<{ min: number | null }>(
+const uncheckedRunningMin = makeNumFold<{ min: number | null }>(
   "Running Min",
   { min: null },
   (acc, input) => {
@@ -121,8 +207,7 @@ export const runningMin = makeNumFold<{ min: number | null }>(
     }
   }
 );
-
-export const runningMax = makeNumFold<{ max: number | null }>(
+const uncheckedRunningMax = makeNumFold<{ max: number | null }>(
   "Running Max",
   { max: null },
   (acc, input) => {
@@ -133,8 +218,7 @@ export const runningMax = makeNumFold<{ max: number | null }>(
     }
   }
 );
-
-export const difference = makeNumFold<{ numAbove: number | null }>(
+const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
   "Running Difference",
   { numAbove: null },
   (acc, input) => {
@@ -146,7 +230,49 @@ export const difference = makeNumFold<{ numAbove: number | null }>(
   }
 );
 
-export function differenceFrom(
+export const runningSum = makeFoldWrapper("Running Sum", uncheckedRunningSum);
+export const runningMean = makeFoldWrapper(
+  "Running Mean",
+  uncheckedRunningMean
+);
+export const runningMin = makeFoldWrapper("Running Min", uncheckedRunningMin);
+export const runningMax = makeFoldWrapper("Running Max", uncheckedRunningMax);
+export const difference = makeFoldWrapper("Difference", uncheckedDifference);
+
+export async function differenceFrom({
+  context1: contextName,
+  attribute1: inputAttributeName,
+  textInput1: resultAttributeName,
+  textInput2: startingValue,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (inputAttributeName === null) {
+    throw new Error("Please choose an attribute to take the difference from");
+  }
+  if (resultAttributeName === "") {
+    throw new Error("Please choose a non-empty result column name.");
+  }
+  if (isNaN(Number(startingValue))) {
+    throw new Error(
+      `Expected numeric starting value, instead got ${startingValue}`
+    );
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedDifferenceFrom(
+      dataset,
+      inputAttributeName,
+      resultAttributeName,
+      Number(startingValue)
+    ),
+    `Difference From of ${readableName(context)}`,
+  ];
+}
+
+function uncheckedDifferenceFrom(
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,

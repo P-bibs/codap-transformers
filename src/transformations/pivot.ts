@@ -1,5 +1,43 @@
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 import { eraseFormulas, codapValueToString } from "./util";
+
+/**
+ * Turns selected attribute names into values of a new attribute, reorganizing
+ * the values under the original attributes into a new column, thus making the
+ * dataset "longer" (more cases), but less wide (fewer attributes).
+ */
+export async function pivotLonger({
+  context1: contextName,
+  attributeSet1: attributes,
+  textInput1: namesTo,
+  textInput2: valuesTo,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (attributes.length === 0) {
+    throw new Error("Please choose at least one attribute to pivot on");
+  }
+  if (namesTo === "") {
+    throw new Error(
+      "Please choose a non-empty name for the Names To attribute"
+    );
+  }
+  if (valuesTo === "") {
+    throw new Error(
+      "Please choose a non-empty name for the Values To attribute"
+    );
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
+    `Pivot Longer of ${readableName(context)}`,
+  ];
+}
 
 /**
  * Turns selected attribute names into values of a new attribute, reorganizing
@@ -13,7 +51,7 @@ import { eraseFormulas, codapValueToString } from "./util";
  *  attributes will go
  * @returns pivoted dataset
  */
-export function pivotLonger(
+function uncheckedPivotLonger(
   dataset: DataSet,
   toPivot: string[],
   namesTo: string,
@@ -76,13 +114,40 @@ export function pivotLonger(
  * Extracts the values of the namesFrom attribute into new attributes,
  * with the values from the valuesFrom attribute as their values. The dataset
  * gets "wider" (more attributes), but less long (fewer cases).
+ */
+export async function pivotWider({
+  context1: contextName,
+  attribute1: namesFrom,
+  attribute2: valuesFrom,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (namesFrom === null) {
+    throw new Error("Please choose an attribute to get names from");
+  }
+  if (valuesFrom === null) {
+    throw new Error("Please choose an attribute to get values from");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
+    `Pivot Wider of ${readableName(context)}`,
+  ];
+}
+
+/**
+ * Extracts the values of the namesFrom attribute into new attributes,
+ * with the values from the valuesFrom attribute as their values. The dataset
+ * gets "wider" (more attributes), but less long (fewer cases).
  *
  * @param dataset the dataset to pivot
  * @param namesFrom name of attribute from which to extract new attribute names
  * @param valuesFrom name of attribute holding the values that will go
  *  under the new attribute names
  */
-export function pivotWider(
+function uncheckedPivotWider(
   dataset: DataSet,
   namesFrom: string,
   valuesFrom: string

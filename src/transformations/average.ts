@@ -1,5 +1,30 @@
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 import { codapValueToString } from "./util";
+
+/**
+ * Takes the average of a given column.
+ */
+export async function average({
+  context1: contextName,
+  attribute1: attribute,
+}: DDTransformationState): Promise<[DataSet | number, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+
+  if (attribute === null) {
+    throw new Error("Please choose an attribute to take the average of.");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    uncheckedAverage(dataset, attribute),
+    `Average of ${attribute} in ${readableName(context)}`,
+  ];
+}
 
 /**
  * Takes the average of a given column.
@@ -7,7 +32,7 @@ import { codapValueToString } from "./util";
  * @param dataset - The input DataSet
  * @param attribute - The column to take the dot product of.
  */
-export function average(dataset: DataSet, attribute: string): number {
+function uncheckedAverage(dataset: DataSet, attribute: string): number {
   const sum = dataset.records.reduce((acc, row) => {
     if (row[attribute] === undefined) {
       throw new Error(`Invalid attribute name: ${attribute}`);
@@ -30,7 +55,7 @@ export function average(dataset: DataSet, attribute: string): number {
 export function averageTable(dataset: DataSet, attribute: string): DataSet {
   const records = [
     {
-      Average: average(dataset, attribute),
+      Average: uncheckedAverage(dataset, attribute),
     },
   ];
   const collections = [

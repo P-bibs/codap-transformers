@@ -2,8 +2,11 @@ import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
 import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
-import { flatten } from "./flatten";
+import { uncheckedFlatten } from "./flatten";
 import { eraseFormulas, getAttributeDataFromDataset } from "./util";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { getContextAndDataSet } from "../utils/codapPhone";
+import { readableName } from "../transformation-components/util";
 
 const COMPARE_STATUS_COLUMN_NAME = "Compare Status";
 const COMPARE_VALUE_COLUMN_NAME = "Difference";
@@ -15,12 +18,52 @@ const DECISION_1_COLUMN_NAME = "Category 1";
 const DECISION_2_COLUMN_NAME = "Category 2";
 
 export type CompareType = "numeric" | "categorical" | "structural";
+function isCompareType(s: unknown): s is CompareType {
+  return s === "numeric" || s === "categorical" || s === "structural";
+}
 
 /**
- * Filter produces a dataset with certain records excluded
- * depending on a given predicate.
+ * Compares two contexts in a variety of ways
  */
-export function compare(
+export async function compare({
+  context1: inputDataContext1,
+  context2: inputDataContext2,
+  attribute1: inputAttribute1,
+  attribute2: inputAttribute2,
+  dropdown1: kind,
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (
+    !inputDataContext1 ||
+    !inputDataContext2 ||
+    !inputAttribute1 ||
+    !inputAttribute2
+  ) {
+    throw new Error("Please choose two datasets and two attributes");
+  }
+  if (!isCompareType(kind)) {
+    throw new Error("Please select a valid compare type");
+  }
+
+  const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
+    inputDataContext1
+  );
+  const { context: context2, dataset: dataset2 } = await getContextAndDataSet(
+    inputDataContext2
+  );
+
+  return [
+    await uncheckedCompare(
+      dataset1,
+      dataset2,
+      inputAttribute1,
+      inputAttribute2,
+      kind
+    ),
+    `Compare of ${readableName(context1)} and ${readableName(context2)}`,
+  ];
+}
+
+function uncheckedCompare(
   dataset1: DataSet,
   dataset2: DataSet,
   attributeName1: string,
@@ -145,8 +188,8 @@ function compareCategorical(
   attribute1Data: CodapAttribute,
   attribute2Data: CodapAttribute
 ): DataSet {
-  dataset1 = flatten(dataset1);
-  dataset2 = flatten(dataset2);
+  dataset1 = uncheckedFlatten(dataset1);
+  dataset2 = uncheckedFlatten(dataset2);
 
   const attributes1 = dataset1.collections[0].attrs;
   if (attributes1 === undefined) {

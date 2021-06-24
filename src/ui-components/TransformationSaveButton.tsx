@@ -43,13 +43,15 @@ export default function TransformationSaveButton({
             />
             <button
               disabled={disabled}
-              onClick={() =>
+              onClick={() => {
                 saveTransformation(
                   currentName,
                   description === "" ? undefined : description,
                   generateSaveData()
-                )
-              }
+                );
+                setCurrentName("");
+                setDescription("");
+              }}
             >
               Save
             </button>

@@ -1,7 +1,13 @@
 import { CodapLanguageType, DataSet } from "./types";
-import { evalExpression } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
-import { SortDirection } from "../transformation-components/Sort";
+import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { readableName } from "../transformation-components/util";
+
+export type SortDirection = "ascending" | "descending";
+function isSortDirection(s: unknown): s is SortDirection {
+  return s === "ascending" || s === "descending";
+}
 
 function numCompareFn(a: number, b: number) {
   return a - b;
@@ -51,7 +57,33 @@ function compareFn(a: unknown, b: unknown): number {
   }
 }
 
-export async function sort(
+/**
+ * Sorts a dataset
+ */
+export async function sort({
+  context1: contextName,
+  expression1: expression,
+  dropdown1: sortDirection,
+  typeContract1: { outputType },
+}: DDTransformationState): Promise<[DataSet, string]> {
+  if (contextName === null) {
+    throw new Error("Please choose a valid dataset to transform.");
+  }
+  if (expression === "") {
+    throw new Error("Please enter a non-empty key expression");
+  }
+  if (!isSortDirection(sortDirection)) {
+    throw new Error("Please select a valid sort direction");
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  return [
+    await uncheckedSort(dataset, expression, outputType, sortDirection),
+    `Sort ${sortDirection} of ${readableName(context)}`,
+  ];
+}
+
+async function uncheckedSort(
   dataset: DataSet,
   keyExpr: string,
   outputType: CodapLanguageType,

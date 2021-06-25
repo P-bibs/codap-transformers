@@ -17,6 +17,7 @@ import {
   ReturnedCase,
   Collection,
   ReturnedCollection,
+  ContextMetadata,
   DataContext,
   ReturnedDataContext,
   CodapListResource,
@@ -459,23 +460,26 @@ function normalizeDataContext(context: ReturnedDataContext): DataContext {
     title: context.title,
     description: context.description,
     collections: normalizeParentNames(context.collections),
+    metadata: context.metadata,
   };
 }
 
-async function createDataContext(
-  name: string,
-  collections: Collection[],
-  title?: string
-): Promise<CodapIdentifyingInfo> {
+async function createDataContext({
+  name,
+  title,
+  collections,
+  metadata,
+}: DataContext): Promise<CodapIdentifyingInfo> {
   return new Promise<CodapIdentifyingInfo>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
         values: {
-          name: name,
+          name,
           title: title !== undefined ? title : name,
-          collections: collections,
+          collections,
+          metadata,
         },
       },
       (response) => {
@@ -518,13 +522,15 @@ export async function createDataInteractive(
 export async function createContextWithDataSet(
   dataset: DataSet,
   name: string,
-  title?: string
+  title?: string,
+  metadata?: ContextMetadata
 ): Promise<CodapIdentifyingInfo> {
-  const newDatasetDescription = await createDataContext(
+  const newDatasetDescription = await createDataContext({
     name,
-    dataset.collections,
-    title
-  );
+    title,
+    metadata,
+    collections: dataset.collections,
+  });
 
   await insertDataItems(newDatasetDescription.name, dataset.records);
   return newDatasetDescription;
@@ -815,7 +821,8 @@ async function ensureUniqueName(
 
 export async function createTableWithDataSet(
   dataset: DataSet,
-  name?: string
+  name?: string,
+  description?: string
 ): Promise<[CodapIdentifyingInfo, CaseTable]> {
   let baseName;
   if (!name) {
@@ -839,7 +846,14 @@ export async function createTableWithDataSet(
   );
 
   // Create context and table;
-  const newContext = await createContextWithDataSet(dataset, contextName);
+  const newContext = await createContextWithDataSet(
+    dataset,
+    contextName,
+    contextName,
+    {
+      description,
+    }
+  );
 
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];

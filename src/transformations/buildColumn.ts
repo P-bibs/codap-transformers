@@ -1,4 +1,4 @@
-import { CodapLanguageType, DataSet } from "./types";
+import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import {
   evalExpression,
   getContextAndDataSet,
@@ -17,7 +17,7 @@ export async function buildColumn({
   textInput1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformationState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -35,6 +35,8 @@ export async function buildColumn({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+
   return [
     await uncheckedBuildColumn(
       dataset,
@@ -43,7 +45,9 @@ export async function buildColumn({
       expression,
       outputType
     ),
-    `Build Column of ${readableName(context)}`,
+    `Build Column of ${ctxtName}`,
+    `A copy of ${ctxtName} with a new attribute (${attributeName}) added to ` +
+      `the ${collectionName} collection, whose value is determined by the formula \`${expression}\`.`,
   ];
 }
 

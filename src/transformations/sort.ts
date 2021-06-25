@@ -1,4 +1,4 @@
-import { CodapLanguageType, DataSet } from "./types";
+import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
 import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
@@ -65,7 +65,7 @@ export async function sort({
   expression1: expression,
   dropdown1: sortDirection,
   typeContract1: { outputType },
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformationState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -77,9 +77,11 @@ export async function sort({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
   return [
     await uncheckedSort(dataset, expression, outputType, sortDirection),
-    `Sort ${sortDirection} of ${readableName(context)}`,
+    `Sort ${sortDirection} of ${ctxtName}`,
+    `A copy of ${ctxtName}, sorted by the value of the key formula: \`${expression}\`.`,
   ];
 }
 

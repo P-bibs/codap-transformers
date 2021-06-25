@@ -140,6 +140,48 @@ export function getAttributeDataFromDataset(
 }
 
 /**
+ * Formats a list of strings as a single string listing all the elements,
+ * with an 'and' at the end where appropriate.
+ */
+export function listAsString(words: string[]): string {
+  if (words.length === 0) {
+    return "";
+  }
+  if (words.length === 1) {
+    return words[0];
+  }
+
+  const exceptLast = words.slice(0, words.length - 1).join(", ");
+  const last = words[words.length - 1];
+
+  return `${exceptLast} and ${last}`;
+}
+
+/**
+ * Returns either the singular form or the plural form depending on
+ * whether the number of elements in `describing` is singular or plural.
+ */
+export function plural<T>(
+  singular: string,
+  plural: string,
+  describing: T[]
+): string {
+  if (describing.length === 1) {
+    return singular;
+  } else {
+    return plural;
+  }
+}
+
+/**
+ * Attaches a simple "-s" pluralSuffix suffix to the given word if
+ * the given list it describes has 0 or >1 elements.
+ */
+export function pluralSuffix<T>(word: string, describing: T[]): string {
+  return plural(word, `${word}s`, describing);
+}
+
+/**
  * Converts a CODAP cell value into a user-friendly string
  * for printing in error messages.
  *

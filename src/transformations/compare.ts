@@ -1,4 +1,4 @@
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
 import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
@@ -31,7 +31,7 @@ export async function compare({
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
   dropdown1: kind,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformationState): Promise<TransformationOutput> {
   if (
     !inputDataContext1 ||
     !inputDataContext2 ||
@@ -51,6 +51,9 @@ export async function compare({
     inputDataContext2
   );
 
+  const ctxtName1 = readableName(context1);
+  const ctxtName2 = readableName(context2);
+
   return [
     await uncheckedCompare(
       dataset1,
@@ -59,7 +62,9 @@ export async function compare({
       inputAttribute2,
       kind
     ),
-    `Compare of ${readableName(context1)} and ${readableName(context2)}`,
+    `Compare of ${ctxtName1} and ${ctxtName2}`,
+    `A ${kind} comparison of the attributes ${inputAttribute1} (from ` +
+      `${ctxtName1}) and ${inputAttribute2} (from ${ctxtName2})`,
   ];
 }
 

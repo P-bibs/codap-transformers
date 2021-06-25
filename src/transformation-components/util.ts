@@ -15,11 +15,12 @@ import {
  */
 export async function applyNewDataSet(
   dataSet: DataSet,
-  name: string | undefined
+  name: string | undefined,
+  description: string | undefined
 ): Promise<string> {
   // if doUpdate is true then we should update a previously created table
   // rather than creating a new one
-  const [newContext] = await createTableWithDataSet(dataSet, name);
+  const [newContext] = await createTableWithDataSet(dataSet, name, description);
   return newContext.name;
 }
 
@@ -59,7 +60,7 @@ export function parenthesizeName(name: string): string {
 export function addUpdateListener(
   inputContext: string,
   outputContext: string,
-  doTransform: () => Promise<[DataSet, string]>,
+  doTransform: () => Promise<[DataSet, string, string]>,
   setErrMsg: (msg: string | null) => void
 ): void {
   addContextUpdateListener(inputContext, [outputContext], async () => {
@@ -76,7 +77,7 @@ export function addUpdateListener(
 export function addUpdateTextListener(
   inputContext: string,
   textName: string,
-  doTransform: () => Promise<[number, string]>,
+  doTransform: () => Promise<[number, string, string]>,
   setErrMsg: (msg: string) => void
 ): void {
   addContextUpdateListener(inputContext, [textName], async () => {

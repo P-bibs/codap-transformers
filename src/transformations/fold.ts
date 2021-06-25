@@ -1,4 +1,4 @@
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import {
   insertColumnInLastCollection,
   insertInRow,
@@ -24,7 +24,7 @@ function makeFoldWrapper(label: string, innerFoldFunction: FoldFunction) {
   return async ({
     context1: contextName,
     attribute1: inputAttributeName,
-  }: DDTransformationState): Promise<[DataSet, string]> => {
+  }: DDTransformationState): Promise<TransformationOutput> => {
     if (contextName === null) {
       throw new Error("Please choose a valid dataset to transform.");
     }
@@ -44,6 +44,8 @@ function makeFoldWrapper(label: string, innerFoldFunction: FoldFunction) {
       context
     )} table.`;
 
+    const ctxtName = readableName(context);
+
     return [
       await innerFoldFunction(
         dataset,
@@ -51,7 +53,8 @@ function makeFoldWrapper(label: string, innerFoldFunction: FoldFunction) {
         resultAttributeName,
         resultDescription
       ),
-      `${label} of ${readableName(context)}`,
+      `${label} of ${ctxtName}`,
+      `A ${label.toLowerCase()} of the ${inputAttributeName} attribute from the ${ctxtName} dataset.`,
     ];
   };
 }
@@ -109,7 +112,7 @@ export async function genericFold({
   expression1: base,
   textInput2: accumulatorName,
   expression2: expression,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformationState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -129,6 +132,7 @@ export async function genericFold({
   const { context, dataset } = await getContextAndDataSet(contextName);
 
   const resultDescription = `A reduce of the ${readableName(context)} table.`;
+  const ctxtName = readableName(context);
 
   return [
     await uncheckedGenericFold(
@@ -139,7 +143,10 @@ export async function genericFold({
       accumulatorName,
       resultDescription
     ),
-    `Reduce of ${readableName(context)}`,
+    `Reduce of ${ctxtName}`,
+    `A reduce of the ${ctxtName} dataset, with an attribute ${resultColumnName} ` +
+      `whose values are determined by the formula \`${expression}\`. ` +
+      `The accumulator is named ${accumulatorName} and its initial value is \`${base}\`.`,
   ];
 }
 
@@ -244,7 +251,7 @@ export async function differenceFrom({
   attribute1: inputAttributeName,
   textInput1: resultAttributeName,
   textInput2: startingValue,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformationState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -261,6 +268,8 @@ export async function differenceFrom({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+
   return [
     await uncheckedDifferenceFrom(
       dataset,
@@ -268,7 +277,10 @@ export async function differenceFrom({
       resultAttributeName,
       Number(startingValue)
     ),
-    `Difference From of ${readableName(context)}`,
+    `Difference From of ${ctxtName}`,
+    `A copy of ${ctxtName} with a new column whose values are the difference between ` +
+      `the value of ${inputAttributeName} in the current case and the value of ${inputAttributeName} ` +
+      `in the case above. The starting value is ${startingValue}.`,
   ];
 }
 

@@ -2,7 +2,11 @@
 import React, { useReducer, ReactElement, useEffect } from "react";
 import { createText, updateText } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
-import { CodapLanguageType, DataSet } from "../transformations/types";
+import {
+  CodapLanguageType,
+  DataSet,
+  TransformationOutput,
+} from "../transformations/types";
 import {
   CodapFlowSelect,
   AttributeSelector,
@@ -167,7 +171,7 @@ export type TransformFunction =
       kind: "datasetCreator";
       func: (
         state: DDTransformationState
-      ) => Promise<[DataSet | number, string]>;
+      ) => Promise<[DataSet | number, string, string]>;
     }
   | {
       kind: "fullOverride";
@@ -228,7 +232,7 @@ const DataDrivenTransformation = (
   const transform = async () => {
     setErrMsg(null);
 
-    const doTransform: () => Promise<[DataSet | number, string]> = async () => {
+    const doTransform: () => Promise<TransformationOutput> = async () => {
       if (transformationFunction.kind !== "datasetCreator") {
         throw new Error("Improper transformationFunction supplied");
       }
@@ -237,7 +241,7 @@ const DataDrivenTransformation = (
     };
 
     try {
-      const [result, name] = await doTransform();
+      const [result, name, description] = await doTransform();
 
       // Determine whether the transformationFunction returns a textbox or a table
       if (typeof result === "number") {
@@ -253,7 +257,7 @@ const DataDrivenTransformation = (
           addUpdateTextListener(
             state["context1"],
             textName,
-            doTransform as () => Promise<[number, string]>,
+            doTransform as () => Promise<[number, string, string]>,
             setErrMsg
           );
         }
@@ -261,18 +265,18 @@ const DataDrivenTransformation = (
           addUpdateTextListener(
             state["context2"],
             textName,
-            doTransform as () => Promise<[number, string]>,
+            doTransform as () => Promise<[number, string, string]>,
             setErrMsg
           );
         }
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
-        const newContextName = await applyNewDataSet(result, name);
+        const newContextName = await applyNewDataSet(result, name, description);
         if (order.includes("context1") && state["context1"] !== null) {
           addUpdateListener(
             state["context1"],
             newContextName,
-            doTransform as () => Promise<[DataSet, string]>,
+            doTransform as () => Promise<[DataSet, string, string]>,
             setErrMsg
           );
         }
@@ -280,7 +284,7 @@ const DataDrivenTransformation = (
           addUpdateListener(
             state["context2"],
             newContextName,
-            doTransform as () => Promise<[DataSet, string]>,
+            doTransform as () => Promise<[DataSet, string, string]>,
             setErrMsg
           );
         }

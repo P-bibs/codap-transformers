@@ -50,7 +50,7 @@ export default function MultiAttributeSelector({
             }}
             options={attributes.map((attribute) => ({
               value: attribute.name,
-              title: attribute.title,
+              title: attribute.title || attribute.name,
             }))}
             value={selected[i]}
             defaultValue="Select an attribute"

@@ -34,7 +34,7 @@ export default function AttributeSelector({
           ? [{ value: value, title: value }]
           : attributes.map((attribute) => ({
               value: attribute.name,
-              title: attribute.title,
+              title: attribute.title || attribute.name,
             }))
       }
       value={value}

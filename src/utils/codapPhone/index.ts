@@ -851,9 +851,10 @@ export function evalExpression(
   return new Promise((resolve, reject) =>
     phone.call(
       {
-        action: CodapActions.Get,
-        resource: CodapResource.EvalExpression,
+        action: CodapActions.Notify,
+        resource: CodapResource.FormulaEngine,
         values: {
+          request: "evalExpression",
           source: expr,
           records: records,
         },

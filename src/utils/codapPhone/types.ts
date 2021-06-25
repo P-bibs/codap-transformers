@@ -5,8 +5,7 @@ export enum CodapResource {
   Component = "component",
   Collection = "collection",
   CollectionList = "collectionList",
-  EvalExpression = "evalExpression",
-  FunctionNames = "functionNames",
+  FormulaEngine = "formulaEngine",
 }
 
 export enum CodapListResource {
@@ -114,9 +113,10 @@ export interface UpdateTextRequest {
 }
 
 export interface EvalExpressionRequest {
-  action: CodapActions.Get;
-  resource: CodapResource.EvalExpression;
+  action: CodapActions.Notify;
+  resource: CodapResource.FormulaEngine;
   values: {
+    request: "evalExpression";
     source: string;
     records: Record<string, unknown>[];
   };

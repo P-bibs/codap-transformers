@@ -53,6 +53,7 @@ export default function MultiAttributeSelector({
                 value: attribute.name,
                 title: attribute.title || attribute.name,
               }))
+              // Disallow duplicate attributes by filtering
               .filter(
                 (option) =>
                   !selected.includes(option.value) ||

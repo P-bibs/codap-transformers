@@ -8,7 +8,37 @@ import transformationList, {
   BaseTransformationName,
   TransformationGroup,
 } from "./transformation-components/transformationList";
-import { useMemo } from "react";
+
+// These are the base transformation types represented as SavedTransformation
+// objects
+const baseTransformations: SavedTransformation[] = Object.keys(
+  transformationList
+).map((transform) => ({
+  name: transform,
+  content: { base: transform as BaseTransformationName },
+}));
+
+// Take the grouping data from transformationList and reorganize it into a form
+// thats easier to make a dropdown UI out of
+const transformationGroups: [TransformationGroup, string[]][] = (function () {
+  let groupNames = Object.entries(transformationList).map(
+    ([, data]) => data.group
+  );
+  // deduplicate group names
+  groupNames = [...new Set(groupNames)];
+
+  return groupNames.map((groupName: TransformationGroup): [
+    TransformationGroup,
+    string[]
+  ] => {
+    // for each group name, filter to find all the transformations of that
+    // type and then map to get just the transformation name
+    const transformationsMatchingGroup = Object.entries(transformationList)
+      .filter(([, data]) => data.group === groupName)
+      .map(([transform]) => transform);
+    return [groupName, transformationsMatchingGroup];
+  });
+})();
 
 /**
  * Transformation represents an instance of the plugin, which applies a
@@ -23,41 +53,10 @@ function Transformation({
 
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
-  // These are the base transformation types represented as SavedTransformation
-  // objects
-  const baseTransformations: SavedTransformation[] = useMemo(
-    () =>
-      Object.keys(transformationList).map((transform) => ({
-        name: transform,
-        content: { base: transform as BaseTransformationName },
-      })),
-    []
-  );
-
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setTransformType(event.target.value);
     setErrMsg(null);
   }
-
-  // Take the grouping data from transformationList and reorganize it into a
-  // form thats easier to make a dropdown UI out of
-  const transformationGroups: [TransformationGroup, string[]][] =
-    useMemo(() => {
-      let groupNames = Object.entries(transformationList).map(
-        ([, data]) => data.group
-      );
-      // deduplicate group names
-      groupNames = [...new Set(groupNames)];
-
-      return groupNames.map((groupName) => {
-        // for each group name, filter to find all the transformations of that
-        // type and then map to get just the transformation name
-        const transformationsMatchingGroup = Object.entries(transformationList)
-          .filter(([, data]) => data.group === groupName)
-          .map(([transform]) => transform);
-        return [groupName, transformationsMatchingGroup];
-      });
-    }, []);
 
   if (urlTransformation) {
     return (

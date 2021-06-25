@@ -40,6 +40,8 @@ function Transformation({
     setErrMsg(null);
   }
 
+  // Take the grouping data from transformationList and reorganize it into a
+  // form thats easier to make a dropdown UI out of
   const transformationGroups: [TransformationGroup, string[]][] =
     useMemo(() => {
       let groupNames = Object.entries(transformationList).map(
@@ -49,6 +51,8 @@ function Transformation({
       groupNames = [...new Set(groupNames)];
 
       return groupNames.map((groupName) => {
+        // for each group name, filter to find all the transformations of that
+        // type and then map to get just the transformation name
         const transformationsMatchingGroup = Object.entries(transformationList)
           .filter(([, data]) => data.group === groupName)
           .map(([transform]) => transform);

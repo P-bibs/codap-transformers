@@ -175,6 +175,16 @@ function codapRequestHandler(
           caseIDs.map(Cache.invalidateCase);
         }
       }
+
+      // Invalidate all cases in a context if attributes get moved or deleted,
+      // etc. Cannot do this more granularly because attribute moves do not
+      // give enough information.
+      if (
+        value.operation === ContextChangeOperation.MoveAttribute ||
+        value.operation === ContextChangeOperation.DeleteAttribute
+      ) {
+        Cache.invalidateCasesInContext(contextName);
+      }
     }
 
     if (contextUpdate) {
@@ -249,7 +259,7 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
       (response: GetCaseResponse) => {
         if (response.success) {
           const result = response.values.case;
-          Cache.setCase(id, result);
+          Cache.setCase(context, id, result);
           resolve(result);
         } else {
           reject(new Error(`Failed to get case in ${context} with id ${id}`));

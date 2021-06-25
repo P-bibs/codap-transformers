@@ -146,3 +146,21 @@ function listEqual<T>(
 
   return true;
 }
+
+export class DefaultMap<K, V> extends Map<K, V> {
+  defaultValueFunc: () => V;
+
+  constructor(defaultValueFunc: () => V, entries?: Iterable<readonly [K, V]>) {
+    super(entries || []);
+    this.defaultValueFunc = defaultValueFunc;
+  }
+
+  get(key: K): V {
+    if (!this.has(key)) {
+      this.set(key, this.defaultValueFunc());
+    }
+
+    // Safe cast because we have already set the value above
+    return super.get(key) as V;
+  }
+}

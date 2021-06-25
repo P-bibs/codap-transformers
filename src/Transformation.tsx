@@ -4,7 +4,7 @@ import { useState } from "react";
 import "./Transformation.css";
 import CodapFlowErrorDisplay from "./Error";
 import { SavedTransformation } from "./transformation-components/types";
-import { PolymorphicComponent } from "./transformation-components/PolymorphicComponent";
+import { TransformationRenderer } from "./transformation-components/TransformationRenderer";
 import transformationList, {
   BaseTransformationName,
   TransformationGroup,
@@ -73,7 +73,7 @@ function Transformation({
         {urlTransformation.description && (
           <p>{urlTransformation.description}</p>
         )}
-        <PolymorphicComponent
+        <TransformationRenderer
           setErrMsg={setErrMsg}
           errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
           transformation={urlTransformation}
@@ -102,7 +102,7 @@ function Transformation({
             </optgroup>
           ))}
         </select>
-        <PolymorphicComponent
+        <TransformationRenderer
           setErrMsg={setErrMsg}
           errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
           transformation={baseTransformations.find(

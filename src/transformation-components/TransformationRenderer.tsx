@@ -3,7 +3,7 @@ import { SavedTransformation } from "./types";
 import DDTransformation from "./DataDrivenTransformation";
 import transformationList from "./transformationList";
 
-interface PolymorphicComponentProps {
+interface TransformationRendererProps {
   transformation?: SavedTransformation;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
@@ -12,11 +12,11 @@ interface PolymorphicComponentProps {
 /**
  * A component which takes in data about a saved transformation and renders it properly
  */
-export const PolymorphicComponent = ({
+export const TransformationRenderer = ({
   transformation,
   setErrMsg,
   errorDisplay,
-}: PolymorphicComponentProps): ReactElement => {
+}: TransformationRendererProps): ReactElement => {
   if (transformation === undefined) {
     return <></>;
   }

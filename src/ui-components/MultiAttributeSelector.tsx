@@ -26,7 +26,7 @@ export default function MultiAttributeSelector({
     if (disabled) {
       return;
     }
-    const attrNames = attributes.map((a) => a.name);
+    const attrNames = attributes.filter((a) => !a.hidden).map((a) => a.name);
     if (selected.some((a) => !attrNames.includes(a))) {
       setSelected(selected.filter((a) => attrNames.includes(a)));
     }

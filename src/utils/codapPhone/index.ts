@@ -501,10 +501,11 @@ export async function createDataInteractive(
     phone.call(
       {
         action: CodapActions.Create,
-        resource: CodapResource.InteractiveFrame,
+        resource: CodapResource.Component,
         values: {
-          url,
+          URL: url,
           name,
+          type: "game",
         },
       },
       (response) => {

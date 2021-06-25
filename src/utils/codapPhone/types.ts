@@ -227,11 +227,13 @@ export enum ContextChangeOperation {
   // Triggered when sorting a column.
   MoveCases = "moveCases",
 
-  // Despite the documentation, the first three of these are plural, while the
+  // Despite the documentation, the first five of these are plural, while the
   // last is singular
   CreateAttribute = "createAttributes",
   UpdateAttribute = "updateAttributes",
   DeleteAttribute = "deleteAttributes",
+  HideAttribute = "hideAttributes",
+  UnhideAttribute = "unhideAttributes",
   MoveAttribute = "moveAttribute",
 
   // Not sure where this is documented, but it is triggered when a collection
@@ -260,6 +262,8 @@ export const mutatingOperations = [
   ContextChangeOperation.CreateCollection,
   ContextChangeOperation.DeleteCollection,
   ContextChangeOperation.DependentCases,
+  ContextChangeOperation.HideAttribute,
+  ContextChangeOperation.UnhideAttribute,
 ];
 
 export enum DocumentChangeOperations {

@@ -49,6 +49,8 @@ export default function MultiAttributeSelector({
               setSelected(newSelected);
             }}
             options={attributes
+              // filter out hidden attrs (keep attrs that have hidden undefined)
+              .filter((attr) => !attr.hidden)
               .map((attribute) => ({
                 value: attribute.name,
                 title: attribute.title || attribute.name,

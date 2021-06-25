@@ -35,7 +35,7 @@ export type CodapRequest =
   | CreateTextRequest
   | UpdateTextRequest
   | EvalExpressionRequest
-  | GetFunctionNamesRequest;
+  | GetFunctionInfoRequest;
 
 export type CreateInteractiveFrameRequest = {
   action: CodapActions.Create;
@@ -122,9 +122,9 @@ export interface EvalExpressionRequest {
   };
 }
 
-export interface GetFunctionNamesRequest {
+export interface GetFunctionInfoRequest {
   action: CodapActions.Get;
-  resource: CodapResource.FunctionNames;
+  resource: CodapResource.FormulaEngine;
 }
 
 export interface CodapResponse {
@@ -167,8 +167,30 @@ interface TableResponse extends CodapResponse {
   values: CaseTable;
 }
 
-export interface GetFunctionNamesResponse extends CodapResponse {
-  values: string[];
+export interface GetFunctionInfoResponse extends CodapResponse {
+  values: {
+    [category: string]: {
+      [fname: string]: {
+        name: string;
+        category: string;
+        description: string;
+        displayName: string;
+        maxArgs: number;
+        minArgs: number;
+        examples: string[];
+        args: {
+          name: string;
+
+          // In practice, this can be"number", "expression", "value", "any",
+          // "boolean", "attribute", "string", "constant", "filter", "string or
+          // regular expression"
+          type: string;
+          required: boolean;
+          description: string;
+        }[];
+      };
+    };
+  };
 }
 
 type EvalExpressionResponse =
@@ -202,8 +224,8 @@ export type CodapPhone = {
   call(r: UpdateTextRequest, cb: (r: CodapResponse) => void): void;
   call(r: EvalExpressionRequest, cb: (r: EvalExpressionResponse) => void): void;
   call(
-    r: GetFunctionNamesRequest,
-    cb: (r: GetFunctionNamesResponse) => void
+    r: GetFunctionInfoRequest,
+    cb: (r: GetFunctionInfoResponse) => void
   ): void;
   call(r: CodapRequest[], cb: (r: CodapResponse[]) => void): void;
 };

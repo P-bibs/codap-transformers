@@ -23,7 +23,7 @@ import {
   CodapIdentifyingInfo,
   CaseTable,
   GetDataListResponse,
-  GetFunctionNamesResponse,
+  GetFunctionInfoResponse,
   CodapAttribute,
 } from "./types";
 import {
@@ -886,12 +886,14 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
       phone.call(
         {
           action: CodapActions.Get,
-          resource: CodapResource.FunctionNames,
+          resource: CodapResource.FormulaEngine,
         },
-        (response: GetFunctionNamesResponse) => {
+        (response: GetFunctionInfoResponse) => {
           if (response.success) {
-            names = response.values;
-            resolve(response.values);
+            const allFunctions: typeof response.values["category"]["fname"][] =
+              Object.values(response.values).flatMap(Object.values);
+            names = allFunctions.map((f) => f.name);
+            resolve(names);
           } else {
             reject(new Error("Failed to get function names"));
           }

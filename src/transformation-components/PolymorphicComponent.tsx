@@ -31,6 +31,7 @@ export const PolymorphicComponent = ({
           transformationFunction={
             transformationList[key].componentData.transformationFunction
           }
+          base={transformation.content.base}
           saveData={transformation.content.data}
         />
       );

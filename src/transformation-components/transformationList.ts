@@ -37,8 +37,38 @@ export type TransformationGroup =
   | "Aggregators"
   | "Others";
 
+/**
+ *  All valid values of the `base` field of a saved transformation object
+ */
+export type BaseTransformationName =
+  | "Build Column"
+  | "Compare"
+  | "Count"
+  | "Difference From"
+  | "Filter"
+  | "Flatten"
+  | "Running Sum"
+  | "Running Mean"
+  | "Running Min"
+  | "Running Max"
+  | "Running Difference"
+  | "Group By"
+  | "Pivot Longer"
+  | "Pivot Wider"
+  | "Select Attributes"
+  | "Sort"
+  | "Transform Column"
+  | "Copy"
+  | "Copy Schema"
+  | "Join"
+  | "Dot Product"
+  | "Average"
+  | "Combine Cases"
+  | "Reduce"
+  | "Partition";
+
 export type TransformationList = Record<
-  string,
+  BaseTransformationName,
   {
     group: TransformationGroup;
     componentData: {

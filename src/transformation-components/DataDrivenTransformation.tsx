@@ -20,6 +20,7 @@ import {
   addUpdateTextListener,
 } from "./util";
 import TransformationSaveButton from "../ui-components/TransformationSaveButton";
+import { BaseTransformationName } from "./transformationList";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -181,6 +182,7 @@ export type DDTransformationProps = {
   transformationFunction: TransformFunction;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
+  base: BaseTransformationName;
   init: DDTransformationInit;
   saveData?: DDTransformationState;
 };
@@ -196,8 +198,14 @@ export type DDTransformationProps = {
 const DataDrivenTransformation = (
   props: DDTransformationProps
 ): ReactElement => {
-  const { transformationFunction, init, saveData, errorDisplay, setErrMsg } =
-    props;
+  const {
+    transformationFunction,
+    init,
+    base,
+    saveData,
+    errorDisplay,
+    setErrMsg,
+  } = props;
 
   const [state, setState] = useReducer(
     (
@@ -441,7 +449,7 @@ const DataDrivenTransformation = (
       />
       {errorDisplay}
       {saveData === undefined && (
-        <TransformationSaveButton generateSaveData={() => state} />
+        <TransformationSaveButton base={base} generateSaveData={() => state} />
       )}
     </>
   );

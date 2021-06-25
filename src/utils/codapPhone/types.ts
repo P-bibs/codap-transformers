@@ -170,25 +170,7 @@ interface TableResponse extends CodapResponse {
 export interface GetFunctionInfoResponse extends CodapResponse {
   values: {
     [category: string]: {
-      [fname: string]: {
-        name: string;
-        category: string;
-        description: string;
-        displayName: string;
-        maxArgs: number;
-        minArgs: number;
-        examples: string[];
-        args: {
-          name: string;
-
-          // In practice, this can be"number", "expression", "value", "any",
-          // "boolean", "attribute", "string", "constant", "filter", "string or
-          // regular expression"
-          type: string;
-          required: boolean;
-          description: string;
-        }[];
-      };
+      [fname: string]: FunctionInfo;
     };
   };
 }
@@ -551,3 +533,23 @@ type InteractiveFrame = {
   };
   savedState: Record<string, unknown>;
 };
+
+export interface FunctionInfo {
+  name: string;
+  category: string;
+  description: string;
+  displayName: string;
+  maxArgs: number;
+  minArgs: number;
+  examples: string[];
+  args: {
+    name: string;
+
+    // In practice, this can be"number", "expression", "value", "any",
+    // "boolean", "attribute", "string", "constant", "filter", "string or
+    // regular expression"
+    type: string;
+    required: boolean;
+    description: string;
+  }[];
+}

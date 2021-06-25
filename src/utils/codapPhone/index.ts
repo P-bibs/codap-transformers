@@ -24,6 +24,7 @@ import {
   CaseTable,
   GetDataListResponse,
   GetFunctionInfoResponse,
+  FunctionInfo,
   CodapAttribute,
 } from "./types";
 import {
@@ -890,8 +891,9 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
         },
         (response: GetFunctionInfoResponse) => {
           if (response.success) {
-            const allFunctions: typeof response.values["category"]["fname"][] =
-              Object.values(response.values).flatMap(Object.values);
+            const allFunctions: FunctionInfo[] = Object.values(
+              response.values
+            ).flatMap(Object.values);
             names = allFunctions.map((f) => f.name);
             resolve(names);
           } else {

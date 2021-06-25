@@ -40,9 +40,9 @@ export type CodapRequest =
 
 export type CreateInteractiveFrameRequest = {
   action: CodapActions.Create;
-  resource: CodapResource.InteractiveFrame;
+  resource: CodapResource.Component;
 
-  values: { url: string; name: string };
+  values: { URL: string; name: string; type: "game" };
 };
 
 export type UpdateInteractiveFrameRequest = {

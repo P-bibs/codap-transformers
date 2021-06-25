@@ -60,51 +60,48 @@ function Transformation({
       });
     }, []);
 
-  return (
-    <div className="Transformation">
-      {urlTransformation ? (
-        <>
-          <h2>
-            {urlTransformation.name}
-            <span id="transformationBase">
-              {" "}
-              ({urlTransformation.content.base})
-            </span>
-          </h2>
-          {urlTransformation.description && (
-            <p>{urlTransformation.description}</p>
-          )}
-        </>
-      ) : (
-        <>
-          <h3>Transformation Type</h3>
-
-          <select
-            onChange={typeChange}
-            value={transformType || "Select a transformation"}
-          >
-            <option disabled value="Select a transformation">
-              Select a transformation
-            </option>
-            {transformationGroups.map(([groupName, transformations]) => (
-              <optgroup label={groupName} key={groupName}>
-                {transformations.map((transformName) => (
-                  <option key={transformName} value={transformName}>
-                    {transformName}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </>
-      )}
-      {urlTransformation ? (
+  if (urlTransformation) {
+    return (
+      <div className="Transformation">
+        <h2>
+          {urlTransformation.name}
+          <span id="transformationBase">
+            {" "}
+            ({urlTransformation.content.base})
+          </span>
+        </h2>
+        {urlTransformation.description && (
+          <p>{urlTransformation.description}</p>
+        )}
         <PolymorphicComponent
           setErrMsg={setErrMsg}
           errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
           transformation={urlTransformation}
         />
-      ) : (
+      </div>
+    );
+  } else {
+    return (
+      <div className="Transformation">
+        <h3>Transformation Type</h3>
+
+        <select
+          onChange={typeChange}
+          value={transformType || "Select a transformation"}
+        >
+          <option disabled value="Select a transformation">
+            Select a transformation
+          </option>
+          {transformationGroups.map(([groupName, transformations]) => (
+            <optgroup label={groupName} key={groupName}>
+              {transformations.map((transformName) => (
+                <option key={transformName} value={transformName}>
+                  {transformName}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
         <PolymorphicComponent
           setErrMsg={setErrMsg}
           errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
@@ -112,9 +109,9 @@ function Transformation({
             ({ name }) => name === transformType
           )}
         />
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
 }
 
 export default Transformation;

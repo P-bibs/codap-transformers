@@ -48,10 +48,16 @@ export default function MultiAttributeSelector({
               newSelected[i] = e.target.value;
               setSelected(newSelected);
             }}
-            options={attributes.map((attribute) => ({
-              value: attribute.name,
-              title: attribute.title || attribute.name,
-            }))}
+            options={attributes
+              .map((attribute) => ({
+                value: attribute.name,
+                title: attribute.title || attribute.name,
+              }))
+              .filter(
+                (option) =>
+                  !selected.includes(option.value) ||
+                  option.value === selected[i]
+              )}
             value={selected[i]}
             defaultValue="Select an attribute"
             disabled={disabled}

@@ -27,9 +27,9 @@ export const PolymorphicComponent = ({
         <DDTransformation
           setErrMsg={setErrMsg}
           errorDisplay={errorDisplay}
-          init={transformationList[key].init}
+          init={transformationList[key].componentData.init}
           transformationFunction={
-            transformationList[key].transformationFunction
+            transformationList[key].componentData.transformationFunction
           }
           saveData={transformation.content.data}
         />

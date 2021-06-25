@@ -11,6 +11,10 @@ import {
 } from "./transformation-components/types";
 import { PolymorphicComponent } from "./transformation-components/PolymorphicComponent";
 import { createDataInteractive } from "./utils/codapPhone";
+import transformationList, {
+  TransformationGroup,
+} from "./transformation-components/transformationList";
+import { useMemo } from "react";
 
 /**
  * Subscribing to this context allows adding new saved transformations
@@ -39,35 +43,6 @@ function Transformation({
   const [transformType, setTransformType] = useState<string | null>(null);
 
   const [errMsg, setErrMsg] = useState<string | null>(null);
-  const transformGroups: Record<string, string[]> = {
-    "Structural Transformations": [
-      "Flatten",
-      "Group By",
-      "Pivot Longer",
-      "Pivot Wider",
-      "Partition",
-    ],
-    "Combining Transformations": ["Join", "Combine Cases"],
-    "Summarizing Transformations": ["Count", "Compare"],
-    Aggregators: ["Dot Product", "Average"],
-    "Running Aggregators": [
-      "Running Sum",
-      "Running Mean",
-      "Running Min",
-      "Running Max",
-      "Running Difference",
-      "Reduce",
-    ],
-    "Copy Transformations": ["Copy", "Copy Schema"],
-    Others: [
-      "Filter",
-      "Sort",
-      "Transform Column",
-      "Build Column",
-      "Select Attributes",
-      "Difference From",
-    ],
-  };
 
   const transformationData: SavedTransformation[] = [
     { name: "Build Column", content: { base: "Build Column" } },
@@ -134,6 +109,22 @@ function Transformation({
     setErrMsg(null);
   }
 
+  const transformationGroups: [TransformationGroup, string[]][] =
+    useMemo(() => {
+      let groupNames = Object.entries(transformationList).map(
+        ([, data]) => data.group
+      );
+      // deduplicate group names
+      groupNames = [...new Set(groupNames)];
+
+      return groupNames.map((groupName) => {
+        const transformationsMatchingGroup = Object.entries(transformationList)
+          .filter(([, data]) => data.group === groupName)
+          .map(([transform]) => transform);
+        return [groupName, transformationsMatchingGroup];
+      });
+    }, []);
+
   return (
     <div className="Transformation">
       {urlTransformation ? (
@@ -160,9 +151,9 @@ function Transformation({
             <option disabled value="Select a transformation">
               Select a transformation
             </option>
-            {Object.keys(transformGroups).map((groupName) => (
+            {transformationGroups.map(([groupName, transformations]) => (
               <optgroup label={groupName} key={groupName}>
-                {transformGroups[groupName].map((transformName) => (
+                {transformations.map((transformName) => (
                   <option key={transformName} value={transformName}>
                     {transformName}
                   </option>

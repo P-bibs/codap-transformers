@@ -2,7 +2,13 @@ import { DDTransformationState } from "../transformation-components/DataDrivenTr
 import { readableName } from "../transformation-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { reparent, eraseFormulas, cloneCollection } from "./util";
+import {
+  reparent,
+  eraseFormulas,
+  cloneCollection,
+  pluralSuffix,
+  listAsString,
+} from "./util";
 
 /**
  * Constructs a dataset with only the indicated attributes from the
@@ -22,13 +28,14 @@ export async function selectAttributes({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+  const attributeNames = listAsString(attributes);
 
   return [
     await uncheckedSelectAttributes(dataset, attributes, allBut),
     `Select Attributes of ${ctxtName}`,
     `A copy of ${ctxtName} with ${
       allBut ? "all but" : "only"
-    } the attributes ${attributes.join(", ")} included.`,
+    } the ${pluralSuffix("attribute", attributes)} ${attributeNames} included.`,
   ];
 }
 

@@ -17,6 +17,7 @@ export async function flatten({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+
   return [
     await uncheckedFlatten(dataset),
     `Flatten of ${ctxtName}`,

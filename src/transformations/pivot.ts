@@ -2,7 +2,13 @@ import { DDTransformationState } from "../transformation-components/DataDrivenTr
 import { readableName } from "../transformation-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { eraseFormulas, codapValueToString } from "./util";
+import {
+  eraseFormulas,
+  codapValueToString,
+  listAsString,
+  pluralSuffix,
+  plural,
+} from "./util";
 
 /**
  * Turns selected attribute names into values of a new attribute, reorganizing
@@ -34,15 +40,21 @@ export async function pivotLonger({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+  const attributeNames = listAsString(attributes);
 
   return [
     await uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
     `Pivot Longer of ${ctxtName}`,
-    `A copy of ${ctxtName} with the attributes ${attributes.join(
-      ", "
-    )} turned ` +
-      `into values under a new attribute (${namesTo}), and the values previously ` +
-      `under those attributes moved under a new attribute (${valuesTo}).`,
+    `A copy of ${ctxtName} with the ${pluralSuffix(
+      "attribute",
+      attributes
+    )} ${attributeNames} turned ` +
+      `into ${plural(
+        "a value",
+        "values",
+        attributes
+      )} under a new attribute (${namesTo}), and the values previously ` +
+      `under ${attributeNames} moved under a new attribute (${valuesTo}).`,
   ];
 }
 

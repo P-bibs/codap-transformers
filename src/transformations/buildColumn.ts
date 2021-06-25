@@ -36,6 +36,7 @@ export async function buildColumn({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+
   return [
     await uncheckedBuildColumn(
       dataset,

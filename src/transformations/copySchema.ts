@@ -16,6 +16,7 @@ export async function copySchema({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+
   return [
     await uncheckedCopySchema(dataset),
     `Schema Copy of ${ctxtName}`,

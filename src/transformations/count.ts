@@ -1,6 +1,6 @@
 import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { eraseFormulas, shallowCopy } from "./util";
+import { listAsString, eraseFormulas, shallowCopy, pluralSuffix } from "./util";
 import { uniqueName } from "../utils/names";
 import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -32,12 +32,15 @@ export async function count({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
-  const attributeNames = attributes.join(", ");
+  const attributeNames = listAsString(attributes);
 
   return [
     await uncheckedCount(dataset, attributes),
     `Count of ${attributeNames} in ${ctxtName}`,
-    `A summary of the frequency of all tuples of the attributes ${attributeNames} that appear in ${ctxtName}.`,
+    `A summary of the frequency of all tuples of the ${pluralSuffix(
+      "attribute",
+      attributes
+    )} ${attributeNames} that appear in ${ctxtName}.`,
   ];
 }
 

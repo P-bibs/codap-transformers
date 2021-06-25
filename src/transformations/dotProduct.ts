@@ -2,7 +2,7 @@ import { DDTransformationState } from "../transformation-components/DataDrivenTr
 import { readableName } from "../transformation-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { codapValueToString } from "./util";
+import { codapValueToString, listAsString, pluralSuffix } from "./util";
 
 /**
  * Takes the dot product of the given columns.
@@ -23,11 +23,13 @@ export async function dotProduct({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+  const attributeNames = listAsString(attributes);
+
   return [
     await uncheckedDotProduct(dataset, attributes),
     `Dot Product of ${ctxtName}`,
     `The sum across all cases in ${ctxtName} of the product ` +
-      `of the attributes ${attributes.join(", ")}.`,
+      `of the ${pluralSuffix("attribute", attributes)} ${attributeNames}.`,
   ];
 }
 

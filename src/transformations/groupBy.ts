@@ -3,7 +3,13 @@ import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { readableName } from "../transformation-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
-import { reparent, cloneCollection, shallowCopy } from "./util";
+import {
+  reparent,
+  cloneCollection,
+  shallowCopy,
+  listAsString,
+  pluralSuffix,
+} from "./util";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that
@@ -30,14 +36,18 @@ export async function groupBy({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const attributeNames = attributes.join(", ");
+  const attributeNames = listAsString(attributes);
   const parentName = `Grouped by ${attributeNames}`;
   const ctxtName = readableName(context);
+
   return [
     await uncheckedGroupBy(dataset, attributes, parentName),
     `Group By of ${ctxtName}`,
     `A copy of ${ctxtName} with a new parent collection added ` +
-      `which contains copies of the attributes ${attributeNames}.`,
+      `which contains a copy of the ${pluralSuffix(
+        "attribute",
+        attributes
+      )} ${attributeNames}.`,
   ];
 }
 

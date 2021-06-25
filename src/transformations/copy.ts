@@ -15,6 +15,7 @@ export async function copy({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+
   return [
     await uncheckedCopy(dataset),
     `Copy of ${ctxtName}`,

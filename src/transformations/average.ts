@@ -21,6 +21,7 @@ export async function average({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+
   return [
     uncheckedAverage(dataset, attribute),
     `Average of ${attribute} in ${ctxtName}`,

@@ -21,6 +21,7 @@ export async function filter({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+
   return [
     await uncheckedFilter(dataset, predicate),
     `Filter of ${ctxtName}`,

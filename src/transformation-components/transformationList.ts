@@ -166,9 +166,6 @@ const transformationList: Record<
       context1: {
         title: "Table to Select Attributes From",
       },
-      textInput1: {
-        title: "Name of New Attribute",
-      },
       dropdown1: {
         title: "Mode",
         options: [

@@ -1,4 +1,3 @@
-/* eslint use-isnan: 0 */
 import React, { ReactElement } from "react";
 import { useState } from "react";
 import "./Transformation.css";

@@ -1,6 +1,6 @@
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { eraseFormulas, shallowCopy } from "./util";
+import { listAsString, eraseFormulas, shallowCopy, pluralSuffix } from "./util";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -22,7 +22,7 @@ import { readableName } from "../transformer-components/util";
 export async function count({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -31,9 +31,16 @@ export async function count({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  const attributeNames = listAsString(attributes);
+
   return [
     await uncheckedCount(dataset, attributes),
-    `Count of ${attributes.join(", ")} in ${readableName(context)}`,
+    `Count of ${attributeNames} in ${ctxtName}`,
+    `A summary of the frequency of all tuples of the ${pluralSuffix(
+      "attribute",
+      attributes
+    )} ${attributeNames} that appear in ${ctxtName}.`,
   ];
 }
 

@@ -1,8 +1,14 @@
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { DataSet } from "./types";
-import { eraseFormulas, codapValueToString } from "./util";
+import { DataSet, TransformationOutput } from "./types";
+import {
+  eraseFormulas,
+  codapValueToString,
+  listAsString,
+  pluralSuffix,
+  plural,
+} from "./util";
 
 /**
  * Turns selected attribute names into values of a new attribute, reorganizing
@@ -14,7 +20,7 @@ export async function pivotLonger({
   attributeSet1: attributes,
   textInput1: namesTo,
   textInput2: valuesTo,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -33,9 +39,22 @@ export async function pivotLonger({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  const attributeNames = listAsString(attributes);
+
   return [
     await uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
-    `Pivot Longer of ${readableName(context)}`,
+    `Pivot Longer of ${ctxtName}`,
+    `A copy of ${ctxtName} with the ${pluralSuffix(
+      "attribute",
+      attributes
+    )} ${attributeNames} turned ` +
+      `into ${plural(
+        "a value",
+        "values",
+        attributes
+      )} under a new attribute (${namesTo}), and the values previously ` +
+      `under ${attributeNames} moved under a new attribute (${valuesTo}).`,
   ];
 }
 
@@ -119,7 +138,7 @@ export async function pivotWider({
   context1: contextName,
   attribute1: namesFrom,
   attribute2: valuesFrom,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -131,9 +150,12 @@ export async function pivotWider({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
   return [
     await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
-    `Pivot Wider of ${readableName(context)}`,
+    `Pivot Wider of ${ctxtName}`,
+    `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
+      `into new attributes, which get their values from the attribute ${valuesFrom}.`,
   ];
 }
 

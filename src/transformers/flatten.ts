@@ -1,7 +1,7 @@
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 
 /**
  * Flatten produces an identical dataset with all hierarchical relationships
@@ -10,15 +10,18 @@ import { DataSet } from "./types";
  */
 export async function flatten({
   context1: contextName,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+
   return [
     await uncheckedFlatten(dataset),
-    `Flatten of ${readableName(context)}`,
+    `Flatten of ${ctxtName}`,
+    `A copy of ${ctxtName} in which all collections have been flattened into one collection.`,
   ];
 }
 

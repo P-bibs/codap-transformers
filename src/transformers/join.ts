@@ -1,5 +1,5 @@
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -17,7 +17,7 @@ export async function join({
   context2: inputDataContext2,
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (
     !inputDataContext1 ||
     !inputDataContext2 ||
@@ -34,9 +34,15 @@ export async function join({
     inputDataContext2
   );
 
+  const ctxtName1 = readableName(context1);
+  const ctxtName2 = readableName(context2);
+
   return [
     await uncheckedJoin(dataset1, inputAttribute1, dataset2, inputAttribute2),
-    `Join of ${readableName(context1)} and ${readableName(context2)}`,
+    `Join of ${ctxtName1} and ${ctxtName2}`,
+    `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
+      `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
+      `containing ${inputAttribute1} in ${ctxtName1}.`,
   ];
 }
 

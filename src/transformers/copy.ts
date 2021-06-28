@@ -1,20 +1,26 @@
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 
 /**
  * Produces a dataset identical to the original.
  */
 export async function copy({
   context1: contextName,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  return [await uncheckedCopy(dataset), `Copy of ${readableName(context)}`];
+  const ctxtName = readableName(context);
+
+  return [
+    await uncheckedCopy(dataset),
+    `Copy of ${ctxtName}`,
+    `A copy of the ${ctxtName} dataset.`,
+  ];
 }
 
 function uncheckedCopy(dataset: DataSet): DataSet {

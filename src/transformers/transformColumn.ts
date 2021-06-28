@@ -1,4 +1,4 @@
-import { CodapLanguageType, DataSet } from "./types";
+import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
@@ -18,7 +18,7 @@ export async function transformColumn({
   textInput1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -33,6 +33,7 @@ export async function transformColumn({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
   return [
     await uncheckedTransformColumn(
       dataset,
@@ -40,7 +41,9 @@ export async function transformColumn({
       expression,
       outputType
     ),
-    `Transform Column of ${readableName(context)}`,
+    `Transform Column of ${ctxtName}`,
+    `A copy of ${ctxtName}, with the ${attributeName} attribute's values ` +
+      `determined by the formula \`${expression}\`.`,
   ];
 }
 

@@ -1,8 +1,14 @@
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { DataSet } from "./types";
-import { reparent, eraseFormulas, cloneCollection } from "./util";
+import { DataSet, TransformationOutput } from "./types";
+import {
+  reparent,
+  eraseFormulas,
+  cloneCollection,
+  pluralSuffix,
+  listAsString,
+} from "./util";
 
 /**
  * Constructs a dataset with only the indicated attributes from the
@@ -10,9 +16,9 @@ import { reparent, eraseFormulas, cloneCollection } from "./util";
  */
 export async function selectAttributes({
   context1: contextName,
-  attributeSet1: attributeName,
+  attributeSet1: attributes,
   dropdown1: mode,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -21,9 +27,15 @@ export async function selectAttributes({
   const allBut = mode === "selectAllBut";
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+  const attributeNames = listAsString(attributes);
+
   return [
-    await uncheckedSelectAttributes(dataset, attributeName, allBut),
-    `Select Attributes of ${readableName(context)}`,
+    await uncheckedSelectAttributes(dataset, attributes, allBut),
+    `Select Attributes of ${ctxtName}`,
+    `A copy of ${ctxtName} with ${
+      allBut ? "all but" : "only"
+    } the ${pluralSuffix("attribute", attributes)} ${attributeNames} included.`,
   ];
 }
 

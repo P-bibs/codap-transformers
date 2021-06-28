@@ -1,0 +1,18 @@
+
+.loading, .initError {
+  font-size: 14px;
+  margin: 15px;
+}
+
+.initError {
+  margin-top: 10px;
+  display: inline-block;
+  background-color: #ffeeee;
+  padding: 6px;
+  border: solid 1px red;
+  border-radius: 5px;
+}
+
+p.initError {
+  color: red;
+}

@@ -75,6 +75,21 @@ export const partitionOverride = async (
     return true;
   }
 
+  function partitionDatasetDescription(
+    pd: PartitionDataset,
+    originalCtxt: string,
+    partitionedAttribute: string
+  ): string {
+    return (
+      `One of the datasets from a partition of the ${originalCtxt} dataset ` +
+      `by the ${partitionedAttribute} attribute. This dataset contains all cases ` +
+      `from the original which had a value of ${codapValueToString(
+        pd.distinctValue
+      )} ` +
+      `for the ${partitionedAttribute} attribute.`
+    );
+  }
+
   try {
     const transformed = await doTransform();
 
@@ -91,7 +106,11 @@ export const partitionOverride = async (
     const outputContexts: string[] = [];
 
     for (const [partitioned, name] of transformed) {
-      const newContextName = await applyNewDataSet(partitioned.dataset, name);
+      const newContextName = await applyNewDataSet(
+        partitioned.dataset,
+        name,
+        partitionDatasetDescription(partitioned, inputDataCtxt, attributeName)
+      );
       valueToContext[partitioned.distinctValueAsStr] = newContextName;
       outputContexts.push(newContextName);
     }
@@ -119,7 +138,15 @@ export const partitionOverride = async (
         for (const [partitioned, name] of transformed) {
           const contextName = valueToContext[partitioned.distinctValueAsStr];
           if (contextName === undefined) {
-            const newName = await applyNewDataSet(partitioned.dataset, name);
+            const newName = await applyNewDataSet(
+              partitioned.dataset,
+              name,
+              partitionDatasetDescription(
+                partitioned,
+                inputDataCtxt,
+                attributeName
+              )
+            );
             // this is a new table (a new distinct value)
             newValueToContext[partitioned.distinctValueAsStr] = newName;
             outputContexts.push(newName);

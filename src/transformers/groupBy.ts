@@ -1,9 +1,15 @@
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { reparent, cloneCollection, shallowCopy } from "./util";
+import {
+  reparent,
+  cloneCollection,
+  shallowCopy,
+  listAsString,
+  pluralSuffix,
+} from "./util";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that
@@ -21,7 +27,7 @@ import { reparent, cloneCollection, shallowCopy } from "./util";
 export async function groupBy({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -29,12 +35,19 @@ export async function groupBy({
     throw new Error("Please choose at least one attribute to group by");
   }
 
-  const parentName = `Grouped by ${attributes.join(", ")}`;
-
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const attributeNames = listAsString(attributes);
+  const parentName = `Grouped by ${attributeNames}`;
+  const ctxtName = readableName(context);
+
   return [
     await uncheckedGroupBy(dataset, attributes, parentName),
-    `Group By of ${readableName(context)}`,
+    `Group By of ${ctxtName}`,
+    `A copy of ${ctxtName} with a new parent collection added ` +
+      `which contains a copy of the ${pluralSuffix(
+        "attribute",
+        attributes
+      )} ${attributeNames}.`,
   ];
 }
 

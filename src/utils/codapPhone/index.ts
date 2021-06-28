@@ -17,6 +17,7 @@ import {
   ReturnedCase,
   Collection,
   ReturnedCollection,
+  ContextMetadata,
   DataContext,
   ReturnedDataContext,
   CodapListResource,
@@ -82,7 +83,9 @@ export async function initPhone(title: string): Promise<void> {
         },
       },
       (response) => {
-        if (response.success) {
+        // NOTE: Ensure the response exists, since if this is run
+        // without being embedded in CODAP, it will come back undefined.
+        if (response && response.success) {
           resolve();
         } else {
           reject(new Error("Failed to update CODAP interactive frame"));
@@ -174,6 +177,16 @@ function codapRequestHandler(
           caseIDs.map(Cache.invalidateCase);
         }
       }
+
+      // Invalidate all cases in a context if attributes get moved or deleted,
+      // etc. Cannot do this more granularly because attribute moves do not
+      // give enough information.
+      if (
+        value.operation === ContextChangeOperation.MoveAttribute ||
+        value.operation === ContextChangeOperation.DeleteAttribute
+      ) {
+        Cache.invalidateCasesInContext(contextName);
+      }
     }
 
     if (contextUpdate) {
@@ -248,7 +261,7 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
       (response: GetCaseResponse) => {
         if (response.success) {
           const result = response.values.case;
-          Cache.setCase(id, result);
+          Cache.setCase(context, id, result);
           resolve(result);
         } else {
           reject(new Error(`Failed to get case in ${context} with id ${id}`));
@@ -260,38 +273,15 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
 
 export async function getAllAttributes(
   context: string
-): Promise<CodapIdentifyingInfo[]> {
-  // Get the name (as a string) of each collection in the context
-  const collections = (await getAllCollections(context)).map(
-    (collection) => collection.name
+): Promise<CodapAttribute[]> {
+  const collections = (await getDataContext(context)).collections;
+
+  const attributes: CodapAttribute[] = [];
+  collections.forEach((collection) =>
+    collection.attrs?.forEach((attr) => attributes.push(attr))
   );
 
-  // Make a request to get the attributes for each collection
-  const promises = collections.map(
-    (collectionName) =>
-      new Promise<CodapIdentifyingInfo[]>((resolve, reject) =>
-        phone.call(
-          {
-            action: CodapActions.Get,
-            resource: attributeListFromCollection(context, collectionName),
-          },
-          (response: GetDataListResponse) => {
-            if (response.success) {
-              resolve(response.values);
-            } else {
-              reject(new Error("Failed to get attributes."));
-            }
-          }
-        )
-      )
-  );
-
-  // Wait for all promises to return
-  const attributes = await Promise.all(promises);
-
-  // flatten and return the set of attributes
-  // return attributes.reduce((acc, elt) => [...acc, ...elt]);
-  return attributes.flat();
+  return attributes;
 }
 
 /**
@@ -459,23 +449,26 @@ function normalizeDataContext(context: ReturnedDataContext): DataContext {
     title: context.title,
     description: context.description,
     collections: normalizeParentNames(context.collections),
+    metadata: context.metadata,
   };
 }
 
-async function createDataContext(
-  name: string,
-  collections: Collection[],
-  title?: string
-): Promise<CodapIdentifyingInfo> {
+async function createDataContext({
+  name,
+  title,
+  collections,
+  metadata,
+}: DataContext): Promise<CodapIdentifyingInfo> {
   return new Promise<CodapIdentifyingInfo>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
         values: {
-          name: name,
+          name,
           title: title !== undefined ? title : name,
-          collections: collections,
+          collections,
+          metadata,
         },
       },
       (response) => {
@@ -518,13 +511,15 @@ export async function createDataInteractive(
 export async function createContextWithDataSet(
   dataset: DataSet,
   name: string,
-  title?: string
+  title?: string,
+  metadata?: ContextMetadata
 ): Promise<CodapIdentifyingInfo> {
-  const newDatasetDescription = await createDataContext(
+  const newDatasetDescription = await createDataContext({
     name,
-    dataset.collections,
-    title
-  );
+    title,
+    metadata,
+    collections: dataset.collections,
+  });
 
   await insertDataItems(newDatasetDescription.name, dataset.records);
   return newDatasetDescription;
@@ -815,7 +810,8 @@ async function ensureUniqueName(
 
 export async function createTableWithDataSet(
   dataset: DataSet,
-  name?: string
+  name?: string,
+  description?: string
 ): Promise<[CodapIdentifyingInfo, CaseTable]> {
   let baseName;
   if (!name) {
@@ -839,7 +835,14 @@ export async function createTableWithDataSet(
   );
 
   // Create context and table;
-  const newContext = await createContextWithDataSet(dataset, contextName);
+  const newContext = await createContextWithDataSet(
+    dataset,
+    contextName,
+    contextName,
+    {
+      description,
+    }
+  );
 
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];

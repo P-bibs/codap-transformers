@@ -71,11 +71,7 @@ export type GetListRequest = {
 export type CreateContextRequest = {
   action: CodapActions.Create;
   resource: CodapResource.DataContext;
-  values: {
-    name: string;
-    title?: string;
-    collections: Collection[];
-  };
+  values: DataContext;
 };
 
 export type CreateCollectionsRequest = {
@@ -227,11 +223,13 @@ export enum ContextChangeOperation {
   // Triggered when sorting a column.
   MoveCases = "moveCases",
 
-  // Despite the documentation, the first three of these are plural, while the
+  // Despite the documentation, the first five of these are plural, while the
   // last is singular
   CreateAttribute = "createAttributes",
   UpdateAttribute = "updateAttributes",
   DeleteAttribute = "deleteAttributes",
+  HideAttribute = "hideAttributes",
+  UnhideAttribute = "unhideAttributes",
   MoveAttribute = "moveAttribute",
 
   // Not sure where this is documented, but it is triggered when a collection
@@ -260,6 +258,8 @@ export const mutatingOperations = [
   ContextChangeOperation.CreateCollection,
   ContextChangeOperation.DeleteCollection,
   ContextChangeOperation.DependentCases,
+  ContextChangeOperation.HideAttribute,
+  ContextChangeOperation.UnhideAttribute,
 ];
 
 export enum DocumentChangeOperations {
@@ -305,12 +305,21 @@ export type CodapInitiatedCommand =
       }[];
     };
 
+// The `metadata` property of data contexts is undocumented but described here:
+// https://codap.concord.org/forums/topic/accessing-dataset-description-through-plugin-api/
+export interface ContextMetadata {
+  description?: string;
+  importDate?: string;
+  source?: string;
+}
+
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#datacontexts
 export interface DataContext {
   name: string;
   title?: string;
   description?: string;
   collections: Collection[];
+  metadata?: ContextMetadata;
 }
 
 export interface ReturnedDataContext extends Omit<DataContext, "collections"> {

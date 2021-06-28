@@ -1,8 +1,14 @@
 import { DataContext, ReturnedCase } from "./types";
+import { DefaultMap } from "./util";
 
 const contextCache = new Map<string, DataContext>();
 const recordsCache = new Map<string, Record<string, unknown>[]>();
 const caseCache = new Map<number, ReturnedCase>();
+
+// A map from context names to sets of case ids
+const caseContextLookup = new DefaultMap<string, Set<number>>(
+  () => new Set<number>()
+);
 
 export function getContext(contextName: string): DataContext | undefined {
   return contextCache.get(contextName);
@@ -29,7 +35,12 @@ export function setRecords(
   recordsCache.set(contextName, dataset);
 }
 
-export function setCase(id: number, caseData: ReturnedCase): void {
+export function setCase(
+  context: string,
+  id: number,
+  caseData: ReturnedCase
+): void {
+  caseContextLookup.get(context).add(id);
   caseCache.set(id, caseData);
 }
 
@@ -39,6 +50,11 @@ export function invalidateContext(contextName: string): void {
 }
 
 export function invalidateCase(id: number): void {
-  console.log(`Invalidating case ${id}`);
   caseCache.delete(id);
+}
+
+export function invalidateCasesInContext(context: string): void {
+  for (const id of caseContextLookup.get(context)) {
+    invalidateCase(id);
+  }
 }

@@ -1,7 +1,7 @@
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 
 /**
  * Produces a dataset with an identical schema (collection structure,
@@ -9,15 +9,18 @@ import { DataSet } from "./types";
  */
 export async function copySchema({
   context1: contextName,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid data context to transform.");
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
+
   return [
     await uncheckedCopySchema(dataset),
-    `Schema Copy of ${readableName(context)}`,
+    `Schema Copy of ${ctxtName}`,
+    `A copy of the ${ctxtName} dataset, but with no cases.`,
   ];
 }
 

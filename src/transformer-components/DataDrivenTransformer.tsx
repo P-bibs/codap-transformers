@@ -2,7 +2,11 @@
 import React, { useReducer, ReactElement, useEffect } from "react";
 import { createText, updateText } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
-import { CodapLanguageType, DataSet } from "../transformers/types";
+import {
+  CodapLanguageType,
+  DataSet,
+  TransformationOutput,
+} from "../transformations/types";
 import {
   Select,
   AttributeSelector,
@@ -166,7 +170,7 @@ const titleFromComponent = (
 export type TransformFunction =
   | {
       kind: "datasetCreator";
-      func: (state: DDTransformerState) => Promise<[DataSet | number, string]>;
+      func: (state: DDTransformerState) => Promise<TransformationOutput>;
     }
   | {
       kind: "fullOverride";
@@ -223,16 +227,16 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
   const transform = async () => {
     setErrMsg(null);
 
-    const doTransform: () => Promise<[DataSet | number, string]> = async () => {
-      if (transformerFunction.kind !== "datasetCreator") {
-        throw new Error("Improper transformerFunction supplied");
+    const doTransform: () => Promise<TransformationOutput> = async () => {
+      if (transformationFunction.kind !== "datasetCreator") {
+        throw new Error("Improper transformationFunction supplied");
       }
       // Might throw an error, which we handle in the below try/catch block
       return await transformerFunction.func(state);
     };
 
     try {
-      const [result, name] = await doTransform();
+      const [result, name, description] = await doTransform();
 
       // Determine whether the transformerFunction returns a textbox or a table
       if (typeof result === "number") {
@@ -248,7 +252,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
           addUpdateTextListener(
             state["context1"],
             textName,
-            doTransform as () => Promise<[number, string]>,
+            doTransform as () => Promise<[number, string, string]>,
             setErrMsg
           );
         }
@@ -256,18 +260,18 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
           addUpdateTextListener(
             state["context2"],
             textName,
-            doTransform as () => Promise<[number, string]>,
+            doTransform as () => Promise<[number, string, string]>,
             setErrMsg
           );
         }
       } else if (typeof result === "object") {
-        // This is the case where the transformer returns a dataset
-        const newContextName = await applyNewDataSet(result, name);
+        // This is the case where the transformation returns a dataset
+        const newContextName = await applyNewDataSet(result, name, description);
         if (order.includes("context1") && state["context1"] !== null) {
           addUpdateListener(
             state["context1"],
             newContextName,
-            doTransform as () => Promise<[DataSet, string]>,
+            doTransform as () => Promise<[DataSet, string, string]>,
             setErrMsg
           );
         }
@@ -275,7 +279,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
           addUpdateListener(
             state["context2"],
             newContextName,
-            doTransform as () => Promise<[DataSet, string]>,
+            doTransform as () => Promise<[DataSet, string, string]>,
             setErrMsg
           );
         }

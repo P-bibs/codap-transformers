@@ -26,7 +26,7 @@ export default function MultiAttributeSelector({
     if (disabled) {
       return;
     }
-    const attrNames = attributes.map((a) => a.name);
+    const attrNames = attributes.filter((a) => !a.hidden).map((a) => a.name);
     if (selected.some((a) => !attrNames.includes(a))) {
       setSelected(selected.filter((a) => attrNames.includes(a)));
     }
@@ -48,10 +48,19 @@ export default function MultiAttributeSelector({
               newSelected[i] = e.target.value;
               setSelected(newSelected);
             }}
-            options={attributes.map((attribute) => ({
-              value: attribute.name,
-              title: attribute.title,
-            }))}
+            options={attributes
+              // filter out hidden attrs (keep attrs that have hidden undefined)
+              .filter((attr) => !attr.hidden)
+              .map((attribute) => ({
+                value: attribute.name,
+                title: attribute.title || attribute.name,
+              }))
+              // Disallow duplicate attributes by filtering
+              .filter(
+                (option) =>
+                  !selected.includes(option.value) ||
+                  option.value === selected[i]
+              )}
             value={selected[i]}
             defaultValue="Select an attribute"
             disabled={disabled}

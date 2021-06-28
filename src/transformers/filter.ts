@@ -1,4 +1,4 @@
-import { DataSet } from "./types";
+import { DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString } from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
@@ -11,7 +11,7 @@ import { readableName } from "../transformer-components/util";
 export async function filter({
   context1: contextName,
   expression1: predicate,
-}: DDTransformerState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -20,10 +20,12 @@ export async function filter({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = readableName(context);
 
   return [
     await uncheckedFilter(dataset, predicate),
-    `Filter of ${readableName(context)}`,
+    `Filter of ${ctxtName}`,
+    `A copy of ${ctxtName} that only includes the cases for which the predicate \`${predicate}\` is true.`,
   ];
 }
 

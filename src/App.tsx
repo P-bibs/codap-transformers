@@ -1,6 +1,7 @@
 import React, { ReactElement } from "react";
-import Transformer from "./Transformer";
+import SavedTransformerView from "./SavedTransformerView";
 import { SavedTransformer } from "./transformer-components/types";
+import TransformerREPLView from "./TransformerREPLView";
 import { initPhone } from "./utils/codapPhone";
 
 // This should be a pure function (ie: only render once)
@@ -11,7 +12,7 @@ export const App = (): ReactElement => {
 
   if (transformer === null) {
     initPhone("Transformers");
-    return <Transformer />;
+    return <TransformerREPLView />;
   } else {
     const parsedTransformer: SavedTransformer = JSON.parse(
       decodeURIComponent(transformer)
@@ -19,6 +20,6 @@ export const App = (): ReactElement => {
 
     initPhone(`Transformer: ${parsedTransformer.name}`);
 
-    return <Transformer transformer={parsedTransformer} />;
+    return <SavedTransformerView transformer={parsedTransformer} />;
   }
 };

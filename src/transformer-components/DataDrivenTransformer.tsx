@@ -6,7 +6,7 @@ import {
   CodapLanguageType,
   DataSet,
   TransformationOutput,
-} from "../transformations/types";
+} from "../transformers/types";
 import {
   Select,
   AttributeSelector,
@@ -228,7 +228,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     setErrMsg(null);
 
     const doTransform: () => Promise<TransformationOutput> = async () => {
-      if (transformationFunction.kind !== "datasetCreator") {
+      if (transformerFunction.kind !== "datasetCreator") {
         throw new Error("Improper transformationFunction supplied");
       }
       // Might throw an error, which we handle in the below try/catch block

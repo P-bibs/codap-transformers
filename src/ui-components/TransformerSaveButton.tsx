@@ -1,11 +1,16 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { TextArea, TextInput } from ".";
 import { BaseTransformerName } from "../transformer-components/transformerList";
 import {
   SavedTransformerContent,
   TransformerSaveData,
 } from "../transformer-components/types";
-import { createDataInteractive } from "../utils/codapPhone";
+import {
+  createDataInteractive,
+  getInteractiveFrame,
+  notifyInteractiveFrameIsDirty,
+} from "../utils/codapPhone";
+import { addInteractiveStateRequestListener } from "../utils/codapPhone/listeners";
 
 interface TransformerSaveButtonProps {
   generateSaveData: () => TransformerSaveData;
@@ -42,6 +47,27 @@ export default function TransformerSaveButton({
     createDataInteractive(name, `http://localhost:3000?transform=${encoded}`);
   }
 
+  // Load saved state from CODAP memory
+  useEffect(() => {
+    async function fetchSavedState() {
+      const savedState = (await getInteractiveFrame()).savedState;
+      if (savedState && savedState.currentName) {
+        setCurrentName(savedState.currentName as string);
+      }
+      if (savedState && savedState.description) {
+        setDescription(savedState.description as string);
+      }
+    }
+    fetchSavedState();
+  }, []);
+  // Register a listener to generate the plugins state
+  addInteractiveStateRequestListener((previousInteractiveState) => {
+    return { ...previousInteractiveState, currentName, description };
+  });
+  function notifyStateIsDirty() {
+    notifyInteractiveFrameIsDirty();
+  }
+
   return (
     <div style={{ marginTop: "5px" }}>
       <hr style={{ marginTop: "15px" }} />
@@ -60,11 +86,13 @@ export default function TransformerSaveButton({
           value={currentName}
           onChange={(e) => setCurrentName(e.target.value)}
           placeholder={"Transformer Name"}
+          onBlur={notifyStateIsDirty}
         />
         <TextArea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Purpose Statement"
+          onBlur={notifyStateIsDirty}
         />
         <button
           disabled={disabled}

@@ -1,3 +1,37 @@
+import { InteractiveState } from "./types";
+
+// Listen for saved state requests.
+// Each request receives the state produced by the last listener and should
+// return the state it wants to pass to the next listener. The state produced
+// by the last listener will be sent to CODAP.
+export let interactiveStateRequestListeners: Array<
+  (state: InteractiveState) => InteractiveState
+> = [];
+
+export function addInteractiveStateRequestListener(
+  listener: (state: InteractiveState) => InteractiveState
+): void {
+  interactiveStateRequestListeners.push(listener);
+}
+
+export function removeInteractiveStateRequestListener(
+  listener: (state: InteractiveState) => InteractiveState
+): void {
+  interactiveStateRequestListeners = interactiveStateRequestListeners.filter(
+    (v) => v !== listener
+  );
+}
+
+export function callAllInteractiveStateRequestListeners(): InteractiveState {
+  // Pass the result of each listener as the input to the next. Then return
+  // the final output.
+  let state = {};
+  for (const f of interactiveStateRequestListeners) {
+    state = f(state);
+  }
+  return state;
+}
+
 // Listen for new or removed data contexts
 
 export let newContextListeners: Array<() => void> = [];

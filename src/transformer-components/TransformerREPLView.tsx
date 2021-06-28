@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import "./TransformerViews.css";
 import ErrorDisplay from "../ui-components/Error";
@@ -8,6 +8,11 @@ import transformerList, {
   TransformerGroup,
 } from "./transformerList";
 import { TransformerRenderer } from "./TransformerRenderer";
+import {
+  getInteractiveFrame,
+  notifyInteractiveFrameIsDirty,
+} from "../utils/codapPhone";
+import { addInteractiveStateRequestListener } from "../utils/codapPhone/listeners";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -50,8 +55,27 @@ function TransformerREPLView(): ReactElement {
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    notifyStateIsDirty();
     setTransformType(event.target.value);
     setErrMsg(null);
+  }
+
+  // Load saved state from CODAP memory
+  useEffect(() => {
+    async function fetchSavedState() {
+      const savedState = (await getInteractiveFrame()).savedState;
+      if (savedState && savedState.transformType !== undefined) {
+        setTransformType(savedState.transformType as string);
+      }
+    }
+    fetchSavedState();
+  }, []);
+  // Register a listener to generate the plugins state
+  addInteractiveStateRequestListener((previousInteractiveState) => {
+    return { ...previousInteractiveState, transformType };
+  });
+  function notifyStateIsDirty() {
+    notifyInteractiveFrameIsDirty();
   }
 
   return (

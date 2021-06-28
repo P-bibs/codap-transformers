@@ -10,7 +10,7 @@ import { sort } from "../transformers/sort";
 import { pivotLonger, pivotWider } from "../transformers/pivot";
 import { join } from "../transformers/join";
 import { copy } from "../transformers/copy";
-import { copySchema } from "../transformers/copySchema";
+import { copyStructure } from "../transformers/copyStructure";
 import { combineCases } from "../transformers/combineCases";
 import {
   difference,
@@ -56,7 +56,7 @@ export type BaseTransformerName =
   | "Sort"
   | "Transform Column"
   | "Copy"
-  | "Copy Schema"
+  | "Copy Structure"
   | "Join"
   | "Dot Product"
   | "Average"
@@ -359,7 +359,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: copy },
     },
   },
-  "Copy Schema": {
+  "Copy Structure": {
     group: "Copy Transformers",
     componentData: {
       init: {
@@ -367,7 +367,7 @@ const transformerList: TransformerList = {
           title: "Table to Copy",
         },
       },
-      transformerFunction: { kind: "datasetCreator", func: copySchema },
+      transformerFunction: { kind: "datasetCreator", func: copyStructure },
     },
   },
   "Dot Product": {

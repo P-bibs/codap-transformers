@@ -83,7 +83,9 @@ export async function initPhone(title: string): Promise<void> {
         },
       },
       (response) => {
-        if (response.success) {
+        // NOTE: Ensure the response exists, since if this is run
+        // without being embedded in CODAP, it will come back undefined.
+        if (response && response.success) {
           resolve();
         } else {
           reject(new Error("Failed to update CODAP interactive frame"));

@@ -17,7 +17,7 @@ export const App = (): ReactElement => {
       decodeURIComponent(transformer)
     );
 
-    initPhone(parsedTransformer.name);
+    initPhone(`Transformer: ${parsedTransformer.name}`);
 
     return <Transformer transformer={parsedTransformer} />;
   }

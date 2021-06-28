@@ -5,8 +5,7 @@ export enum CodapResource {
   Component = "component",
   Collection = "collection",
   CollectionList = "collectionList",
-  EvalExpression = "evalExpression",
-  FunctionNames = "functionNames",
+  FormulaEngine = "formulaEngine",
 }
 
 export enum CodapListResource {
@@ -36,7 +35,7 @@ export type CodapRequest =
   | CreateTextRequest
   | UpdateTextRequest
   | EvalExpressionRequest
-  | GetFunctionNamesRequest;
+  | GetFunctionInfoRequest;
 
 export type CreateInteractiveFrameRequest = {
   action: CodapActions.Create;
@@ -110,17 +109,18 @@ export interface UpdateTextRequest {
 }
 
 export interface EvalExpressionRequest {
-  action: CodapActions.Get;
-  resource: CodapResource.EvalExpression;
+  action: CodapActions.Notify;
+  resource: CodapResource.FormulaEngine;
   values: {
+    request: "evalExpression";
     source: string;
     records: Record<string, unknown>[];
   };
 }
 
-export interface GetFunctionNamesRequest {
+export interface GetFunctionInfoRequest {
   action: CodapActions.Get;
-  resource: CodapResource.FunctionNames;
+  resource: CodapResource.FormulaEngine;
 }
 
 export interface CodapResponse {
@@ -163,8 +163,12 @@ interface TableResponse extends CodapResponse {
   values: CaseTable;
 }
 
-export interface GetFunctionNamesResponse extends CodapResponse {
-  values: string[];
+export interface GetFunctionInfoResponse extends CodapResponse {
+  values: {
+    [category: string]: {
+      [fname: string]: FunctionInfo;
+    };
+  };
 }
 
 type EvalExpressionResponse =
@@ -198,8 +202,8 @@ export type CodapPhone = {
   call(r: UpdateTextRequest, cb: (r: CodapResponse) => void): void;
   call(r: EvalExpressionRequest, cb: (r: EvalExpressionResponse) => void): void;
   call(
-    r: GetFunctionNamesRequest,
-    cb: (r: GetFunctionNamesResponse) => void
+    r: GetFunctionInfoRequest,
+    cb: (r: GetFunctionInfoResponse) => void
   ): void;
   call(r: CodapRequest[], cb: (r: CodapResponse[]) => void): void;
 };
@@ -538,3 +542,23 @@ type InteractiveFrame = {
   };
   savedState: Record<string, unknown>;
 };
+
+export interface FunctionInfo {
+  name: string;
+  category: string;
+  description: string;
+  displayName: string;
+  maxArgs: number;
+  minArgs: number;
+  examples: string[];
+  args: {
+    name: string;
+
+    // In practice, this can be"number", "expression", "value", "any",
+    // "boolean", "attribute", "string", "constant", "filter", "string or
+    // regular expression"
+    type: string;
+    required: boolean;
+    description: string;
+  }[];
+}

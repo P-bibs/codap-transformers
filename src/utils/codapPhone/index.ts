@@ -24,7 +24,8 @@ import {
   CodapIdentifyingInfo,
   CaseTable,
   GetDataListResponse,
-  GetFunctionNamesResponse,
+  GetFunctionInfoResponse,
+  FunctionInfo,
   CodapAttribute,
 } from "./types";
 import {
@@ -858,9 +859,10 @@ export function evalExpression(
   return new Promise((resolve, reject) =>
     phone.call(
       {
-        action: CodapActions.Get,
-        resource: CodapResource.EvalExpression,
+        action: CodapActions.Notify,
+        resource: CodapResource.FormulaEngine,
         values: {
+          request: "evalExpression",
           source: expr,
           records: records,
         },
@@ -892,12 +894,15 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
       phone.call(
         {
           action: CodapActions.Get,
-          resource: CodapResource.FunctionNames,
+          resource: CodapResource.FormulaEngine,
         },
-        (response: GetFunctionNamesResponse) => {
+        (response: GetFunctionInfoResponse) => {
           if (response.success) {
-            names = response.values;
-            resolve(response.values);
+            const allFunctions: FunctionInfo[] = Object.values(
+              response.values
+            ).flatMap(Object.values);
+            names = allFunctions.map((f) => f.name);
+            resolve(names);
           } else {
             reject(new Error("Failed to get function names"));
           }

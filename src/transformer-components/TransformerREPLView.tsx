@@ -1,13 +1,13 @@
 import React, { ReactElement } from "react";
 import { useState } from "react";
 import "./TransformerViews.css";
-import ErrorDisplay from "./Error";
-import { SavedTransformer } from "./transformer-components/types";
+import ErrorDisplay from "../ui-components/Error";
+import { SavedTransformer } from "./types";
 import transformerList, {
   BaseTransformerName,
   TransformerGroup,
-} from "./transformer-components/transformerList";
-import { TransformerRenderer } from "./transformer-components/TransformerRenderer";
+} from "./transformerList";
+import { TransformerRenderer } from "./TransformerRenderer";
 
 // These are the base transformer types represented as SavedTransformer
 // objects

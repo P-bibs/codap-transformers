@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
-import SavedTransformerView from "./SavedTransformerView";
+import SavedTransformerView from "./transformer-components/SavedTransformerView";
 import { SavedTransformer } from "./transformer-components/types";
-import TransformerREPLView from "./TransformerREPLView";
+import TransformerREPLView from "./transformer-components/TransformerREPLView";
 import { initPhone } from "./utils/codapPhone";
 
 // This should be a pure function (ie: only render once)

@@ -1,9 +1,9 @@
 import React, { ReactElement } from "react";
 import { useState } from "react";
 import "./TransformerViews.css";
-import ErrorDisplay from "./Error";
-import { SavedTransformer } from "./transformer-components/types";
-import { TransformerRenderer } from "./transformer-components/TransformerRenderer";
+import ErrorDisplay from "../ui-components/Error";
+import { SavedTransformer } from "./types";
+import { TransformerRenderer } from "./TransformerRenderer";
 
 /**
  * SavedTransformerView wraps a saved transformer in other important info

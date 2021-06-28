@@ -8,7 +8,7 @@ import {
   removeContextUpdateListener,
   addContextUpdateListener,
 } from "./codapPhone";
-import { CodapIdentifyingInfo } from "./codapPhone/types";
+import { CodapAttribute, CodapIdentifyingInfo } from "./codapPhone/types";
 
 export function useDataContexts(): CodapIdentifyingInfo[] {
   const [dataContexts, setDataContexts] = useState<CodapIdentifyingInfo[]>([]);
@@ -44,8 +44,8 @@ export function useCollections(context: string | null): CodapIdentifyingInfo[] {
   return collections;
 }
 
-export function useAttributes(context: string | null): CodapIdentifyingInfo[] {
-  const [attributes, setAttributes] = useState<CodapIdentifyingInfo[]>([]);
+export function useAttributes(context: string | null): CodapAttribute[] {
+  const [attributes, setAttributes] = useState<CodapAttribute[]>([]);
 
   async function refreshAttributes(context: string) {
     setAttributes(await getAllAttributes(context));

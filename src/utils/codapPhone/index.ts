@@ -271,38 +271,15 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
 
 export async function getAllAttributes(
   context: string
-): Promise<CodapIdentifyingInfo[]> {
-  // Get the name (as a string) of each collection in the context
-  const collections = (await getAllCollections(context)).map(
-    (collection) => collection.name
+): Promise<CodapAttribute[]> {
+  const collections = (await getDataContext(context)).collections;
+
+  const attributes: CodapAttribute[] = [];
+  collections.forEach((collection) =>
+    collection.attrs?.forEach((attr) => attributes.push(attr))
   );
 
-  // Make a request to get the attributes for each collection
-  const promises = collections.map(
-    (collectionName) =>
-      new Promise<CodapIdentifyingInfo[]>((resolve, reject) =>
-        phone.call(
-          {
-            action: CodapActions.Get,
-            resource: attributeListFromCollection(context, collectionName),
-          },
-          (response: GetDataListResponse) => {
-            if (response.success) {
-              resolve(response.values);
-            } else {
-              reject(new Error("Failed to get attributes."));
-            }
-          }
-        )
-      )
-  );
-
-  // Wait for all promises to return
-  const attributes = await Promise.all(promises);
-
-  // flatten and return the set of attributes
-  // return attributes.reduce((acc, elt) => [...acc, ...elt]);
-  return attributes.flat();
+  return attributes;
 }
 
 /**

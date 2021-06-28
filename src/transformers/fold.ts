@@ -139,7 +139,7 @@ export async function genericFold({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
 
-  const resultDescription = `A reduce of the ${readableName(context)} table.`;
+  const resultDescription = `A reduce of the ${readableName(context)} dataset.`;
   const ctxtName = readableName(context);
 
   return [

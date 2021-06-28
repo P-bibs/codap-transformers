@@ -1,5 +1,5 @@
 import React, { ReactElement, ChangeEvent } from "react";
-import CodapFlowSelect from "./CodapFlowSelect";
+import Select from "./Select";
 import { useCollections } from "../utils/hooks";
 
 interface CollectionSelectorProps {
@@ -18,7 +18,7 @@ export default function CollectionSelector({
   const collections = useCollections(context);
 
   return (
-    <CodapFlowSelect
+    <Select
       onChange={onChange}
       options={collections.map((collection) => ({
         value: collection.name,

@@ -1,5 +1,5 @@
 {
-  "short_name": "CODAP Flow",
+  "short_name": "Transformers",
   "name": "A CODAP plugin that enables data transformations like map, filter, and fold",
   "icons": [],
   "start_url": ".",

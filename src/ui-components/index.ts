@@ -1,8 +1,8 @@
-export { default as CodapFlowTextInput } from "./CodapFlowTextInput";
-export { default as CodapFlowSelect } from "./CodapFlowSelect";
-export { default as CodapFlowTextArea } from "./CodapFlowTextArea";
-export { default as TransformationSubmitButtons } from "./TransformationSubmitButtons";
-export { default as TransformationSaveButton } from "./TransformationSaveButton";
+export { default as TextInput } from "./TextInput";
+export { default as Select } from "./Select";
+export { default as TextArea } from "./TextArea";
+export { default as TransformerSubmitButtons } from "./TransformerSubmitButtons";
+export { default as TransformerSaveButton } from "./TransformerSaveButton";
 export { default as ContextSelector } from "./ContextSelector";
 export { default as AttributeSelector } from "./AttributeSelector";
 export { default as MultiAttributeSelector } from "./MultiAttributeSelector";

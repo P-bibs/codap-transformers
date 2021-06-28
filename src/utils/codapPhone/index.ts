@@ -43,7 +43,7 @@ import {
   allCasesWithSearch,
 } from "./resource";
 import { fillCollectionWithDefaults, collectionsEqual } from "./util";
-import { DataSet } from "../../transformations/types";
+import { DataSet } from "../../transformers/types";
 import { CodapEvalError } from "./error";
 import { uniqueName } from "../names";
 import * as Actions from "./actions";
@@ -98,7 +98,7 @@ export async function initPhone(title: string): Promise<void> {
 const getNewName = (function () {
   let count = 0;
   return () => {
-    const name = `CodapFlow_${count}`;
+    const name = `Transformers ${count}`;
     count += 1;
     return name;
   };

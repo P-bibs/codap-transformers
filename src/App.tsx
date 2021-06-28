@@ -1,6 +1,7 @@
 import React, { ReactElement, useState } from "react";
-import Transformation from "./Transformation";
-import { SavedTransformation } from "./transformation-components/types";
+import SavedTransformerView from "./transformer-components/SavedTransformerView";
+import { SavedTransformer } from "./transformer-components/types";
+import TransformerREPLView from "./transformer-components/TransformerREPLView";
 import { initPhone } from "./utils/codapPhone";
 import "./App.css";
 
@@ -11,7 +12,7 @@ export const App = (): ReactElement => {
   const loadingMsg = <p className="loading">Connecting to CODAP...</p>;
   const initErrorMsg = (
     <p className="initError">
-      Could not connect to CODAP. Please make sure you are using CODAP Flow
+      Could not connect to CODAP. Please make sure you are using Transformers
       within CODAP.
     </p>
   );
@@ -32,19 +33,19 @@ export const App = (): ReactElement => {
   };
 
   const parsedUrl = new URL(window.location.href);
-  const transformation = parsedUrl.searchParams.get("transform");
+  const transformer = parsedUrl.searchParams.get("transform");
   let pluginContent: JSX.Element;
 
-  if (transformation === null) {
-    initWithPluginName("CODAP Flow");
-    pluginContent = <Transformation />;
+  if (transformer === null) {
+    initWithPluginName("Transformers");
+    pluginContent = <TransformerREPLView />;
   } else {
-    const parsedTransformation: SavedTransformation = JSON.parse(
-      decodeURIComponent(transformation)
+    const parsedTransformer: SavedTransformer = JSON.parse(
+      decodeURIComponent(transformer)
     );
 
-    initWithPluginName(parsedTransformation.name);
-    pluginContent = <Transformation transformation={parsedTransformation} />;
+    initWithPluginName(`Transformer: ${parsedTransformer.name}`);
+    pluginContent = <SavedTransformerView transformer={parsedTransformer} />;
   }
 
   if (status === "error") {

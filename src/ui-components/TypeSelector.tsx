@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { CodapFlowSelect } from ".";
+import { Select } from ".";
 
 interface TypeSelectorProps {
   inputTypes: string[];
@@ -24,7 +24,7 @@ export default function TypeSelector({
 }: TypeSelectorProps): ReactElement {
   return (
     <div style={{ marginTop: "5px" }}>
-      <CodapFlowSelect
+      <Select
         defaultValue="Type"
         value={selectedInputType}
         options={inputTypes.map((s) => ({ value: s, title: s }))}
@@ -32,7 +32,7 @@ export default function TypeSelector({
         disabled={inputTypeDisabled}
       />
       {"->"}
-      <CodapFlowSelect
+      <Select
         defaultValue="Type"
         value={selectedOutputType}
         options={outputTypes.map((s) => ({ value: s, title: s }))}

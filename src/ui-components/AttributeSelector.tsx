@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from "react";
-import CodapFlowSelect from "./CodapFlowSelect";
+import Select from "./Select";
 import { useAttributes } from "../utils/hooks";
 
 interface AttributeSelectorProps {
@@ -27,7 +27,7 @@ export default function AttributeSelector({
   }, [value, onChange, attributes, disabled]);
 
   return (
-    <CodapFlowSelect
+    <Select
       onChange={(e) => onChange(e.target.value)}
       options={
         disabled && value !== null

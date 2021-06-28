@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from "react";
-import CodapFlowSelect from "./CodapFlowSelect";
+import Select from "./Select";
 import { useAttributes } from "../utils/hooks";
 import "./MultiAttributeSelector.css";
 
@@ -42,7 +42,7 @@ export default function MultiAttributeSelector({
             alignItems: "center",
           }}
         >
-          <CodapFlowSelect
+          <Select
             onChange={(e) => {
               const newSelected = [...selected];
               newSelected[i] = e.target.value;

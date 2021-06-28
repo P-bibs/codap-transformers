@@ -5,10 +5,10 @@ import { initPhone } from "./utils/codapPhone";
 import "./App.css";
 
 export const App = (): ReactElement => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const loadingMsg = <p className="loading">Connecting to CODAP...</p>;
+  type ReadyStatus = "loading" | "ready" | "error";
+  const [status, setStatus] = useState<ReadyStatus>("loading");
 
-  const [initError, setInitError] = useState<boolean>(false);
+  const loadingMsg = <p className="loading">Connecting to CODAP...</p>;
   const initErrorMsg = (
     <p className="initError">
       Could not connect to CODAP. Please make sure you are using CODAP Flow
@@ -24,10 +24,10 @@ export const App = (): ReactElement => {
   const initWithPluginName = (name: string): void => {
     initPhone(name)
       .then(() => {
-        setLoading(false);
+        setStatus("ready");
       })
       .catch(() => {
-        setInitError(true);
+        setStatus("error");
       });
   };
 
@@ -47,9 +47,9 @@ export const App = (): ReactElement => {
     pluginContent = <Transformation transformation={parsedTransformation} />;
   }
 
-  if (initError) {
+  if (status === "error") {
     return initErrorMsg;
-  } else if (loading) {
+  } else if (status === "loading") {
     return loadingMsg;
   } else {
     return pluginContent;

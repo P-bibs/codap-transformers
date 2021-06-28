@@ -12,7 +12,7 @@ export const App = (): ReactElement => {
   const loadingMsg = <p className="loading">Connecting to CODAP...</p>;
   const initErrorMsg = (
     <p className="initError">
-      Could not connect to CODAP. Please make sure you are using CODAP Flow
+      Could not connect to CODAP. Please make sure you are using Transformers
       within CODAP.
     </p>
   );
@@ -37,14 +37,14 @@ export const App = (): ReactElement => {
   let pluginContent: JSX.Element;
 
   if (transformer === null) {
-    initWithPluginName("CODAP Flow");
+    initWithPluginName("Transformers");
     pluginContent = <TransformerREPLView />;
   } else {
     const parsedTransformer: SavedTransformer = JSON.parse(
       decodeURIComponent(transformer)
     );
 
-    initWithPluginName(parsedTransformer.name);
+    initWithPluginName(`Transformer: ${parsedTransformer.name}`);
     pluginContent = <SavedTransformerView transformer={parsedTransformer} />;
   }
 

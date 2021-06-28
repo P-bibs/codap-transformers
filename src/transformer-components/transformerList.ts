@@ -41,14 +41,14 @@ export type BaseTransformerName =
   | "Build Column"
   | "Compare"
   | "Count"
-  | "Difference From"
   | "Filter"
   | "Flatten"
   | "Running Sum"
   | "Running Mean"
   | "Running Min"
   | "Running Max"
-  | "Running Difference"
+  | "Difference"
+  | "Difference From"
   | "Group By"
   | "Pivot Longer"
   | "Pivot Wider"
@@ -291,18 +291,38 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: runningMax },
     },
   },
-  "Running Difference": {
+  Difference: {
     group: "Running Aggregators",
     componentData: {
       init: {
         context1: {
-          title: "Table to calculate running difference on",
+          title: "Table to calculate difference on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: difference },
+    },
+  },
+  "Difference From": {
+    group: "Running Aggregators",
+    componentData: {
+      init: {
+        context1: {
+          title: "Table to calculate difference on",
+        },
+        attribute1: {
+          title: "Attribute to take difference from",
+        },
+        textInput2: {
+          title: "Starting value for difference",
+        },
+      },
+      transformerFunction: {
+        kind: "datasetCreator",
+        func: differenceFrom,
+      },
     },
   },
   Reduce: {
@@ -471,30 +491,6 @@ const transformerList: TransformerList = {
       transformerFunction: {
         kind: "datasetCreator",
         func: selectAttributes,
-      },
-    },
-  },
-
-  "Difference From": {
-    group: "Others",
-    componentData: {
-      init: {
-        context1: {
-          title: "Table to calculate difference on",
-        },
-        attribute1: {
-          title: "Attribute to take difference from",
-        },
-        textInput1: {
-          title: "Result Attribute Name",
-        },
-        textInput2: {
-          title: "Starting value for difference",
-        },
-      },
-      transformerFunction: {
-        kind: "datasetCreator",
-        func: differenceFrom,
       },
     },
   },

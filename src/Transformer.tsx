@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { useState } from "react";
 import "./Transformer.css";
-import CodapFlowErrorDisplay from "./Error";
+import ErrorDisplay from "./Error";
 import { SavedTransformer } from "./transformer-components/types";
 import { TransformerRenderer } from "./transformer-components/TransformerRenderer";
 import transformerList, {
@@ -11,12 +11,12 @@ import transformerList, {
 
 // These are the base transformer types represented as SavedTransformer
 // objects
-const baseTransformers: SavedTransformer[] = Object.keys(
-  transformerList
-).map((transform) => ({
-  name: transform,
-  content: { base: transform as BaseTransformerName },
-}));
+const baseTransformers: SavedTransformer[] = Object.keys(transformerList).map(
+  (transform) => ({
+    name: transform,
+    content: { base: transform as BaseTransformerName },
+  })
+);
 
 // Take the grouping data from transformerList and reorganize it into a form
 // thats easier to make a dropdown UI out of
@@ -63,17 +63,12 @@ function Transformer({
       <div className="Transformer">
         <h2>
           {urlTransformer.name}
-          <span id="transformerBase">
-            {" "}
-            ({urlTransformer.content.base})
-          </span>
+          <span id="transformerBase"> ({urlTransformer.content.base})</span>
         </h2>
-        {urlTransformer.description && (
-          <p>{urlTransformer.description}</p>
-        )}
+        {urlTransformer.description && <p>{urlTransformer.description}</p>}
         <TransformerRenderer
           setErrMsg={setErrMsg}
-          errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
+          errorDisplay={<ErrorDisplay message={errMsg} />}
           transformer={urlTransformer}
         />
       </div>
@@ -102,7 +97,7 @@ function Transformer({
         </select>
         <TransformerRenderer
           setErrMsg={setErrMsg}
-          errorDisplay={<CodapFlowErrorDisplay message={errMsg} />}
+          errorDisplay={<ErrorDisplay message={errMsg} />}
           transformer={baseTransformers.find(
             ({ name }) => name === transformType
           )}

@@ -1,7 +1,4 @@
-import {
-  DDTransformerInit,
-  TransformFunction,
-} from "./DataDrivenTransformer";
+import { DDTransformerInit, TransformFunction } from "./DataDrivenTransformer";
 import { filter } from "../transformers/filter";
 import { buildColumn } from "../transformers/buildColumn";
 import { flatten } from "../transformers/flatten";

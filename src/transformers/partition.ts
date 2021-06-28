@@ -10,10 +10,7 @@ import {
   DDTransformerProps,
   DDTransformerState,
 } from "../transformer-components/DataDrivenTransformer";
-import {
-  applyNewDataSet,
-  readableName,
-} from "../transformer-components/util";
+import { applyNewDataSet, readableName } from "../transformer-components/util";
 
 /**
  * Contains a dataset as a result of a partition, and the distinct

@@ -95,7 +95,7 @@ export async function initPhone(title: string): Promise<void> {
 const getNewName = (function () {
   let count = 0;
   return () => {
-    const name = `CodapFlow_${count}`;
+    const name = `Transformers ${count}`;
     count += 1;
     return name;
   };

@@ -15,9 +15,7 @@ export type SavedTransformerContent = {
 /**
  * All valid save data types
  */
-export type TransformerSaveData = NonNullable<
-  SavedTransformerContent["data"]
->;
+export type TransformerSaveData = NonNullable<SavedTransformerContent["data"]>;
 
 /**
  * The type of saved transformers. `name` is the display name and
@@ -35,6 +33,4 @@ export interface TransformerProps {
   errorDisplay: ReactElement;
 }
 
-export type TransformerComponent = (
-  props: TransformerProps
-) => ReactElement;
+export type TransformerComponent = (props: TransformerProps) => ReactElement;

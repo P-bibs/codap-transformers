@@ -4,13 +4,13 @@ import { createText, updateText } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
 import { CodapLanguageType, DataSet } from "../transformers/types";
 import {
-  CodapFlowSelect,
+  Select,
   AttributeSelector,
   ContextSelector,
   TransformerSubmitButtons,
   CollectionSelector,
   MultiAttributeSelector,
-  CodapFlowTextInput,
+  TextInput,
   TypeSelector,
   ExpressionEditor,
 } from "../ui-components";
@@ -166,16 +166,11 @@ const titleFromComponent = (
 export type TransformFunction =
   | {
       kind: "datasetCreator";
-      func: (
-        state: DDTransformerState
-      ) => Promise<[DataSet | number, string]>;
+      func: (state: DDTransformerState) => Promise<[DataSet | number, string]>;
     }
   | {
       kind: "fullOverride";
-      func: (
-        props: DDTransformerProps,
-        state: DDTransformerState
-      ) => void;
+      func: (props: DDTransformerProps, state: DDTransformerState) => void;
     };
 
 export type DDTransformerProps = {
@@ -195,17 +190,9 @@ export type DDTransformerProps = {
  *
  * Only UI elements in `init` will be included and they will appear in order.
  */
-const DataDrivenTransformer = (
-  props: DDTransformerProps
-): ReactElement => {
-  const {
-    transformerFunction,
-    init,
-    base,
-    saveData,
-    errorDisplay,
-    setErrMsg,
-  } = props;
+const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
+  const { transformerFunction, init, base, saveData, errorDisplay, setErrMsg } =
+    props;
 
   const [state, setState] = useReducer(
     (
@@ -356,7 +343,7 @@ const DataDrivenTransformer = (
           return (
             <>
               {titleFromComponent(component, init)}
-              <CodapFlowTextInput
+              <TextInput
                 value={state[component]}
                 onChange={(e) => setState({ [component]: e.target.value })}
                 disabled={saveData !== undefined}
@@ -368,7 +355,7 @@ const DataDrivenTransformer = (
           return tmp && tmp.options && tmp.defaultValue ? (
             <>
               {titleFromComponent(component, init)}
-              <CodapFlowSelect
+              <Select
                 onChange={(e) => setState({ [component]: e.target.value })}
                 options={tmp.options}
                 value={state[component]}

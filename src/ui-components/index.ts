@@ -1,6 +1,6 @@
-export { default as CodapFlowTextInput } from "./CodapFlowTextInput";
-export { default as CodapFlowSelect } from "./CodapFlowSelect";
-export { default as CodapFlowTextArea } from "./CodapFlowTextArea";
+export { default as TextInput } from "./TextInput";
+export { default as Select } from "./Select";
+export { default as TextArea } from "./TextArea";
 export { default as TransformerSubmitButtons } from "./TransformerSubmitButtons";
 export { default as TransformerSaveButton } from "./TransformerSaveButton";
 export { default as ContextSelector } from "./ContextSelector";

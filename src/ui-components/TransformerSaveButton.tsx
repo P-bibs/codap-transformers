@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from "react";
-import { CodapFlowTextArea, CodapFlowTextInput } from ".";
+import { TextArea, TextInput } from ".";
 import { BaseTransformerName } from "../transformer-components/transformerList";
 import {
   SavedTransformerContent,
@@ -56,12 +56,12 @@ export default function TransformerSaveButton({
           alignItems: "flex-start",
         }}
       >
-        <CodapFlowTextInput
+        <TextInput
           value={currentName}
           onChange={(e) => setCurrentName(e.target.value)}
           placeholder={"Transformer Name"}
         />
-        <CodapFlowTextArea
+        <TextArea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Purpose Statement"

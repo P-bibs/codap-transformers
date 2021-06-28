@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 
-interface CodapFlowSelectProps<T extends string | number> {
+interface SelectProps<T extends string | number> {
   onChange?: React.ChangeEventHandler<HTMLSelectElement>;
   defaultValue: T;
   value: T | null;
@@ -11,13 +11,13 @@ interface CodapFlowSelectProps<T extends string | number> {
   disabled?: boolean;
 }
 
-export default function CodapFlowSelect<T extends string | number>({
+export default function Select<T extends string | number>({
   onChange,
   value,
   defaultValue,
   options,
   disabled,
-}: CodapFlowSelectProps<T>): ReactElement {
+}: SelectProps<T>): ReactElement {
   const titles = options.map((option) => option.title);
 
   // Determines if more than one option use the given title

@@ -6,7 +6,7 @@ To launch the plugin in a local instance of CODAP, start both the plugin and [CO
 http://localhost:4020/dg?di=http://localhost:3000
 ```
 
-# Working with CODAP Flow
+# Working with Transformers
 
 ## Available Scripts
 

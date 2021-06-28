@@ -1,9 +1,9 @@
 
-.Transformer {
+.transformer-view {
   padding: 15px;
 }
 
-.Transformer textarea {
+.transformer-view textarea {
   width: 20em;
   height: 7em;
 }

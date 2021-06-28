@@ -55,7 +55,7 @@ function TransformerREPLView(): ReactElement {
   }
 
   return (
-    <div className="Transformer">
+    <div className="transformer-view">
       <h3>Transformer Type</h3>
 
       <select

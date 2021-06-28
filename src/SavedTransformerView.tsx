@@ -17,7 +17,7 @@ function SavedTransformerView({
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
   return (
-    <div className="Transformer">
+    <div className="transformer-view">
       <h2>
         {urlTransformer.name}
         <span id="transformerBase"> ({urlTransformer.content.base})</span>

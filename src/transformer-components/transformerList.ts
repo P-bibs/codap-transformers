@@ -1,20 +1,20 @@
 import {
-  DDTransformationInit,
+  DDTransformerInit,
   TransformFunction,
-} from "./DataDrivenTransformation";
-import { filter } from "../transformations/filter";
-import { buildColumn } from "../transformations/buildColumn";
-import { flatten } from "../transformations/flatten";
-import { groupBy } from "../transformations/groupBy";
-import { selectAttributes } from "../transformations/selectAttributes";
-import { count } from "../transformations/count";
-import { compare } from "../transformations/compare";
-import { sort } from "../transformations/sort";
-import { pivotLonger, pivotWider } from "../transformations/pivot";
-import { join } from "../transformations/join";
-import { copy } from "../transformations/copy";
-import { copySchema } from "../transformations/copySchema";
-import { combineCases } from "../transformations/combineCases";
+} from "./DataDrivenTransformer";
+import { filter } from "../transformers/filter";
+import { buildColumn } from "../transformers/buildColumn";
+import { flatten } from "../transformers/flatten";
+import { groupBy } from "../transformers/groupBy";
+import { selectAttributes } from "../transformers/selectAttributes";
+import { count } from "../transformers/count";
+import { compare } from "../transformers/compare";
+import { sort } from "../transformers/sort";
+import { pivotLonger, pivotWider } from "../transformers/pivot";
+import { join } from "../transformers/join";
+import { copy } from "../transformers/copy";
+import { copySchema } from "../transformers/copySchema";
+import { combineCases } from "../transformers/combineCases";
 import {
   difference,
   differenceFrom,
@@ -23,24 +23,24 @@ import {
   runningMean,
   runningMin,
   runningSum,
-} from "../transformations/fold";
-import { dotProduct } from "../transformations/dotProduct";
-import { average } from "../transformations/average";
-import { partitionOverride } from "../transformations/partition";
+} from "../transformers/fold";
+import { dotProduct } from "../transformers/dotProduct";
+import { average } from "../transformers/average";
+import { partitionOverride } from "../transformers/partition";
 
-export type TransformationGroup =
-  | "Structural Transformations"
-  | "Combining Transformations"
-  | "Summarizing Transformations"
+export type TransformerGroup =
+  | "Structural Transformers"
+  | "Combining Transformers"
+  | "Summarizing Transformers"
   | "Running Aggregators"
-  | "Copy Transformations"
+  | "Copy Transformers"
   | "Aggregators"
   | "Others";
 
 /**
- *  All valid values of the `base` field of a saved transformation object
+ *  All valid values of the `base` field of a saved transformer object
  */
-export type BaseTransformationName =
+export type BaseTransformerName =
   | "Build Column"
   | "Compare"
   | "Count"
@@ -67,20 +67,20 @@ export type BaseTransformationName =
   | "Reduce"
   | "Partition";
 
-export type TransformationList = Record<
-  BaseTransformationName,
+export type TransformerList = Record<
+  BaseTransformerName,
   {
-    group: TransformationGroup;
+    group: TransformerGroup;
     componentData: {
-      init: DDTransformationInit;
-      transformationFunction: TransformFunction;
+      init: DDTransformerInit;
+      transformerFunction: TransformFunction;
     };
   }
 >;
 
-const transformationList: TransformationList = {
+const transformerList: TransformerList = {
   Partition: {
-    group: "Structural Transformations",
+    group: "Structural Transformers",
     componentData: {
       init: {
         context1: {
@@ -90,25 +90,25 @@ const transformationList: TransformationList = {
           title: "Attribute to Partition By",
         },
       },
-      transformationFunction: {
+      transformerFunction: {
         kind: "fullOverride",
         func: partitionOverride,
       },
     },
   },
   Flatten: {
-    group: "Structural Transformations",
+    group: "Structural Transformers",
     componentData: {
       init: {
         context1: {
           title: "Table to Flatten",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: flatten },
+      transformerFunction: { kind: "datasetCreator", func: flatten },
     },
   },
   "Group By": {
-    group: "Structural Transformations",
+    group: "Structural Transformers",
     componentData: {
       init: {
         context1: {
@@ -118,11 +118,11 @@ const transformationList: TransformationList = {
           title: "Attributes to Group By",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: groupBy },
+      transformerFunction: { kind: "datasetCreator", func: groupBy },
     },
   },
   "Pivot Longer": {
-    group: "Structural Transformations",
+    group: "Structural Transformers",
     componentData: {
       init: {
         context1: {
@@ -138,11 +138,11 @@ const transformationList: TransformationList = {
           title: "Values to",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: pivotLonger },
+      transformerFunction: { kind: "datasetCreator", func: pivotLonger },
     },
   },
   "Pivot Wider": {
-    group: "Structural Transformations",
+    group: "Structural Transformers",
     componentData: {
       init: {
         context1: {
@@ -155,11 +155,11 @@ const transformationList: TransformationList = {
           title: "Values From",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: pivotWider },
+      transformerFunction: { kind: "datasetCreator", func: pivotWider },
     },
   },
   Join: {
-    group: "Combining Transformations",
+    group: "Combining Transformers",
     componentData: {
       init: {
         context1: {
@@ -175,11 +175,11 @@ const transformationList: TransformationList = {
           title: "Joining Attribute",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: join },
+      transformerFunction: { kind: "datasetCreator", func: join },
     },
   },
   "Combine Cases": {
-    group: "Combining Transformations",
+    group: "Combining Transformers",
     componentData: {
       init: {
         context1: {
@@ -189,14 +189,14 @@ const transformationList: TransformationList = {
           title: "Combining Table",
         },
       },
-      transformationFunction: {
+      transformerFunction: {
         kind: "datasetCreator",
         func: combineCases,
       },
     },
   },
   Count: {
-    group: "Summarizing Transformations",
+    group: "Summarizing Transformers",
     componentData: {
       init: {
         context1: {
@@ -206,11 +206,11 @@ const transformationList: TransformationList = {
           title: "Attributes to Count",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: count },
+      transformerFunction: { kind: "datasetCreator", func: count },
     },
   },
   Compare: {
-    group: "Summarizing Transformations",
+    group: "Summarizing Transformers",
     componentData: {
       init: {
         context1: {
@@ -235,7 +235,7 @@ const transformationList: TransformationList = {
           defaultValue: "Select a type",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: compare },
+      transformerFunction: { kind: "datasetCreator", func: compare },
     },
   },
   "Running Sum": {
@@ -249,7 +249,7 @@ const transformationList: TransformationList = {
           title: "Attribute to Aggregate",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: runningSum },
+      transformerFunction: { kind: "datasetCreator", func: runningSum },
     },
   },
   "Running Mean": {
@@ -263,7 +263,7 @@ const transformationList: TransformationList = {
           title: "Attribute to Aggregate",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: runningMean },
+      transformerFunction: { kind: "datasetCreator", func: runningMean },
     },
   },
   "Running Min": {
@@ -277,7 +277,7 @@ const transformationList: TransformationList = {
           title: "Attribute to Aggregate",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: runningMin },
+      transformerFunction: { kind: "datasetCreator", func: runningMin },
     },
   },
   "Running Max": {
@@ -291,7 +291,7 @@ const transformationList: TransformationList = {
           title: "Attribute to Aggregate",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: runningMax },
+      transformerFunction: { kind: "datasetCreator", func: runningMax },
     },
   },
   "Running Difference": {
@@ -305,7 +305,7 @@ const transformationList: TransformationList = {
           title: "Attribute to Aggregate",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: difference },
+      transformerFunction: { kind: "datasetCreator", func: difference },
     },
   },
   Reduce: {
@@ -328,29 +328,29 @@ const transformationList: TransformationList = {
           title: "Formula for Next Accumulator",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: genericFold },
+      transformerFunction: { kind: "datasetCreator", func: genericFold },
     },
   },
   Copy: {
-    group: "Copy Transformations",
+    group: "Copy Transformers",
     componentData: {
       init: {
         context1: {
           title: "Table to Copy",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: copy },
+      transformerFunction: { kind: "datasetCreator", func: copy },
     },
   },
   "Copy Schema": {
-    group: "Copy Transformations",
+    group: "Copy Transformers",
     componentData: {
       init: {
         context1: {
           title: "Table to Copy",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: copySchema },
+      transformerFunction: { kind: "datasetCreator", func: copySchema },
     },
   },
   "Dot Product": {
@@ -364,7 +364,7 @@ const transformationList: TransformationList = {
           title: "Attributes to Take Dot Product of",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: dotProduct },
+      transformerFunction: { kind: "datasetCreator", func: dotProduct },
     },
   },
 
@@ -379,7 +379,7 @@ const transformationList: TransformationList = {
           title: "Attribute to Average",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: average },
+      transformerFunction: { kind: "datasetCreator", func: average },
     },
   },
   Filter: {
@@ -398,7 +398,7 @@ const transformationList: TransformationList = {
         },
         expression1: { title: "" },
       },
-      transformationFunction: { kind: "datasetCreator", func: filter },
+      transformerFunction: { kind: "datasetCreator", func: filter },
     },
   },
   "Transform Column": {
@@ -419,7 +419,7 @@ const transformationList: TransformationList = {
         },
         expression1: { title: "" },
       },
-      transformationFunction: { kind: "datasetCreator", func: buildColumn },
+      transformerFunction: { kind: "datasetCreator", func: buildColumn },
     },
   },
   "Build Column": {
@@ -443,7 +443,7 @@ const transformationList: TransformationList = {
         },
         expression1: { title: "" },
       },
-      transformationFunction: { kind: "datasetCreator", func: buildColumn },
+      transformerFunction: { kind: "datasetCreator", func: buildColumn },
     },
   },
   "Select Attributes": {
@@ -474,7 +474,7 @@ const transformationList: TransformationList = {
           title: "Attributes",
         },
       },
-      transformationFunction: {
+      transformerFunction: {
         kind: "datasetCreator",
         func: selectAttributes,
       },
@@ -498,7 +498,7 @@ const transformationList: TransformationList = {
           title: "Starting value for difference",
         },
       },
-      transformationFunction: {
+      transformerFunction: {
         kind: "datasetCreator",
         func: differenceFrom,
       },
@@ -527,9 +527,9 @@ const transformationList: TransformationList = {
           defaultValue: "Select a sort direction",
         },
       },
-      transformationFunction: { kind: "datasetCreator", func: sort },
+      transformerFunction: { kind: "datasetCreator", func: sort },
     },
   },
 };
 
-export default transformationList;
+export default transformerList;

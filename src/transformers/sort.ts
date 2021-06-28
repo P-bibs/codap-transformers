@@ -1,8 +1,8 @@
 import { CodapLanguageType, DataSet } from "./types";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
-import { readableName } from "../transformation-components/util";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
@@ -65,7 +65,7 @@ export async function sort({
   expression1: expression,
   dropdown1: sortDirection,
   typeContract1: { outputType },
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -92,7 +92,7 @@ async function uncheckedSort(
   const records = dataset.records;
   const keyValues = await evalExpression(keyExpr, records);
 
-  // Check for type errors (might throw error and abort transformation)
+  // Check for type errors (might throw error and abort transformer)
   reportTypeErrorsForRecords(records, keyValues, outputType);
 
   const sorted = records

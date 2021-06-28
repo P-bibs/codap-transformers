@@ -2,9 +2,9 @@ import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { eraseFormulas, shallowCopy } from "./util";
 import { uniqueName } from "../utils/names";
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { readableName } from "../transformation-components/util";
+import { readableName } from "../transformer-components/util";
 
 // TODO: allow for two modes:
 //  1) treat data like one table, values are counted across all cases
@@ -22,7 +22,7 @@ import { readableName } from "../transformation-components/util";
 export async function count({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

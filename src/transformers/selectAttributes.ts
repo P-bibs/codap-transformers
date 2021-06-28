@@ -1,5 +1,5 @@
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
-import { readableName } from "../transformation-components/util";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 import { reparent, eraseFormulas, cloneCollection } from "./util";
@@ -12,7 +12,7 @@ export async function selectAttributes({
   context1: contextName,
   attributeSet1: attributeName,
   dropdown1: mode,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

@@ -1,5 +1,5 @@
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
-import { readableName } from "../transformation-components/util";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 
@@ -9,7 +9,7 @@ import { DataSet } from "./types";
  */
 export async function copySchema({
   context1: contextName,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid data context to transform.");
   }

@@ -2,12 +2,12 @@
 import React, { useReducer, ReactElement, useEffect } from "react";
 import { createText, updateText } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
-import { CodapLanguageType, DataSet } from "../transformations/types";
+import { CodapLanguageType, DataSet } from "../transformers/types";
 import {
   CodapFlowSelect,
   AttributeSelector,
   ContextSelector,
-  TransformationSubmitButtons,
+  TransformerSubmitButtons,
   CollectionSelector,
   MultiAttributeSelector,
   CodapFlowTextInput,
@@ -19,8 +19,8 @@ import {
   addUpdateListener,
   addUpdateTextListener,
 } from "./util";
-import TransformationSaveButton from "../ui-components/TransformationSaveButton";
-import { BaseTransformationName } from "./transformationList";
+import TransformerSaveButton from "../ui-components/TransformerSaveButton";
+import { BaseTransformerName } from "./transformerList";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -45,7 +45,7 @@ interface TypeContractInit extends ComponentInit {
   outputTypes: string[];
   outputTypeDisabled?: boolean;
 }
-export type DDTransformationInit = {
+export type DDTransformerInit = {
   context1?: ContextInit;
   context2?: ContextInit;
   collection1?: CollectionInit;
@@ -76,7 +76,7 @@ type TypeContractState = {
   inputType: CodapLanguageType;
   outputType: CodapLanguageType;
 };
-export type DDTransformationState = {
+export type DDTransformerState = {
   context1: ContextState;
   context2: ContextState;
   collection1: CollectionState;
@@ -95,7 +95,7 @@ export type DDTransformationState = {
   typeContract2: TypeContractState;
 };
 
-const DEFAULT_STATE: DDTransformationState = {
+const DEFAULT_STATE: DDTransformerState = {
   context1: null,
   context2: null,
   collection1: null,
@@ -156,8 +156,8 @@ const convertNames = (
  * Makes a header from a ui component's title
  */
 const titleFromComponent = (
-  component: keyof DDTransformationInit,
-  init: DDTransformationInit
+  component: keyof DDTransformerInit,
+  init: DDTransformerInit
 ): ReactElement => {
   const tmp = init[component];
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
@@ -167,39 +167,39 @@ export type TransformFunction =
   | {
       kind: "datasetCreator";
       func: (
-        state: DDTransformationState
+        state: DDTransformerState
       ) => Promise<[DataSet | number, string]>;
     }
   | {
       kind: "fullOverride";
       func: (
-        props: DDTransformationProps,
-        state: DDTransformationState
+        props: DDTransformerProps,
+        state: DDTransformerState
       ) => void;
     };
 
-export type DDTransformationProps = {
-  transformationFunction: TransformFunction;
+export type DDTransformerProps = {
+  transformerFunction: TransformFunction;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
-  base: BaseTransformationName;
-  init: DDTransformationInit;
-  saveData?: DDTransformationState;
+  base: BaseTransformerName;
+  init: DDTransformerInit;
+  saveData?: DDTransformerState;
 };
 
 /**
- * Creates a transformation from a variety of ui elements. Requires a transformation
+ * Creates a transformer from a variety of ui elements. Requires a transformer
  * function that consumes state from all ui elements and returns a dataset and a
  * table name for a new context. Also requires an `init` object that has details on
- * which ui elements to include in the transformation and how to configure them.
+ * which ui elements to include in the transformer and how to configure them.
  *
  * Only UI elements in `init` will be included and they will appear in order.
  */
-const DataDrivenTransformation = (
-  props: DDTransformationProps
+const DataDrivenTransformer = (
+  props: DDTransformerProps
 ): ReactElement => {
   const {
-    transformationFunction,
+    transformerFunction,
     init,
     base,
     saveData,
@@ -209,13 +209,13 @@ const DataDrivenTransformation = (
 
   const [state, setState] = useReducer(
     (
-      oldState: DDTransformationState,
-      newState: Partial<DDTransformationState>
-    ): DDTransformationState => ({ ...oldState, ...newState }),
+      oldState: DDTransformerState,
+      newState: Partial<DDTransformerState>
+    ): DDTransformerState => ({ ...oldState, ...newState }),
     saveData !== undefined ? saveData : DEFAULT_STATE
   );
 
-  // Make sure we reset state if the underlying transformation changes (but only
+  // Make sure we reset state if the underlying transformer changes (but only
   // if there isn't any save data)
   useEffect(() => {
     if (saveData === undefined) {
@@ -237,19 +237,19 @@ const DataDrivenTransformation = (
     setErrMsg(null);
 
     const doTransform: () => Promise<[DataSet | number, string]> = async () => {
-      if (transformationFunction.kind !== "datasetCreator") {
-        throw new Error("Improper transformationFunction supplied");
+      if (transformerFunction.kind !== "datasetCreator") {
+        throw new Error("Improper transformerFunction supplied");
       }
       // Might throw an error, which we handle in the below try/catch block
-      return await transformationFunction.func(state);
+      return await transformerFunction.func(state);
     };
 
     try {
       const [result, name] = await doTransform();
 
-      // Determine whether the transformationFunction returns a textbox or a table
+      // Determine whether the transformerFunction returns a textbox or a table
       if (typeof result === "number") {
-        // This is the case where the transformation returns a number
+        // This is the case where the transformer returns a number
 
         const textName = await createText(name, String(result));
 
@@ -274,7 +274,7 @@ const DataDrivenTransformation = (
           );
         }
       } else if (typeof result === "object") {
-        // This is the case where the transformation returns a dataset
+        // This is the case where the transformer returns a dataset
         const newContextName = await applyNewDataSet(result, name);
         if (order.includes("context1") && state["context1"] !== null) {
           addUpdateListener(
@@ -440,19 +440,19 @@ const DataDrivenTransformation = (
         }
       })}
       <br />
-      <TransformationSubmitButtons
+      <TransformerSubmitButtons
         onCreate={
-          transformationFunction.kind === "fullOverride"
-            ? () => transformationFunction.func(props, state)
+          transformerFunction.kind === "fullOverride"
+            ? () => transformerFunction.func(props, state)
             : transform
         }
       />
       {errorDisplay}
       {saveData === undefined && (
-        <TransformationSaveButton base={base} generateSaveData={() => state} />
+        <TransformerSaveButton base={base} generateSaveData={() => state} />
       )}
     </>
   );
 };
 
-export default DataDrivenTransformation;
+export default DataDrivenTransformer;

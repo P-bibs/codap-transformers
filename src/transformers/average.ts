@@ -1,5 +1,5 @@
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
-import { readableName } from "../transformation-components/util";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 import { codapValueToString } from "./util";
@@ -10,7 +10,7 @@ import { codapValueToString } from "./util";
 export async function average({
   context1: contextName,
   attribute1: attribute,
-}: DDTransformationState): Promise<[DataSet | number, string]> {
+}: DDTransformerState): Promise<[DataSet | number, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

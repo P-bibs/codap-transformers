@@ -7,11 +7,11 @@ import {
 } from "./util";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { uniqueName } from "../utils/names";
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import {
   parenthesizeName,
   readableName,
-} from "../transformation-components/util";
+} from "../transformer-components/util";
 
 type FoldFunction = (
   dataset: DataSet,
@@ -24,7 +24,7 @@ function makeFoldWrapper(label: string, innerFoldFunction: FoldFunction) {
   return async ({
     context1: contextName,
     attribute1: inputAttributeName,
-  }: DDTransformationState): Promise<[DataSet, string]> => {
+  }: DDTransformerState): Promise<[DataSet, string]> => {
     if (contextName === null) {
       throw new Error("Please choose a valid dataset to transform.");
     }
@@ -109,7 +109,7 @@ export async function genericFold({
   expression1: base,
   textInput2: accumulatorName,
   expression2: expression,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -244,7 +244,7 @@ export async function differenceFrom({
   attribute1: inputAttributeName,
   textInput1: resultAttributeName,
   textInput2: startingValue,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

@@ -1,5 +1,5 @@
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
-import { readableName } from "../transformation-components/util";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet } from "./types";
 import { codapValueToString } from "./util";
@@ -10,7 +10,7 @@ import { codapValueToString } from "./util";
 export async function dotProduct({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformationState): Promise<[number, string]> {
+}: DDTransformerState): Promise<[number, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

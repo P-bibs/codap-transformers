@@ -1,4 +1,4 @@
-import { DataSet } from "../transformations/types";
+import { DataSet } from "../transformers/types";
 import { DataContext } from "../utils/codapPhone/types";
 import {
   createTableWithDataSet,
@@ -52,7 +52,7 @@ export function parenthesizeName(name: string): string {
  *
  * @param inputContext - The input context
  * @param outputContext - The context to update
- * @param doTransform - A transformation function that returns the result
+ * @param doTransform - A transformer function that returns the result
  * dataset
  * @param setErrMsg - A function that displays the error message to the user
  */

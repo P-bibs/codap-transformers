@@ -113,7 +113,7 @@ export function insertInRow(
 
 /**
  * Sets `formula` field of all attributes in the given list
- * to undefined. Useful in several transformations where
+ * to undefined. Useful in several transformers where
  * preserving formulas will result in broken formulas.
  */
 export function eraseFormulas(attrs: CodapAttribute[]): void {

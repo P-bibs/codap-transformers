@@ -5,15 +5,15 @@ import {
   deleteDataContext,
 } from "../utils/codapPhone";
 import { addContextUpdateListener } from "../utils/codapPhone/listeners";
-import { codapValueToString } from "../transformations/util";
+import { codapValueToString } from "./util";
 import {
-  DDTransformationProps,
-  DDTransformationState,
-} from "../transformation-components/DataDrivenTransformation";
+  DDTransformerProps,
+  DDTransformerState,
+} from "../transformer-components/DataDrivenTransformer";
 import {
   applyNewDataSet,
   readableName,
-} from "../transformation-components/util";
+} from "../transformer-components/util";
 
 /**
  * Contains a dataset as a result of a partition, and the distinct
@@ -27,11 +27,11 @@ export interface PartitionDataset {
 }
 
 /**
- * Sets up handlers and listeners for partition transformation
+ * Sets up handlers and listeners for partition transformer
  */
 export const partitionOverride = async (
-  { setErrMsg }: DDTransformationProps,
-  { context1: inputDataCtxt, attribute1: attributeName }: DDTransformationState
+  { setErrMsg }: DDTransformerProps,
+  { context1: inputDataCtxt, attribute1: attributeName }: DDTransformerState
 ): Promise<void> => {
   setErrMsg(null);
 

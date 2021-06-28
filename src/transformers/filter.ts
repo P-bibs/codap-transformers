@@ -1,8 +1,8 @@
 import { DataSet } from "./types";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString } from "./util";
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
-import { readableName } from "../transformation-components/util";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -11,7 +11,7 @@ import { readableName } from "../transformation-components/util";
 export async function filter({
   context1: contextName,
   expression1: predicate,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

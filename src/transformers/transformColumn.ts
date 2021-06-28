@@ -1,7 +1,7 @@
 import { CodapLanguageType, DataSet } from "./types";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
-import { readableName } from "../transformation-components/util";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 import {
   reportTypeErrorsForRecords,
   cloneCollection,
@@ -18,7 +18,7 @@ export async function transformColumn({
   textInput1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -53,7 +53,7 @@ async function uncheckedTransformColumn(
   const records = dataset.records.map(shallowCopy);
   const exprValues = await evalExpression(expression, records);
 
-  // Check for type errors (might throw error and abort transformation)
+  // Check for type errors (might throw error and abort transformer)
   reportTypeErrorsForRecords(records, exprValues, outputType);
 
   exprValues.forEach((value, i) => {

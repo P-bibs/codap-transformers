@@ -1,51 +1,51 @@
 import React, { ReactElement, useState } from "react";
 import { CodapFlowTextArea, CodapFlowTextInput } from ".";
-import { BaseTransformationName } from "../transformation-components/transformationList";
+import { BaseTransformerName } from "../transformer-components/transformerList";
 import {
-  SavedTransformationContent,
-  TransformationSaveData,
-} from "../transformation-components/types";
+  SavedTransformerContent,
+  TransformerSaveData,
+} from "../transformer-components/types";
 import { createDataInteractive } from "../utils/codapPhone";
 
-interface TransformationSaveButtonProps {
-  generateSaveData: () => TransformationSaveData;
-  base: BaseTransformationName;
+interface TransformerSaveButtonProps {
+  generateSaveData: () => TransformerSaveData;
+  base: BaseTransformerName;
   disabled?: boolean;
 }
 
-export default function TransformationSaveButton({
+export default function TransformerSaveButton({
   generateSaveData,
   base,
   disabled,
-}: TransformationSaveButtonProps): ReactElement {
+}: TransformerSaveButtonProps): ReactElement {
   const [currentName, setCurrentName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
-  function saveTransformation(
+  function saveTransformer(
     name: string,
     description: string | undefined,
-    data: TransformationSaveData
+    data: TransformerSaveData
   ) {
     if (name === "") {
       return;
     }
 
-    // Create a new transformation in a new data interactive window
+    // Create a new transformer in a new data interactive window
     // TODO: can we do this without casting?
-    const content: SavedTransformationContent = {
+    const content: SavedTransformerContent = {
       base,
       data,
-    } as SavedTransformationContent;
+    } as SavedTransformerContent;
 
-    const savedTransformation = { name, description, content };
-    const encoded = encodeURIComponent(JSON.stringify(savedTransformation));
+    const savedTransformer = { name, description, content };
+    const encoded = encodeURIComponent(JSON.stringify(savedTransformer));
     createDataInteractive(name, `http://localhost:3000?transform=${encoded}`);
   }
 
   return (
     <div style={{ marginTop: "5px" }}>
       <hr style={{ marginTop: "15px" }} />
-      <h3>Save This Transformation</h3>
+      <h3>Save This Transformer</h3>
       <div
         style={{
           height: "175px",
@@ -59,7 +59,7 @@ export default function TransformationSaveButton({
         <CodapFlowTextInput
           value={currentName}
           onChange={(e) => setCurrentName(e.target.value)}
-          placeholder={"Transformation Name"}
+          placeholder={"Transformer Name"}
         />
         <CodapFlowTextArea
           value={description}
@@ -69,7 +69,7 @@ export default function TransformationSaveButton({
         <button
           disabled={disabled}
           onClick={() => {
-            saveTransformation(
+            saveTransformer(
               currentName,
               description === "" ? undefined : description,
               generateSaveData()

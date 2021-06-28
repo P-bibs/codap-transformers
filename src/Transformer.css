@@ -1,14 +1,14 @@
 
-.Transformation {
+.Transformer {
   padding: 15px;
 }
 
-.Transformation textarea {
+.Transformer textarea {
   width: 20em;
   height: 7em;
 }
 
-#transformationBase {
+#transformerBase {
   color: gray;
   font-size: 0.7em;
 }

@@ -1,4 +1,4 @@
-import { isBoundary, isBoundaryMap } from "../transformations/util";
+import { isBoundary, isBoundaryMap } from "../transformers/util";
 
 export function prettyPrintCase(record: Record<string, unknown>): string {
   const keyValuePairs = [];

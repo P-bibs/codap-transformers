@@ -1,8 +1,8 @@
 import { DataSet } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { readableName } from "../transformation-components/util";
+import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { reparent, cloneCollection, shallowCopy } from "./util";
 
 // TODO: add option for "collapse other groupings" which will
@@ -21,7 +21,7 @@ import { reparent, cloneCollection, shallowCopy } from "./util";
 export async function groupBy({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

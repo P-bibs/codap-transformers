@@ -4,9 +4,9 @@ import { diffArrays } from "diff";
 import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
 import { uncheckedFlatten } from "./flatten";
 import { eraseFormulas, getAttributeDataFromDataset } from "./util";
-import { DDTransformationState } from "../transformation-components/DataDrivenTransformation";
+import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
-import { readableName } from "../transformation-components/util";
+import { readableName } from "../transformer-components/util";
 
 const COMPARE_STATUS_COLUMN_NAME = "Compare Status";
 const COMPARE_VALUE_COLUMN_NAME = "Difference";
@@ -31,7 +31,7 @@ export async function compare({
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
   dropdown1: kind,
-}: DDTransformationState): Promise<[DataSet, string]> {
+}: DDTransformerState): Promise<[DataSet, string]> {
   if (
     !inputDataContext1 ||
     !inputDataContext2 ||

@@ -600,7 +600,7 @@ export async function updateContextWithDataSet(
   }
 }
 
-function createCollections(
+export function createCollections(
   context: string,
   collections: Collection[]
 ): Promise<void> {
@@ -615,7 +615,10 @@ function createCollections(
   );
 }
 
-function deleteCollection(context: string, collection: string): Promise<void> {
+export function deleteCollection(
+  context: string,
+  collection: string
+): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(Actions.deleteCollection(context, collection), (response) => {
       if (response.success) {

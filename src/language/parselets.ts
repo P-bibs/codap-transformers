@@ -94,7 +94,7 @@ export class IdentifierParselet implements PrefixParselet {
 }
 
 export class ParenthesisParselet implements PrefixParselet {
-  parse(tokens: Token[], current_token: Token): Ast {
+  parse(tokens: Token[]): Ast {
     const expr = parseExpr(tokens, 0);
     expect_consume(
       tokens,
@@ -111,7 +111,7 @@ export class UnaryOperatorParselet implements PrefixParselet {
   }
   op: UnaryOperator;
 
-  parse(tokens: Token[], current_token: Token): Ast {
+  parse(tokens: Token[]): Ast {
     const expr = parseExpr(tokens, 0);
     return { kind: "Unop", op: this.op, op1: expr };
   }
@@ -125,7 +125,7 @@ export class OperatorParselet implements InfixParselet {
   op: Operator;
   isLeftAssociative: boolean;
 
-  parse(tokens: Token[], left_node: Ast, current_token: Token): Ast {
+  parse(tokens: Token[], left_node: Ast): Ast {
     const bindingPower = getBindingPower(opToToken(this.op));
     const rightNode = parseExpr(
       tokens,

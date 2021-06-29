@@ -31,9 +31,15 @@ interface ComponentInit {
   title: string;
 }
 interface ContextInit extends ComponentInit {}
-interface CollectionInit extends ComponentInit {}
-interface AttributeInit extends ComponentInit {}
-interface AttributeSetInit extends ComponentInit {}
+interface CollectionInit extends ComponentInit {
+  context?: "context1" | "context2";
+}
+interface AttributeInit extends ComponentInit {
+  context?: "context1" | "context2";
+}
+interface AttributeSetInit extends ComponentInit {
+  context?: "context1" | "context2";
+}
 interface TextInputInit extends ComponentInit {}
 interface DropdownInit extends ComponentInit {
   defaultValue: string;
@@ -309,7 +315,11 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             <>
               {titleFromComponent(component, init)}
               <CollectionSelector
-                context={state[contextFromCollection(component)]}
+                context={
+                  state[
+                    init[component]?.context || contextFromCollection(component)
+                  ]
+                }
                 value={state[component]}
                 onChange={(e) => setState({ [component]: e.target.value })}
                 disabled={saveData !== undefined}
@@ -321,7 +331,11 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             <>
               {titleFromComponent(component, init)}
               <AttributeSelector
-                context={state[contextFromAttribute(component)]}
+                context={
+                  state[
+                    init[component]?.context || contextFromAttribute(component)
+                  ]
+                }
                 value={state[component]}
                 onChange={(s) => setState({ [component]: s })}
                 disabled={saveData !== undefined}
@@ -336,7 +350,12 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             <>
               {titleFromComponent(component, init)}
               <MultiAttributeSelector
-                context={state[contextFromAttributeSet(component)]}
+                context={
+                  state[
+                    init[component]?.context ||
+                      contextFromAttributeSet(component)
+                  ]
+                }
                 setSelected={(s) => setState({ [component]: s })}
                 selected={state[component]}
                 disabled={saveData !== undefined}

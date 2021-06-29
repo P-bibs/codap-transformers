@@ -30,7 +30,11 @@ import {
 } from "./util";
 import TransformerSaveButton from "../ui-components/TransformerSaveButton";
 import { BaseTransformerName } from "./transformerList";
-import { addInteractiveStateRequestListener } from "../utils/codapPhone/listeners";
+import {
+  addInteractiveStateRequestListener,
+  removeInteractiveStateRequestListener,
+} from "../utils/codapPhone/listeners";
+import { InteractiveState } from "../utils/codapPhone/types";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -225,9 +229,14 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     fetchSavedState();
   }, []);
   // Register a listener to generate the plugins state
-  addInteractiveStateRequestListener((previousInteractiveState) => {
-    return { ...previousInteractiveState, DDTransformation: state };
-  });
+  useEffect(() => {
+    const callback = (previousInteractiveState: InteractiveState) => {
+      return { ...previousInteractiveState, DDTransformation: state };
+    };
+
+    addInteractiveStateRequestListener(callback);
+    return () => removeInteractiveStateRequestListener(callback);
+  }, [state]);
   function notifyStateIsDirty() {
     notifyInteractiveFrameIsDirty();
   }

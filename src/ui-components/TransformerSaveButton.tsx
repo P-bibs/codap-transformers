@@ -10,7 +10,11 @@ import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
 } from "../utils/codapPhone";
-import { addInteractiveStateRequestListener } from "../utils/codapPhone/listeners";
+import {
+  addInteractiveStateRequestListener,
+  removeInteractiveStateRequestListener,
+} from "../utils/codapPhone/listeners";
+import { InteractiveState } from "../utils/codapPhone/types";
 
 interface TransformerSaveButtonProps {
   generateSaveData: () => TransformerSaveData;
@@ -61,9 +65,14 @@ export default function TransformerSaveButton({
     fetchSavedState();
   }, []);
   // Register a listener to generate the plugins state
-  addInteractiveStateRequestListener((previousInteractiveState) => {
-    return { ...previousInteractiveState, currentName, description };
-  });
+  useEffect(() => {
+    const callback = (previousInteractiveState: InteractiveState) => {
+      return { ...previousInteractiveState, currentName, description };
+    };
+
+    addInteractiveStateRequestListener(callback);
+    return () => removeInteractiveStateRequestListener(callback);
+  }, [currentName, description]);
   function notifyStateIsDirty() {
     notifyInteractiveFrameIsDirty();
   }

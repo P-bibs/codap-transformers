@@ -430,14 +430,15 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
           return "UNRECOGNIZED COMPONENT";
         }
       })}
-      <br />
-      <TransformerSubmitButtons
-        onCreate={
-          transformerFunction.kind === "fullOverride"
-            ? () => transformerFunction.func(props, state)
-            : transform
-        }
-      />
+      <div>
+        <TransformerSubmitButtons
+          onCreate={
+            transformerFunction.kind === "fullOverride"
+              ? () => transformerFunction.func(props, state)
+              : transform
+          }
+        />
+      </div>
       {errorDisplay}
       {saveData === undefined && (
         <TransformerSaveButton base={base} generateSaveData={() => state} />

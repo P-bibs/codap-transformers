@@ -150,6 +150,7 @@ const transformerList: TransformerList = {
         },
         attribute2: {
           title: "Values From",
+          context: "context1",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: pivotWider },

@@ -294,7 +294,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       {order.map((component) => {
         if (component === "context1" || component === "context2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <ContextSelector
                 value={state[component]}
@@ -302,11 +302,11 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   setState({ [component]: e.target.value });
                 }}
               />
-            </>
+            </div>
           );
         } else if (component === "collection1" || component === "collection2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <CollectionSelector
                 context={state[contextFromCollection(component)]}
@@ -314,11 +314,11 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 onChange={(e) => setState({ [component]: e.target.value })}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           );
         } else if (component === "attribute1" || component === "attribute2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <AttributeSelector
                 context={state[contextFromAttribute(component)]}
@@ -326,14 +326,14 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 onChange={(s) => setState({ [component]: s })}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           );
         } else if (
           component === "attributeSet1" ||
           component === "attributeSet2"
         ) {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <MultiAttributeSelector
                 context={state[contextFromAttributeSet(component)]}
@@ -341,23 +341,23 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 selected={state[component]}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           );
         } else if (component === "textInput1" || component === "textInput2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <TextInput
                 value={state[component]}
                 onChange={(e) => setState({ [component]: e.target.value })}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           );
         } else if (component === "dropdown1" || component === "dropdown2") {
           const tmp = init[component];
           return tmp && tmp.options && tmp.defaultValue ? (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <Select
                 onChange={(e) => setState({ [component]: e.target.value })}
@@ -366,7 +366,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 defaultValue={tmp.defaultValue}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           ) : (
             `${component} used but undefined`
           );
@@ -376,7 +376,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         ) {
           const tmp = init[component];
           return tmp && tmp.outputTypes && tmp.inputTypes ? (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <TypeSelector
                 inputTypes={tmp.inputTypes}
@@ -406,13 +406,13 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   init[component]?.outputTypeDisabled || saveData !== undefined
                 }
               />
-            </>
+            </div>
           ) : (
             `${component} used but undefined`
           );
         } else if (component === "expression1" || component === "expression2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <ExpressionEditor
                 value={state[component]}
@@ -424,7 +424,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 ].map((a) => a.name)}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           );
         } else {
           return "UNRECOGNIZED COMPONENT";

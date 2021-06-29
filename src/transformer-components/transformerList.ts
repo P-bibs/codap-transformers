@@ -98,7 +98,7 @@ const transformerList: TransformerList = {
       },
       info: {
         summary:
-          "Partition splits a single dataset into multiple datasets based on the values of a given \
+          "Splits a single dataset into multiple datasets based on the values of a given \
         attribute. Each output dataset contains only cases that share the same distinct value \
         of that attribute.",
         inputs:
@@ -118,7 +118,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: flatten },
       info: {
         summary:
-          "Flatten takes a dataset with multiple collections and collapses \
+          "Takes a dataset with multiple collections and collapses \
         it into a dataset with a single collection containing all of the attributes.",
         inputs: "A dataset with many collections.",
         outputs: "A dataset with a single collection.",
@@ -139,7 +139,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: groupBy },
       info: {
         summary:
-          "Group By produces a dataset that is grouped by combinations of \
+          "Produces a dataset that is grouped by combinations of \
         the given attributes, by adding a new parent collection that contains \
         copies of these attributes.",
         inputs: "A dataset to group and a list of attributes to group by.",
@@ -168,7 +168,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: pivotLonger },
       info: {
         summary:
-          "Pivot Longer pivots a dataset to make it longer and narrower. \
+          "Pivots a dataset to make it longer and narrower. \
         It does this by turning indicated attribute names into values under a \
         single attribute, and putting the values formerly under those attributes \
         under a new attribute. A single case in the input is thus split into \
@@ -201,7 +201,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: pivotWider },
       info: {
         summary:
-          "Pivot Wider pivots a dataset to make it shorter and wider. \
+          "Pivots a dataset to make it shorter and wider. \
         It does this by turning the values of an indicated attribute into \
         attribute names, and using the values of another attribute as values \
         for these new attributes.",
@@ -235,8 +235,8 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: join },
       info: {
         summary:
-          "Join combines two datasets into one, based on the values of an \
-        attribute that are shared between the datasets. The output is a copy of \
+          "Combines two datasets into one, based on values \
+        that are shared between the datasets. The output is a copy of \
         the base dataset, but the collection containing the base attribute also \
         contains copies of the attributes from the collection containing the \
         joining attribute in the joining dataset.\n\
@@ -271,7 +271,7 @@ const transformerList: TransformerList = {
       },
       info: {
         summary:
-          "Combine Cases takes two datasets that share the same attributes \
+          "Takes two datasets that share the same attributes \
         and produces a dataset that has all of their cases.",
         inputs:
           "Two datasets (a base and a combining dataset) that have the \
@@ -297,7 +297,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: count },
       info: {
         summary:
-          "Count summarizes the frequency of all combinations \
+          "Summarizes the frequency of all combinations \
         of values of the given attributes that appear at least once in the input dataset.",
         inputs:
           "A dataset and a list of attributes whose possible combinations \
@@ -338,7 +338,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: compare },
       info: {
         summary:
-          "Compare provides several ways of comparing the data \
+          "Provides several ways of comparing the data \
         from two datasets (or possibly the same dataset with itself).",
         inputs:
           "Two datasets to compare, an attribute from each to compare, \
@@ -373,7 +373,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: runningSum },
       info: {
         summary:
-          "Running Sum produces a new dataset with an attribute added \
+          "Produces a new dataset with an attribute added \
         that contains the running sum of the given attribute's values across \
         the whole dataset.",
         inputs:
@@ -398,7 +398,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: runningMean },
       info: {
         summary:
-          "Running Mean produces a new dataset with an attribute added \
+          "Produces a new dataset with an attribute added \
         that contains the running mean (average) of the given attribute's values across \
         the whole dataset.",
         inputs:
@@ -423,7 +423,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: runningMin },
       info: {
         summary:
-          "Running Min produces a new dataset with an attribute added \
+          "Produces a new dataset with an attribute added \
         that contains the running minimum of the given attribute's values across \
         the whole dataset.",
         inputs:
@@ -448,7 +448,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: runningMax },
       info: {
         summary:
-          "Running Max produces a new dataset with an attribute added \
+          "Produces a new dataset with an attribute added \
         that contains the running maximum of the given attribute's values across \
         the whole dataset.",
         inputs:
@@ -473,7 +473,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: difference },
       info: {
         summary:
-          "Difference produces a dataset with a new attribute containing \
+          "Produces a dataset with a new attribute containing \
         the difference of each case's value of a given attribute with the case directly \
         above it. The first case (which has no case above it) subtracts 0 from its \
         value.",
@@ -505,7 +505,7 @@ const transformerList: TransformerList = {
       },
       info: {
         summary:
-          "Difference From is identical to Difference, but allows you to \
+          "Identical to the Difference transformer, but allows you to \
         choose the starting value that will be subtracted from the first case. \
         See info for Difference for more information.",
         inputs:
@@ -540,8 +540,8 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: genericFold },
       info: {
         summary:
-          "Reduce allows you to add a new attribute that accumulates a \
-        value across all the cases in a dataset. Given a starting value and a \
+          "Produces a dataset with a new attribute that accumulates a \
+        value across all the cases in the input dataset. Given a starting value and a \
         formula, Reduce uses the formula to calculate each value of the new \
         attribute.\n\
         The formula can reference a special 'accumulator' value, \
@@ -568,7 +568,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: copy },
       info: {
         summary:
-          "Copy produces an duplicate of the given dataset, \
+          "Produces a copy of the given dataset, \
         copying all of its collections, attributes, and cases.",
         inputs: "A dataset to create a copy of.",
         outputs: "A copy of the input dataset.",
@@ -586,7 +586,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: copyStructure },
       info: {
         summary:
-          "Copy Structure produces a duplicate of the structure of the \
+          "Produces a duplicate of the structure of the \
         given dataset, but without copying any of the cases. The output has the \
         same collections and attributes as the input, but is empty.",
         inputs: "A dataset to copy the structure of.",
@@ -610,7 +610,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: dotProduct },
       info: {
         summary:
-          "Dot Product calculates a dot product of the indicated attributes \
+          "Calculates a dot product of the indicated attributes \
         by multiplying the values of these attributes in each case and summing \
         these products across the entire dataset.",
         inputs:
@@ -637,7 +637,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: average },
       info: {
         summary:
-          "Average takes the average value of a given numeric attribute \
+          "Takes the average value of a given numeric attribute \
         in the given dataset.",
         inputs: "A dataset and an attribute within it to take the average of.",
         outputs:
@@ -664,7 +664,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: filter },
       info: {
         summary:
-          "Filter takes a dataset and produces a copy of it that contains \
+          "Takes a dataset and produces a copy of it that contains \
         only the cases for which the given formula evaluates to true.",
         inputs:
           "A dataset to filter and a formula that evaluates to either true \
@@ -696,7 +696,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: buildColumn },
       info: {
         summary:
-          "Transform Column takes an input dataset and produces a copy \
+          "Takes an input dataset and produces a copy \
         of it with the values of one of its attributes transformed by a given \
         formula. Make sure to indicate what type of value you expect the formula \
         to evaluate to.",
@@ -734,7 +734,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: buildColumn },
       info: {
         summary:
-          "Build Column takes an input dataset and adds a new attribute \
+          "Takes an input dataset and adds a new attribute \
         to one of the collections, whose values are determined by a formula. \
         Make sure to indicate what type of values you expect the formula to evaluate to.",
         inputs:
@@ -779,8 +779,8 @@ const transformerList: TransformerList = {
       },
       info: {
         summary:
-          "Select Attributes is used to choose particular attributes from \
-        a dataset and leave out others. You can choose a list of attributes that \
+          "Chooses particular attributes from \
+        a dataset and leaves out others. You can choose a list of attributes that \
         will be the only ones to appear in the output ('select only') or choose a \
         list that should NOT appear in the output ('select all but').",
         inputs:
@@ -818,7 +818,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: sort },
       info: {
         summary:
-          "Sort takes a dataset and orders it, using the value of a formula \
+          "Takes a dataset and orders it, using the value of a formula \
         to determine how cases should appear in order.",
         inputs:
           "A dataset to sort, a formula ('key expression'), an indication of \

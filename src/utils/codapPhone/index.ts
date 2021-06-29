@@ -372,7 +372,6 @@ export function getDataContext(contextName: string): Promise<DataContext> {
       },
       (response: GetContextResponse) => {
         if (response.success) {
-          console.log(response.values);
           const context = normalizeDataContext(response.values);
           Cache.setContext(contextName, context);
           resolve(context);

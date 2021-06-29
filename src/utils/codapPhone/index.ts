@@ -34,6 +34,7 @@ import {
   removeContextUpdateListenersForContext,
   removeListenersWithDependency,
   callAllInteractiveStateRequestListeners,
+  popFromUndoStack,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -133,6 +134,18 @@ function codapRequestHandler(
 
   if (command.action !== CodapActions.Notify) {
     callback({ success: true });
+    return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "undoAction"
+  ) {
+    console.log("Popped from undo stack");
+    const f = popFromUndoStack();
+    if (f) {
+      f();
+    }
     return;
   }
 
@@ -912,3 +925,25 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
     });
   };
 })();
+
+export function notifyUndoableActionPerformed(message: string): Promise<void> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: CodapResource.UndoChangeNotice,
+        values: {
+          operation: "undoableActionPerformed",
+          logMessage: message,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed notifying about undoable action performed"));
+        }
+      }
+    )
+  );
+}

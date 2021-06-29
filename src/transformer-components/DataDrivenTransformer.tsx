@@ -4,6 +4,7 @@ import {
   createText,
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
+  deleteDataContext,
   updateText,
 } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
@@ -37,6 +38,7 @@ import {
 import { InteractiveState } from "../utils/codapPhone/types";
 import Popover from "../ui-components/Popover";
 import InfoIcon from "@material-ui/icons/Info";
+import { pushToUndoStack } from "../utils/codapPhone/listeners";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -324,6 +326,9 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
         const newContextName = await applyNewDataSet(result, name, description);
+        pushToUndoStack("Transformation applied", () =>
+          deleteDataContext(newContextName)
+        );
         if (order.includes("context1") && state["context1"] !== null) {
           addUpdateListener(
             state["context1"],

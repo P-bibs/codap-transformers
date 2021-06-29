@@ -10,7 +10,7 @@ import { sort } from "../transformers/sort";
 import { pivotLonger, pivotWider } from "../transformers/pivot";
 import { join } from "../transformers/join";
 import { copy } from "../transformers/copy";
-import { copySchema } from "../transformers/copySchema";
+import { copyStructure } from "../transformers/copyStructure";
 import { combineCases } from "../transformers/combineCases";
 import {
   difference,
@@ -41,7 +41,6 @@ export type BaseTransformerName =
   | "Build Column"
   | "Compare"
   | "Count"
-  | "Difference From"
   | "Filter"
   | "Flatten"
   | "Running Sum"
@@ -49,6 +48,7 @@ export type BaseTransformerName =
   | "Running Min"
   | "Running Max"
   | "Difference"
+  | "Difference From"
   | "Group By"
   | "Pivot Longer"
   | "Pivot Wider"
@@ -56,7 +56,7 @@ export type BaseTransformerName =
   | "Sort"
   | "Transform Column"
   | "Copy"
-  | "Copy Schema"
+  | "Copy Structure"
   | "Join"
   | "Dot Product"
   | "Average"
@@ -86,7 +86,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Partition",
+          title: "Dataset to Partition",
         },
         attribute1: {
           title: "Attribute to Partition By",
@@ -112,7 +112,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Flatten",
+          title: "Dataset to Flatten",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: flatten },
@@ -130,7 +130,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Group",
+          title: "Dataset to Group",
         },
         attributeSet1: {
           title: "Attributes to Group By",
@@ -153,7 +153,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Pivot",
+          title: "Dataset to Pivot",
         },
         attributeSet1: {
           title: "Attributes to Pivot",
@@ -189,7 +189,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Pivot",
+          title: "Dataset to Pivot",
         },
         attribute1: {
           title: "Names From",
@@ -220,10 +220,10 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Base Table",
+          title: "Base Dataset",
         },
         context2: {
-          title: "Joining Table",
+          title: "Joining Dataset",
         },
         attribute1: {
           title: "Base Attribute",
@@ -259,10 +259,10 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Base Table",
+          title: "Base Dataset",
         },
         context2: {
-          title: "Combining Table",
+          title: "Combining Dataset",
         },
       },
       transformerFunction: {
@@ -288,7 +288,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Count",
+          title: "Dataset to Count",
         },
         attributeSet1: {
           title: "Attributes to Count",
@@ -314,10 +314,10 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "First Table to Compare",
+          title: "First Dataset to Compare",
         },
         context2: {
-          title: "Second Table to Compare",
+          title: "Second Dataset to Compare",
         },
         attribute1: {
           title: "First attribute to Compare",
@@ -364,7 +364,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to calculate running sum on",
+          title: "Dataset to calculate running sum on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
@@ -389,7 +389,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to calculate running mean on",
+          title: "Dataset to calculate running mean on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
@@ -414,7 +414,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to calculate running min on",
+          title: "Dataset to calculate running min on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
@@ -439,7 +439,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to calculate running max on",
+          title: "Dataset to calculate running max on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
@@ -464,7 +464,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to calculate difference on",
+          title: "Dataset to calculate difference on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
@@ -490,13 +490,10 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to calculate difference on",
+          title: "Dataset to calculate difference on",
         },
         attribute1: {
           title: "Attribute to take difference from",
-        },
-        textInput1: {
-          title: "Result Attribute Name",
         },
         textInput2: {
           title: "Starting value for difference",
@@ -525,7 +522,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to reduce",
+          title: "Dataset to Reduce",
         },
         textInput1: {
           title: "Result Attribute Name",
@@ -565,7 +562,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Copy",
+          title: "Dataset to Copy",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: copy },
@@ -578,15 +575,15 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Copy Schema": {
+  "Copy Structure": {
     group: "Copy Transformers",
     componentData: {
       init: {
         context1: {
-          title: "Table to Copy",
+          title: "Dataset to Copy",
         },
       },
-      transformerFunction: { kind: "datasetCreator", func: copySchema },
+      transformerFunction: { kind: "datasetCreator", func: copyStructure },
       info: {
         summary:
           "Copy Structure produces a duplicate of the structure of the \
@@ -604,7 +601,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Take Dot Product of",
+          title: "Dataset to Take Dot Product of",
         },
         attributeSet1: {
           title: "Attributes to Take Dot Product of",
@@ -631,7 +628,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Take Average of",
+          title: "Dataset to Take Average of",
         },
         attribute1: {
           title: "Attribute to Average",
@@ -653,7 +650,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Filter",
+          title: "Dataset to Filter",
         },
         typeContract1: {
           title: "How to Filter",
@@ -683,7 +680,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Transform Column Of",
+          title: "Dataset to Transform Column Of",
         },
         attribute1: {
           title: "Attribute to Transform",
@@ -718,7 +715,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Add Attribute To",
+          title: "Dataset to Add Attribute To",
         },
         textInput1: {
           title: "Name of New Attribute",
@@ -756,7 +753,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to Select Attributes From",
+          title: "Dataset to Select Attributes From",
         },
         dropdown1: {
           title: "Mode",
@@ -800,7 +797,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Table to sort",
+          title: "Dataset to sort",
         },
         typeContract1: {
           title: "Key expression",

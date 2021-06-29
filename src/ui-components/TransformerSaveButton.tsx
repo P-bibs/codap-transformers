@@ -45,41 +45,43 @@ export default function TransformerSaveButton({
   return (
     <div style={{ marginTop: "5px" }}>
       <hr style={{ marginTop: "15px" }} />
-      <h3>Save This Transformer</h3>
-      <div
-        style={{
-          height: "175px",
-          display: "flex",
-          marginTop: "2px",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-        }}
-      >
-        <TextInput
-          value={currentName}
-          onChange={(e) => setCurrentName(e.target.value)}
-          placeholder={"Transformer Name"}
-        />
-        <TextArea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Purpose Statement"
-        />
-        <button
-          disabled={disabled}
-          onClick={() => {
-            saveTransformer(
-              currentName,
-              description === "" ? undefined : description,
-              generateSaveData()
-            );
-            setCurrentName("");
-            setDescription("");
+      <div className="input-group">
+        <h3>Save This Transformer</h3>
+        <div
+          style={{
+            height: "175px",
+            display: "flex",
+            marginTop: "2px",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
           }}
         >
-          Save
-        </button>
+          <TextInput
+            value={currentName}
+            onChange={(e) => setCurrentName(e.target.value)}
+            placeholder={"Transformer Name"}
+          />
+          <TextArea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Purpose Statement"
+          />
+          <button
+            disabled={disabled}
+            onClick={() => {
+              saveTransformer(
+                currentName,
+                description === "" ? undefined : description,
+                generateSaveData()
+              );
+              setCurrentName("");
+              setDescription("");
+            }}
+          >
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -17,7 +17,15 @@ type FoldFunction = (
   resultColumnDescription: string
 ) => DataSet;
 
-function makeFoldWrapper(label: string, innerFoldFunction: FoldFunction) {
+function makeFoldWrapper(
+  label: string,
+  innerFoldFunction: FoldFunction,
+  makeDescriptions: (
+    label: string,
+    inputAttribute: string,
+    contextName: string
+  ) => [string, string]
+) {
   return async ({
     context1: contextName,
     attribute1: inputAttributeName,
@@ -30,28 +38,31 @@ function makeFoldWrapper(label: string, innerFoldFunction: FoldFunction) {
     }
 
     const { context, dataset } = await getContextAndDataSet(contextName);
-    const attrs = dataset.collections.map((coll) => coll.attrs || []).flat();
     const resultAttributeName = uniqueName(
       `${label} of ${parenthesizeName(inputAttributeName)} from ${readableName(
         context
       )}`,
-      attrs.map((attr) => attr.name)
+      allAttrNames(dataset)
     );
-    const resultDescription = `A ${label.toLowerCase()} of the values from the ${inputAttributeName} attribute in the ${readableName(
-      context
-    )} table.`;
 
     const ctxtName = readableName(context);
+
+    // Generate a description of the fold by calling the custom maker, or using a default.
+    const [attributeDescription, datasetDescription] = makeDescriptions(
+      label,
+      inputAttributeName,
+      ctxtName
+    );
 
     return [
       await innerFoldFunction(
         dataset,
         inputAttributeName,
         resultAttributeName,
-        resultDescription
+        attributeDescription
       ),
       `${label} of ${ctxtName}`,
-      `A ${label.toLowerCase()} of the ${inputAttributeName} attribute from the ${ctxtName} dataset.`,
+      datasetDescription,
     ];
   };
 }
@@ -128,7 +139,7 @@ export async function genericFold({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
 
-  const resultDescription = `A reduce of the ${readableName(context)} table.`;
+  const resultDescription = `A reduce of the ${readableName(context)} dataset.`;
   const ctxtName = readableName(context);
 
   return [
@@ -223,7 +234,7 @@ const uncheckedRunningMax = makeNumFold<{ max: number | null }>(
   }
 );
 const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
-  "Running Difference",
+  "Difference",
   { numAbove: null },
   (acc, input) => {
     if (acc.numAbove === null) {
@@ -234,19 +245,53 @@ const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
   }
 );
 
-export const runningSum = makeFoldWrapper("Running Sum", uncheckedRunningSum);
+function defaultDescriptions(
+  label: string,
+  attribute: string,
+  contextName: string
+): [string, string] {
+  const attributeDescription = `A ${label} of the ${attribute} attribute from the ${contextName} dataset.`;
+  const datasetDescription = `A copy of the ${contextName} dataset with a new attribute added which contains a ${label} of the ${attribute} attribute.`;
+
+  return [attributeDescription, datasetDescription];
+}
+
+export const runningSum = makeFoldWrapper(
+  "Running Sum",
+  uncheckedRunningSum,
+  defaultDescriptions
+);
 export const runningMean = makeFoldWrapper(
   "Running Mean",
-  uncheckedRunningMean
+  uncheckedRunningMean,
+  defaultDescriptions
 );
-export const runningMin = makeFoldWrapper("Running Min", uncheckedRunningMin);
-export const runningMax = makeFoldWrapper("Running Max", uncheckedRunningMax);
-export const difference = makeFoldWrapper("Difference", uncheckedDifference);
+export const runningMin = makeFoldWrapper(
+  "Running Min",
+  uncheckedRunningMin,
+  defaultDescriptions
+);
+export const runningMax = makeFoldWrapper(
+  "Running Max",
+  uncheckedRunningMax,
+  defaultDescriptions
+);
+export const difference = makeFoldWrapper(
+  "Difference",
+  uncheckedDifference,
+  (label: string, attribute: string, contextName: string) => {
+    return [
+      `The difference of each case with the case above it (from the ${attribute} attribute in the ${contextName} dataset).`,
+      `A copy of ${contextName} with a new column whose values are the difference between ` +
+        `the value of ${attribute} in the current case and the value of ${attribute} ` +
+        `in the case above. The first case subtracts 0 from itself.`,
+    ];
+  }
+);
 
 export async function differenceFrom({
   context1: contextName,
   attribute1: inputAttributeName,
-  textInput1: resultAttributeName,
   textInput2: startingValue,
 }: DDTransformerState): Promise<TransformationOutput> {
   if (contextName === null) {
@@ -254,9 +299,6 @@ export async function differenceFrom({
   }
   if (inputAttributeName === null) {
     throw new Error("Please choose an attribute to take the difference from");
-  }
-  if (resultAttributeName === "") {
-    throw new Error("Please choose a non-empty result column name.");
   }
   if (isNaN(Number(startingValue))) {
     throw new Error(
@@ -266,6 +308,7 @@ export async function differenceFrom({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
+  const resultAttributeName = `Difference From of ${inputAttributeName} in ${ctxtName}`;
 
   return [
     await uncheckedDifferenceFrom(
@@ -277,7 +320,7 @@ export async function differenceFrom({
     `Difference From of ${ctxtName}`,
     `A copy of ${ctxtName} with a new column whose values are the difference between ` +
       `the value of ${inputAttributeName} in the current case and the value of ${inputAttributeName} ` +
-      `in the case above. The starting value is ${startingValue}.`,
+      `in the case above. The first case subtracts ${startingValue} from itself.`,
   ];
 }
 
@@ -287,31 +330,19 @@ function uncheckedDifferenceFrom(
   resultColumnName: string,
   startingValue = 0
 ): DataSet {
-  resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
-  const resultRecords = dataset.records.map((row) => {
-    if (row[inputColumnName] === undefined) {
-      throw new Error(`Invalid attribute name: ${inputColumnName}`);
+  // Construct a fold that computes the difference of each case with
+  // the case above, but uses the given startingValue to begin
+  const differenceFromFold = makeNumFold<{ numAbove: number | null }>(
+    "Difference From",
+    { numAbove: startingValue },
+    (acc, input) => {
+      if (acc.numAbove === null) {
+        return [{ numAbove: input }, input];
+      } else {
+        return [{ numAbove: input }, input - acc.numAbove];
+      }
     }
+  );
 
-    const numValue = Number(row[inputColumnName]);
-    if (!isNaN(numValue)) {
-      return insertInRow(row, resultColumnName, numValue - startingValue);
-    } else {
-      throw new Error(
-        `Difference from expected number, instead got ${codapValueToString(
-          row[inputColumnName]
-        )}`
-      );
-    }
-  });
-
-  const newCollections = insertColumnInLastCollection(dataset.collections, {
-    name: resultColumnName,
-    type: "numeric",
-  });
-
-  return {
-    collections: newCollections,
-    records: resultRecords,
-  };
+  return differenceFromFold(dataset, inputColumnName, resultColumnName, "");
 }

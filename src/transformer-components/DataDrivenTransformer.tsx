@@ -321,7 +321,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         onClick={() => setShowInfo(!showInfo)}
         title={`More info on ${base}`}
       >
-        ⓘ
+        <b>ⓘ</b>
       </button>
       <div hidden={!showInfo}>
         <p>{splitIntoParagraphs(info.summary)}</p>

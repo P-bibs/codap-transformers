@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import React, { useReducer, ReactElement, useEffect } from "react";
+import React, { useReducer, ReactElement, useEffect, useState } from "react";
 import { createText, updateText } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
 import {
@@ -217,6 +217,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     ): DDTransformerState => ({ ...oldState, ...newState }),
     saveData !== undefined ? saveData : DEFAULT_STATE
   );
+  const [showInfo, setShowInfo] = useState<boolean>(false);
 
   // Make sure we reset state if the underlying transformer changes (but only
   // if there isn't any save data)
@@ -224,6 +225,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     if (saveData === undefined) {
       setState(DEFAULT_STATE);
     }
+    setShowInfo(false);
   }, [init, saveData]);
 
   // The order here is guaranteed to be stable since ES2015 as long as we don't
@@ -314,16 +316,24 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
 
   return (
     <>
-      <h3>Info</h3>
-      <p>{splitIntoParagraphs(info.summary)}</p>
-      <p>
-        <b>Inputs: </b>
-        {splitIntoParagraphs(info.inputs)}
-      </p>
-      <p>
-        <b>Outputs: </b>
-        {splitIntoParagraphs(info.outputs)}
-      </p>
+      <br />
+      <button
+        onClick={() => setShowInfo(!showInfo)}
+        title={`More info on ${base}`}
+      >
+        ⓘ
+      </button>
+      <div hidden={!showInfo}>
+        <p>{splitIntoParagraphs(info.summary)}</p>
+        <p>
+          <b>Inputs: </b>
+          {splitIntoParagraphs(info.inputs)}
+        </p>
+        <p>
+          <b>Outputs: </b>
+          {splitIntoParagraphs(info.outputs)}
+        </p>
+      </div>
 
       {order.map((component) => {
         if (component === "context1" || component === "context2") {

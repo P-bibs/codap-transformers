@@ -68,7 +68,7 @@ function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
 
   // generate a unique attribute name for the `count` column
   const countAttrName = uniqueName(
-    "count",
+    "Count",
     countedAttrs.map((attr) => attr.name)
   );
 

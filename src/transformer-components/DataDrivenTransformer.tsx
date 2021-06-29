@@ -184,6 +184,11 @@ export type DDTransformerProps = {
   base: BaseTransformerName;
   init: DDTransformerInit;
   saveData?: DDTransformerState;
+  info: {
+    summary: string;
+    inputs: string;
+    outputs: string;
+  };
 };
 
 /**
@@ -195,8 +200,15 @@ export type DDTransformerProps = {
  * Only UI elements in `init` will be included and they will appear in order.
  */
 const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
-  const { transformerFunction, init, base, saveData, errorDisplay, setErrMsg } =
-    props;
+  const {
+    transformerFunction,
+    init,
+    info,
+    base,
+    saveData,
+    errorDisplay,
+    setErrMsg,
+  } = props;
 
   const [state, setState] = useReducer(
     (
@@ -289,8 +301,30 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     }
   };
 
+  /**
+   * Splits a string into several <p> tags, one for each line of text.
+   */
+  function splitIntoParagraphs(text: string): JSX.Element[] {
+    return text.split("\n").map((paragraph, i) => (
+      <>
+        <p key={i}>{paragraph}</p>
+      </>
+    ));
+  }
+
   return (
     <>
+      <h3>Info</h3>
+      <p>{splitIntoParagraphs(info.summary)}</p>
+      <p>
+        <b>Inputs: </b>
+        {splitIntoParagraphs(info.inputs)}
+      </p>
+      <p>
+        <b>Outputs: </b>
+        {splitIntoParagraphs(info.outputs)}
+      </p>
+
       {order.map((component) => {
         if (component === "context1" || component === "context2") {
           return (

@@ -31,6 +31,7 @@ export const TransformerRenderer = ({
           transformerFunction={
             transformerList[key].componentData.transformerFunction
           }
+          info={transformerList[key].componentData.info}
           base={transformer.content.base}
           saveData={transformer.content.data}
         />

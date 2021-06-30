@@ -19,8 +19,8 @@ const GREEN = "rgb(0,255,0)";
 const RED = "rgb(255,0,0)";
 const GREY = "rgb(100,100,100)";
 
-const DECISION_1_COLUMN_NAME = "Category 1";
-const DECISION_2_COLUMN_NAME = "Category 2";
+const DECISION_1_COLUMN_BASE = "Category 1";
+const DECISION_2_COLUMN_BASE = "Category 2";
 
 export type CompareType = "numeric" | "categorical" | "structural";
 function isCompareType(s: unknown): s is CompareType {
@@ -241,14 +241,8 @@ function compareCategorical(
 
   const allAttributes = allAttrNames(dataset1).concat(allAttrNames(dataset2));
 
-  if (allAttributes.includes(DECISION_1_COLUMN_NAME)) {
-    throw new Error(`Attribute \`${DECISION_1_COLUMN_NAME}\` is needed by \
-    Compare. Please do not use it in the input datasets.`);
-  }
-  if (allAttributes.includes(DECISION_2_COLUMN_NAME)) {
-    throw new Error(`Attribute \`${DECISION_2_COLUMN_NAME}\` is needed by \
-    Compare. Please do not use it in the input datasets.`);
-  }
+  const decision1ColumnName = uniqueName(DECISION_1_COLUMN_BASE, allAttributes);
+  const decision2ColumnName = uniqueName(DECISION_2_COLUMN_BASE, allAttributes);
 
   const collections: Collection[] = [
     {
@@ -256,10 +250,10 @@ function compareCategorical(
       labels: {},
       attrs: [
         {
-          name: DECISION_1_COLUMN_NAME,
+          name: decision1ColumnName,
         },
         {
-          name: DECISION_2_COLUMN_NAME,
+          name: decision2ColumnName,
         },
       ],
     },
@@ -289,7 +283,7 @@ function compareCategorical(
       // If we didn't find a duplicate then just push the record
       records.push({
         ...record1,
-        [DECISION_1_COLUMN_NAME]: record1[attribute1Data.name],
+        [decision1ColumnName]: record1[attribute1Data.name],
       });
     } else {
       // If we did find a duplicate then merge the records, set the decision
@@ -297,8 +291,8 @@ function compareCategorical(
       records.push({
         ...record1,
         ...duplicate,
-        [DECISION_1_COLUMN_NAME]: record1[attribute1Data.name],
-        [DECISION_2_COLUMN_NAME]: duplicate[attribute2Data.name],
+        [decision1ColumnName]: record1[attribute1Data.name],
+        [decision2ColumnName]: duplicate[attribute2Data.name],
       });
     }
   }
@@ -317,7 +311,7 @@ function compareCategorical(
     } else {
       records.push({
         ...record2,
-        [DECISION_2_COLUMN_NAME]: record2[attribute2Data.name],
+        [decision2ColumnName]: record2[attribute2Data.name],
       });
     }
   }

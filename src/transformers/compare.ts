@@ -3,13 +3,18 @@ import { CodapAttribute, Collection } from "../utils/codapPhone/types";
 import { diffArrays } from "diff";
 import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
 import { uncheckedFlatten } from "./flatten";
-import { eraseFormulas, getAttributeDataFromDataset } from "./util";
+import {
+  allAttrNames,
+  eraseFormulas,
+  getAttributeDataFromDataset,
+} from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformer-components/util";
+import { uniqueName } from "../utils/names";
 
-const COMPARE_STATUS_COLUMN_NAME = "Compare Status";
-const COMPARE_VALUE_COLUMN_NAME = "Difference";
+const COMPARE_STATUS_COLUMN_BASE = "Compare Status";
+const COMPARE_VALUE_COLUMN_BASE = "Difference";
 const GREEN = "rgb(0,255,0)";
 const RED = "rgb(255,0,0)";
 const GREY = "rgb(100,100,100)";
@@ -87,10 +92,19 @@ function uncheckedCompare(
     );
   }
 
-  // Make sure that the two attributes don't have the same name by adding a
-  // suffix to attribute 2 if necessary
-  const safeAttributeName2 =
-    attributeName1 === attributeName2 ? attributeName2 + "(1)" : attributeName2;
+  // Make sure that the two attributes shown in comparison don't have the same name
+  const safeAttributeName2 = uniqueName(attributeName2, [attributeName1]);
+  const attributeNames = [attributeName1, safeAttributeName2];
+
+  // Ensure generated comparison attributes don't collide with attributes being compared
+  const compareValueColumnName = uniqueName(
+    COMPARE_VALUE_COLUMN_BASE,
+    attributeNames
+  );
+  const compareStatusColumnName = uniqueName(
+    COMPARE_STATUS_COLUMN_BASE,
+    attributeNames
+  );
 
   const collections: Collection[] = [
     {
@@ -108,7 +122,7 @@ function uncheckedCompare(
   // Only add this attribute if this is a numeric diff
   if (kind === "numeric") {
     collections[0].attrs?.push({
-      name: COMPARE_VALUE_COLUMN_NAME,
+      name: compareValueColumnName,
       description: "",
       editable: true,
       hidden: false,
@@ -116,7 +130,7 @@ function uncheckedCompare(
     });
   }
   collections[0].attrs?.push({
-    name: COMPARE_STATUS_COLUMN_NAME,
+    name: compareStatusColumnName,
     description: "",
     editable: true,
     hidden: false,
@@ -132,13 +146,16 @@ function uncheckedCompare(
           attributeName1,
           safeAttributeName2,
           values1,
-          values2
+          values2,
+          compareStatusColumnName
         )
       : compareRecordsNumerical(
           attributeName1,
           safeAttributeName2,
           values1,
-          values2
+          values2,
+          compareValueColumnName,
+          compareStatusColumnName
         );
 
   return {
@@ -151,7 +168,8 @@ function compareRecordsStructural(
   attributeName1: string,
   attributeName2: string,
   values1: unknown[],
-  values2: unknown[]
+  values2: unknown[],
+  compareStatusColumnName: string
 ): Record<string, unknown>[] {
   const changeObjects = diffArrays(values1, values2);
 
@@ -166,19 +184,19 @@ function compareRecordsStructural(
         records.push({
           [attributeName1]: change.value[j],
           [attributeName2]: "",
-          [COMPARE_STATUS_COLUMN_NAME]: RED,
+          [compareStatusColumnName]: RED,
         });
       } else if (change.added) {
         records.push({
           [attributeName1]: "",
           [attributeName2]: change.value[j],
-          [COMPARE_STATUS_COLUMN_NAME]: GREEN,
+          [compareStatusColumnName]: GREEN,
         });
       } else {
         records.push({
           [attributeName1]: change.value[j],
           [attributeName2]: change.value[j],
-          [COMPARE_STATUS_COLUMN_NAME]: GREY,
+          [compareStatusColumnName]: GREY,
         });
       }
     }
@@ -220,6 +238,17 @@ function compareCategorical(
   );
   eraseFormulas(attributesUnion);
   eraseFormulas(attributesIntersection);
+
+  const allAttributes = allAttrNames(dataset1).concat(allAttrNames(dataset2));
+
+  if (allAttributes.includes(DECISION_1_COLUMN_NAME)) {
+    throw new Error(`Attribute \`${DECISION_1_COLUMN_NAME}\` is needed by \
+    Compare. Please do not use it in the input datasets.`);
+  }
+  if (allAttributes.includes(DECISION_2_COLUMN_NAME)) {
+    throw new Error(`Attribute \`${DECISION_2_COLUMN_NAME}\` is needed by \
+    Compare. Please do not use it in the input datasets.`);
+  }
 
   const collections: Collection[] = [
     {
@@ -313,7 +342,9 @@ function compareRecordsNumerical(
   attributeName1: string,
   attributeName2: string,
   values1: unknown[],
-  values2: unknown[]
+  values2: unknown[],
+  compareValueColumnName: string,
+  compareStatusColumnName: string
 ): Record<string, unknown>[] {
   const records = [];
   for (let i = 0; i < Math.max(values1.length, values2.length); i++) {
@@ -325,8 +356,8 @@ function compareRecordsNumerical(
       records.push({
         [attributeName1]: values1[i],
         [attributeName2]: values2[i],
-        [COMPARE_VALUE_COLUMN_NAME]: "",
-        [COMPARE_STATUS_COLUMN_NAME]: "",
+        [compareValueColumnName]: "",
+        [compareStatusColumnName]: "",
       });
       continue;
     }
@@ -339,8 +370,8 @@ function compareRecordsNumerical(
       records.push({
         [attributeName1]: values1[i],
         [attributeName2]: values2[i],
-        [COMPARE_VALUE_COLUMN_NAME]: "",
-        [COMPARE_STATUS_COLUMN_NAME]: "",
+        [compareValueColumnName]: "",
+        [compareStatusColumnName]: "",
       });
       continue;
     }
@@ -349,8 +380,8 @@ function compareRecordsNumerical(
     records.push({
       [attributeName1]: values1[i],
       [attributeName2]: values2[i],
-      [COMPARE_VALUE_COLUMN_NAME]: difference,
-      [COMPARE_STATUS_COLUMN_NAME]:
+      [compareValueColumnName]: difference,
+      [compareStatusColumnName]:
         difference > 0 ? GREEN : difference < 0 ? RED : GREY,
     });
   }

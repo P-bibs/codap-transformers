@@ -352,14 +352,10 @@ export interface ReturnedCollection extends Omit<Collection, "parent"> {
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributes
-export type CodapAttribute =
-  | BaseAttribute
-  | CategoricalAttribute
-  | NumericAttribute;
-
-export interface RawAttribute {
+export interface CodapAttribute {
   name: string;
   title?: string;
+  type?: "categorical" | "numeric" | "date" | "qualitative" | "boundary" | null;
   colormap?:
     | Record<string, string>
     | {
@@ -371,26 +367,8 @@ export interface RawAttribute {
   editable?: boolean;
   formula?: string;
   hidden?: boolean;
-}
-
-export interface BaseAttribute extends RawAttribute {
-  type?: null;
-}
-
-export interface CategoricalAttribute extends RawAttribute {
-  type?: "categorical";
-  colormap?: Record<string, string>;
-}
-
-export interface NumericAttribute extends RawAttribute {
-  type?: "numeric";
   precision?: number;
   unit?: string | null;
-  colormap?: {
-    "high-attribute-color": string;
-    "low-attribute-color": string;
-    "attribute-color": string;
-  };
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributelocations

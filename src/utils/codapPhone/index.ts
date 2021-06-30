@@ -16,10 +16,8 @@ import {
   CodapInitiatedCommand,
   ReturnedCase,
   Collection,
-  ReturnedCollection,
   ContextMetadata,
   DataContext,
-  ReturnedDataContext,
   CodapListResource,
   CodapIdentifyingInfo,
   CaseTable,
@@ -43,7 +41,11 @@ import {
   caseById,
   allCasesWithSearch,
 } from "./resource";
-import { fillCollectionWithDefaults, collectionsEqual } from "./util";
+import {
+  fillCollectionWithDefaults,
+  collectionsEqual,
+  normalizeDataContext,
+} from "./util";
 import { DataSet } from "../../transformers/types";
 import { CodapEvalError } from "./error";
 import { uniqueName } from "../names";
@@ -397,61 +399,6 @@ export async function deleteDataContext(contextName: string): Promise<void> {
       }
     )
   );
-}
-
-// Copies a list of attributes, only copying the fields relevant to our
-// representation of attributes and omitting any extra fields (cid, etc).
-function copyAttrs(
-  attrs: CodapAttribute[] | undefined
-): CodapAttribute[] | undefined {
-  return attrs?.map((attr) => {
-    return {
-      name: attr.name,
-      title: attr.title,
-      type: attr.type,
-      colormap: attr.colormap,
-      description: attr.description,
-      editable: attr.editable,
-      formula: attr.formula,
-      hidden: attr.hidden,
-      precision: attr.type === "numeric" ? attr.precision : undefined,
-      unit: attr.type === "numeric" ? attr.unit : undefined,
-    };
-  }) as CodapAttribute[];
-}
-
-// In the returned collections, parents show up as numeric ids, so before
-// reusing, we need to look up the names of the parent collections.
-function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
-  const normalized = [];
-  for (const c of collections) {
-    let newParent;
-    if (c.parent) {
-      newParent = collections.find(
-        (collection) => collection.id === c.parent
-      )?.name;
-    }
-
-    normalized.push({
-      name: c.name,
-      title: c.title,
-      attrs: copyAttrs(c.attrs),
-      labels: c.labels,
-      parent: newParent,
-    });
-  }
-
-  return normalized as Collection[];
-}
-
-function normalizeDataContext(context: ReturnedDataContext): DataContext {
-  return {
-    name: context.name,
-    title: context.title,
-    description: context.description,
-    collections: normalizeParentNames(context.collections),
-    metadata: context.metadata,
-  };
 }
 
 async function createDataContext({

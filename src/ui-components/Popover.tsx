@@ -43,8 +43,9 @@ export default function Popover({
   const id = open ? "simple-popover" : undefined;
 
   return (
-    <div>
+    <div style={{ display: "inline", marginLeft: "5px" }}>
       <IconButton
+        style={{ padding: "0" }}
         size="small"
         aria-describedby={id}
         onClick={handleClick}

@@ -266,8 +266,7 @@ export function reportTypeErrorsForRecords(
  */
 export function allAttrNames(dataset: DataSet): string[] {
   return dataset.collections
-    .map((coll) => coll.attrs || [])
-    .flat()
+    .flatMap((coll) => coll.attrs || [])
     .map((attr) => attr.name);
 }
 

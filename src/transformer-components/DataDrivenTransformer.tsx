@@ -222,15 +222,17 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
   useEffect(() => {
     async function fetchSavedState() {
       const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState && savedState.DDTransformation) {
-        setState(savedState.DDTransformation as DDTransformerState);
+      if (savedState.DDTransformation) {
+        setState(savedState.DDTransformation);
       }
     }
     fetchSavedState();
   }, []);
   // Register a listener to generate the plugins state
   useEffect(() => {
-    const callback = (previousInteractiveState: InteractiveState) => {
+    const callback = (
+      previousInteractiveState: InteractiveState
+    ): InteractiveState => {
       return { ...previousInteractiveState, DDTransformation: state };
     };
 

@@ -68,16 +68,27 @@ function TransformerREPLView(): ReactElement {
   useEffect(() => {
     async function fetchSavedState() {
       const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState && savedState.transformType !== undefined) {
-        setTransformType(savedState.transformType as string);
+      if (savedState.transformerREPL) {
+        setTransformType(savedState.transformerREPL.transformer);
       }
     }
     fetchSavedState();
   }, []);
   // Register a listener to generate the plugins state
   useEffect(() => {
-    const callback = (previousInteractiveState: InteractiveState) => {
-      return { ...previousInteractiveState, transformType };
+    const callback = (
+      previousInteractiveState: InteractiveState
+    ): InteractiveState => {
+      if (transformType) {
+        return {
+          ...previousInteractiveState,
+          transformerREPL: {
+            transformer: transformType as BaseTransformerName,
+          },
+        };
+      } else {
+        return previousInteractiveState;
+      }
     };
 
     addInteractiveStateRequestListener(callback);

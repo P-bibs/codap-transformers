@@ -1,3 +1,5 @@
+import { TransformersInteractiveState } from "../../transformer-components/transformerList";
+
 export enum CodapResource {
   InteractiveFrame = "interactiveFrame",
   DataContext = "dataContext",
@@ -138,7 +140,7 @@ export interface CodapResponse {
   success: boolean;
 }
 
-export type InteractiveState = Record<string, unknown>;
+export type InteractiveState = TransformersInteractiveState;
 export interface GetInteractiveStateResponse extends CodapResponse {
   values: InteractiveState;
 }
@@ -565,7 +567,7 @@ export type InteractiveFrame = {
     width: boolean;
     height: boolean;
   };
-  savedState: Record<string, unknown>;
+  savedState: InteractiveState;
 };
 
 export interface FunctionInfo {

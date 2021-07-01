@@ -55,19 +55,22 @@ export default function TransformerSaveButton({
   useEffect(() => {
     async function fetchSavedState() {
       const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState && savedState.currentName) {
-        setCurrentName(savedState.currentName as string);
-      }
-      if (savedState && savedState.description) {
-        setDescription(savedState.description as string);
+      if (savedState.savedTransformation) {
+        setCurrentName(savedState.savedTransformation.name);
+        setDescription(savedState.savedTransformation.description);
       }
     }
     fetchSavedState();
   }, []);
   // Register a listener to generate the plugins state
   useEffect(() => {
-    const callback = (previousInteractiveState: InteractiveState) => {
-      return { ...previousInteractiveState, currentName, description };
+    const callback = (
+      previousInteractiveState: InteractiveState
+    ): InteractiveState => {
+      return {
+        ...previousInteractiveState,
+        savedTransformation: { name: currentName, description },
+      };
     };
 
     addInteractiveStateRequestListener(callback);

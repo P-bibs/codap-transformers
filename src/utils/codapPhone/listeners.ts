@@ -31,7 +31,7 @@ export function callAllInteractiveStateRequestListeners(): InteractiveState {
     state = f(state);
   }
   return state;
-
+}
 
 // The undo stack and related functions allow pushing and popping callbacks
 // that will be fired if CODAP notifies us that an undo request has been
@@ -40,11 +40,11 @@ export const undoStack: Array<() => void> = [];
 
 export function pushToUndoStack(message: string, callback: () => void): void {
   notifyUndoableActionPerformed(message);
-  newContextListeners.push(callback);
+  undoStack.push(callback);
 }
 
 export function popFromUndoStack(): (() => void) | undefined {
-  return newContextListeners.pop();
+  return undoStack.pop();
 }
 
 // Listen for new or removed data contexts

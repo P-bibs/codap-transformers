@@ -545,7 +545,7 @@ export type InteractiveFrame = {
     width: boolean;
     height: boolean;
   };
-  savedState: InteractiveState;
+  savedState?: InteractiveState;
 };
 
 export interface FunctionInfo {

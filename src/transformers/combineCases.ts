@@ -38,7 +38,10 @@ export async function combineCases({
   ];
 }
 
-function uncheckedCombineCases(base: DataSet, combining: DataSet): DataSet {
+export function uncheckedCombineCases(
+  base: DataSet,
+  combining: DataSet
+): DataSet {
   const baseAttrs = allAttrNames(base);
   const combiningAttrs = allAttrNames(combining);
 

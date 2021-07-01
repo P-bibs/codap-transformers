@@ -55,7 +55,7 @@ export async function buildColumn({
  * Builds a dataset with a new attribute added to one of the collections,
  * whose case values are computed by evaluating the given expression.
  */
-async function uncheckedBuildColumn(
+export async function uncheckedBuildColumn(
   dataset: DataSet,
   newAttributeName: string,
   collectionName: string,

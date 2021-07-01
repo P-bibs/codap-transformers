@@ -35,7 +35,7 @@ export async function average({
  * @param dataset - The input DataSet
  * @param attribute - The column to take the dot product of.
  */
-function uncheckedAverage(dataset: DataSet, attribute: string): number {
+export function uncheckedAverage(dataset: DataSet, attribute: string): number {
   const sum = dataset.records.reduce((acc, row) => {
     if (row[attribute] === undefined) {
       throw new Error(`Invalid attribute name: ${attribute}`);

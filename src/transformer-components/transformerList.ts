@@ -88,8 +88,8 @@ export type TransformerList = Record<
       transformerFunction: TransformFunction;
       info: {
         summary: string;
-        inputs: string;
-        outputs: string;
+        consumes: string;
+        produces: string;
       };
     };
   }
@@ -116,9 +116,9 @@ const transformerList: TransformerList = {
           "Splits a single dataset into multiple datasets based on the values of a given \
         attribute. Each output dataset contains only cases that share the same distinct value \
         of that attribute.",
-        inputs:
+        consumes:
           "A dataset to split into multiple, and an attribute to determine how to split.",
-        outputs: "One dataset per unique value of the indicated attribute.",
+        produces: "One dataset per unique value of the indicated attribute.",
       },
     },
   },
@@ -135,8 +135,8 @@ const transformerList: TransformerList = {
         summary:
           "Takes a dataset with multiple collections and collapses \
         it into a dataset with a single collection containing all of the attributes.",
-        inputs: "A dataset with many collections.",
-        outputs: "A dataset with a single collection.",
+        consumes: "A dataset with many collections.",
+        produces: "A dataset with a single collection.",
       },
     },
   },
@@ -157,8 +157,8 @@ const transformerList: TransformerList = {
           "Produces a dataset that is grouped by combinations of \
         the given attributes, by adding a new parent collection that contains \
         copies of these attributes.",
-        inputs: "A dataset to group and a list of attributes to group by.",
-        outputs:
+        consumes: "A dataset to group and a list of attributes to group by.",
+        produces:
           "A copy of the input dataset whose cases are grouped by the given attributes.",
       },
     },
@@ -188,12 +188,12 @@ const transformerList: TransformerList = {
         single attribute, and putting the values formerly under those attributes \
         under a new attribute. A single case in the input is thus split into \
         multiple cases (making the dataset 'longer').",
-        inputs:
+        consumes:
           "A dataset to pivot, a list of attributes that should become \
         values, and names for both the attribute that will contain the former \
         attribute names ('Names To') and the attribute that will contain the \
         values that were under those attributes ('Values To').",
-        outputs:
+        produces:
           "A pivoted copy of the input, usually with more cases and \
         less attributes.",
       },
@@ -221,11 +221,11 @@ const transformerList: TransformerList = {
         It does this by turning the values of an indicated attribute into \
         attribute names, and using the values of another attribute as values \
         for these new attributes.",
-        inputs:
+        consumes:
           "A dataset to pivot, an attribute that contains values which \
         should be turned into attribute names ('Names From'), and an attribute containing \
         values which should be moved under the newly created attributes ('Values From').",
-        outputs:
+        produces:
           "A pivoted copy of the input, usually with less cases and \
         more attributes.",
       },
@@ -259,11 +259,11 @@ const transformerList: TransformerList = {
         The copied attributes hold values from the first case in the joining \
         dataset whose value for the joining attribute matched the value of the \
         base attribute (or are missing if there is no such case).",
-        inputs:
+        consumes:
           "Two datasets to join (one base and one joining), and an attribute \
         from each whose shared values will determine which cases are joined to \
         each other.",
-        outputs:
+        produces:
           "A single dataset containing all collections/attributes from \
         the base dataset, as well as some cases copied in from the joining dataset \
         where the joining and base attributes matched.",
@@ -289,10 +289,10 @@ const transformerList: TransformerList = {
         summary:
           "Takes two datasets that share the same attributes \
         and produces a dataset that has all of their cases.",
-        inputs:
+        consumes:
           "Two datasets (a base and a combining dataset) that have the \
         same attribute names.",
-        outputs:
+        produces:
           "A single dataset that has the structure (in terms of how many \
         collections and how they are organized) of the base dataset, but with \
         all the cases of both the base and combining datasets.",
@@ -315,10 +315,10 @@ const transformerList: TransformerList = {
         summary:
           "Summarizes the frequency of all combinations \
         of values of the given attributes that appear at least once in the input dataset.",
-        inputs:
+        consumes:
           "A dataset and a list of attributes whose possible combinations \
         within that dataset you want to count.",
-        outputs:
+        produces:
           "A dataset containing all combinations of values of the given \
         attributes from the input dataset, as well as a 'Count' attribute that \
         contains the number of occurrences of each combination of values.",
@@ -356,10 +356,10 @@ const transformerList: TransformerList = {
         summary:
           "Provides several ways of comparing the data \
         from two datasets (or possibly the same dataset with itself).",
-        inputs:
+        consumes:
           "Two datasets to compare, an attribute from each to compare, \
         and an indication of what kind of comparison to perform.",
-        outputs:
+        produces:
           "Output differs depending on the type of comparison:\n\
         A categorical comparison produces a dataset that is grouped by the \
         two selected attributes, and identical cases from the input datasets \
@@ -392,10 +392,10 @@ const transformerList: TransformerList = {
           "Produces a new dataset with an attribute added \
         that contains the running sum of the given attribute's values across \
         the whole dataset.",
-        inputs:
+        consumes:
           "A dataset to compute the sum over, and an attribute whose values \
         are used in the sum.",
-        outputs:
+        produces:
           "A copy of the input dataset with a running sum attribute added.",
       },
     },
@@ -417,10 +417,10 @@ const transformerList: TransformerList = {
           "Produces a new dataset with an attribute added \
         that contains the running mean (average) of the given attribute's values across \
         the whole dataset.",
-        inputs:
+        consumes:
           "A dataset to compute the mean over, and an attribute whose values \
         are used in the mean.",
-        outputs:
+        produces:
           "A copy of the input dataset with a running mean attribute added.",
       },
     },
@@ -442,10 +442,10 @@ const transformerList: TransformerList = {
           "Produces a new dataset with an attribute added \
         that contains the running minimum of the given attribute's values across \
         the whole dataset.",
-        inputs:
+        consumes:
           "A dataset to compute the minimum over, and an attribute whose values \
         are used in the minimum.",
-        outputs:
+        produces:
           "A copy of the input dataset with a running minimum attribute added.",
       },
     },
@@ -467,10 +467,10 @@ const transformerList: TransformerList = {
           "Produces a new dataset with an attribute added \
         that contains the running maximum of the given attribute's values across \
         the whole dataset.",
-        inputs:
+        consumes:
           "A dataset to compute the maximum over, and an attribute whose values \
         are used in the maximum.",
-        outputs:
+        produces:
           "A copy of the input dataset with a running maximum attribute added.",
       },
     },
@@ -493,9 +493,9 @@ const transformerList: TransformerList = {
         the difference of each case's value of a given attribute with the case directly \
         above it. The first case (which has no case above it) subtracts 0 from its \
         value.",
-        inputs:
+        consumes:
           "A dataset and an attribute whose values are used in the difference.",
-        outputs:
+        produces:
           "A copy of the input dataset with a new attribute added that \
         contains the differences.",
       },
@@ -524,10 +524,10 @@ const transformerList: TransformerList = {
           "Identical to the Difference transformer, but allows you to \
         choose the starting value that will be subtracted from the first case. \
         See info for Difference for more information.",
-        inputs:
+        consumes:
           "A dataset, an attribute to take the difference over, and a \
         starting value that will be subtracted from the first case.",
-        outputs:
+        produces:
           "A copy of the input dataset with a new attribute that contains \
         the differences.",
       },
@@ -562,12 +562,12 @@ const transformerList: TransformerList = {
         attribute.\n\
         The formula can reference a special 'accumulator' value, \
         which holds the value that the formula evaluated to in the previous case.",
-        inputs:
+        consumes:
           "A dataset to add the new attribute to, a name for the new attribute, \
         a starting value for the accumulator, a name for the accumulator (so you can \
         refer to it in the formula), and a formula for determining the values of \
         the new attribute.",
-        outputs:
+        produces:
           "A copy of the input dataset with a new attribute added whose \
         values are determined by the given formula evaluated for each case.",
       },
@@ -586,8 +586,8 @@ const transformerList: TransformerList = {
         summary:
           "Produces a copy of the given dataset, \
         copying all of its collections, attributes, and cases.",
-        inputs: "A dataset to create a copy of.",
-        outputs: "A copy of the input dataset.",
+        consumes: "A dataset to create a copy of.",
+        produces: "A copy of the input dataset.",
       },
     },
   },
@@ -605,8 +605,8 @@ const transformerList: TransformerList = {
           "Produces a duplicate of the structure of the \
         given dataset, but without copying any of the cases. The output has the \
         same collections and attributes as the input, but is empty.",
-        inputs: "A dataset to copy the structure of.",
-        outputs:
+        consumes: "A dataset to copy the structure of.",
+        produces:
           "A dataset with the same collection and attribute structure as \
         the input, but no cases.",
       },
@@ -629,10 +629,10 @@ const transformerList: TransformerList = {
           "Calculates a dot product of the indicated attributes \
         by multiplying the values of these attributes in each case and summing \
         these products across the entire dataset.",
-        inputs:
+        consumes:
           "A dataset and a list of attributes whose values are used \
         in the dot product.",
-        outputs:
+        produces:
           "A single number which is the sum of products of the values \
         from the indicated attributes in the input dataset.",
       },
@@ -655,8 +655,9 @@ const transformerList: TransformerList = {
         summary:
           "Takes the average value of a given numeric attribute \
         in the given dataset.",
-        inputs: "A dataset and an attribute within it to take the average of.",
-        outputs:
+        consumes:
+          "A dataset and an attribute within it to take the average of.",
+        produces:
           "A single number which is the average value of the given attribute.",
       },
     },
@@ -682,10 +683,10 @@ const transformerList: TransformerList = {
         summary:
           "Takes a dataset and produces a copy of it that contains \
         only the cases for which the given formula evaluates to true.",
-        inputs:
+        consumes:
           "A dataset to filter and a formula that evaluates to either true \
         or false.",
-        outputs:
+        produces:
           "A copy of the input dataset that only has the cases for which \
         the formula was true.",
       },
@@ -716,11 +717,11 @@ const transformerList: TransformerList = {
         of it with the values of one of its attributes transformed by a given \
         formula. Make sure to indicate what type of value you expect the formula \
         to evaluate to.",
-        inputs:
+        consumes:
           "A dataset, an attribute to transform, a formula that will \
         determine the new values of the given attribute, and the type that the \
         formula should evaluate to.",
-        outputs:
+        produces:
           "A copy of the input dataset with transformed values for the \
         given attribute.",
       },
@@ -753,11 +754,11 @@ const transformerList: TransformerList = {
           "Takes an input dataset and adds a new attribute \
         to one of the collections, whose values are determined by a formula. \
         Make sure to indicate what type of values you expect the formula to evaluate to.",
-        inputs:
+        consumes:
           "A dataset, a name for the new attribute, an existing collection \
         to add the attribute to, a formula for the attribute's values, and \
         an indication of the type of value the formula will evaluate to.",
-        outputs:
+        produces:
           "A copy of the input dataset, with the new attribute added to \
         the indicated collection. The values of the new attribute are determined \
         by evaluating the formula at each case.",
@@ -799,10 +800,10 @@ const transformerList: TransformerList = {
         a dataset and leaves out others. You can choose a list of attributes that \
         will be the only ones to appear in the output ('select only') or choose a \
         list that should NOT appear in the output ('select all but').",
-        inputs:
+        consumes:
           "A dataset, an indication of how to use the given attribute list \
         (the 'mode'), and a list of attributes.",
-        outputs:
+        produces:
           "A copy of the input dataset that contains either only the listed \
         attributes, or all but the listed attributes.",
       },
@@ -836,11 +837,11 @@ const transformerList: TransformerList = {
         summary:
           "Takes a dataset and orders it, using the value of a formula \
         to determine how cases should appear in order.",
-        inputs:
+        consumes:
           "A dataset to sort, a formula ('key expression'), an indication of \
         the type the formula evaluates to, and a sort direction (ascending or \
           descending).",
-        outputs:
+        produces:
           "A copy of the input dataset, with cases sorted by the value \
         of the key expression.",
       },

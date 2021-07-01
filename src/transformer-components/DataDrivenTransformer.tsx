@@ -204,8 +204,8 @@ export type DDTransformerProps = {
   saveData?: DDTransformerState;
   info: {
     summary: string;
-    inputs: string;
-    outputs: string;
+    consumes: string;
+    produces: string;
   };
 };
 
@@ -366,12 +366,12 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
           <>
             <p>{splitIntoParagraphs(info.summary)}</p>
             <p>
-              <b>Inputs: </b>
-              {splitIntoParagraphs(info.inputs)}
+              <b>Consumes: </b>
+              {splitIntoParagraphs(info.consumes)}
             </p>
             <p>
-              <b>Outputs: </b>
-              {splitIntoParagraphs(info.outputs)}
+              <b>Produces: </b>
+              {splitIntoParagraphs(info.produces)}
             </p>
           </>
         }

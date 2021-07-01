@@ -25,12 +25,15 @@ import {
   GetFunctionInfoResponse,
   FunctionInfo,
   CodapAttribute,
+  GetInteractiveStateResponse,
+  InteractiveFrame,
 } from "./types";
 import {
   callUpdateListenersForContext,
   callAllContextListeners,
   removeContextUpdateListenersForContext,
   removeListenersWithDependency,
+  callAllInteractiveStateRequestListeners,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -116,6 +119,17 @@ function codapRequestHandler(
   console.group("CODAP");
   console.log(command);
   console.groupEnd();
+
+  // Request for plugins state
+  if (
+    command.action === CodapActions.Get &&
+    command.resource === CodapInitiatedResource.InteractiveState
+  ) {
+    const values = callAllInteractiveStateRequestListeners();
+    const result: GetInteractiveStateResponse = { success: true, values };
+    callback(result);
+    return;
+  }
 
   if (command.action !== CodapActions.Notify) {
     callback({ success: true });
@@ -208,6 +222,47 @@ function callMultiple(requests: CodapRequest[]): Promise<CodapResponse[]> {
   return new Promise<CodapResponse[]>((resolve) => {
     phone.call(requests, (responses) => resolve(responses));
   });
+}
+
+export function getInteractiveFrame(): Promise<InteractiveFrame> {
+  return new Promise<InteractiveFrame>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: CodapResource.InteractiveFrame,
+      },
+      (response) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get interactive frame."));
+        }
+      }
+    )
+  );
+}
+
+export function notifyInteractiveFrameIsDirty(): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: CodapResource.InteractiveFrame,
+        values: {
+          dirty: true,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(
+            new Error("Failed to notify interactive frame that state is dirty.")
+          );
+        }
+      }
+    )
+  );
 }
 
 export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {

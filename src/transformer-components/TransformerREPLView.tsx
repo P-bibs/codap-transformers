@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import "./TransformerViews.css";
 import ErrorDisplay from "../ui-components/Error";
@@ -8,6 +8,15 @@ import transformerList, {
   TransformerGroup,
 } from "./transformerList";
 import { TransformerRenderer } from "./TransformerRenderer";
+import {
+  getInteractiveFrame,
+  notifyInteractiveFrameIsDirty,
+} from "../utils/codapPhone";
+import {
+  addInteractiveStateRequestListener,
+  removeInteractiveStateRequestListener,
+} from "../utils/codapPhone/listeners";
+import { InteractiveState } from "../utils/codapPhone/types";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -50,8 +59,43 @@ function TransformerREPLView(): ReactElement {
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    notifyStateIsDirty();
     setTransformType(event.target.value);
     setErrMsg(null);
+  }
+
+  // Load saved state from CODAP memory
+  useEffect(() => {
+    async function fetchSavedState() {
+      const savedState = (await getInteractiveFrame()).savedState;
+      if (savedState.transformerREPL) {
+        setTransformType(savedState.transformerREPL.transformer);
+      }
+    }
+    fetchSavedState();
+  }, []);
+  // Register a listener to generate the plugins state
+  useEffect(() => {
+    const callback = (
+      previousInteractiveState: InteractiveState
+    ): InteractiveState => {
+      if (transformType) {
+        return {
+          ...previousInteractiveState,
+          transformerREPL: {
+            transformer: transformType as BaseTransformerName,
+          },
+        };
+      } else {
+        return previousInteractiveState;
+      }
+    };
+
+    addInteractiveStateRequestListener(callback);
+    return () => removeInteractiveStateRequestListener(callback);
+  }, [transformType]);
+  function notifyStateIsDirty() {
+    notifyInteractiveFrameIsDirty();
   }
 
   return (

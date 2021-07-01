@@ -5,6 +5,7 @@ interface TextAreaProps {
   value: string;
   disabled?: boolean;
   placeholder?: string;
+  onBlur?: () => void;
 }
 
 export default function TextArea({
@@ -12,6 +13,7 @@ export default function TextArea({
   value,
   disabled,
   placeholder,
+  onBlur,
 }: TextAreaProps): ReactElement {
   return (
     <textarea
@@ -19,6 +21,7 @@ export default function TextArea({
       value={value}
       disabled={disabled}
       placeholder={placeholder}
+      onBlur={onBlur}
     />
   );
 }

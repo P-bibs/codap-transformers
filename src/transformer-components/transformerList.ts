@@ -1,4 +1,8 @@
-import { DDTransformerInit, TransformFunction } from "./DataDrivenTransformer";
+import {
+  DDTransformerInit,
+  DDTransformerState,
+  TransformFunction,
+} from "./DataDrivenTransformer";
 import { filter } from "../transformers/filter";
 import { buildColumn } from "../transformers/buildColumn";
 import { flatten } from "../transformers/flatten";
@@ -24,6 +28,17 @@ import {
 import { dotProduct } from "../transformers/dotProduct";
 import { average } from "../transformers/average";
 import { partitionOverride } from "../transformers/partition";
+
+export type TransformersInteractiveState = {
+  transformerREPL?: {
+    transformer: BaseTransformerName;
+  };
+  DDTransformation?: DDTransformerState;
+  savedTransformation?: {
+    name: string;
+    description: string;
+  };
+};
 
 export type TransformerGroup =
   | "Structural Transformers"

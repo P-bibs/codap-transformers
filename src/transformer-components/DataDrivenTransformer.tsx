@@ -35,15 +35,23 @@ import {
   removeInteractiveStateRequestListener,
 } from "../utils/codapPhone/listeners";
 import { InteractiveState } from "../utils/codapPhone/types";
+import Popover from "../ui-components/Popover";
+import InfoIcon from "@material-ui/icons/Info";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
   title: string;
 }
 interface ContextInit extends ComponentInit {}
-interface CollectionInit extends ComponentInit {}
-interface AttributeInit extends ComponentInit {}
-interface AttributeSetInit extends ComponentInit {}
+interface CollectionInit extends ComponentInit {
+  context?: "context1" | "context2";
+}
+interface AttributeInit extends ComponentInit {
+  context?: "context1" | "context2";
+}
+interface AttributeSetInit extends ComponentInit {
+  context?: "context1" | "context2";
+}
 interface TextInputInit extends ComponentInit {}
 interface DropdownInit extends ComponentInit {
   defaultValue: string;
@@ -194,6 +202,11 @@ export type DDTransformerProps = {
   base: BaseTransformerName;
   init: DDTransformerInit;
   saveData?: DDTransformerState;
+  info: {
+    summary: string;
+    inputs: string;
+    outputs: string;
+  };
 };
 
 /**
@@ -205,8 +218,15 @@ export type DDTransformerProps = {
  * Only UI elements in `init` will be included and they will appear in order.
  */
 const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
-  const { transformerFunction, init, base, saveData, errorDisplay, setErrMsg } =
-    props;
+  const {
+    transformerFunction,
+    init,
+    info,
+    base,
+    saveData,
+    errorDisplay,
+    setErrMsg,
+  } = props;
 
   const [state, setState] = useReducer(
     (
@@ -326,12 +346,41 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     }
   };
 
+  /**
+   * Splits a string into several <p> tags, one for each line of text.
+   */
+  function splitIntoParagraphs(text: string): JSX.Element[] {
+    return text.split("\n").map((paragraph, i) => (
+      <>
+        <p key={i}>{paragraph}</p>
+      </>
+    ));
+  }
+
   return (
     <>
+      <Popover
+        icon={<InfoIcon htmlColor="#72bfca" fontSize="small" />}
+        tooltip={`More Info on ${base}`}
+        innerContent={
+          <>
+            <p>{splitIntoParagraphs(info.summary)}</p>
+            <p>
+              <b>Inputs: </b>
+              {splitIntoParagraphs(info.inputs)}
+            </p>
+            <p>
+              <b>Outputs: </b>
+              {splitIntoParagraphs(info.outputs)}
+            </p>
+          </>
+        }
+      />
+
       {order.map((component) => {
         if (component === "context1" || component === "context2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <ContextSelector
                 value={state[component]}
@@ -340,14 +389,18 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   setState({ [component]: e.target.value });
                 }}
               />
-            </>
+            </div>
           );
         } else if (component === "collection1" || component === "collection2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <CollectionSelector
-                context={state[contextFromCollection(component)]}
+                context={
+                  state[
+                    init[component]?.context || contextFromCollection(component)
+                  ]
+                }
                 value={state[component]}
                 onChange={(e) => {
                   notifyStateIsDirty();
@@ -355,14 +408,18 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 }}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           );
         } else if (component === "attribute1" || component === "attribute2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <AttributeSelector
-                context={state[contextFromAttribute(component)]}
+                context={
+                  state[
+                    init[component]?.context || contextFromAttribute(component)
+                  ]
+                }
                 value={state[component]}
                 onChange={(s) => {
                   notifyStateIsDirty();
@@ -370,17 +427,22 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 }}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           );
         } else if (
           component === "attributeSet1" ||
           component === "attributeSet2"
         ) {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <MultiAttributeSelector
-                context={state[contextFromAttributeSet(component)]}
+                context={
+                  state[
+                    init[component]?.context ||
+                      contextFromAttributeSet(component)
+                  ]
+                }
                 setSelected={(s) => {
                   notifyStateIsDirty();
                   setState({ [component]: s });
@@ -388,11 +450,11 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 selected={state[component]}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           );
         } else if (component === "textInput1" || component === "textInput2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <TextInput
                 value={state[component]}
@@ -400,12 +462,12 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 disabled={saveData !== undefined}
                 onBlur={notifyStateIsDirty}
               />
-            </>
+            </div>
           );
         } else if (component === "dropdown1" || component === "dropdown2") {
           const tmp = init[component];
           return tmp && tmp.options && tmp.defaultValue ? (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <Select
                 onChange={(e) => {
@@ -417,7 +479,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 defaultValue={tmp.defaultValue}
                 disabled={saveData !== undefined}
               />
-            </>
+            </div>
           ) : (
             `${component} used but undefined`
           );
@@ -427,7 +489,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         ) {
           const tmp = init[component];
           return tmp && tmp.outputTypes && tmp.inputTypes ? (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <TypeSelector
                 inputTypes={tmp.inputTypes}
@@ -459,13 +521,13 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   init[component]?.outputTypeDisabled || saveData !== undefined
                 }
               />
-            </>
+            </div>
           ) : (
             `${component} used but undefined`
           );
         } else if (component === "expression1" || component === "expression2") {
           return (
-            <>
+            <div className="input-group">
               {titleFromComponent(component, init)}
               <ExpressionEditor
                 value={state[component]}
@@ -478,20 +540,21 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 disabled={saveData !== undefined}
                 onBlur={notifyStateIsDirty}
               />
-            </>
+            </div>
           );
         } else {
           return "UNRECOGNIZED COMPONENT";
         }
       })}
-      <br />
-      <TransformerSubmitButtons
-        onCreate={
-          transformerFunction.kind === "fullOverride"
-            ? () => transformerFunction.func(props, state)
-            : transform
-        }
-      />
+      <div>
+        <TransformerSubmitButtons
+          onCreate={
+            transformerFunction.kind === "fullOverride"
+              ? () => transformerFunction.func(props, state)
+              : transform
+          }
+        />
+      </div>
       {errorDisplay}
       {saveData === undefined && (
         <TransformerSaveButton base={base} generateSaveData={() => state} />

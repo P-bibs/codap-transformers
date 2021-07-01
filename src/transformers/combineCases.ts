@@ -46,7 +46,7 @@ function uncheckedCombineCases(base: DataSet, combining: DataSet): DataSet {
     !setEquality(baseAttrs, combiningAttrs, (name1, name2) => name1 === name2)
   ) {
     throw new Error(
-      `Base and combining tables must have the same attribute names`
+      `Base and combining datasets must have the same attribute names`
     );
   }
 

@@ -9,7 +9,10 @@ import {
   shallowCopy,
   listAsString,
   pluralSuffix,
+  allCollectionNames,
+  allAttrNames,
 } from "./util";
+import { uniqueName } from "../utils/names";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that
@@ -37,7 +40,10 @@ export async function groupBy({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const attributeNames = listAsString(attributes);
-  const parentName = `Grouped by ${attributeNames}`;
+  const parentName = uniqueName(
+    `Grouped by ${attributeNames}`,
+    allCollectionNames(dataset)
+  );
   const ctxtName = readableName(context);
 
   return [
@@ -69,6 +75,8 @@ function uncheckedGroupBy(
 ): DataSet {
   const groupedAttrs: CodapAttribute[] = [];
   let collections = dataset.collections.map(cloneCollection);
+  const allAttributes = allAttrNames(dataset);
+  const attrToGroupedName: Record<string, string> = {};
 
   // extract attributes from collections into a list
   attrLoop: for (const attrName of attrNames) {
@@ -77,6 +85,11 @@ function uncheckedGroupBy(
 
       // attribute was found in this collection
       if (attr !== undefined) {
+        // Generate a unique name for this grouped copy of this attribute
+        const groupedName = uniqueName(`${attrName} Group`, allAttributes);
+        allAttributes.push(groupedName);
+        attrToGroupedName[attrName] = groupedName;
+
         // copy and rename grouped attribute
         // NOTE: formulas cannot be safely copied into a parent collection.
         // This is because formulas might reference child attributes, which
@@ -85,7 +98,7 @@ function uncheckedGroupBy(
         // attribute.
         groupedAttrs.push({
           ...attr,
-          name: groupedAttrName(attr.name), // rename attribute uniquely
+          name: groupedName,
           formula: undefined, // do not copy formulas
           description: `All values of the ${attrName} attribute that appear in distinct tuples.`,
         });
@@ -126,7 +139,7 @@ function uncheckedGroupBy(
   for (const record of records) {
     for (const attrName of attrNames) {
       // make copy of record data from original attr into grouped attr
-      record[groupedAttrName(attrName)] = record[attrName];
+      record[attrToGroupedName[attrName]] = record[attrName];
     }
   }
 
@@ -134,14 +147,4 @@ function uncheckedGroupBy(
     collections: [collection].concat(collections),
     records,
   };
-}
-
-/**
- * Constructs the name of the copy of the original attribute that
- * appears in the collection everything is grouped by.
- * @param attr original attribute
- * @returns grouped attribute name
- */
-function groupedAttrName(attrName: string): string {
-  return `${attrName} Group`;
 }

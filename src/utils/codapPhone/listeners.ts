@@ -100,8 +100,12 @@ export function removeListenersWithDependency(dep: string): void {
   }
 }
 
-export function callUpdateListenersForContext(context: string): void {
+export async function callUpdateListenersForContext(
+  context: string
+): Promise<void> {
   if (contextUpdateListeners[context] !== undefined) {
-    contextUpdateListeners[context].forEach(([, f]) => f());
+    for (const [, f] of contextUpdateListeners[context]) {
+      await f();
+    }
   }
 }

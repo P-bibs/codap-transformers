@@ -8,7 +8,9 @@ export function uniqueName(base: string, avoid: string[]): string {
     return base;
   }
 
-  const numberedName = (name: string, i: number) => `${name} (${i})`;
+  // NOTE: CODAP treats attribute names that have parenthesized expressions
+  // after them as indicating a unit. We use {} here to avoid this.
+  const numberedName = (name: string, i: number) => `${name} {${i}}`;
 
   // Otherwise find a suffix for the name that makes it unique
   let i = 1;

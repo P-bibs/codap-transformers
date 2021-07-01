@@ -1,4 +1,10 @@
-import { Collection, CodapAttribute } from "./types";
+import {
+  DataContext,
+  ReturnedDataContext,
+  Collection,
+  ReturnedCollection,
+  CodapAttribute,
+} from "./types";
 
 /**
  * Fill collection with defaults
@@ -145,6 +151,63 @@ function listEqual<T>(
   }
 
   return true;
+}
+
+// Copies a list of attributes, only copying the fields relevant to our
+// representation of attributes and omitting any extra fields (cid, etc).
+function copyAttrs(
+  attrs: CodapAttribute[] | undefined
+): CodapAttribute[] | undefined {
+  return attrs?.map((attr) => {
+    return {
+      name: attr.name,
+      title: attr.title,
+      type: attr.type,
+      colormap: attr.colormap,
+      description: attr.description,
+      editable: attr.editable,
+      formula: attr.formula,
+      hidden: attr.hidden,
+      precision: attr.precision,
+      unit: attr.unit,
+    };
+  });
+}
+
+// In the returned collections, parents show up as numeric ids, so before
+// reusing, we need to look up the names of the parent collections.
+function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
+  const normalized = [];
+  for (const c of collections) {
+    let newParent;
+    if (c.parent) {
+      newParent = collections.find(
+        (collection) => collection.id === c.parent
+      )?.name;
+    }
+
+    normalized.push({
+      name: c.name,
+      title: c.title,
+      attrs: copyAttrs(c.attrs),
+      labels: c.labels,
+      parent: newParent,
+    });
+  }
+
+  return normalized;
+}
+
+export function normalizeDataContext(
+  context: ReturnedDataContext
+): DataContext {
+  return {
+    name: context.name,
+    title: context.title,
+    description: context.description,
+    collections: normalizeParentNames(context.collections),
+    metadata: context.metadata,
+  };
 }
 
 export class DefaultMap<K, V> extends Map<K, V> {

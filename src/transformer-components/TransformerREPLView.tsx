@@ -68,7 +68,7 @@ function TransformerREPLView(): ReactElement {
   useEffect(() => {
     async function fetchSavedState() {
       const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState.transformerREPL) {
+      if (savedState && savedState.transformerREPL) {
         setTransformType(savedState.transformerREPL.transformer);
       }
     }

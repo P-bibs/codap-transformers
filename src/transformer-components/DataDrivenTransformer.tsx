@@ -242,7 +242,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
   useEffect(() => {
     async function fetchSavedState() {
       const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState.DDTransformation) {
+      if (savedState && savedState.DDTransformation) {
         setState(savedState.DDTransformation);
       }
     }

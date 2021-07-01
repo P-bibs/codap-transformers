@@ -308,7 +308,10 @@ export async function differenceFrom({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
-  const resultAttributeName = `Difference From of ${inputAttributeName} in ${ctxtName}`;
+  const resultAttributeName = uniqueName(
+    `Difference From of ${inputAttributeName} in ${ctxtName}`,
+    allAttrNames(dataset)
+  );
 
   return [
     await uncheckedDifferenceFrom(

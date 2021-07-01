@@ -37,7 +37,6 @@ import {
   itemFromContext,
   resourceFromComponent,
   collectionListFromContext,
-  attributeListFromCollection,
   caseById,
   allCasesWithSearch,
 } from "./resource";

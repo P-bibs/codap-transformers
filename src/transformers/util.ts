@@ -272,6 +272,13 @@ export function allAttrNames(dataset: DataSet): string[] {
 }
 
 /**
+ * Extract all collection names from the given dataset.
+ */
+export function allCollectionNames(dataset: DataSet): string[] {
+  return dataset.collections.map((coll) => coll.name);
+}
+
+/**
  * Type checks a certain attribute within a set of records. These checks are
  * fairly permissive since we can't count on the data returned from CODAP
  * being in a consistent format/type schema

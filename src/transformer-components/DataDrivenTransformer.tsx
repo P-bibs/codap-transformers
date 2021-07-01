@@ -322,23 +322,28 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
 
   return (
     <>
-      <Popover
-        icon={<InfoIcon htmlColor="#72bfca" fontSize="small" />}
-        tooltip={`More Info on ${base}`}
-        innerContent={
-          <>
-            <p>{splitIntoParagraphs(info.summary)}</p>
-            <p>
-              <b>Inputs: </b>
-              {splitIntoParagraphs(info.inputs)}
-            </p>
-            <p>
-              <b>Outputs: </b>
-              {splitIntoParagraphs(info.outputs)}
-            </p>
-          </>
-        }
-      />
+      {/* Only render info icon if NOT a saved transformation. */}
+      {saveData ? (
+        <></>
+      ) : (
+        <Popover
+          icon={<InfoIcon htmlColor="#72bfca" fontSize="small" />}
+          tooltip={`More Info on ${base}`}
+          innerContent={
+            <>
+              <p>{splitIntoParagraphs(info.summary)}</p>
+              <p>
+                <b>Inputs: </b>
+                {splitIntoParagraphs(info.inputs)}
+              </p>
+              <p>
+                <b>Outputs: </b>
+                {splitIntoParagraphs(info.outputs)}
+              </p>
+            </>
+          }
+        />
+      )}
 
       {order.map((component) => {
         if (component === "context1" || component === "context2") {

@@ -6,6 +6,8 @@ import {
   TransformerSaveData,
 } from "../transformer-components/types";
 import { createDataInteractive } from "../utils/codapPhone";
+import "./TransformerSaveButton.css";
+import ErrorDisplay from "./Error";
 
 interface TransformerSaveButtonProps {
   generateSaveData: () => TransformerSaveData;
@@ -20,6 +22,7 @@ export default function TransformerSaveButton({
 }: TransformerSaveButtonProps): ReactElement {
   const [currentName, setCurrentName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [saveErr, setSaveErr] = useState<string | null>(null);
 
   function saveTransformer(
     name: string,
@@ -27,6 +30,7 @@ export default function TransformerSaveButton({
     data: TransformerSaveData
   ) {
     if (name === "") {
+      setSaveErr("Please give the transformer a name before saving.");
       return;
     }
 
@@ -40,6 +44,10 @@ export default function TransformerSaveButton({
     const savedTransformer = { name, description, content };
     const encoded = encodeURIComponent(JSON.stringify(savedTransformer));
     createDataInteractive(name, `http://localhost:3000?transform=${encoded}`);
+
+    // clear save inputs after successful save
+    setCurrentName("");
+    setDescription("");
   }
 
   return (
@@ -59,13 +67,20 @@ export default function TransformerSaveButton({
         >
           <TextInput
             value={currentName}
-            onChange={(e) => setCurrentName(e.target.value)}
+            onChange={(e) => {
+              setCurrentName(e.target.value);
+              setSaveErr(null);
+            }}
             placeholder={"Transformer Name"}
           />
           <TextArea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              setSaveErr(null);
+            }}
             placeholder="Purpose Statement"
+            className="purpose-statement"
           />
           <button
             disabled={disabled}
@@ -75,12 +90,11 @@ export default function TransformerSaveButton({
                 description === "" ? undefined : description,
                 generateSaveData()
               );
-              setCurrentName("");
-              setDescription("");
             }}
           >
             Save
           </button>
+          <ErrorDisplay message={saveErr} />
         </div>
       </div>
     </div>

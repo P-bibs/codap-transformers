@@ -28,6 +28,7 @@ import {
 import { dotProduct } from "../transformers/dotProduct";
 import { average } from "../transformers/average";
 import { partitionOverride } from "../transformers/partition";
+import { transformColumn } from "../transformers/transformColumn";
 
 export type TransformersInteractiveState = {
   transformerREPL?: {
@@ -638,7 +639,6 @@ const transformerList: TransformerList = {
       },
     },
   },
-
   Average: {
     group: "Aggregators",
     componentData: {
@@ -710,7 +710,7 @@ const transformerList: TransformerList = {
         },
         expression1: { title: "" },
       },
-      transformerFunction: { kind: "datasetCreator", func: buildColumn },
+      transformerFunction: { kind: "datasetCreator", func: transformColumn },
       info: {
         summary:
           "Takes an input dataset and produces a copy \

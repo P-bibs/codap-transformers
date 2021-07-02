@@ -30,7 +30,17 @@ function SavedTransformerView({
         transformer={urlTransformer}
         editable={editable}
       />
-      <button onClick={() => setEditable(!editable)}>Edit</button>
+      <button
+        id="edit-button"
+        onClick={() => setEditable(!editable)}
+        title={
+          editable
+            ? "Save changes made to this transformer"
+            : "Make changes to this transformer"
+        }
+      >
+        {editable ? "Save" : "Edit"}
+      </button>
     </div>
   );
 }

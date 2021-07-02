@@ -12,3 +12,7 @@
   color: gray;
   font-size: 0.7em;
 }
+
+#edit-button {
+  margin-top: 5px;
+}

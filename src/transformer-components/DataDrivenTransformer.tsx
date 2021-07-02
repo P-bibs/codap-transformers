@@ -326,7 +326,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
         const newContextName = await applyNewDataSet(result, name, description);
-        pushToUndoStack("Transformation applied", () =>
+        pushToUndoStack(`Undo ${base} transformer`, () =>
           deleteDataContext(newContextName)
         );
         if (order.includes("context1") && state["context1"] !== null) {

@@ -34,7 +34,8 @@ import {
   removeContextUpdateListenersForContext,
   removeListenersWithDependency,
   callAllInteractiveStateRequestListeners,
-  popFromUndoStack,
+  undoStackLength,
+  popFromUndoStackAndExecute,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -141,12 +142,21 @@ function codapRequestHandler(
     command.resource === CodapInitiatedResource.UndoChangeNotice &&
     command.values.operation === "undoAction"
   ) {
-    console.log("Popped from undo stack");
-    const f = popFromUndoStack();
-    if (f) {
-      f();
-    }
+    // if CODAP notifies us it's undo time, then fire an undo callback
+    popFromUndoStackAndExecute();
     return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "clearUndo"
+  ) {
+    // If CODAP says the undo stack has been cleared, but we still have undo actions remaining,
+    // send bogus `notifyUndoableActionPerformed` requests so we get our place back in
+    // CODAP's undo stack.
+    for (let i = 0; i < undoStackLength(); i++) {
+      notifyUndoableActionPerformed("");
+    }
   }
 
   // notification of which data context was deleted

@@ -1,5 +1,9 @@
 @import url(https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap);
 
+:root {
+  --blue-green: #72bfca;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -47,7 +51,7 @@ button {
   font-size: 12px;
   padding: 6px;
   border-radius: 3px;
-  border: solid 1px #72bfca;
+  border: solid 1px var(--blue-green);
   background-color: white;
 }
 

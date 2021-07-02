@@ -366,7 +366,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         <></>
       ) : (
         <Popover
-          icon={<InfoIcon htmlColor="#72bfca" fontSize="small" />}
+          icon={<InfoIcon htmlColor="var(--blue-green)" fontSize="small" />}
           tooltip={`More Info on ${base}`}
           innerContent={
             <>

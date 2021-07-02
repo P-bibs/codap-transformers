@@ -11,6 +11,8 @@
   resize: none;
   margin-top: 5px;
   display: block;
+  border: solid 1px var(--blue-green);
+  border-radius: 3px;
 }
 
 .save-transformer-button {

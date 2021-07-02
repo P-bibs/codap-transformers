@@ -202,6 +202,7 @@ export type DDTransformerProps = {
   base: BaseTransformerName;
   init: DDTransformerInit;
   saveData?: DDTransformerState;
+  editable: boolean;
   info: {
     summary: string;
     consumes: string;
@@ -224,6 +225,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     info,
     base,
     saveData,
+    editable,
     errorDisplay,
     setErrMsg,
   } = props;
@@ -406,7 +408,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   notifyStateIsDirty();
                   setState({ [component]: e.target.value });
                 }}
-                disabled={saveData !== undefined}
+                disabled={!editable}
               />
             </div>
           );
@@ -425,7 +427,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   notifyStateIsDirty();
                   setState({ [component]: s });
                 }}
-                disabled={saveData !== undefined}
+                disabled={!editable}
               />
             </div>
           );
@@ -448,7 +450,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   setState({ [component]: s });
                 }}
                 selected={state[component]}
-                disabled={saveData !== undefined}
+                disabled={!editable}
               />
             </div>
           );
@@ -459,7 +461,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
               <TextInput
                 value={state[component]}
                 onChange={(e) => setState({ [component]: e.target.value })}
-                disabled={saveData !== undefined}
+                disabled={!editable}
                 onBlur={notifyStateIsDirty}
               />
             </div>
@@ -477,7 +479,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 options={tmp.options}
                 value={state[component]}
                 defaultValue={tmp.defaultValue}
-                disabled={saveData !== undefined}
+                disabled={!editable}
               />
             </div>
           ) : (
@@ -504,7 +506,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   });
                 }}
                 inputTypeDisabled={
-                  init[component]?.inputTypeDisabled || saveData !== undefined
+                  init[component]?.inputTypeDisabled || !editable
                 }
                 outputTypes={tmp.outputTypes}
                 selectedOutputType={state[component].outputType}
@@ -518,7 +520,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   });
                 }}
                 outputTypeDisabled={
-                  init[component]?.outputTypeDisabled || saveData !== undefined
+                  init[component]?.outputTypeDisabled || !editable
                 }
               />
             </div>
@@ -537,7 +539,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                     | "attributes1"
                     | "attributes2"
                 ].map((a) => a.name)}
-                disabled={saveData !== undefined}
+                disabled={!editable}
                 onBlur={notifyStateIsDirty}
               />
             </div>

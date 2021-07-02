@@ -15,6 +15,7 @@ function SavedTransformerView({
   transformer: SavedTransformer;
 }): ReactElement {
   const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [editable, setEditable] = useState<boolean>(false);
 
   return (
     <div className="transformer-view">
@@ -27,7 +28,9 @@ function SavedTransformerView({
         setErrMsg={setErrMsg}
         errorDisplay={<ErrorDisplay message={errMsg} />}
         transformer={urlTransformer}
+        editable={editable}
       />
+      <button onClick={() => setEditable(!editable)}>Edit</button>
     </div>
   );
 }

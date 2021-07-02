@@ -34,8 +34,8 @@ import {
   removeContextUpdateListenersForContext,
   removeListenersWithDependency,
   callAllInteractiveStateRequestListeners,
-  undoStackLength,
   popFromUndoStackAndExecute,
+  undoStack,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -154,8 +154,8 @@ function codapRequestHandler(
     // If CODAP says the undo stack has been cleared, but we still have undo actions remaining,
     // send bogus `notifyUndoableActionPerformed` requests so we get our place back in
     // CODAP's undo stack.
-    for (let i = 0; i < undoStackLength(); i++) {
-      notifyUndoableActionPerformed("");
+    for (const [message] of undoStack) {
+      notifyUndoableActionPerformed(message);
     }
   }
 

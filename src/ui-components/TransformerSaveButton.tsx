@@ -1,11 +1,20 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { TextArea, TextInput } from ".";
 import { BaseTransformerName } from "../transformer-components/transformerList";
 import {
   SavedTransformerContent,
   TransformerSaveData,
 } from "../transformer-components/types";
-import { createDataInteractive } from "../utils/codapPhone";
+import {
+  createDataInteractive,
+  getInteractiveFrame,
+  notifyInteractiveFrameIsDirty,
+} from "../utils/codapPhone";
+import {
+  addInteractiveStateRequestListener,
+  removeInteractiveStateRequestListener,
+} from "../utils/codapPhone/listeners";
+import { InteractiveState } from "../utils/codapPhone/types";
 import "./TransformerSaveButton.css";
 import ErrorDisplay from "./Error";
 
@@ -50,6 +59,37 @@ export default function TransformerSaveButton({
     setDescription("");
   }
 
+  // Load saved state from CODAP memory
+  useEffect(() => {
+    async function fetchSavedState() {
+      const savedState = (await getInteractiveFrame()).savedState;
+      if (savedState && savedState.savedTransformation) {
+        setCurrentName(savedState.savedTransformation.name);
+        setDescription(savedState.savedTransformation.description);
+      }
+    }
+    fetchSavedState();
+  }, []);
+
+  // Register a listener to generate the plugins state
+  useEffect(() => {
+    const callback = (
+      previousInteractiveState: InteractiveState
+    ): InteractiveState => {
+      return {
+        ...previousInteractiveState,
+        savedTransformation: { name: currentName, description },
+      };
+    };
+
+    addInteractiveStateRequestListener(callback);
+    return () => removeInteractiveStateRequestListener(callback);
+  }, [currentName, description]);
+
+  function notifyStateIsDirty() {
+    notifyInteractiveFrameIsDirty();
+  }
+
   return (
     <div style={{ marginTop: "5px" }}>
       <hr style={{ marginTop: "15px" }} />
@@ -68,6 +108,7 @@ export default function TransformerSaveButton({
             }}
             placeholder={"Transformer Name"}
             className="saved-transformer-name"
+            onBlur={notifyStateIsDirty}
           />
           <TextArea
             value={description}
@@ -77,6 +118,7 @@ export default function TransformerSaveButton({
             }}
             placeholder="Purpose Statement"
             className="purpose-statement"
+            onBlur={notifyStateIsDirty}
           />
           <button
             disabled={disabled}

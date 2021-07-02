@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import React, { useReducer, ReactElement, useEffect } from "react";
-import { createText, updateText } from "../utils/codapPhone";
+import {
+  createText,
+  getInteractiveFrame,
+  notifyInteractiveFrameIsDirty,
+  updateText,
+} from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
 import {
   CodapLanguageType,
@@ -25,6 +30,11 @@ import {
 } from "./util";
 import TransformerSaveButton from "../ui-components/TransformerSaveButton";
 import { BaseTransformerName } from "./transformerList";
+import {
+  addInteractiveStateRequestListener,
+  removeInteractiveStateRequestListener,
+} from "../utils/codapPhone/listeners";
+import { InteractiveState } from "../utils/codapPhone/types";
 import Popover from "../ui-components/Popover";
 import InfoIcon from "@material-ui/icons/Info";
 
@@ -194,8 +204,8 @@ export type DDTransformerProps = {
   saveData?: DDTransformerState;
   info: {
     summary: string;
-    inputs: string;
-    outputs: string;
+    consumes: string;
+    produces: string;
   };
 };
 
@@ -222,9 +232,38 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     (
       oldState: DDTransformerState,
       newState: Partial<DDTransformerState>
-    ): DDTransformerState => ({ ...oldState, ...newState }),
+    ): DDTransformerState => {
+      return { ...oldState, ...newState };
+    },
     saveData !== undefined ? saveData : DEFAULT_STATE
   );
+
+  // Load saved state from CODAP memory
+  useEffect(() => {
+    async function fetchSavedState() {
+      const savedState = (await getInteractiveFrame()).savedState;
+      if (savedState && savedState.DDTransformation) {
+        setState(savedState.DDTransformation);
+      }
+    }
+    fetchSavedState();
+  }, []);
+
+  // Register a listener to generate the plugins state
+  useEffect(() => {
+    const callback = (
+      previousInteractiveState: InteractiveState
+    ): InteractiveState => {
+      return { ...previousInteractiveState, DDTransformation: state };
+    };
+
+    addInteractiveStateRequestListener(callback);
+    return () => removeInteractiveStateRequestListener(callback);
+  }, [state]);
+
+  function notifyStateIsDirty() {
+    notifyInteractiveFrameIsDirty();
+  }
 
   // Make sure we reset state if the underlying transformer changes (but only
   // if there isn't any save data)
@@ -334,11 +373,11 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
               <p>{splitIntoParagraphs(info.summary)}</p>
               <p>
                 <b>Inputs: </b>
-                {splitIntoParagraphs(info.inputs)}
+                {splitIntoParagraphs(info.consumes)}
               </p>
               <p>
                 <b>Outputs: </b>
-                {splitIntoParagraphs(info.outputs)}
+                {splitIntoParagraphs(info.produces)}
               </p>
             </>
           }
@@ -353,6 +392,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
               <ContextSelector
                 value={state[component]}
                 onChange={(e) => {
+                  notifyStateIsDirty();
                   setState({ [component]: e.target.value });
                 }}
               />
@@ -369,7 +409,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   ]
                 }
                 value={state[component]}
-                onChange={(e) => setState({ [component]: e.target.value })}
+                onChange={(e) => {
+                  notifyStateIsDirty();
+                  setState({ [component]: e.target.value });
+                }}
                 disabled={saveData !== undefined}
               />
             </div>
@@ -385,7 +428,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                   ]
                 }
                 value={state[component]}
-                onChange={(s) => setState({ [component]: s })}
+                onChange={(s) => {
+                  notifyStateIsDirty();
+                  setState({ [component]: s });
+                }}
                 disabled={saveData !== undefined}
               />
             </div>
@@ -404,7 +450,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                       contextFromAttributeSet(component)
                   ]
                 }
-                setSelected={(s) => setState({ [component]: s })}
+                setSelected={(s) => {
+                  notifyStateIsDirty();
+                  setState({ [component]: s });
+                }}
                 selected={state[component]}
                 disabled={saveData !== undefined}
               />
@@ -418,6 +467,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 value={state[component]}
                 onChange={(e) => setState({ [component]: e.target.value })}
                 disabled={saveData !== undefined}
+                onBlur={notifyStateIsDirty}
               />
             </div>
           );
@@ -427,7 +477,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             <div className="input-group">
               {titleFromComponent(component, init)}
               <Select
-                onChange={(e) => setState({ [component]: e.target.value })}
+                onChange={(e) => {
+                  notifyStateIsDirty();
+                  setState({ [component]: e.target.value });
+                }}
                 options={tmp.options}
                 value={state[component]}
                 defaultValue={tmp.defaultValue}
@@ -449,6 +502,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 inputTypes={tmp.inputTypes}
                 selectedInputType={state[component].outputType}
                 inputTypeOnChange={(e) => {
+                  notifyStateIsDirty();
                   setState({
                     [component]: {
                       inputType: e.target.value,
@@ -462,6 +516,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                 outputTypes={tmp.outputTypes}
                 selectedOutputType={state[component].outputType}
                 outputTypeOnChange={(e) => {
+                  notifyStateIsDirty();
                   setState({
                     [component]: {
                       inputType: state[component].inputType,
@@ -490,6 +545,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
                     | "attributes2"
                 ].map((a) => a.name)}
                 disabled={saveData !== undefined}
+                onBlur={notifyStateIsDirty}
               />
             </div>
           );

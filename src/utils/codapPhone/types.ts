@@ -1,3 +1,5 @@
+import { TransformersInteractiveState } from "../../transformer-components/transformerList";
+
 export enum CodapResource {
   InteractiveFrame = "interactiveFrame",
   DataContext = "dataContext",
@@ -50,6 +52,17 @@ export type UpdateInteractiveFrameRequest = {
 
   // We are not allowed to set interactiveState
   values: Partial<Omit<InteractiveFrame, "interactiveState">>;
+};
+
+export type NotifyInteractiveFrameRequest = {
+  action: CodapActions.Notify;
+  resource: CodapResource.InteractiveFrame;
+  values: { dirty: boolean } | { image: string } | { request: string };
+};
+
+export type GetInteractiveFrameRequest = {
+  action: CodapActions.Get;
+  resource: CodapResource.InteractiveFrame;
 };
 
 export type GetContextListRequest = {
@@ -127,6 +140,15 @@ export interface CodapResponse {
   success: boolean;
 }
 
+export type InteractiveState = TransformersInteractiveState;
+export interface GetInteractiveStateResponse extends CodapResponse {
+  values: InteractiveState;
+}
+
+interface GetInteractiveFrameResponse extends CodapResponse {
+  values: InteractiveFrame;
+}
+
 interface CreateContextResponse extends CodapResponse {
   values: CodapIdentifyingInfo;
 }
@@ -186,6 +208,11 @@ type EvalExpressionResponse =
 export type CodapPhone = {
   call(r: CreateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
   call(r: UpdateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
+  call(r: NotifyInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
+  call(
+    r: GetInteractiveFrameRequest,
+    cb: (r: GetInteractiveFrameResponse) => void
+  ): void;
   call(r: GetContextListRequest, cb: (r: ListResponse) => void): void;
   call(r: GetListRequest, cb: (r: ListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
@@ -501,7 +528,7 @@ export interface Guide extends CodapComponent {
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-interactiveframe-object
-type InteractiveFrame = {
+export type InteractiveFrame = {
   name: string;
   title: string;
   version: string;
@@ -518,7 +545,7 @@ type InteractiveFrame = {
     width: boolean;
     height: boolean;
   };
-  savedState: Record<string, unknown>;
+  savedState?: InteractiveState;
 };
 
 export interface FunctionInfo {

@@ -15,7 +15,7 @@ import {
  */
 export async function transformColumn({
   context1: contextName,
-  textInput1: attributeName,
+  attribute1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
 }: DDTransformerState): Promise<TransformationOutput> {

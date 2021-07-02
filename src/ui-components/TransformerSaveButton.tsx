@@ -29,7 +29,7 @@ export default function TransformerSaveButton({
     description: string | undefined,
     data: TransformerSaveData
   ) {
-    if (name === "") {
+    if (name.trim() === "") {
       setSaveErr("Please give the transformer a name before saving.");
       return;
     }
@@ -57,12 +57,7 @@ export default function TransformerSaveButton({
         <h3>Save This Transformer</h3>
         <div
           style={{
-            height: "175px",
-            display: "flex",
             marginTop: "2px",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
           }}
         >
           <TextInput
@@ -72,6 +67,7 @@ export default function TransformerSaveButton({
               setSaveErr(null);
             }}
             placeholder={"Transformer Name"}
+            className="saved-transformer-name"
           />
           <TextArea
             value={description}
@@ -91,6 +87,7 @@ export default function TransformerSaveButton({
                 generateSaveData()
               );
             }}
+            className="save-transformer-button"
           >
             Save
           </button>

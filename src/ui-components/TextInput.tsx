@@ -6,6 +6,7 @@ interface TextInputProps {
   value: string;
   disabled?: boolean;
   placeholder?: string;
+  className?: string;
   onBlur?: () => void;
 }
 
@@ -14,6 +15,7 @@ export default function TextInput({
   value,
   disabled,
   placeholder,
+  className,
   onBlur,
 }: TextInputProps): ReactElement {
   return (
@@ -23,6 +25,7 @@ export default function TextInput({
       onChange={onChange}
       value={value}
       disabled={disabled}
+      className={className}
       onBlur={onBlur}
     />
   );

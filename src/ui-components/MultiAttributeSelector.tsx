@@ -35,7 +35,7 @@ export default function MultiAttributeSelector({
     if (selected.some((a) => !attrNames.includes(a))) {
       setSelected(selected.filter((a) => attrNames.includes(a)));
     }
-  }, [attributes, selected, setSelected, disabled]);
+  }, [attributes, selected, setSelected, disabled, context]);
 
   return (
     <>

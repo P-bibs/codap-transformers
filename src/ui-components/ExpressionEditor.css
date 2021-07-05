@@ -1,6 +1,7 @@
 .CodeMirror {
   height: 100px;
-  border: 1px solid black;
+  border: 1px solid var(--blue-green);
+  border-radius: 3px;
 }
 
 .CodeMirror * {
@@ -14,4 +15,14 @@
 
 .cm-function {
     color: blue;
+}
+
+/* slightly gray out editor when disabled */
+.editor-disabled .CodeMirror {
+  background-color: rgba(0, 0, 0, 0.07);
+}
+
+/* make cursor disappear when disabled */
+.editor-disabled .CodeMirror-cursor { 
+  display: none !important;
 }

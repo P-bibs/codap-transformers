@@ -250,6 +250,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     }
     fetchSavedState();
   }, []);
+
   // Register a listener to generate the plugins state
   useEffect(() => {
     const callback = (
@@ -261,6 +262,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     addInteractiveStateRequestListener(callback);
     return () => removeInteractiveStateRequestListener(callback);
   }, [state]);
+
   function notifyStateIsDirty() {
     notifyInteractiveFrameIsDirty();
   }
@@ -361,23 +363,26 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
 
   return (
     <>
-      <Popover
-        icon={<InfoIcon htmlColor="#72bfca" fontSize="small" />}
-        tooltip={`More Info on ${base}`}
-        innerContent={
-          <>
-            <p>{splitIntoParagraphs(info.summary)}</p>
-            <p>
-              <b>Consumes: </b>
-              {splitIntoParagraphs(info.consumes)}
-            </p>
-            <p>
-              <b>Produces: </b>
-              {splitIntoParagraphs(info.produces)}
-            </p>
-          </>
-        }
-      />
+      {/* Only render info icon if NOT a saved transformation. */}
+      {!saveData && (
+        <Popover
+          icon={<InfoIcon htmlColor="var(--blue-green)" fontSize="small" />}
+          tooltip={`More Info on ${base}`}
+          innerContent={
+            <>
+              <p>{splitIntoParagraphs(info.summary)}</p>
+              <p>
+                <b>Inputs: </b>
+                {splitIntoParagraphs(info.consumes)}
+              </p>
+              <p>
+                <b>Outputs: </b>
+                {splitIntoParagraphs(info.produces)}
+              </p>
+            </>
+          }
+        />
+      )}
 
       {order.map((component) => {
         if (component === "context1" || component === "context2") {

@@ -130,6 +130,7 @@ export default function ExpressionEditor({
   return (
     <>
       <CodeMirrorElement
+        className={disabled ? "editor-disabled" : undefined}
         value={value}
         options={{
           mode: "codapFormula",

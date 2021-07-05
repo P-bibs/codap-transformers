@@ -1,5 +1,5 @@
 import React, { ReactElement, ChangeEvent } from "react";
-import CodapFlowSelect from "./CodapFlowSelect";
+import Select from "./Select";
 import { useDataContexts } from "../utils/hooks";
 
 interface ContextSelectorProps {
@@ -14,15 +14,14 @@ export default function ContextSelector({
   const dataContexts = useDataContexts();
 
   return (
-    <CodapFlowSelect
+    <Select
       onChange={onChange}
       options={dataContexts.map((dataContext) => ({
         value: dataContext.name,
         title: dataContext.title,
       }))}
       value={value}
-      defaultValue="Select a Data Context"
-      showValue={true}
+      defaultValue="Select a Dataset"
     />
   );
 }

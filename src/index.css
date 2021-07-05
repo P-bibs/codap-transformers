@@ -1,3 +1,9 @@
+@import url(https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap);
+
+:root {
+  --blue-green: #72bfca;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,15 +16,46 @@ html, body, #root {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: Montserrat, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: white;
+  color: #222222;
+}
+
+select {
+  font-family: Montserrat, sans-serif;
+  font-size: 13px;
+  font-weight: normal;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* headers for all transformer UIs */
+h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.input-group {
+  margin-top: 7px;
+}
+
+button {
+  font-family: Montserrat, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  padding: 6px;
+  border-radius: 3px;
+  border: solid 1px var(--blue-green);
+  background-color: white;
+}
+
+button:hover {
+  background-color: rgba(114, 191, 202, 0.12);
+  cursor: pointer;
 }

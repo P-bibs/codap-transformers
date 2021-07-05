@@ -1,0 +1,9 @@
+
+input {
+  font-family: Montserrat, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 3px;
+  border: solid 1px var(--blue-green);
+  padding: 3px 3px 3px 6px;
+}

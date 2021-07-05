@@ -6,10 +6,11 @@ import {
   addNewContextListener,
   removeNewContextListener,
   getAllAttributes,
+  getAllCollections,
   removeContextUpdateListener,
   addContextUpdateListener,
 } from "./codapPhone";
-import { CodapIdentifyingInfo } from "./codapPhone/types";
+import { CodapAttribute, CodapIdentifyingInfo } from "./codapPhone/types";
 
 export function useDataContexts(): CodapIdentifyingInfo[] {
   const [dataContexts, setDataContexts] = useState<CodapIdentifyingInfo[]>([]);
@@ -28,8 +29,25 @@ export function useDataContexts(): CodapIdentifyingInfo[] {
   return dataContexts;
 }
 
-export function useAttributes(context: string | null): CodapIdentifyingInfo[] {
-  const [collections, setAttributes] = useState<CodapIdentifyingInfo[]>([]);
+export function useCollections(context: string | null): CodapIdentifyingInfo[] {
+  const [collections, setCollections] = useState<CodapIdentifyingInfo[]>([]);
+
+  async function refreshCollections(context: string) {
+    setCollections(await getAllCollections(context));
+  }
+
+  // Update if context changes
+  useEffect(() => {
+    if (context) {
+      refreshCollections(context);
+    }
+  }, [context]);
+
+  return collections;
+}
+
+export function useAttributes(context: string | null): CodapAttribute[] {
+  const [attributes, setAttributes] = useState<CodapAttribute[]>([]);
 
   async function refreshAttributes(context: string) {
     setAttributes(await getAllAttributes(context));
@@ -38,11 +56,16 @@ export function useAttributes(context: string | null): CodapIdentifyingInfo[] {
   // Update if context changes
   useEffect(() => {
     if (context) {
+      const updateFunc = () => {
+        refreshAttributes(context);
+      };
       refreshAttributes(context);
+      addContextUpdateListener(context, [], updateFunc);
+      return () => removeContextUpdateListener(context, updateFunc);
     }
   }, [context]);
 
-  return collections;
+  return attributes;
 }
 
 interface ElementWithValue {
@@ -74,13 +97,12 @@ export function useInput<T, E extends ElementWithValue>(
  */
 export function useContextUpdateListener(
   contextName: string,
-  callback: () => void,
-  dependencies: unknown[]
+  callback: () => void
 ): void {
   useEffect(() => {
-    addContextUpdateListener(contextName, callback);
-    return () => removeContextUpdateListener(contextName);
-  }, [contextName, callback, ...dependencies]);
+    addContextUpdateListener(contextName, [], callback);
+    return () => removeContextUpdateListener(contextName, callback);
+  }, [contextName, callback]);
 }
 
 /**
@@ -92,18 +114,13 @@ export function useContextUpdateListener(
 export function useContextUpdateListenerWithFlowEffect(
   sourceContext: string | null,
   destinationContext: string | null,
-  flowCallback: () => void,
-  dependencies: unknown[]
+  flowCallback: () => void
 ): void {
   // We use an unsafe cast from string | null to string here, but it's ok because
   // there's a check for sourceContext !== null inside the callback
-  useContextUpdateListener(
-    sourceContext as string,
-    () => {
-      if (sourceContext !== null && destinationContext !== null) {
-        flowCallback();
-      }
-    },
-    [destinationContext, flowCallback, ...dependencies]
-  );
+  useContextUpdateListener(sourceContext as string, () => {
+    if (sourceContext !== null && destinationContext !== null) {
+      flowCallback();
+    }
+  });
 }

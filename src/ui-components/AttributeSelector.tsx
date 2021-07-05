@@ -1,30 +1,48 @@
-import React, { ReactElement, ChangeEvent } from "react";
-import CodapFlowSelect from "./CodapFlowSelect";
+import React, { ReactElement, useEffect } from "react";
+import Select from "./Select";
 import { useAttributes } from "../utils/hooks";
 
-interface ContextSelectorProps {
+interface AttributeSelectorProps {
   context: string | null;
   value: string | null;
-  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  disabled?: boolean;
+  onChange: (s: string | null) => void;
 }
 
 export default function AttributeSelector({
   context,
   value,
   onChange,
-}: ContextSelectorProps): ReactElement {
+  disabled,
+}: AttributeSelectorProps): ReactElement {
   const attributes = useAttributes(context);
 
+  useEffect(() => {
+    if (disabled) {
+      return;
+    }
+    if (value && !attributes.map((a) => a.name).includes(value)) {
+      onChange(null);
+    }
+  }, [value, onChange, attributes, disabled]);
+
   return (
-    <CodapFlowSelect
-      onChange={onChange}
-      options={attributes.map((attribute) => ({
-        value: attribute.name,
-        title: attribute.title,
-      }))}
+    <Select
+      onChange={(e) => onChange(e.target.value)}
+      options={
+        disabled && value !== null
+          ? [{ value: value, title: value }]
+          : attributes
+              // filter out hidden attrs (keep attrs that have hidden undefined)
+              .filter((attr) => !attr.hidden)
+              .map((attribute) => ({
+                value: attribute.name,
+                title: attribute.title || attribute.name,
+              }))
+      }
       value={value}
       defaultValue="Select an attribute"
-      showValue={true}
+      disabled={disabled}
     />
   );
 }

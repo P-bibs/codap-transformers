@@ -4,6 +4,7 @@ import {
   CodapResource,
   CodapActions,
   CodapResponse,
+  CodapRequest,
   GetContextResponse,
   GetCasesResponse,
   GetCaseResponse,
@@ -15,18 +16,43 @@ import {
   CodapInitiatedCommand,
   ReturnedCase,
   Collection,
-  ReturnedCollection,
+  ContextMetadata,
   DataContext,
-  ReturnedDataContext,
   CodapListResource,
   CodapIdentifyingInfo,
   CaseTable,
   GetDataListResponse,
+  GetFunctionInfoResponse,
+  FunctionInfo,
   CodapAttribute,
+  GetInteractiveStateResponse,
+  InteractiveFrame,
 } from "./types";
-import { contextUpdateListeners, callAllContextListeners } from "./listeners";
-import { DataSet } from "../../transformations/types";
-import { DirectoryWatcherCallback } from "typescript";
+import {
+  callUpdateListenersForContext,
+  callAllContextListeners,
+  removeContextUpdateListenersForContext,
+  removeListenersWithDependency,
+  callAllInteractiveStateRequestListeners,
+} from "./listeners";
+import {
+  resourceFromContext,
+  itemFromContext,
+  resourceFromComponent,
+  collectionListFromContext,
+  caseById,
+  allCasesWithSearch,
+} from "./resource";
+import {
+  fillCollectionWithDefaults,
+  collectionsEqual,
+  normalizeDataContext,
+} from "./util";
+import { DataSet } from "../../transformers/types";
+import { CodapEvalError } from "./error";
+import { uniqueName } from "../names";
+import * as Actions from "./actions";
+import * as Cache from "./cache";
 
 export {
   addNewContextListener,
@@ -43,75 +69,48 @@ const phone: CodapPhone = new IframePhoneRpcEndpoint(
   null
 );
 
-const DEFAULT_PLUGIN_WIDTH = 300;
-const DEFAULT_PLUGIN_HEIGHT = 320;
+const DEFAULT_PLUGIN_WIDTH = 350;
+const DEFAULT_PLUGIN_HEIGHT = 500;
 
 // Initialize
-phone.call(
-  {
-    action: CodapActions.Update,
-    resource: CodapResource.InteractiveFrame,
-    values: {
-      title: "CODAP Flow",
-      dimensions: {
-        width: DEFAULT_PLUGIN_WIDTH,
-        height: DEFAULT_PLUGIN_HEIGHT,
+export async function initPhone(title: string): Promise<void> {
+  // Only resize the plugin to default dimensions if this is it's
+  // first time being initialized (no savedState)
+  const dimensions =
+    (await getInteractiveFrame()).savedState === undefined
+      ? {
+          width: DEFAULT_PLUGIN_WIDTH,
+          height: DEFAULT_PLUGIN_HEIGHT,
+        }
+      : undefined;
+
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Update,
+        resource: CodapResource.InteractiveFrame,
+        values: {
+          title,
+          dimensions,
+        },
       },
-    },
-  },
-  (response) => {
-    if (!response.success) {
-      throw new Error("Failed to update CODAP interactive frame");
-    }
-  }
-);
-
-function resourceFromContext(context: string) {
-  return `dataContext[${context}]`;
-}
-
-function resourceFromCollection(collection: string) {
-  return `collection[${collection}]`;
-}
-function collectionListFromContext(context: string) {
-  return `dataContext[${context}].collectionList`;
-}
-
-function attributeListFromCollection(context: string, collection: string) {
-  return `dataContext[${context}].collection[${collection}].attributeList`;
-}
-
-function itemFromContext(context: string) {
-  return `${resourceFromContext(context)}.item`;
-}
-
-// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-item-get-by-search
-/* eslint-disable-next-line */
-function itemSearchAllFromContext(context: string) {
-  return `${resourceFromContext(context)}.itemSearch[*]`;
-}
-
-// This only works for delete
-// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#cases
-function allCases(context: string, collection: string) {
-  return `dataContext[${context}].collection[${collection}].allCases`;
-}
-
-// Resource for getting all cases in a collection
-function allCasesWithSearch(context: string, collection: string) {
-  const contextResource = resourceFromContext(context);
-  const collectionResource = resourceFromCollection(collection);
-  return `${contextResource}.${collectionResource}.caseFormulaSearch[true]`;
-}
-
-function caseById(context: string, id: number) {
-  return `${resourceFromContext(context)}.caseByID[${id}]`;
+      (response) => {
+        // NOTE: Ensure the response exists, since if this is run
+        // without being embedded in CODAP, it will come back undefined.
+        if (response && response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update CODAP interactive frame"));
+        }
+      }
+    )
+  );
 }
 
 const getNewName = (function () {
   let count = 0;
   return () => {
-    const name = `CodapFlow_${count}`;
+    const name = `Transformers ${count}`;
     count += 1;
     return name;
   };
@@ -128,11 +127,34 @@ function codapRequestHandler(
   console.log(command);
   console.groupEnd();
 
+  // Request for plugins state
+  if (
+    command.action === CodapActions.Get &&
+    command.resource === CodapInitiatedResource.InteractiveState
+  ) {
+    const values = callAllInteractiveStateRequestListeners();
+    const result: GetInteractiveStateResponse = { success: true, values };
+    callback(result);
+    return;
+  }
+
   if (command.action !== CodapActions.Notify) {
     callback({ success: true });
     return;
   }
 
+  // notification of which data context was deleted
+  if (
+    command.resource === CodapInitiatedResource.DocumentChangeNotice &&
+    command.values.operation === DocumentChangeOperations.DataContextDeleted
+  ) {
+    removeContextUpdateListenersForContext(command.values.deletedContext);
+    removeListenersWithDependency(command.values.deletedContext);
+    callback({ success: true });
+    return;
+  }
+
+  // data context was added/deleted
   if (
     command.resource === CodapInitiatedResource.DocumentChangeNotice &&
     command.values.operation ===
@@ -147,26 +169,108 @@ function codapRequestHandler(
     command.resource.startsWith(
       CodapInitiatedResource.DataContextChangeNotice
     ) &&
-    Array.isArray(command.values) &&
-    command.values.length > 0
+    Array.isArray(command.values)
   ) {
-    if (mutatingOperations.includes(command.values[0].operation)) {
-      const contextName = command.resource.slice(
-        command.resource.search("\\[") + 1,
-        command.resource.length - 1
-      );
-      if (contextUpdateListeners[contextName]) {
-        contextUpdateListeners[contextName]();
+    // FIXME: Using flags here we can process all notifications in the list
+    // without needlessly updating for each one, but this doesn't seem like
+    // the most elegant solution.
+    let contextUpdate = false;
+    let contextListUpdate = false;
+
+    // Context name is between the first pair of brackets
+    const contextName = command.resource.slice(
+      command.resource.search("\\[") + 1,
+      command.resource.length - 1
+    );
+
+    for (const value of command.values) {
+      contextUpdate =
+        contextUpdate || mutatingOperations.includes(value.operation);
+      contextListUpdate =
+        contextListUpdate ||
+        value.operation === ContextChangeOperation.UpdateContext;
+
+      // Check for case update or deletion and invalidate case cache
+      if (
+        value.operation === ContextChangeOperation.DeleteCases ||
+        value.operation === ContextChangeOperation.UpdateCases
+      ) {
+        const caseIDs = value.result?.caseIDs;
+        if (Array.isArray(caseIDs)) {
+          caseIDs.map(Cache.invalidateCase);
+        }
       }
-      callback({ success: true });
-      return;
+
+      // Invalidate all cases in a context if attributes get moved or deleted,
+      // etc. Cannot do this more granularly because attribute moves do not
+      // give enough information.
+      if (
+        value.operation === ContextChangeOperation.MoveAttribute ||
+        value.operation === ContextChangeOperation.DeleteAttribute
+      ) {
+        Cache.invalidateCasesInContext(contextName);
+      }
     }
-    if (command.values[0].operation === ContextChangeOperation.UpdateContext) {
+
+    if (contextUpdate) {
+      Cache.invalidateContext(contextName);
+      callUpdateListenersForContext(contextName);
+    }
+
+    if (contextListUpdate) {
       callAllContextListeners();
-      callback({ success: true });
-      return;
     }
   }
+
+  callback({ success: true });
+}
+
+function callMultiple(requests: CodapRequest[]): Promise<CodapResponse[]> {
+  return new Promise<CodapResponse[]>((resolve) => {
+    phone.call(requests, (responses) => resolve(responses));
+  });
+}
+
+export function getInteractiveFrame(): Promise<InteractiveFrame> {
+  return new Promise<InteractiveFrame>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: CodapResource.InteractiveFrame,
+      },
+      (response) => {
+        if (response.success) {
+          console.log(response.values);
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get interactive frame."));
+        }
+      }
+    )
+  );
+}
+
+export function notifyInteractiveFrameIsDirty(): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: CodapResource.InteractiveFrame,
+        values: {
+          dirty: true,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(
+            new Error("Failed to notify interactive frame that state is dirty.")
+          );
+        }
+      }
+    )
+  );
 }
 
 export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {
@@ -208,7 +312,12 @@ export function getAllCollections(
 }
 
 function getCaseById(context: string, id: number): Promise<ReturnedCase> {
-  return new Promise<ReturnedCase>((resolve, reject) =>
+  return new Promise<ReturnedCase>((resolve, reject) => {
+    const cached = Cache.getCase(id);
+    if (cached !== undefined) {
+      resolve(cached);
+      return;
+    }
     phone.call(
       {
         action: CodapActions.Get,
@@ -216,49 +325,28 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
       },
       (response: GetCaseResponse) => {
         if (response.success) {
-          resolve(response.values.case);
+          const result = response.values.case;
+          Cache.setCase(context, id, result);
+          resolve(result);
         } else {
           reject(new Error(`Failed to get case in ${context} with id ${id}`));
         }
       }
-    )
-  );
+    );
+  });
 }
 
 export async function getAllAttributes(
   context: string
-): Promise<CodapIdentifyingInfo[]> {
-  // Get the name (as a string) of each collection in the context
-  const collections = (await getAllCollections(context)).map(
-    (collection) => collection.name
+): Promise<CodapAttribute[]> {
+  const collections = (await getDataContext(context)).collections;
+
+  const attributes: CodapAttribute[] = [];
+  collections.forEach((collection) =>
+    collection.attrs?.forEach((attr) => attributes.push(attr))
   );
 
-  // Make a request to get the attributes for each collection
-  const promises = collections.map(
-    (collectionName) =>
-      new Promise<CodapIdentifyingInfo[]>((resolve, reject) =>
-        phone.call(
-          {
-            action: CodapActions.Get,
-            resource: attributeListFromCollection(context, collectionName),
-          },
-          (response: GetDataListResponse) => {
-            if (response.success) {
-              resolve(response.values);
-            } else {
-              reject(new Error("Failed to get attributes."));
-            }
-          }
-        )
-      )
-  );
-
-  // Wait for all promises to return
-  const attributes = await Promise.all(promises);
-
-  // flatten and return the set of attributes
-  // return attributes.reduce((acc, elt) => [...acc, ...elt]);
-  return attributes.flat();
+  return attributes;
 }
 
 /**
@@ -270,17 +358,10 @@ export async function getAllAttributes(
 export async function getDataFromContext(
   context: string
 ): Promise<Record<string, unknown>[]> {
-  const getCaseByIdCached = (function () {
-    const caseMap: Record<number, ReturnedCase> = {};
-    return async (id: number) => {
-      if (caseMap[id] !== undefined) {
-        return caseMap[id];
-      }
-      const result = await getCaseById(context, id);
-      caseMap[id] = result;
-      return result;
-    };
-  })();
+  const cached = Cache.getRecords(context);
+  if (cached !== undefined) {
+    return cached;
+  }
 
   async function dataItemFromChildCase(
     c: ReturnedCase
@@ -288,7 +369,7 @@ export async function getDataFromContext(
     if (c.parent === null || c.parent === undefined) {
       return c.values;
     }
-    const parent = await getCaseByIdCached(c.parent);
+    const parent = await getCaseById(context, c.parent);
     const results = {
       ...c.values,
       ...(await dataItemFromChildCase(parent)),
@@ -306,9 +387,13 @@ export async function getDataFromContext(
         action: CodapActions.Get,
         resource: allCasesWithSearch(context, childCollection.name),
       },
-      (response: GetCasesResponse) => {
+      async (response: GetCasesResponse) => {
         if (response.success) {
-          resolve(Promise.all(response.values.map(dataItemFromChildCase)));
+          const records = await Promise.all(
+            response.values.map(dataItemFromChildCase)
+          );
+          Cache.setRecords(context, records);
+          resolve(records);
         } else {
           reject(new Error("Failed to get data items"));
         }
@@ -336,7 +421,12 @@ export async function getContextAndDataSet(contextName: string): Promise<{
 }
 
 export function getDataContext(contextName: string): Promise<DataContext> {
-  return new Promise<DataContext>((resolve, reject) =>
+  return new Promise<DataContext>((resolve, reject) => {
+    const cached = Cache.getContext(contextName);
+    if (cached !== undefined) {
+      resolve(cached);
+      return;
+    }
     phone.call(
       {
         action: CodapActions.Get,
@@ -344,83 +434,51 @@ export function getDataContext(contextName: string): Promise<DataContext> {
       },
       (response: GetContextResponse) => {
         if (response.success) {
-          resolve(normalizeDataContext(response.values));
+          const context = normalizeDataContext(response.values);
+          Cache.setContext(contextName, context);
+          resolve(context);
         } else {
           reject(new Error(`Failed to get context ${contextName}`));
+        }
+      }
+    );
+  });
+}
+
+export async function deleteDataContext(contextName: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Delete,
+        resource: resourceFromContext(contextName),
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to delete data context"));
         }
       }
     )
   );
 }
 
-// Copies a list of attributes, only copying the fields relevant to our
-// representation of attributes and omitting any extra fields (cid, etc).
-function copyAttrs(
-  attrs: CodapAttribute[] | undefined
-): CodapAttribute[] | undefined {
-  return attrs?.map((attr) => {
-    return {
-      name: attr.name,
-      title: attr.title,
-      type: attr.type,
-      colormap: attr.colormap,
-      description: attr.description,
-      editable: attr.editable,
-      formula: attr.formula,
-      hidden: attr.hidden,
-      precision: attr.type === "numeric" ? attr.precision : undefined,
-      unit: attr.type === "numeric" ? attr.unit : undefined,
-    };
-  }) as CodapAttribute[];
-}
-
-// In the returned collections, parents show up as numeric ids, so before
-// reusing, we need to look up the names of the parent collections.
-function normalizeParentNames(collections: ReturnedCollection[]): Collection[] {
-  const normalized = [];
-  for (const c of collections) {
-    let newParent;
-    if (c.parent) {
-      newParent = collections.find(
-        (collection) => collection.id === c.parent
-      )?.name;
-    }
-
-    normalized.push({
-      name: c.name,
-      title: c.title,
-      attrs: copyAttrs(c.attrs),
-      labels: c.labels,
-      parent: newParent,
-    });
-  }
-
-  return normalized as Collection[];
-}
-
-function normalizeDataContext(context: ReturnedDataContext): DataContext {
-  return {
-    name: context.name,
-    title: context.title,
-    description: context.description,
-    collections: normalizeParentNames(context.collections),
-  };
-}
-
-async function createDataContext(
-  name: string,
-  collections: Collection[],
-  title?: string
-): Promise<CodapIdentifyingInfo> {
+async function createDataContext({
+  name,
+  title,
+  collections,
+  metadata,
+}: DataContext): Promise<CodapIdentifyingInfo> {
   return new Promise<CodapIdentifyingInfo>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Create,
         resource: CodapResource.DataContext,
         values: {
-          name: name,
-          title: title,
-          collections: collections,
+          name,
+          title: title !== undefined ? title : name,
+          collections,
+          metadata,
         },
       },
       (response) => {
@@ -434,16 +492,44 @@ async function createDataContext(
   );
 }
 
+export async function createDataInteractive(
+  name: string,
+  url: string
+): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Create,
+        resource: CodapResource.Component,
+        values: {
+          URL: url,
+          name,
+          type: "game",
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to create data interactive"));
+        }
+      }
+    )
+  );
+}
+
 export async function createContextWithDataSet(
   dataset: DataSet,
   name: string,
-  title?: string
+  title?: string,
+  metadata?: ContextMetadata
 ): Promise<CodapIdentifyingInfo> {
-  const newDatasetDescription = await createDataContext(
+  const newDatasetDescription = await createDataContext({
     name,
-    dataset.collections,
-    title
-  );
+    title,
+    metadata,
+    collections: dataset.collections,
+  });
 
   await insertDataItems(newDatasetDescription.name, dataset.records);
   return newDatasetDescription;
@@ -471,30 +557,88 @@ export function insertDataItems(
   );
 }
 
-export async function setContextItems(
+export async function updateContextWithDataSet(
   contextName: string,
-  items: Record<string, unknown>[]
+  dataset: DataSet
 ): Promise<void> {
   const context = await getDataContext(contextName);
+  const requests = [];
+
   for (const collection of context.collections) {
-    await deleteAllCases(contextName, collection.name);
+    requests.push(Actions.deleteAllCases(contextName, collection.name));
   }
 
+  const normalizedCollections = dataset.collections.map(
+    fillCollectionWithDefaults
+  );
+
+  if (!collectionsEqual(context.collections, normalizedCollections)) {
+    const concatNames = (nameAcc: string, collection: Collection) =>
+      nameAcc + collection.name;
+    const uniqueName =
+      context.collections.reduce(concatNames, "") +
+      dataset.collections.reduce(concatNames, "");
+
+    // Create placeholder empty collection, since data contexts must have at least
+    // one collection
+    requests.push(
+      Actions.createCollections(contextName, [
+        {
+          name: uniqueName,
+          labels: {},
+        },
+      ])
+    );
+
+    // Delete old collections
+    for (const collection of context.collections) {
+      requests.push(Actions.deleteCollection(contextName, collection.name));
+    }
+
+    // Insert new collections and delete placeholder
+    requests.push(Actions.createCollections(contextName, dataset.collections));
+    requests.push(Actions.deleteCollection(contextName, uniqueName));
+  }
+
+  requests.push(Actions.insertDataItems(contextName, dataset.records));
+
+  const responses = await callMultiple(requests);
+  for (const response of responses) {
+    if (!response.success) {
+      throw new Error(`Failed to update ${contextName}`);
+    }
+  }
+}
+
+export function createCollections(
+  context: string,
+  collections: Collection[]
+): Promise<void> {
   return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Create,
-        resource: itemFromContext(contextName),
-        values: items,
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(new Error("Failed to update context with new items"));
-        }
+    phone.call(Actions.createCollections(context, collections), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error(`Failed to create collections in ${context}`));
       }
-    )
+    })
+  );
+}
+
+export function deleteCollection(
+  context: string,
+  collection: string
+): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(Actions.deleteCollection(context, collection), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(
+          new Error(`Failed to delete collection ${collection} in ${context}`)
+        );
+      }
+    })
   );
 }
 
@@ -503,19 +647,13 @@ export async function deleteAllCases(
   collection: string
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Delete,
-        resource: allCases(context, collection),
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(new Error("Failed to delete all cases"));
-        }
+    phone.call(Actions.deleteAllCases(context, collection), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to delete all cases"));
       }
-    )
+    })
   );
 }
 
@@ -551,6 +689,109 @@ export async function createTable(
   );
 }
 
+const TEXT_WIDTH = 100;
+const TEXT_HEIGHT = 100;
+const TEXT_FONT_SIZE = 2;
+export async function createText(
+  name: string,
+  content: string
+): Promise<string> {
+  const textName = await ensureUniqueName(
+    name,
+    CodapListResource.ComponentList
+  );
+
+  return new Promise<string>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Create,
+        resource: CodapResource.Component,
+        values: {
+          type: CodapComponentType.Text,
+          name: textName,
+          dimensions: {
+            width: TEXT_WIDTH,
+            height: TEXT_HEIGHT,
+          },
+          text: {
+            object: "value",
+            data: {
+              fontSize: TEXT_FONT_SIZE,
+            },
+            document: {
+              children: [
+                {
+                  type: "paragraph",
+                  children: [
+                    {
+                      text: content,
+                    },
+                  ],
+                },
+              ],
+              objTypes: {
+                paragraph: "block",
+              },
+            },
+          },
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve(textName);
+        } else {
+          reject(new Error("Failed to create text"));
+        }
+      }
+    )
+  );
+}
+
+export async function updateText(name: string, content: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Update,
+        resource: resourceFromComponent(name),
+        values: {
+          dimensions: {
+            width: TEXT_WIDTH,
+            height: TEXT_HEIGHT,
+          },
+          text: {
+            object: "value",
+            data: {
+              fontSize: TEXT_FONT_SIZE,
+            },
+            document: {
+              children: [
+                {
+                  type: "paragraph",
+                  children: [
+                    {
+                      text: content,
+                    },
+                  ],
+                },
+              ],
+              objTypes: {
+                paragraph: "block",
+              },
+            },
+          },
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update text"));
+        }
+      }
+    )
+  );
+}
+
 async function ensureUniqueName(
   name: string,
   resourceType: CodapListResource
@@ -574,26 +815,16 @@ async function ensureUniqueName(
     )
   );
 
-  const names = resourceList.map((x) => x.name);
-
-  // If the name doesn't already exist we can return it as is
-  if (!names.includes(name)) {
-    return name;
-  }
-
-  const numberedName = (name: string, i: number) => `${name} (${i})`;
-
-  // Otherwise find a suffix for the name that makes it unique
-  let i = 1;
-  while (names.includes(numberedName(name, i))) {
-    i += 1;
-  }
-  return numberedName(name, i);
+  return uniqueName(
+    name,
+    resourceList.map((x) => x.name)
+  );
 }
 
 export async function createTableWithDataSet(
   dataset: DataSet,
-  name?: string
+  name?: string,
+  description?: string
 ): Promise<[CodapIdentifyingInfo, CaseTable]> {
   let baseName;
   if (!name) {
@@ -617,8 +848,75 @@ export async function createTableWithDataSet(
   );
 
   // Create context and table;
-  const newContext = await createContextWithDataSet(dataset, contextName);
+  const newContext = await createContextWithDataSet(
+    dataset,
+    contextName,
+    contextName,
+    {
+      description,
+    }
+  );
 
   const newTable = await createTable(tableName, contextName);
   return [newContext, newTable];
 }
+
+export function evalExpression(
+  expr: string,
+  records: Record<string, unknown>[]
+): Promise<unknown[]> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: CodapResource.FormulaEngine,
+        values: {
+          request: "evalExpression",
+          source: expr,
+          records: records,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          console.group("Eval");
+          console.log(response.values);
+          console.groupEnd();
+          resolve(response.values);
+        } else {
+          // In this case, values is an error message
+          reject(new CodapEvalError(expr, response.values.error));
+        }
+      }
+    )
+  );
+}
+
+export const getFunctionNames: () => Promise<string[]> = (() => {
+  // Remember result
+  let names: string[] | null = null;
+  return () => {
+    return new Promise<string[]>((resolve, reject) => {
+      if (names !== null) {
+        resolve(names);
+        return;
+      }
+      phone.call(
+        {
+          action: CodapActions.Get,
+          resource: CodapResource.FormulaEngine,
+        },
+        (response: GetFunctionInfoResponse) => {
+          if (response.success) {
+            const allFunctions: FunctionInfo[] = Object.values(
+              response.values
+            ).flatMap(Object.values);
+            names = allFunctions.map((f) => f.name);
+            resolve(names);
+          } else {
+            reject(new Error("Failed to get function names"));
+          }
+        }
+      );
+    });
+  };
+})();

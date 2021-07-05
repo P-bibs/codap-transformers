@@ -1,3 +1,5 @@
+import { TransformersInteractiveState } from "../../transformer-components/transformerList";
+
 export enum CodapResource {
   InteractiveFrame = "interactiveFrame",
   DataContext = "dataContext",
@@ -5,6 +7,7 @@ export enum CodapResource {
   Component = "component",
   Collection = "collection",
   CollectionList = "collectionList",
+  FormulaEngine = "formulaEngine",
 }
 
 export enum CodapListResource {
@@ -20,7 +23,30 @@ export enum CodapActions {
   Notify = "notify",
 }
 
-type UpdateInteractiveFrameRequest = {
+export type CodapRequest =
+  | CreateInteractiveFrameRequest
+  | UpdateInteractiveFrameRequest
+  | GetContextListRequest
+  | GetListRequest
+  | GetRequest
+  | CreateContextRequest
+  | CreateDataItemsRequest
+  | CreateCollectionsRequest
+  | DeleteRequest
+  | CreateTableRequest
+  | CreateTextRequest
+  | UpdateTextRequest
+  | EvalExpressionRequest
+  | GetFunctionInfoRequest;
+
+export type CreateInteractiveFrameRequest = {
+  action: CodapActions.Create;
+  resource: CodapResource.Component;
+
+  values: { URL: string; name: string; type: "game" };
+};
+
+export type UpdateInteractiveFrameRequest = {
   action: CodapActions.Update;
   resource: CodapResource.InteractiveFrame;
 
@@ -28,57 +54,106 @@ type UpdateInteractiveFrameRequest = {
   values: Partial<Omit<InteractiveFrame, "interactiveState">>;
 };
 
-type GetContextListRequest = {
+export type NotifyInteractiveFrameRequest = {
+  action: CodapActions.Notify;
+  resource: CodapResource.InteractiveFrame;
+  values: { dirty: boolean } | { image: string } | { request: string };
+};
+
+export type GetInteractiveFrameRequest = {
+  action: CodapActions.Get;
+  resource: CodapResource.InteractiveFrame;
+};
+
+export type GetContextListRequest = {
   action: CodapActions.Get;
   resource: CodapResource.DataContextList;
 };
 
-type GetRequest = {
+export type GetRequest = {
   action: CodapActions.Get;
   resource: string;
 };
 
-type GetListRequest = {
+export type GetListRequest = {
   action: CodapActions.Get;
   resource: CodapListResource;
 };
 
-type CreateContextRequest = {
+export type CreateContextRequest = {
   action: CodapActions.Create;
   resource: CodapResource.DataContext;
-  values: {
-    name: string;
-    title?: string;
-    collections: Collection[];
-  };
+  values: DataContext;
 };
 
-type CreateDataItemsRequest = {
+export type CreateCollectionsRequest = {
+  action: CodapActions.Create;
+  resource: string;
+  values: Collection[];
+};
+
+export type CreateDataItemsRequest = {
   action: CodapActions.Create;
   resource: string;
   values: Record<string, unknown>[];
 };
 
-type DeleteRequest = {
+export type DeleteRequest = {
   action: CodapActions.Delete;
   resource: string;
 };
 
-type CreateTableRequest = {
+export type CreateTableRequest = {
   action: CodapActions.Create;
   resource: CodapResource.Component;
   values: CaseTable;
 };
 
+export interface CreateTextRequest {
+  action: CodapActions.Create;
+  resource: CodapResource.Component;
+  values: Text;
+}
+
+export interface UpdateTextRequest {
+  action: CodapActions.Update;
+  resource: string;
+  values: Partial<Text>;
+}
+
+export interface EvalExpressionRequest {
+  action: CodapActions.Notify;
+  resource: CodapResource.FormulaEngine;
+  values: {
+    request: "evalExpression";
+    source: string;
+    records: Record<string, unknown>[];
+  };
+}
+
+export interface GetFunctionInfoRequest {
+  action: CodapActions.Get;
+  resource: CodapResource.FormulaEngine;
+}
+
 export interface CodapResponse {
   success: boolean;
+}
+
+export type InteractiveState = TransformersInteractiveState;
+export interface GetInteractiveStateResponse extends CodapResponse {
+  values: InteractiveState;
+}
+
+interface GetInteractiveFrameResponse extends CodapResponse {
+  values: InteractiveFrame;
 }
 
 interface CreateContextResponse extends CodapResponse {
   values: CodapIdentifyingInfo;
 }
 
-interface GetListResponse extends CodapResponse {
+interface ListResponse extends CodapResponse {
   values: CodapIdentifyingInfo[];
 }
 
@@ -110,10 +185,36 @@ interface TableResponse extends CodapResponse {
   values: CaseTable;
 }
 
+export interface GetFunctionInfoResponse extends CodapResponse {
+  values: {
+    [category: string]: {
+      [fname: string]: FunctionInfo;
+    };
+  };
+}
+
+type EvalExpressionResponse =
+  | {
+      success: true;
+      values: unknown[];
+    }
+  | {
+      success: false;
+      values: {
+        error: string;
+      };
+    };
+
 export type CodapPhone = {
+  call(r: CreateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
   call(r: UpdateInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
-  call(r: GetContextListRequest, cb: (r: GetListResponse) => void): void;
-  call(r: GetListRequest, cb: (r: GetListResponse) => void): void;
+  call(r: NotifyInteractiveFrameRequest, cb: (r: CodapResponse) => void): void;
+  call(
+    r: GetInteractiveFrameRequest,
+    cb: (r: GetInteractiveFrameResponse) => void
+  ): void;
+  call(r: GetContextListRequest, cb: (r: ListResponse) => void): void;
+  call(r: GetListRequest, cb: (r: ListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
   call(r: GetRequest, cb: (r: GetContextResponse) => void): void;
   call(r: GetRequest, cb: (r: GetDataListResponse) => void): void;
@@ -121,8 +222,17 @@ export type CodapPhone = {
   call(r: GetRequest, cb: (r: GetCaseResponse) => void): void;
   call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
   call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;
+  call(r: CreateCollectionsRequest, cb: (r: ListResponse) => void): void;
   call(r: DeleteRequest, cb: (r: CodapResponse) => void): void;
   call(r: CreateTableRequest, cb: (r: TableResponse) => void): void;
+  call(r: CreateTextRequest, cb: (r: CodapResponse) => void): void;
+  call(r: UpdateTextRequest, cb: (r: CodapResponse) => void): void;
+  call(r: EvalExpressionRequest, cb: (r: EvalExpressionResponse) => void): void;
+  call(
+    r: GetFunctionInfoRequest,
+    cb: (r: GetFunctionInfoResponse) => void
+  ): void;
+  call(r: CodapRequest[], cb: (r: CodapResponse[]) => void): void;
 };
 
 export enum CodapInitiatedResource {
@@ -132,22 +242,60 @@ export enum CodapInitiatedResource {
   DataContextChangeNotice = "dataContextChangeNotice",
 }
 
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#case-change-notifications
+// https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#example-collection-delete
 export enum ContextChangeOperation {
   UpdateCases = "updateCases",
   CreateCases = "createCases",
   DeleteCases = "deleteCases",
   SelectCases = "selectCases",
   UpdateContext = "updateDataContext",
+
+  // Triggered when sorting a column.
+  MoveCases = "moveCases",
+
+  // Despite the documentation, the first five of these are plural, while the
+  // last is singular
+  CreateAttribute = "createAttributes",
+  UpdateAttribute = "updateAttributes",
+  DeleteAttribute = "deleteAttributes",
+  HideAttribute = "hideAttributes",
+  UnhideAttribute = "unhideAttributes",
+  MoveAttribute = "moveAttribute",
+
+  // Not sure where this is documented, but it is triggered when a collection
+  // is renamed, for example
+  UpdateCollection = "updateCollection",
+
+  CreateCollection = "createCollection",
+  DeleteCollection = "deleteCollection",
+
+  // Not sure where this is documented either, but it is triggered when
+  // attribute dependencies change (e.g. when moving an attribute from one
+  // collection to another).
+  DependentCases = "dependentCases",
 }
 
 export const mutatingOperations = [
   ContextChangeOperation.UpdateCases,
   ContextChangeOperation.CreateCases,
   ContextChangeOperation.DeleteCases,
+  ContextChangeOperation.MoveCases,
+  ContextChangeOperation.CreateAttribute,
+  ContextChangeOperation.UpdateAttribute,
+  ContextChangeOperation.DeleteAttribute,
+  ContextChangeOperation.MoveAttribute,
+  ContextChangeOperation.UpdateCollection,
+  ContextChangeOperation.CreateCollection,
+  ContextChangeOperation.DeleteCollection,
+  ContextChangeOperation.DependentCases,
+  ContextChangeOperation.HideAttribute,
+  ContextChangeOperation.UnhideAttribute,
 ];
 
 export enum DocumentChangeOperations {
   DataContextCountChanged = "dataContextCountChanged",
+  DataContextDeleted = "dataContextDeleted",
 }
 
 export type CodapInitiatedCommand =
@@ -168,7 +316,15 @@ export type CodapInitiatedCommand =
       action: CodapActions.Notify;
       resource: CodapInitiatedResource.DocumentChangeNotice;
       values: {
-        operation: DocumentChangeOperations;
+        operation: DocumentChangeOperations.DataContextCountChanged;
+      };
+    }
+  | {
+      action: CodapActions.Notify;
+      resource: CodapInitiatedResource.DocumentChangeNotice;
+      values: {
+        operation: DocumentChangeOperations.DataContextDeleted;
+        deletedContext: string;
       };
     }
   | {
@@ -176,8 +332,17 @@ export type CodapInitiatedCommand =
       resource: CodapInitiatedResource.DataContextChangeNotice;
       values: {
         operation: ContextChangeOperation;
+        result?: Record<string, unknown>;
       }[];
     };
+
+// The `metadata` property of data contexts is undocumented but described here:
+// https://codap.concord.org/forums/topic/accessing-dataset-description-through-plugin-api/
+export interface ContextMetadata {
+  description?: string;
+  importDate?: string;
+  source?: string;
+}
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#datacontexts
 export interface DataContext {
@@ -185,6 +350,7 @@ export interface DataContext {
   title?: string;
   description?: string;
   collections: Collection[];
+  metadata?: ContextMetadata;
 }
 
 export interface ReturnedDataContext extends Omit<DataContext, "collections"> {
@@ -213,14 +379,10 @@ export interface ReturnedCollection extends Omit<Collection, "parent"> {
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributes
-export type CodapAttribute =
-  | BaseAttribute
-  | CategoricalAttribute
-  | NumericAttribute;
-
-export interface RawAttribute {
+export interface CodapAttribute {
   name: string;
   title?: string;
+  type?: "categorical" | "numeric" | "date" | "qualitative" | "boundary" | null;
   colormap?:
     | Record<string, string>
     | {
@@ -232,26 +394,8 @@ export interface RawAttribute {
   editable?: boolean;
   formula?: string;
   hidden?: boolean;
-}
-
-export interface BaseAttribute extends RawAttribute {
-  type?: undefined;
-}
-
-export interface CategoricalAttribute extends RawAttribute {
-  type?: "categorical";
-  colormap?: Record<string, string>;
-}
-
-export interface NumericAttribute extends RawAttribute {
-  type?: "numeric";
   precision?: number;
-  unit?: string;
-  colormap?: {
-    "high-attribute-color": string;
-    "low-attribute-color": string;
-    "attribute-color": string;
-  };
+  unit?: string | null;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#attributelocations
@@ -333,7 +477,7 @@ export interface CaseTable extends CodapComponent {
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-map-object
 export interface Map extends CodapComponent {
   type: CodapComponentType.Map;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   dataContext: string;
   legendAttributeName: string;
   center: [number, number];
@@ -343,7 +487,7 @@ export interface Map extends CodapComponent {
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-slider-object
 export interface Slider extends CodapComponent {
   type: CodapComponentType.Slider;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   globalValueName: string;
   animationDirection: number;
   animationMode: number;
@@ -354,27 +498,27 @@ export interface Slider extends CodapComponent {
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-calculator-object
 export interface Calculator extends CodapComponent {
   type: CodapComponentType.Calculator;
-  cannotClose: boolean;
+  cannotClose?: boolean;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-text-object
 export interface Text extends CodapComponent {
   type: CodapComponentType.Text;
-  cannotClose: boolean;
-  text: string;
+  cannotClose?: boolean;
+  text: Record<string, unknown>;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-webview-object
 export interface WebView extends CodapComponent {
   type: CodapComponentType.WebView;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   URL: string;
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-guide-object
 export interface Guide extends CodapComponent {
   type: CodapComponentType.Guide;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   isVisible: boolean;
   currentItemIndex: number;
   items: {
@@ -384,7 +528,7 @@ export interface Guide extends CodapComponent {
 }
 
 // https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#the-interactiveframe-object
-type InteractiveFrame = {
+export type InteractiveFrame = {
   name: string;
   title: string;
   version: string;
@@ -396,10 +540,30 @@ type InteractiveFrame = {
   preventDataContextReorg: boolean;
   externalUndoAvailable: boolean;
   standaloneUndoModeAvailable: boolean;
-  cannotClose: boolean;
+  cannotClose?: boolean;
   isResizable: {
     width: boolean;
     height: boolean;
   };
-  savedState: Record<string, unknown>;
+  savedState?: InteractiveState;
 };
+
+export interface FunctionInfo {
+  name: string;
+  category: string;
+  description: string;
+  displayName: string;
+  maxArgs: number;
+  minArgs: number;
+  examples: string[];
+  args: {
+    name: string;
+
+    // In practice, this can be"number", "expression", "value", "any",
+    // "boolean", "attribute", "string", "constant", "filter", "string or
+    // regular expression"
+    type: string;
+    required: boolean;
+    description: string;
+  }[];
+}

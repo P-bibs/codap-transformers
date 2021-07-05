@@ -21,3 +21,8 @@
 .editor-disabled .CodeMirror {
   background-color: rgba(0, 0, 0, 0.07);
 }
+
+/* make cursor disappear when disabled */
+.editor-disabled .CodeMirror-cursor { 
+  display: none !important;
+}

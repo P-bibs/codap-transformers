@@ -72,19 +72,20 @@ const phone: CodapPhone = new IframePhoneRpcEndpoint(
 const DEFAULT_PLUGIN_WIDTH = 350;
 const DEFAULT_PLUGIN_HEIGHT = 500;
 
-// Initialize
+// Initialize the interactive frame with a given title.
 export async function initPhone(title: string): Promise<void> {
+  const hasState = (await getInteractiveFrame()).savedState !== undefined;
   // Only resize the plugin to default dimensions if this is it's
   // first time being initialized (no savedState)
-  const dimensions =
-    (await getInteractiveFrame()).savedState === undefined
-      ? {
-          width: DEFAULT_PLUGIN_WIDTH,
-          height: DEFAULT_PLUGIN_HEIGHT,
-        }
-      : undefined;
+  const dimensions = hasState
+    ? {
+        width: DEFAULT_PLUGIN_WIDTH,
+        height: DEFAULT_PLUGIN_HEIGHT,
+      }
+    : undefined;
   return updateInteractiveFrame({
-    title,
+    // Don't update the title if there is save data.
+    title: hasState ? undefined : title,
     dimensions,
   });
 }

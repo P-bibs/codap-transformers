@@ -370,11 +370,11 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             <>
               <p>{splitIntoParagraphs(info.summary)}</p>
               <p>
-                <b>Inputs: </b>
+                <b>Consumes: </b>
                 {splitIntoParagraphs(info.consumes)}
               </p>
               <p>
-                <b>Outputs: </b>
+                <b>Produces: </b>
                 {splitIntoParagraphs(info.produces)}
               </p>
             </>

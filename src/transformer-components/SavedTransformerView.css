@@ -1,0 +1,12 @@
+
+.editing-indicator {
+    margin-bottom: 10px;
+    background-color: #ffffe6;
+    padding: 6px;
+    border: solid 1px #b3b300;
+    border-radius: 5px;
+}
+
+.editing-indicator * {
+    color: #b3b300;
+}

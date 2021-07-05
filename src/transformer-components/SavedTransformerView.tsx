@@ -15,6 +15,8 @@ import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
 } from "../utils/codapPhone/listeners";
+import "../ui-components/TransformerSaveButton.css";
+import "./SavedTransformerView.css";
 
 /**
  * SavedTransformerView wraps a saved transformer in other important info
@@ -28,6 +30,7 @@ function SavedTransformerView({
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [editable, setEditable] = useState<boolean>(false);
   const [savedTransformer, setSavedTransformer] = useState(urlTransformer);
+  const [saveErr, setSaveErr] = useState<string | null>(null);
 
   // Load saved state from CODAP memory
   useEffect(() => {
@@ -68,13 +71,20 @@ function SavedTransformerView({
 
   return (
     <div className="transformer-view">
+      {editable && (
+        <div className="editing-indicator">
+          <p>You are editing this transformer...</p>
+        </div>
+      )}
       {editable ? (
         <TextInput
           value={savedTransformer.name}
-          onChange={(e) =>
-            setSavedTransformer({ ...savedTransformer, name: e.target.value })
-          }
+          onChange={(e) => {
+            setSavedTransformer({ ...savedTransformer, name: e.target.value });
+            setSaveErr(null);
+          }}
           placeholder={"Transformer Name"}
+          className="saved-transformer-name"
           onBlur={notifyStateIsDirty}
         />
       ) : (
@@ -86,13 +96,15 @@ function SavedTransformerView({
       {editable ? (
         <TextArea
           value={savedTransformer.description || ""}
-          onChange={(e) =>
+          onChange={(e) => {
             setSavedTransformer({
               ...savedTransformer,
               description: e.target.value,
-            })
-          }
+            });
+            setSaveErr(null);
+          }}
           placeholder="Purpose Statement"
+          className="purpose-statement"
           onBlur={notifyStateIsDirty}
         />
       ) : (
@@ -106,7 +118,15 @@ function SavedTransformerView({
       />
       <button
         id="edit-button"
-        onClick={() => setEditable(!editable)}
+        onClick={() => {
+          // if going to non-editable (saving) and name is blank
+          if (editable && savedTransformer.name.trim() === "") {
+            setSaveErr("Please choose a name for the transformer");
+            return;
+          }
+
+          setEditable(!editable);
+        }}
         title={
           editable
             ? "Save changes made to this transformer"
@@ -115,6 +135,7 @@ function SavedTransformerView({
       >
         {editable ? "Save" : "Edit"}
       </button>
+      <ErrorDisplay message={saveErr} />
     </div>
   );
 }

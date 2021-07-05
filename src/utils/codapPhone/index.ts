@@ -74,6 +74,16 @@ const DEFAULT_PLUGIN_HEIGHT = 500;
 
 // Initialize
 export async function initPhone(title: string): Promise<void> {
+  // Only resize the plugin to default dimensions if this is it's
+  // first time being initialized (no savedState)
+  const dimensions =
+    (await getInteractiveFrame()).savedState === undefined
+      ? {
+          width: DEFAULT_PLUGIN_WIDTH,
+          height: DEFAULT_PLUGIN_HEIGHT,
+        }
+      : undefined;
+
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {
@@ -81,10 +91,7 @@ export async function initPhone(title: string): Promise<void> {
         resource: CodapResource.InteractiveFrame,
         values: {
           title,
-          dimensions: {
-            width: DEFAULT_PLUGIN_WIDTH,
-            height: DEFAULT_PLUGIN_HEIGHT,
-          },
+          dimensions,
         },
       },
       (response) => {
@@ -233,6 +240,7 @@ export function getInteractiveFrame(): Promise<InteractiveFrame> {
       },
       (response) => {
         if (response.success) {
+          console.log(response.values);
           resolve(response.values);
         } else {
           reject(new Error("Failed to get interactive frame."));

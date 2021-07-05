@@ -239,8 +239,7 @@ export function getInteractiveFrame(): Promise<InteractiveFrame> {
         resource: CodapResource.InteractiveFrame,
       },
       (response) => {
-        if (response.success) {
-          console.log(response.values);
+        if (response && response.success) {
           resolve(response.values);
         } else {
           reject(new Error("Failed to get interactive frame."));

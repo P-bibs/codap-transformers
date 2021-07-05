@@ -55,7 +55,7 @@ export default function TransformerSaveButton({
   useEffect(() => {
     async function fetchSavedState() {
       const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState.savedTransformation) {
+      if (savedState && savedState.savedTransformation) {
         setCurrentName(savedState.savedTransformation.name);
         setDescription(savedState.savedTransformation.description);
       }

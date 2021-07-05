@@ -362,9 +362,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
   return (
     <>
       {/* Only render info icon if NOT a saved transformation. */}
-      {saveData ? (
-        <></>
-      ) : (
+      {!saveData && (
         <Popover
           icon={<InfoIcon htmlColor="var(--blue-green)" fontSize="small" />}
           tooltip={`More Info on ${base}`}

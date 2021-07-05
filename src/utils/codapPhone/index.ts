@@ -74,18 +74,24 @@ const DEFAULT_PLUGIN_HEIGHT = 500;
 
 // Initialize
 export async function initPhone(title: string): Promise<void> {
+  return updateInteractiveFrame({
+    title,
+    dimensions: {
+      width: DEFAULT_PLUGIN_WIDTH,
+      height: DEFAULT_PLUGIN_HEIGHT,
+    },
+  });
+}
+
+export async function updateInteractiveFrame(
+  values: Partial<Omit<InteractiveFrame, "interactiveState">>
+): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Update,
         resource: CodapResource.InteractiveFrame,
-        values: {
-          title,
-          dimensions: {
-            width: DEFAULT_PLUGIN_WIDTH,
-            height: DEFAULT_PLUGIN_HEIGHT,
-          },
-        },
+        values,
       },
       (response) => {
         // NOTE: Ensure the response exists, since if this is run

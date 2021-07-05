@@ -8,6 +8,7 @@ import { TextArea, TextInput } from "../ui-components";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
+  updateInteractiveFrame,
 } from "../utils/codapPhone";
 import { useEffect } from "react";
 import { InteractiveState } from "../utils/codapPhone/types";
@@ -123,6 +124,13 @@ function SavedTransformerView({
           if (editable && savedTransformer.name.trim() === "") {
             setSaveErr("Please choose a name for the transformer");
             return;
+          }
+
+          // if saving, update the interactive frame to use the new transformer name
+          if (editable) {
+            updateInteractiveFrame({
+              title: `Transformer: ${savedTransformer.name}`,
+            });
           }
 
           setEditable(!editable);

@@ -1,10 +1,15 @@
-import { CodapAttribute, Collection } from "../utils/codapPhone/types";
+import { Collection } from "../utils/codapPhone/types";
 import { DataSet, TransformationOutput } from "./types";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformer-components/util";
-import { shallowCopy, cloneCollection, cloneAttribute } from "./util";
+import {
+  shallowCopy,
+  cloneCollection,
+  cloneAttribute,
+  allAttrNames,
+} from "./util";
 
 /**
  * Joins two datasets together, using the baseDataset as a starting point
@@ -85,9 +90,7 @@ function uncheckedJoin(
   }
 
   // list of attributes whose names cannot be duplicated by the added attrs
-  const namesToAvoid = baseDataset.collections
-    .reduce((acc, coll) => acc.concat(coll.attrs || []), [] as CodapAttribute[])
-    .map((attr) => attr.name);
+  const namesToAvoid = allAttrNames(baseDataset);
 
   // ensure added attribute names are unique relative to attribute
   // names in base dataset (as well as all other added attributes)

@@ -69,7 +69,7 @@ export async function sort({
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
-  if (expression === "") {
+  if (expression.trim() === "") {
     throw new Error("Please enter a non-empty key expression");
   }
   if (!isSortDirection(sortDirection)) {

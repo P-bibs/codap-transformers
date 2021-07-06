@@ -124,16 +124,16 @@ export async function genericFold({
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
-  if (resultColumnName === "") {
+  if (resultColumnName.trim() === "") {
     throw new Error("Please enter a name for the new attribute");
   }
-  if (expression === "") {
+  if (expression.trim() === "") {
     throw new Error("Please enter an expression");
   }
-  if (base === "") {
+  if (base.trim() === "") {
     throw new Error("Please enter a base value");
   }
-  if (accumulatorName === "") {
+  if (accumulatorName.trim() === "") {
     throw new Error("Please enter an accumulator name");
   }
 
@@ -300,6 +300,9 @@ export async function differenceFrom({
   if (inputAttributeName === null) {
     throw new Error("Please choose an attribute to take the difference from");
   }
+  if (startingValue.trim() === "") {
+    throw new Error("Please provide a starting value for the difference.");
+  }
   if (isNaN(Number(startingValue))) {
     throw new Error(
       `Expected numeric starting value, instead got ${startingValue}`
@@ -308,7 +311,10 @@ export async function differenceFrom({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
-  const resultAttributeName = `Difference From of ${inputAttributeName} in ${ctxtName}`;
+  const resultAttributeName = uniqueName(
+    `Difference From of ${inputAttributeName} in ${ctxtName}`,
+    allAttrNames(dataset)
+  );
 
   return [
     await uncheckedDifferenceFrom(

@@ -46,6 +46,7 @@ interface ExpressionEditorProps {
   onChange: (value: string) => void;
   attributeNames?: string[];
   disabled?: boolean;
+  onBlur?: () => void;
 }
 
 const delimiters = new Set([" ", "(", ")", "`"]);
@@ -91,6 +92,7 @@ export default function ExpressionEditor({
   onChange,
   attributeNames = [],
   disabled,
+  onBlur,
 }: ExpressionEditorProps): ReactElement {
   const codapFormulaHints: HintFunction = useCallback(
     async (cm) => {
@@ -128,6 +130,7 @@ export default function ExpressionEditor({
   return (
     <>
       <CodeMirrorElement
+        className={disabled ? "editor-disabled" : undefined}
         value={value}
         options={{
           mode: "codapFormula",
@@ -144,6 +147,7 @@ export default function ExpressionEditor({
             onChange(value);
           }
         }}
+        onBlur={onBlur}
       />
     </>
   );

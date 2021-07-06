@@ -26,11 +26,16 @@ export default function MultiAttributeSelector({
     if (disabled) {
       return;
     }
+    // Abort if a context is provided but attrs haven't been loaded yet
+    // FIXME: this doesn't work if the table actually has 0 attributes
+    if (context !== null && attributes.length === 0) {
+      return;
+    }
     const attrNames = attributes.filter((a) => !a.hidden).map((a) => a.name);
     if (selected.some((a) => !attrNames.includes(a))) {
       setSelected(selected.filter((a) => attrNames.includes(a)));
     }
-  }, [attributes, selected, setSelected, disabled]);
+  }, [attributes, selected, setSelected, disabled, context]);
 
   return (
     <>

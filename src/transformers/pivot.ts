@@ -1,6 +1,7 @@
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
+import { uniqueName } from "../utils/names";
 import { DataSet, TransformationOutput } from "./types";
 import {
   eraseFormulas,
@@ -27,12 +28,12 @@ export async function pivotLonger({
   if (attributes.length === 0) {
     throw new Error("Please choose at least one attribute to pivot on");
   }
-  if (namesTo === "") {
+  if (namesTo.trim() === "") {
     throw new Error(
       "Please choose a non-empty name for the Names To attribute"
     );
   }
-  if (valuesTo === "") {
+  if (valuesTo.trim() === "") {
     throw new Error(
       "Please choose a non-empty name for the Values To attribute"
     );
@@ -82,6 +83,11 @@ function uncheckedPivotLonger(
       `Pivot longer can only be used on a single-collection dataset`
     );
   }
+  if (namesTo === valuesTo) {
+    throw new Error(
+      `Please choose distinct names for the Names To and Values To attributes`
+    );
+  }
 
   // remove pivoting attributes
   const collection = { ...dataset.collections[0] };
@@ -91,7 +97,13 @@ function uncheckedPivotLonger(
   // NOTE: do not copy formulas: dependencies may be removed by the pivot
   eraseFormulas(collection.attrs);
 
-  const toPivotNames = toPivot.join(", ");
+  const toPivotNames = listAsString(toPivot);
+
+  // Ensure names to / values to are unique relative to attributes
+  // that will be included in pivoted table.
+  const remainingAttrs = collection.attrs?.map((attr) => attr.name) || [];
+  namesTo = uniqueName(namesTo, remainingAttrs);
+  valuesTo = uniqueName(valuesTo, remainingAttrs);
 
   // add namesTo and valuesTo attributes
   // NOTE: valuesTo might hold values of different types

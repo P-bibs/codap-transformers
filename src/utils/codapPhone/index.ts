@@ -25,19 +25,21 @@ import {
   GetFunctionInfoResponse,
   FunctionInfo,
   CodapAttribute,
+  GetInteractiveStateResponse,
+  InteractiveFrame,
 } from "./types";
 import {
   callUpdateListenersForContext,
   callAllContextListeners,
   removeContextUpdateListenersForContext,
   removeListenersWithDependency,
+  callAllInteractiveStateRequestListeners,
 } from "./listeners";
 import {
   resourceFromContext,
   itemFromContext,
   resourceFromComponent,
   collectionListFromContext,
-  attributeListFromCollection,
   caseById,
   allCasesWithSearch,
 } from "./resource";
@@ -67,11 +69,21 @@ const phone: CodapPhone = new IframePhoneRpcEndpoint(
   null
 );
 
-const DEFAULT_PLUGIN_WIDTH = 300;
-const DEFAULT_PLUGIN_HEIGHT = 320;
+const DEFAULT_PLUGIN_WIDTH = 350;
+const DEFAULT_PLUGIN_HEIGHT = 500;
 
 // Initialize
 export async function initPhone(title: string): Promise<void> {
+  // Only resize the plugin to default dimensions if this is it's
+  // first time being initialized (no savedState)
+  const dimensions =
+    (await getInteractiveFrame()).savedState === undefined
+      ? {
+          width: DEFAULT_PLUGIN_WIDTH,
+          height: DEFAULT_PLUGIN_HEIGHT,
+        }
+      : undefined;
+
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {
@@ -79,10 +91,7 @@ export async function initPhone(title: string): Promise<void> {
         resource: CodapResource.InteractiveFrame,
         values: {
           title,
-          dimensions: {
-            width: DEFAULT_PLUGIN_WIDTH,
-            height: DEFAULT_PLUGIN_HEIGHT,
-          },
+          dimensions,
         },
       },
       (response) => {
@@ -117,6 +126,17 @@ function codapRequestHandler(
   console.group("CODAP");
   console.log(command);
   console.groupEnd();
+
+  // Request for plugins state
+  if (
+    command.action === CodapActions.Get &&
+    command.resource === CodapInitiatedResource.InteractiveState
+  ) {
+    const values = callAllInteractiveStateRequestListeners();
+    const result: GetInteractiveStateResponse = { success: true, values };
+    callback(result);
+    return;
+  }
 
   if (command.action !== CodapActions.Notify) {
     callback({ success: true });
@@ -209,6 +229,47 @@ function callMultiple(requests: CodapRequest[]): Promise<CodapResponse[]> {
   return new Promise<CodapResponse[]>((resolve) => {
     phone.call(requests, (responses) => resolve(responses));
   });
+}
+
+export function getInteractiveFrame(): Promise<InteractiveFrame> {
+  return new Promise<InteractiveFrame>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: CodapResource.InteractiveFrame,
+      },
+      (response) => {
+        if (response && response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get interactive frame."));
+        }
+      }
+    )
+  );
+}
+
+export function notifyInteractiveFrameIsDirty(): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: CodapResource.InteractiveFrame,
+        values: {
+          dirty: true,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(
+            new Error("Failed to notify interactive frame that state is dirty.")
+          );
+        }
+      }
+    )
+  );
 }
 
 export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {

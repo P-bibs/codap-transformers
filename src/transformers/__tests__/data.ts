@@ -39,7 +39,7 @@ function makeRecords(
 }
 
 /**
- * Makes a clone of a dataset. 
+ * Makes a clone of a dataset.
  */
 export function cloneDataSet(dataset: DataSet): DataSet {
   return {

@@ -32,7 +32,7 @@ export async function combineCases({
   const ctxtName2 = readableName(context2);
 
   return [
-    await uncheckedCombineCases(dataset1, dataset2),
+    uncheckedCombineCases(dataset1, dataset2),
     `Combined Cases of ${ctxtName1} and ${ctxtName2}`,
     `A copy of ${ctxtName1}, containing all of the cases from both ${ctxtName1} and ${ctxtName2}.`,
   ];

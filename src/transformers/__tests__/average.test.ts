@@ -15,6 +15,7 @@ test("errors on invalid attribute", () => {
   );
 });
 
+// FIXME: this fails right now, but should definitely be an error--fix average
 test("errors on non-number values", () => {
   expect(() => uncheckedAverage(DATASET_A, "B")).toThrowError(
     /Expected number/

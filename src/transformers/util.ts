@@ -182,8 +182,7 @@ export function pluralSuffix<T>(word: string, describing: T[]): string {
 }
 
 /**
- * Converts a CODAP cell value into a user-friendly string
- * for printing in error messages.
+ * Converts a CODAP cell value into a user-friendly string.
  *
  * @param codapValue the value to convert to a string for printing
  * @returns string version of the value
@@ -207,6 +206,11 @@ export function codapValueToString(codapValue: unknown): string {
   // numeric values
   if (!isNaN(Number(codapValue))) {
     return String(codapValue);
+  }
+
+  // colors
+  if (isColor(codapValue)) {
+    return `the color ${codapValue}`;
   }
 
   // boundaries
@@ -243,6 +247,26 @@ export function isBoundaryMap(value: unknown): boolean {
 export function isBoundary(value: unknown): boolean {
   return (
     typeof value === "object" && value !== null && "jsonBoundaryObject" in value
+  );
+}
+
+/**
+ * Determines if a given CODAP value is a color.
+ */
+export function isColor(value: unknown): boolean {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const noWhitespace = value.replace(/\s+/g, "");
+
+  // Hex, rgb, and rgba are the allowed syntaxes for defining color values in CODAP.
+  // Source: https://github.com/concord-consortium/codap/wiki/CODAP-Data-
+  // Interactive-Plugin-API#data-types-and-typeless-data
+  return (
+    /#[0-9a-fA-F]{6}/.test(noWhitespace) ||
+    /rgb\(\d{1,3},\d{1,3},\d{1,3}\)/.test(noWhitespace) ||
+    /rgba\(\d{1,3},\d{1,3},\d{1,3},(0|1)?\.\d*\)/.test(noWhitespace)
   );
 }
 

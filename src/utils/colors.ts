@@ -7,7 +7,7 @@ export const RED: Color = [255, 0, 0];
  * Given two colors and a value between 0 and 1, calculates the color that
  * lies "between" the `from` and `to` colors.
  *
- * Progress of 0 corresponds to the `from` color and progress of ` corresponds
+ * Progress of 0 corresponds to the `from` color and progress of 1 corresponds
  * to the `to` color. Anything in between interpolates between the two.
  */
 export const interpolateColor = (

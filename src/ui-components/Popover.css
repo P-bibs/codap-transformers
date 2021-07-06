@@ -1,0 +1,9 @@
+
+/* wrapper around whatever icon/button is used to control the popover */
+.popover-button-container {
+  display: inline-block;
+}
+
+.popover-button-container:hover {
+  cursor: pointer;
+}

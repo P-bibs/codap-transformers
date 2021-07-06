@@ -37,6 +37,7 @@ import {
 import { InteractiveState } from "../utils/codapPhone/types";
 import Popover from "../ui-components/Popover";
 import InfoIcon from "@material-ui/icons/Info";
+import { IconButton } from "@material-ui/core";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -376,7 +377,12 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       {/* Only render info icon if NOT a saved transformation. */}
       {!saveData && (
         <Popover
-          icon={<InfoIcon htmlColor="var(--blue-green)" fontSize="small" />}
+          button={
+            <IconButton style={{ padding: "0" }} size="small">
+              <InfoIcon htmlColor="var(--blue-green)" fontSize="inherit" />
+            </IconButton>
+          }
+          buttonStyles={{ marginLeft: "5px", display: "inline" }}
           tooltip={`More Info on ${base}`}
           innerContent={
             <>

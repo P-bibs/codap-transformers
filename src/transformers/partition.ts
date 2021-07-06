@@ -51,9 +51,9 @@ export const partitionOverride = async (
     // return both the datasets and their names
     return partitioned.map((pd) => [
       pd,
-      `Partition of ${readableContext} by ${attributeName} = ${codapValueToString(
+      `${attributeName} = ${codapValueToString(
         pd.distinctValue
-      )}`,
+      )} in ${readableContext}`,
     ]);
   };
 
@@ -105,11 +105,18 @@ export const partitionOverride = async (
     let valueToContext: Record<string, string> = {};
     const outputContexts: string[] = [];
 
+    const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
+    const inputDataCtxtName = readableName(inputContext);
+
     for (const [partitioned, name] of transformed) {
       const newContextName = await applyNewDataSet(
         partitioned.dataset,
         name,
-        partitionDatasetDescription(partitioned, inputDataCtxt, attributeName)
+        partitionDatasetDescription(
+          partitioned,
+          inputDataCtxtName,
+          attributeName
+        )
       );
       valueToContext[partitioned.distinctValueAsStr] = newContextName;
       outputContexts.push(newContextName);
@@ -124,7 +131,7 @@ export const partitionOverride = async (
         if (
           !confirmLargeOutput(
             transformed.length,
-            `Updating the partition of ${inputDataCtxt} will lead to ${transformed.length} total output datasets`
+            `Updating the partition of ${inputDataCtxtName} will lead to ${transformed.length} total output datasets`
           )
         ) {
           return;
@@ -143,7 +150,7 @@ export const partitionOverride = async (
               name,
               partitionDatasetDescription(
                 partitioned,
-                inputDataCtxt,
+                inputDataCtxtName,
                 attributeName
               )
             );

@@ -24,10 +24,10 @@ export async function buildColumn({
   if (collectionName === null) {
     throw new Error("Please select a collection to add to");
   }
-  if (attributeName === null) {
+  if (attributeName.trim() === "") {
     throw new Error("Please enter a non-empty name for the new attribute");
   }
-  if (expression === "") {
+  if (expression.trim() === "") {
     throw new Error("Please enter a non-empty expression");
   }
   if (outputType === null) {

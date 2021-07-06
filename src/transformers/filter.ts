@@ -15,7 +15,7 @@ export async function filter({
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
-  if (predicate === "") {
+  if (predicate.trim() === "") {
     throw new Error("Please enter a non-empty expression to filter by");
   }
 

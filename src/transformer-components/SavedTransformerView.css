@@ -10,3 +10,7 @@
 .editing-indicator * {
     color: #999900;
 }
+
+.divider {
+    margin-top: 10px;
+}

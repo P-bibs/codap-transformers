@@ -74,7 +74,7 @@ function SavedTransformerView({
     <div className="transformer-view">
       {editable && (
         <div className="editing-indicator">
-          <p>You are editing this transformer...</p>
+          <p>You are editing this transformer</p>
         </div>
       )}
       {editable ? (
@@ -95,19 +95,22 @@ function SavedTransformerView({
         </h2>
       )}
       {editable ? (
-        <TextArea
-          value={savedTransformer.description || ""}
-          onChange={(e) => {
-            setSavedTransformer({
-              ...savedTransformer,
-              description: e.target.value,
-            });
-            setSaveErr(null);
-          }}
-          placeholder="Purpose Statement"
-          className="purpose-statement"
-          onBlur={notifyStateIsDirty}
-        />
+        <>
+          <TextArea
+            value={savedTransformer.description || ""}
+            onChange={(e) => {
+              setSavedTransformer({
+                ...savedTransformer,
+                description: e.target.value,
+              });
+              setSaveErr(null);
+            }}
+            placeholder="Purpose Statement"
+            className="purpose-statement"
+            onBlur={notifyStateIsDirty}
+          />
+          <hr className="divider" />
+        </>
       ) : (
         savedTransformer.description && <p>{savedTransformer.description}</p>
       )}

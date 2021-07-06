@@ -25,7 +25,7 @@ export async function transformColumn({
   if (attributeName === null) {
     throw new Error("Please select an attribute to transform");
   }
-  if (expression === "") {
+  if (expression.trim() === "") {
     throw new Error("Please enter a non-empty expression to transform with");
   }
   if (outputType === null) {

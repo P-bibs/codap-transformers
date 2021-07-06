@@ -61,26 +61,32 @@ export function addUpdateListener(
   inputContext: string,
   outputContext: string,
   doTransform: () => Promise<[DataSet, string, string]>,
-  setErrMsg: (msg: string | null) => void
+  setErrMsg: (msg: string | null) => void,
+  extraDeps: string[] = []
 ): void {
-  addContextUpdateListener(inputContext, [outputContext], async () => {
-    setErrMsg(null);
-    try {
-      const [transformed] = await doTransform();
-      updateContextWithDataSet(outputContext, transformed);
-    } catch (e) {
-      setErrMsg(`Error updating ${outputContext}: ${e.message}`);
+  addContextUpdateListener(
+    inputContext,
+    [outputContext, ...extraDeps],
+    async () => {
+      setErrMsg(null);
+      try {
+        const [transformed] = await doTransform();
+        updateContextWithDataSet(outputContext, transformed);
+      } catch (e) {
+        setErrMsg(`Error updating ${outputContext}: ${e.message}`);
+      }
     }
-  });
+  );
 }
 
 export function addUpdateTextListener(
   inputContext: string,
   textName: string,
   doTransform: () => Promise<[number, string, string]>,
-  setErrMsg: (msg: string) => void
+  setErrMsg: (msg: string) => void,
+  extraDeps: string[] = []
 ): void {
-  addContextUpdateListener(inputContext, [textName], async () => {
+  addContextUpdateListener(inputContext, [textName, ...extraDeps], async () => {
     try {
       const [result] = await doTransform();
       updateText(textName, String(result));

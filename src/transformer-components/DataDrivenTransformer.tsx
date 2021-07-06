@@ -312,7 +312,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             state["context1"],
             textName,
             doTransform as () => Promise<[number, string, string]>,
-            setErrMsg
+            setErrMsg,
+            order.includes("context2") && state["context2"] !== null
+              ? [state["context2"]]
+              : []
           );
         }
         if (order.includes("context2") && state["context2"] !== null) {
@@ -320,7 +323,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             state["context2"],
             textName,
             doTransform as () => Promise<[number, string, string]>,
-            setErrMsg
+            setErrMsg,
+            order.includes("context1") && state["context1"] !== null
+              ? [state["context1"]]
+              : []
           );
         }
       } else if (typeof result === "object") {
@@ -331,7 +337,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             state["context1"],
             newContextName,
             doTransform as () => Promise<[DataSet, string, string]>,
-            setErrMsg
+            setErrMsg,
+            order.includes("context2") && state["context2"] !== null
+              ? [state["context2"]]
+              : []
           );
         }
         if (order.includes("context2") && state["context2"] !== null) {
@@ -339,7 +348,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             state["context2"],
             newContextName,
             doTransform as () => Promise<[DataSet, string, string]>,
-            setErrMsg
+            setErrMsg,
+            order.includes("context1") && state["context1"] !== null
+              ? [state["context1"]]
+              : []
           );
         }
       }

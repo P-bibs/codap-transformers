@@ -52,7 +52,9 @@ export default function TransformerSaveButton({
 
     const savedTransformer = { name, description, content };
     const encoded = encodeURIComponent(JSON.stringify(savedTransformer));
-    createDataInteractive(name, `http://localhost:3000?transform=${encoded}`);
+
+    const currentOrigin = new URL(window.location.toString()).origin;
+    createDataInteractive(name, `${currentOrigin}?transform=${encoded}`);
 
     // clear save inputs after successful save
     setCurrentName("");

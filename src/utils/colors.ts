@@ -25,6 +25,6 @@ export const interpolateColor = (
  * Converts a color array to a string representation for CODAP.
  * Truncates floats.
  */
-export const colorToRgbString = ([r, g, b]: Color) => {
+export const colorToRgbString = ([r, g, b]: Color): string => {
   return `rgb(${Math.trunc(r)},${Math.trunc(g)},${Math.trunc(b)})`;
 };

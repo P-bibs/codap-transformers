@@ -807,6 +807,24 @@ export async function updateText(name: string, content: string): Promise<void> {
   );
 }
 
+export async function deleteText(name: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Delete,
+        resource: resourceFromComponent(name),
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to delete text"));
+        }
+      }
+    )
+  );
+}
+
 async function ensureUniqueName(
   name: string,
   resourceType: CodapListResource

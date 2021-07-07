@@ -6,6 +6,7 @@ import {
   notifyInteractiveFrameIsDirty,
   deleteDataContext,
   updateText,
+  deleteText,
 } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
 import {
@@ -303,6 +304,9 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
 
         const textName = await createText(name, String(result));
 
+        // Add action to undo stack
+        pushToUndoStack(`Undo ${base} transformer`, () => deleteText(textName));
+
         // Workaround because the text doesn't show up after creation
         // See https://codap.concord.org/forums/topic/issue-creating-and-updating-text-views-through-data-interactive-api/#post-6483
         updateText(textName, String(result));
@@ -326,9 +330,12 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
         const newContextName = await applyNewDataSet(result, name, description);
+
+        // Add action to undo stack
         pushToUndoStack(`Undo ${base} transformer`, () =>
           deleteDataContext(newContextName)
         );
+
         if (order.includes("context1") && state["context1"] !== null) {
           addUpdateListener(
             state["context1"],

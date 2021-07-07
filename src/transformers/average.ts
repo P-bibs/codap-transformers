@@ -40,7 +40,7 @@ export function uncheckedAverage(dataset: DataSet, attribute: string): number {
     if (row[attribute] === undefined) {
       throw new Error(`Invalid attribute name: ${attribute}`);
     }
-    const value = Number(row[attribute]);
+    const value = parseFloat(String(row[attribute]));
     if (isNaN(value)) {
       throw new Error(
         `Expected number, instead got ${codapValueToString(row[attribute])}`

@@ -125,6 +125,7 @@ function TransformerREPLView(): ReactElement {
         transformer={baseTransformers.find(
           ({ name }) => name === transformType
         )}
+        editable={true}
       />
     </div>
   );

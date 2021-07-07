@@ -36,8 +36,12 @@ export function callAllInteractiveStateRequestListeners(): InteractiveState {
 // The undo stack and related functions allow pushing and popping callbacks
 // that will be fired if CODAP notifies us that an undo request has been
 // initiated
-export const undoStack: Array<[string, () => void, () => void]> = [];
-export const redoStack: Array<[string, () => void, () => void]> = [];
+export let undoStack: Array<[string, () => void, () => void]> = [];
+export let redoStack: Array<[string, () => void, () => void]> = [];
+export const clearUndoAndRedoStacks = (): void => {
+  undoStack = [];
+  redoStack = [];
+};
 /**
  * Add an item to the undo stack. CODAP will be notified that an undoable action
  * has been performed and the callback will be saved in a stack. If CODAP tells

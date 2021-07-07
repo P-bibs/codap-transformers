@@ -37,6 +37,7 @@ import {
   popFromUndoStackAndExecute,
   popFromRedoStackAndExecute,
   undoStack,
+  clearUndoAndRedoStacks,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -160,12 +161,7 @@ function codapRequestHandler(
     command.resource === CodapInitiatedResource.UndoChangeNotice &&
     command.values.operation === "clearUndo"
   ) {
-    // If CODAP says the undo stack has been cleared, but we still have undo actions remaining,
-    // send bogus `notifyUndoableActionPerformed` requests so we get our place back in
-    // CODAP's undo stack.
-    for (const [message] of undoStack) {
-      notifyUndoableActionPerformed(message);
-    }
+    clearUndoAndRedoStacks();
   }
 
   // notification of which data context was deleted

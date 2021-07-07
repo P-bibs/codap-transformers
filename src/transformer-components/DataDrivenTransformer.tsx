@@ -305,7 +305,11 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         const textName = await createText(name, String(result));
 
         // Add action to undo stack
-        pushToUndoStack(`Undo ${base} transformer`, () => deleteText(textName));
+        pushToUndoStack(
+          `Apply ${base} transformer`,
+          () => deleteText(textName),
+          transform
+        );
 
         // Workaround because the text doesn't show up after creation
         // See https://codap.concord.org/forums/topic/issue-creating-and-updating-text-views-through-data-interactive-api/#post-6483
@@ -332,8 +336,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         const newContextName = await applyNewDataSet(result, name, description);
 
         // Add action to undo stack
-        pushToUndoStack(`Undo ${base} transformer`, () =>
-          deleteDataContext(newContextName)
+        pushToUndoStack(
+          `Undo ${base} transformer`,
+          () => deleteDataContext(newContextName),
+          transform
         );
 
         if (order.includes("context1") && state["context1"] !== null) {

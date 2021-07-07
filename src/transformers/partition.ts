@@ -119,8 +119,18 @@ export const partitionOverride = async (
     }
 
     // Register undo action for partition transformer
-    pushToUndoStack("Undo partition transformer", () =>
-      outputContexts.forEach((context) => deleteDataContext(context))
+    console.log("Pushing partition undo");
+    pushToUndoStack(
+      "Apply partition transformer",
+      () => outputContexts.forEach((context) => deleteDataContext(context)),
+      () =>
+        partitionOverride(
+          { setErrMsg } as DDTransformerProps,
+          {
+            context1: inputDataCtxt,
+            attribute1: attributeName,
+          } as DDTransformerState
+        )
     );
 
     // listen for updates to the input data context

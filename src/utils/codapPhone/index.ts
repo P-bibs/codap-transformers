@@ -35,6 +35,7 @@ import {
   removeListenersWithDependency,
   callAllInteractiveStateRequestListeners,
   popFromUndoStackAndExecute,
+  popFromRedoStackAndExecute,
   undoStack,
 } from "./listeners";
 import {
@@ -144,6 +145,14 @@ function codapRequestHandler(
   ) {
     // if CODAP notifies us it's undo time, then fire an undo callback
     popFromUndoStackAndExecute();
+    return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "redoAction"
+  ) {
+    popFromRedoStackAndExecute();
     return;
   }
 

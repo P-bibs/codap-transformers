@@ -36,17 +36,23 @@ export function callAllInteractiveStateRequestListeners(): InteractiveState {
 // The undo stack and related functions allow pushing and popping callbacks
 // that will be fired if CODAP notifies us that an undo request has been
 // initiated
-export const undoStack: Array<[string, () => void]> = [];
+export const undoStack: Array<[string, () => void, () => void]> = [];
+export const redoStack: Array<[string, () => void, () => void]> = [];
 /**
  * Add an item to the undo stack. CODAP will be notified that an undoable action
  * has been performed and the callback will be saved in a stack. If CODAP tells
  * us its time to undo, the callback will be executed.
  * @param message the tooltip that CODAP will display if this undo action is next
  * @param callback the callback that will be fired if undo is pressed
+ * @param redoCallback the callback to add to the redo queue
  */
-export function pushToUndoStack(message: string, callback: () => void): void {
+export function pushToUndoStack(
+  message: string,
+  callback: () => void,
+  redoCallback: () => void
+): void {
   notifyUndoableActionPerformed(message);
-  undoStack.push([message, callback]);
+  undoStack.push([message, callback, redoCallback]);
 }
 
 /**
@@ -58,6 +64,24 @@ export function popFromUndoStackAndExecute(): boolean {
   if (popped) {
     // If there was a callback left, execute it
     popped[1]();
+    redoStack.push(popped);
+    return true;
+  } else {
+    // If no callback, return false
+    return false;
+  }
+}
+
+/**
+ *  Pops a callback form the redo stack and executes it
+ * @returns false if the redo stack is empty, true otherwise
+ */
+export function popFromRedoStackAndExecute(): boolean {
+  const popped = redoStack.pop();
+  if (popped) {
+    // If there was a callback left, execute it
+    popped[2]();
+    undoStack.push(popped);
     return true;
   } else {
     // If no callback, return false

@@ -78,11 +78,11 @@ export async function initPhone(title: string): Promise<void> {
   // Only resize the plugin to default dimensions if this is it's
   // first time being initialized (no savedState)
   const dimensions = hasState
-    ? {
+    ? undefined
+    : {
         width: DEFAULT_PLUGIN_WIDTH,
         height: DEFAULT_PLUGIN_HEIGHT,
-      }
-    : undefined;
+      };
   return updateInteractiveFrame({
     // Don't update the title if there is save data.
     title: hasState ? undefined : title,

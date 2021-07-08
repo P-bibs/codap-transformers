@@ -34,6 +34,9 @@ import {
   removeContextUpdateListenersForContext,
   removeListenersWithDependency,
   callAllInteractiveStateRequestListeners,
+  popFromUndoStackAndExecute,
+  popFromRedoStackAndExecute,
+  clearUndoAndRedoStacks,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -147,6 +150,30 @@ function codapRequestHandler(
   if (command.action !== CodapActions.Notify) {
     callback({ success: true });
     return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "undoAction"
+  ) {
+    // if CODAP notifies us it's undo time, then fire an undo callback
+    popFromUndoStackAndExecute();
+    return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "redoAction"
+  ) {
+    popFromRedoStackAndExecute();
+    return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "clearUndo"
+  ) {
+    clearUndoAndRedoStacks();
   }
 
   // notification of which data context was deleted
@@ -797,6 +824,24 @@ export async function updateText(name: string, content: string): Promise<void> {
   );
 }
 
+export async function deleteText(name: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Delete,
+        resource: resourceFromComponent(name),
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to delete text"));
+        }
+      }
+    )
+  );
+}
+
 async function ensureUniqueName(
   name: string,
   resourceType: CodapListResource
@@ -925,3 +970,25 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
     });
   };
 })();
+
+export function notifyUndoableActionPerformed(message: string): Promise<void> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: CodapResource.UndoChangeNotice,
+        values: {
+          operation: "undoableActionPerformed",
+          logMessage: message,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed notifying about undoable action performed"));
+        }
+      }
+    )
+  );
+}

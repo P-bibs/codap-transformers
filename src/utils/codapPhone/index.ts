@@ -37,6 +37,7 @@ import {
   popFromUndoStackAndExecute,
   popFromRedoStackAndExecute,
   clearUndoAndRedoStacks,
+  callAllContextUpdateHooks,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -248,6 +249,7 @@ function codapRequestHandler(
     if (contextUpdate) {
       Cache.invalidateContext(contextName);
       callUpdateListenersForContext(contextName);
+      callAllContextUpdateHooks(contextName);
     }
 
     if (contextListUpdate) {

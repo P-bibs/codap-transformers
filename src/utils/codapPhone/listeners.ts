@@ -170,3 +170,24 @@ export async function callUpdateListenersForContext(
     }
   }
 }
+
+// Instead of listening for individual contexts, these hooks get called when
+// any context updates, letting the hooks choose what to do based on which
+// context updated.
+type ContextUpdateHook = (contextName: string) => void;
+
+export let contextUpdateHooks: Array<ContextUpdateHook> = [];
+
+export function addContextUpdateHook(f: ContextUpdateHook): void {
+  contextUpdateHooks.push(f);
+}
+
+export function removeContextUpdateHook(f: ContextUpdateHook): void {
+  contextUpdateHooks = contextUpdateHooks.filter((hook) => hook !== f);
+}
+
+export function callAllContextUpdateHooks(context: string): void {
+  for (const f of contextUpdateHooks) {
+    f(context);
+  }
+}

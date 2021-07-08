@@ -3,6 +3,7 @@ import {
   DDTransformerState,
   TransformFunction,
 } from "./DataDrivenTransformer";
+import { TransformationDescription } from "../utils/transformationDescription";
 import { filter } from "../transformers/filter";
 import { buildColumn } from "../transformers/buildColumn";
 import { flatten } from "../transformers/flatten";
@@ -39,6 +40,7 @@ export type TransformersInteractiveState = {
     name: string;
     description: string;
   };
+  activeTransformations?: TransformationDescription[];
 };
 
 export type TransformerGroup =

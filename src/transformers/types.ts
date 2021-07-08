@@ -34,4 +34,9 @@ export type Boundary = {
  *  2) output context name (string)
  *  3) output context description] (string)
  */
-export type TransformationOutput = [DataSet | number, string, string];
+export type DataSetTransformationOutput = [DataSet, string, string];
+export type NumberTransformationOutput = [number, string, string];
+
+export type TransformationOutput =
+  | DataSetTransformationOutput
+  | NumberTransformationOutput;

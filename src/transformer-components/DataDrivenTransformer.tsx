@@ -6,7 +6,6 @@ import {
   notifyInteractiveFrameIsDirty,
   deleteDataContext,
   updateText,
-  deleteText,
 } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
 import {

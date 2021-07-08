@@ -36,7 +36,6 @@ import {
   callAllInteractiveStateRequestListeners,
   popFromUndoStackAndExecute,
   popFromRedoStackAndExecute,
-  undoStack,
   clearUndoAndRedoStacks,
 } from "./listeners";
 import {

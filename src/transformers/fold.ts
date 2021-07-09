@@ -5,7 +5,7 @@ import {
   codapValueToString,
   allAttrNames,
 } from "./util";
-import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
+import { codapEvalFormula, getContextAndDataSet } from "../utils/codapPhone";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { parenthesizeName, readableName } from "../transformer-components/util";
@@ -164,11 +164,12 @@ async function uncheckedGenericFold(
   expression: string,
   resultColumnName: string,
   accumulatorName: string,
-  resultColumnDescription = ""
+  resultColumnDescription = "",
+  evalFormula = codapEvalFormula
 ): Promise<DataSet> {
   resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
 
-  let acc = (await evalExpression(base, [{}]))[0];
+  let acc = (await evalFormula(base, [{}]))[0];
   const resultRecords = [];
 
   for (const row of dataset.records) {
@@ -180,7 +181,7 @@ async function uncheckedGenericFold(
     }
 
     environment[accumulatorName] = acc;
-    acc = (await evalExpression(expression, [environment]))[0];
+    acc = (await evalFormula(expression, [environment]))[0];
     resultRecords.push(insertInRow(row, resultColumnName, acc));
   }
 

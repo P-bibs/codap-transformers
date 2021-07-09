@@ -1,6 +1,6 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import {
-  evalExpression,
+  codapEvalFormula,
   getContextAndDataSet,
 } from "../utils/codapPhone/index";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
@@ -60,7 +60,8 @@ export async function uncheckedBuildColumn(
   newAttributeName: string,
   collectionName: string,
   expression: string,
-  outputType: CodapLanguageType
+  outputType: CodapLanguageType,
+  evalFormula = codapEvalFormula
 ): Promise<DataSet> {
   // find collection to add attribute to
   const collections = dataset.collections.map(cloneCollection);
@@ -89,7 +90,7 @@ export async function uncheckedBuildColumn(
     description: `An attribute whose values were computed with the formula ${expression}`,
   });
 
-  const colValues = await evalExpression(expression, dataset.records);
+  const colValues = await evalFormula(expression, dataset.records);
 
   // Check for type errors (might throw error and abort transformer)
   reportTypeErrorsForRecords(dataset.records, colValues, outputType);

@@ -860,7 +860,7 @@ export async function createTableWithDataSet(
   return [newContext, newTable];
 }
 
-export function evalExpression(
+export function codapEvalFormula(
   expr: string,
   records: Record<string, unknown>[]
 ): Promise<unknown[]> {

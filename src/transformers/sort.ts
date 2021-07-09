@@ -1,5 +1,5 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
-import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
+import { codapEvalFormula, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
@@ -89,10 +89,11 @@ async function uncheckedSort(
   dataset: DataSet,
   keyExpr: string,
   outputType: CodapLanguageType,
-  sortDirection: SortDirection
+  sortDirection: SortDirection,
+  evalFormula = codapEvalFormula
 ): Promise<DataSet> {
   const records = dataset.records;
-  const keyValues = await evalExpression(keyExpr, records);
+  const keyValues = await evalFormula(keyExpr, records);
 
   // Check for type errors (might throw error and abort transformer)
   reportTypeErrorsForRecords(records, keyValues, outputType);

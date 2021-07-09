@@ -1,6 +1,6 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import {
-  codapEvalFormula,
+  evalExpression,
   getContextAndDataSet,
 } from "../utils/codapPhone/index";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
@@ -61,7 +61,7 @@ export async function uncheckedBuildColumn(
   collectionName: string,
   expression: string,
   outputType: CodapLanguageType,
-  evalFormula = codapEvalFormula
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   // find collection to add attribute to
   const collections = dataset.collections.map(cloneCollection);

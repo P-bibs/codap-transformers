@@ -1,5 +1,5 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
-import { codapEvalFormula, getContextAndDataSet } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import {
@@ -52,7 +52,7 @@ async function uncheckedTransformColumn(
   attributeName: string,
   expression: string,
   outputType: CodapLanguageType,
-  evalFormula = codapEvalFormula
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   const records = dataset.records.map(shallowCopy);
   const exprValues = await evalFormula(expression, records);

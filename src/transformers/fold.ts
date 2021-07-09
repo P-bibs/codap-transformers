@@ -5,7 +5,7 @@ import {
   codapValueToString,
   allAttrNames,
 } from "./util";
-import { codapEvalFormula, getContextAndDataSet } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { parenthesizeName, readableName } from "../transformer-components/util";
@@ -165,7 +165,7 @@ async function uncheckedGenericFold(
   resultColumnName: string,
   accumulatorName: string,
   resultColumnDescription = "",
-  evalFormula = codapEvalFormula
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
 

@@ -1,5 +1,5 @@
 import { DataSet, TransformationOutput } from "./types";
-import { codapEvalFormula, getContextAndDataSet } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { codapValueToString } from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
@@ -32,7 +32,7 @@ export async function filter({
 async function uncheckedFilter(
   dataset: DataSet,
   predicate: string,
-  evalFormula = codapEvalFormula
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   const filteredRecords: Record<string, unknown>[] = [];
 

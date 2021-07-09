@@ -93,14 +93,15 @@ function makeSimpleBoundary(randomize: boolean) {
 }
 
 /**
- * Evaluates a formula using the JS eval function
+ * Evaluates a formula using the JS eval function. Use this function for
+ * testing transformers like `buildColumn` that require evaluating expressions
  * @param expr the expression to be evaluated
  * @param records a list of key/value pairs. For each item in the list, the
  * expression will be evaluated with all values in the record added to the
  * environment.
  * @returns a list of the result of evaluated expr once for each record in records
  */
-export const jsEvalFormula = (
+export const jsEvalExpression = (
   expr: string,
   records: Record<string, unknown>[]
 ): Promise<unknown[]> => {

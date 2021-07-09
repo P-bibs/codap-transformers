@@ -17,6 +17,18 @@ export type CodapLanguageType =
   | "boundary";
 
 /**
+ * The properties of a CODAP boundary value that are necessary for
+ * extracting its name.
+ */
+export type Boundary = {
+  jsonBoundaryObject: {
+    properties: {
+      NAME: string;
+    };
+  };
+};
+
+/**
  * The format for output for most transformations contains three parts:
  *  1) dataset or numeric value (DataSet | number)
  *  2) output context name (string)

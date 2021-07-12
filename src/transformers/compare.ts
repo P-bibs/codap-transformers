@@ -1,6 +1,5 @@
 import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { diffArrays } from "diff";
 import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
 import { uncheckedFlatten } from "./flatten";
 import {
@@ -26,9 +25,9 @@ const COMPARE_VALUE_COLUMN_BASE = "Difference";
 const DECISION_1_COLUMN_BASE = "Category 1";
 const DECISION_2_COLUMN_BASE = "Category 2";
 
-export type CompareType = "numeric" | "categorical" | "structural";
+export type CompareType = "numeric" | "categorical";
 function isCompareType(s: unknown): s is CompareType {
-  return s === "numeric" || s === "categorical" || s === "structural";
+  return s === "numeric" || s === "categorical";
 }
 
 /**
@@ -94,119 +93,14 @@ function uncheckedCompare(
       attributeData1,
       attributeData2
     );
+  } else {
+    return compareRecordsNumerical(
+      dataset1,
+      dataset2,
+      attributeData1,
+      attributeData2
+    );
   }
-
-  // Make sure that the two attributes shown in comparison don't have the same name
-  const safeAttributeName2 = uniqueName(attributeName2, [attributeName1]);
-  const attributeNames = [attributeName1, safeAttributeName2];
-
-  // Ensure generated comparison attributes don't collide with attributes being compared
-  const compareValueColumnName = uniqueName(
-    COMPARE_VALUE_COLUMN_BASE,
-    attributeNames
-  );
-  const compareStatusColumnName = uniqueName(
-    COMPARE_STATUS_COLUMN_BASE,
-    attributeNames
-  );
-
-  const collections: Collection[] = [
-    {
-      name: `Comparison of ${attributeName1} and ${attributeName2}`,
-      labels: {},
-      // copy attributes to compare
-      // NOTE: do not copy formulas: formulas may be separated from their
-      // dependencies and would be invalid.
-      attrs: [
-        { ...attributeData1, formula: undefined },
-        { ...attributeData2, name: safeAttributeName2, formula: undefined },
-      ],
-    },
-  ];
-  // Only add this attribute if this is a numeric diff
-  if (kind === "numeric") {
-    collections[0].attrs?.push({
-      name: compareValueColumnName,
-      description: "",
-      editable: true,
-      hidden: false,
-      type: "numeric",
-    });
-  }
-  collections[0].attrs?.push({
-    name: compareStatusColumnName,
-    description: "",
-    editable: true,
-    hidden: false,
-    type: "categorical",
-  });
-
-  const values1 = dataset1.records.map((record) => record[attributeName1]);
-  const values2 = dataset2.records.map((record) => record[attributeName2]);
-
-  const records =
-    kind === "structural"
-      ? compareRecordsStructural(
-          attributeName1,
-          safeAttributeName2,
-          values1,
-          values2,
-          compareStatusColumnName
-        )
-      : compareRecordsNumerical(
-          attributeName1,
-          safeAttributeName2,
-          values1,
-          values2,
-          compareValueColumnName,
-          compareStatusColumnName
-        );
-
-  return {
-    collections,
-    records,
-  };
-}
-
-function compareRecordsStructural(
-  attributeName1: string,
-  attributeName2: string,
-  values1: unknown[],
-  values2: unknown[],
-  compareStatusColumnName: string
-): Record<string, unknown>[] {
-  const changeObjects = diffArrays(values1, values2);
-
-  const records = [];
-  for (let i = 0; i < changeObjects.length; i++) {
-    const change = changeObjects[i];
-    if (!change.count) {
-      throw new Error("Change object had unknown count");
-    }
-    for (let j = 0; j < change.count; j++) {
-      if (change.removed) {
-        records.push({
-          [attributeName1]: change.value[j],
-          [attributeName2]: "",
-          [compareStatusColumnName]: colorToRgbString(RED),
-        });
-      } else if (change.added) {
-        records.push({
-          [attributeName1]: "",
-          [attributeName2]: change.value[j],
-          [compareStatusColumnName]: colorToRgbString(GREEN),
-        });
-      } else {
-        records.push({
-          [attributeName1]: change.value[j],
-          [attributeName2]: change.value[j],
-          [compareStatusColumnName]: colorToRgbString(GREY),
-        });
-      }
-    }
-  }
-
-  return records;
 }
 
 function compareCategorical(
@@ -337,13 +231,58 @@ function objectsAreEqualForKeys(
 }
 
 function compareRecordsNumerical(
-  attributeName1: string,
-  attributeName2: string,
-  values1: unknown[],
-  values2: unknown[],
-  compareValueColumnName: string,
-  compareStatusColumnName: string
-): Record<string, unknown>[] {
+  dataset1: DataSet,
+  dataset2: DataSet,
+  attribute1Data: CodapAttribute,
+  attribute2Data: CodapAttribute
+): DataSet {
+  // Make sure that the two attributes shown in comparison don't have the same name
+  const safeAttributeName2 = uniqueName(attribute2Data.name, [
+    attribute1Data.name,
+  ]);
+  const attributeNames = [attribute1Data.name, safeAttributeName2];
+
+  // Ensure generated comparison attributes don't collide with attributes being compared
+  const compareValueColumnName = uniqueName(
+    COMPARE_VALUE_COLUMN_BASE,
+    attributeNames
+  );
+  const compareStatusColumnName = uniqueName(
+    COMPARE_STATUS_COLUMN_BASE,
+    attributeNames
+  );
+
+  const collections: Collection[] = [
+    {
+      name: `Comparison of ${attribute1Data.name} and ${attribute2Data.name}`,
+      labels: {},
+      // copy attributes to compare
+      // NOTE: do not copy formulas: formulas may be separated from their
+      // dependencies and would be invalid.
+      attrs: [
+        { ...attribute1Data, formula: undefined },
+        { ...attribute2Data, name: safeAttributeName2, formula: undefined },
+        {
+          name: compareValueColumnName,
+          description: "",
+          editable: true,
+          hidden: false,
+          type: "numeric",
+        },
+        {
+          name: compareStatusColumnName,
+          description: "",
+          editable: true,
+          hidden: false,
+          type: "categorical",
+        },
+      ],
+    },
+  ];
+
+  const values1 = dataset1.records.map((record) => record[attribute1Data.name]);
+  const values2 = dataset2.records.map((record) => record[attribute2Data.name]);
+
   const records = [];
 
   // Start by looping through all records and finding those that
@@ -398,20 +337,20 @@ function compareRecordsNumerical(
         color = colorToRgbString(GREY);
       }
       records.push({
-        [attributeName1]: v1,
-        [attributeName2]: v2,
+        [attribute1Data.name]: v1,
+        [attribute2Data.name]: v2,
         [compareValueColumnName]: difference,
         [compareStatusColumnName]: color,
       });
     } else {
       records.push({
-        [attributeName1]: values1[i],
-        [attributeName2]: values2[i],
+        [attribute1Data.name]: values1[i],
+        [attribute2Data.name]: values2[i],
         [compareValueColumnName]: "",
         [compareStatusColumnName]: "",
       });
     }
   }
 
-  return records;
+  return { records, collections };
 }

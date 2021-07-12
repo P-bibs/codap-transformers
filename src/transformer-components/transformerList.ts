@@ -347,7 +347,6 @@ const transformerList: TransformerList = {
           options: [
             { value: "categorical", title: "Categorical" },
             { value: "numeric", title: "Numeric" },
-            { value: "structural", title: "Structural" },
           ],
           defaultValue: "Select a type",
         },
@@ -367,12 +366,7 @@ const transformerList: TransformerList = {
         are merged together.\n\
         A numeric comparison produces a dataset with four attributes: the original \
         two attributes, their numeric difference, and a color indicating whether \
-        the difference was negative, positive, or neutral.\n\
-        A structural comparison produces a dataset that compares the two attributes \
-        by attempting to match their values up. The output dataset has a copy of \
-        the original two attributes, as well as a comparison status indicating \
-        whether or not the values differ by an insertion, a deletion, or have \
-        matching contents.",
+        the difference was negative, positive, or neutral.",
       },
     },
   },

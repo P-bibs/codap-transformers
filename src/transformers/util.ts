@@ -1,7 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { CodapLanguageType, DataSet } from "./types";
+import { Boundary, CodapLanguageType, DataSet } from "./types";
 import { prettyPrintCase } from "../utils/prettyPrint";
 
 /**
@@ -215,7 +215,13 @@ export function codapValueToString(codapValue: unknown): string {
 
   // boundaries
   if (isBoundary(codapValue)) {
-    return "a boundary";
+    // Try to extract the name of the boundary, but not all have one.
+    const name = (codapValue as Boundary).jsonBoundaryObject.properties.NAME;
+    if (name !== undefined) {
+      return `a boundary (${name})`;
+    } else {
+      return "a boundary";
+    }
   }
 
   // boundary maps

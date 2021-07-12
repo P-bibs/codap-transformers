@@ -331,16 +331,14 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "First Dataset to Compare",
-        },
-        context2: {
-          title: "Second Dataset to Compare",
+          title: "Dataset to Compare",
         },
         attribute1: {
           title: "First attribute to Compare",
         },
         attribute2: {
           title: "Second attribute to Compare",
+          context: "context1",
         },
         dropdown1: {
           title: "What kind of Comparison?",
@@ -355,9 +353,9 @@ const transformerList: TransformerList = {
       info: {
         summary:
           "Provides several ways of comparing the data \
-        from two datasets (or possibly the same dataset with itself).",
+        of two attributes in a dataset.",
         consumes:
-          "Two datasets to compare, an attribute from each to compare, \
+          "Two attributes from within a dataset to compare, \
         and an indication of what kind of comparison to perform.",
         produces:
           "Output differs depending on the type of comparison:\n\

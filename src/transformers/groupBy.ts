@@ -45,9 +45,13 @@ export async function groupBy({
     allCollectionNames(dataset)
   );
   const ctxtName = readableName(context);
+  const attrNames = attributes.map((name) => ({
+    attrName: name,
+    groupedName: `${name} Group`,
+  }));
 
   return [
-    await uncheckedGroupBy(dataset, attributes, parentName),
+    await uncheckedGroupBy(dataset, attrNames, parentName),
     `Group By of ${ctxtName}`,
     `A copy of ${ctxtName} with a new parent collection added ` +
       `which contains a copy of the ${pluralSuffix(
@@ -64,13 +68,14 @@ export async function groupBy({
  * same content for us.
  *
  * @param dataset the dataset to group
- * @param groupByAttrs the attributes to separate into a parent collection
+ * @param attrNames a list of attributes to separate into a parent collection
+ * and names for the new copies of those attributes
  * @param newParentName the name of newly-created parent collection
  * @returns the grouped dataset
  */
-function uncheckedGroupBy(
+export function uncheckedGroupBy(
   dataset: DataSet,
-  attrNames: string[],
+  attrNames: { attrName: string; groupedName: string }[],
   newParentName: string
 ): DataSet {
   const groupedAttrs: CodapAttribute[] = [];
@@ -79,14 +84,14 @@ function uncheckedGroupBy(
   const attrToGroupedName: Record<string, string> = {};
 
   // extract attributes from collections into a list
-  attrLoop: for (const attrName of attrNames) {
+  attrLoop: for (let { attrName, groupedName } of attrNames) {
     for (const coll of collections) {
       const attr = coll.attrs?.find((attr) => attr.name === attrName);
 
       // attribute was found in this collection
       if (attr !== undefined) {
         // Generate a unique name for this grouped copy of this attribute
-        const groupedName = uniqueName(`${attrName} Group`, allAttributes);
+        groupedName = uniqueName(groupedName, allAttributes);
         allAttributes.push(groupedName);
         attrToGroupedName[attrName] = groupedName;
 
@@ -137,7 +142,7 @@ function uncheckedGroupBy(
 
   const records = dataset.records.map(shallowCopy);
   for (const record of records) {
-    for (const attrName of attrNames) {
+    for (const { attrName } of attrNames) {
       // make copy of record data from original attr into grouped attr
       record[attrToGroupedName[attrName]] = record[attrName];
     }

@@ -89,10 +89,11 @@ async function uncheckedSort(
   dataset: DataSet,
   keyExpr: string,
   outputType: CodapLanguageType,
-  sortDirection: SortDirection
+  sortDirection: SortDirection,
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   const records = dataset.records;
-  const keyValues = await evalExpression(keyExpr, records);
+  const keyValues = await evalFormula(keyExpr, records);
 
   // Check for type errors (might throw error and abort transformer)
   reportTypeErrorsForRecords(records, keyValues, outputType);

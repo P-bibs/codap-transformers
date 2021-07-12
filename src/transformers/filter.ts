@@ -31,12 +31,13 @@ export async function filter({
 
 async function uncheckedFilter(
   dataset: DataSet,
-  predicate: string
+  predicate: string,
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   const filteredRecords: Record<string, unknown>[] = [];
 
   // evaluate predicate at each case in the dataset
-  const predValues = await evalExpression(predicate, dataset.records);
+  const predValues = await evalFormula(predicate, dataset.records);
 
   predValues.forEach((value, i) => {
     if (value !== true && value !== false) {

@@ -18,7 +18,9 @@ test("copies empty dataset", () => {
 });
 
 test("copies fully-featured dataset", () => {
-  expect(uncheckedCopy(cloneDataSet(FULLY_FEATURED_DATASET))).toEqual(FULLY_FEATURED_DATASET);
+  expect(uncheckedCopy(cloneDataSet(FULLY_FEATURED_DATASET))).toEqual(
+    FULLY_FEATURED_DATASET
+  );
 });
 
 test("copy preserves collection/attribute metadata", () => {

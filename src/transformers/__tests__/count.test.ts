@@ -1,6 +1,6 @@
 import { CodapAttribute } from "../../utils/codapPhone/types";
 import { uncheckedCount } from "../count";
-import { shallowCopy } from "../util";
+import { eraseFormulas } from "../util";
 import {
   DATASET_A,
   DATASET_B,
@@ -10,6 +10,9 @@ import {
   makeRecords,
   CENSUS_DATASET,
   makeCollection,
+  copyAttributes,
+  FULLY_FEATURED_DATASET,
+  makeSimpleBoundary,
 } from "./data";
 
 test("count single attribute", () => {
@@ -34,6 +37,34 @@ test("count single attribute", () => {
       [
         [true, 3],
         [false, 2],
+      ]
+    ),
+  });
+
+  expect(uncheckedCount(cloneDataSet(CENSUS_DATASET), ["State"])).toEqual({
+    collections: [
+      {
+        name: "Count (State)",
+        labels: {},
+        attrs: [
+          ...copyAttributes(CENSUS_DATASET, ["State"]),
+          {
+            name: "Count",
+            description: "The frequency of each tuple of (State)",
+          },
+        ],
+      },
+    ],
+    records: makeRecords(
+      ["State", "Count"],
+      [
+        ["Arizona", 2],
+        ["Florida", 3],
+        ["California", 4],
+        ["Texas", 6],
+        ["South Carolina", 2],
+        ["Idaho", 2],
+        ["Massachusetts", 3],
       ]
     ),
   });
@@ -71,6 +102,33 @@ test("count multiple attributes", () => {
   });
 });
 
+test("works with boundaries", () => {
+  expect(
+    uncheckedCount(cloneDataSet(FULLY_FEATURED_DATASET), ["Attribute 3"])
+  ).toEqual({
+    collections: [
+      {
+        name: "Count (Attribute 3)",
+        labels: {},
+        attrs: [
+          ...copyAttributes(FULLY_FEATURED_DATASET, ["Attribute 3"]),
+          {
+            name: "Count",
+            description: "The frequency of each tuple of (Attribute 3)",
+          },
+        ],
+      },
+    ],
+    records: makeRecords(
+      ["Attribute 3", "Count"],
+      [
+        [makeSimpleBoundary(false), 3],
+        ["", 1],
+      ]
+    ),
+  });
+});
+
 test("errors on invalid attribute", () => {
   const invalidAttributeErr = /Invalid attribute/;
   expect(() =>
@@ -88,16 +146,6 @@ test("errors on invalid attribute", () => {
   ).toThrowError(invalidAttributeErr);
 });
 
-function copyAttrsWithoutFormulas(
-  attrs?: CodapAttribute[]
-): CodapAttribute[] | undefined {
-  return attrs?.map((attr) => {
-    const copy = shallowCopy(attr);
-    copy.formula = undefined;
-    return copy;
-  });
-}
-
 test("preserves metadata and erases formulas", () => {
   expect(
     uncheckedCount(cloneDataSet(DATASET_WITH_META), ["A", "B", "C"]).collections
@@ -107,8 +155,7 @@ test("preserves metadata and erases formulas", () => {
       labels: {},
       attrs: [
         // Formulas are wiped
-        ...(copyAttrsWithoutFormulas(DATASET_WITH_META.collections[0].attrs) ||
-          []),
+        ...eraseFormulas(copyAttributes(DATASET_WITH_META, ["A", "B", "C"])),
         {
           name: "Count",
           description: `The frequency of each tuple of (A, B, C)`,

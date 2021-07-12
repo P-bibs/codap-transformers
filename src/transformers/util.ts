@@ -115,9 +115,13 @@ export function insertInRow(
  * Sets `formula` field of all attributes in the given list
  * to undefined. Useful in several transformers where
  * preserving formulas will result in broken formulas.
+ *
+ * @param attrs A list of attributes to clear formulas in.
+ * @returns The input list of attributes (now without formulas).
  */
-export function eraseFormulas(attrs: CodapAttribute[]): void {
+export function eraseFormulas(attrs: CodapAttribute[]): CodapAttribute[] {
   attrs.forEach((attr) => (attr.formula = undefined));
+  return attrs;
 }
 
 export function getAttributeDataFromDataset(

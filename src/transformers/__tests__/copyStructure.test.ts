@@ -28,7 +28,9 @@ test("copies structure of empty dataset", () => {
 });
 
 test("copies structure of fully-featured dataset", () => {
-  const { collections, records } = uncheckedCopyStructure(cloneDataSet(FULLY_FEATURED_DATASET));
+  const { collections, records } = uncheckedCopyStructure(
+    cloneDataSet(FULLY_FEATURED_DATASET)
+  );
   expect(collections).toEqual(FULLY_FEATURED_DATASET.collections);
   expect(records).toEqual([]);
 });

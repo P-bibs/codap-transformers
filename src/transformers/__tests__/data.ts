@@ -47,7 +47,7 @@ export function makeRecords(
  * object (if false the same boundary will be returned each time)
  * @returns a boundary object
  */
-function makeSimpleBoundary(randomize: boolean) {
+export function makeSimpleBoundary(randomize: boolean) {
   /**
    * Makes a latitude/longitude pair between -90 and 90
    */
@@ -132,6 +132,20 @@ export function cloneDataSet(dataset: DataSet): DataSet {
 }
 
 /**
+ * Gets copies of attributes with the given names from the given dataset.
+ */
+export function copyAttributes(
+  dataset: DataSet,
+  attributes: string[]
+): CodapAttribute[] {
+  return dataset.collections
+    .map((coll) => coll.attrs || [])
+    .flat()
+    .filter((attr) => attributes.includes(attr.name))
+    .map((attr) => shallowCopy(attr));
+}
+
+/**
  * A small example dataset with attributes A, B, and C across two collections.
  */
 export const DATASET_A: DataSet = {
@@ -208,7 +222,7 @@ export const DATASET_B: DataSet = {
 
 /**
  * A dataset with lots of collection/attribute metadata (titles,
- * descriptions, formulas, etc.)
+ * descriptions, formulas, etc.), but no records.
  */
 export const DATASET_WITH_META: DataSet = {
   collections: [
@@ -280,7 +294,7 @@ export const EMPTY_RECORDS: DataSet = {
 /**
  * A smaller version of the datasets produced by the US Microdata Portal
  * plugin.
- * 
+ *
  * From: https://codap.concord.org/app/extn/plugins/sdlc/plugin/index.html?lang=en
  */
 export const CENSUS_DATASET: DataSet = {
@@ -398,18 +412,18 @@ export const CENSUS_DATASET: DataSet = {
  *  missing values
  */
 export const FULLY_FEATURED_DATASET: DataSet = {
- collections: [
-   makeCollection("Collection 1", ["Attribute 1", "Attribute 2"]),
-   makeCollection("Collection 2", ["Attribute 3", "Attribute 4"]),
-   makeCollection("Collection 3", ["Attribute 5"]),
- ],
- records: makeRecords(
-   ["Attribute 1", "Attribute 2", "Attribute 3", "Attribute 4", "Attribute 5"],
-   [
-     ["rgb(100,200,0)", -1, makeSimpleBoundary(false), "test 1", true],
-     ["  \n  ", -2, makeSimpleBoundary(false), "test 2", true],
-     [".;'[]-=<>", 3, makeSimpleBoundary(false), "test 3", false],
-     ["", "", "", "", ""],
-   ]
- ),
+  collections: [
+    makeCollection("Collection 1", ["Attribute 1", "Attribute 2"]),
+    makeCollection("Collection 2", ["Attribute 3", "Attribute 4"]),
+    makeCollection("Collection 3", ["Attribute 5"]),
+  ],
+  records: makeRecords(
+    ["Attribute 1", "Attribute 2", "Attribute 3", "Attribute 4", "Attribute 5"],
+    [
+      ["rgb(100,200,0)", -1, makeSimpleBoundary(false), "test 1", true],
+      ["  \n  ", -2, makeSimpleBoundary(false), "test 2", true],
+      [".;'[]-=<>", 3, makeSimpleBoundary(false), "test 3", false],
+      ["", "", "", "", ""],
+    ]
+  ),
 };

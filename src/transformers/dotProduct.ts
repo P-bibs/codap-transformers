@@ -63,33 +63,3 @@ function uncheckedDotProduct(dataset: DataSet, attributes: string[]): number {
     )
     .reduce((a, b) => a + b);
 }
-
-/**
- * Temporray solution. Until text gets fixed, use a single celled table for
- * scalar values
- */
-export function dotProductTable(
-  dataset: DataSet,
-  attributes: string[]
-): DataSet {
-  const records = [
-    {
-      "Dot Product": uncheckedDotProduct(dataset, attributes),
-    },
-  ];
-  const collections = [
-    {
-      name: "Cases",
-      attrs: [
-        {
-          name: "Dot Product",
-        },
-      ],
-      labels: {},
-    },
-  ];
-  return {
-    collections,
-    records,
-  };
-}

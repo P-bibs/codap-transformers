@@ -280,6 +280,8 @@ export const EMPTY_RECORDS: DataSet = {
 /**
  * A smaller version of the datasets produced by the US Microdata Portal
  * plugin.
+ * 
+ * From: https://codap.concord.org/app/extn/plugins/sdlc/plugin/index.html?lang=en
  */
 export const CENSUS_DATASET: DataSet = {
   collections: [
@@ -293,7 +295,10 @@ export const CENSUS_DATASET: DataSet = {
           title: "State",
           type: "categorical",
           description:
-            "The state in which the individual lives, using a federal coding scheme that lists states alphabetically. Note that you must select this attribute if you want to display state names in your case table or graphs.",
+            "The state in which the individual lives, using a federal coding \
+            scheme that lists states alphabetically. Note that you must select \
+            this attribute if you want to display state names in your case table \
+            or graphs.",
           editable: true,
           hidden: false,
           precision: 2,
@@ -331,7 +336,8 @@ export const CENSUS_DATASET: DataSet = {
           title: "Age",
           type: "numeric",
           description:
-            "The individual's age in years as of the last birthday. Values range from 0 (less than 1 year old) to 90 and above.  See codebook for special codes.",
+            "The individual's age in years as of the last birthday. Values range \
+            from 0 (less than 1 year old) to 90 and above.  See codebook for special codes.",
           editable: true,
           hidden: false,
           precision: 2,
@@ -342,7 +348,9 @@ export const CENSUS_DATASET: DataSet = {
           title: "Year",
           type: "categorical",
           description:
-            "The four-digit year of the decennial census or ACS for each person's questionnaire responses. Note that you must select this attribute if you want to display year indicators in your case table or graphs.",
+            "The four-digit year of the decennial census or ACS for each person's \
+            questionnaire responses. Note that you must select this attribute if \
+            you want to display year indicators in your case table or graphs.",
           editable: true,
           hidden: false,
           precision: 2,

@@ -427,3 +427,35 @@ export const FULLY_FEATURED_DATASET: DataSet = {
     ]
   ),
 };
+
+/**
+ * A dataset with one attribute per CODAP datatype. Includes types: Number,
+ * String, Boolean, Boundary, Color, Missing.
+ */
+export const TYPES_DATASET: DataSet = {
+  collections: [
+    makeCollection("Collection", [
+      "Number",
+      "String",
+      "Boolean",
+      "Boundary",
+      "Color",
+      "Missing",
+    ]),
+  ],
+  records: makeRecords(
+    ["Number", "String", "Boolean", "Boundary", "Color", "Missing"],
+    [
+      [40, "abc", true, makeSimpleBoundary(false), "#ff00ff", ""],
+      [-5, "DEFG", false, makeSimpleBoundary(false), "rgb(10,41,28)", ""],
+      [
+        700.2,
+        "hIjKLm",
+        false,
+        makeSimpleBoundary(false),
+        "rgba(2,3,4,0.5)",
+        "",
+      ],
+    ]
+  ),
+};

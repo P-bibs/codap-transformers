@@ -5,7 +5,6 @@ import {
   DATASET_A,
   DATASET_B,
   DATASET_WITH_META,
-  cloneDataSet,
   EMPTY_DATASET,
   makeRecords,
   CENSUS_DATASET,
@@ -16,7 +15,7 @@ import {
 } from "./data";
 
 test("count single attribute", () => {
-  expect(uncheckedCount(cloneDataSet(DATASET_A), ["B"])).toEqual({
+  expect(uncheckedCount(DATASET_A, ["B"])).toEqual({
     collections: [
       {
         name: "Count (B)",
@@ -41,7 +40,7 @@ test("count single attribute", () => {
     ),
   });
 
-  expect(uncheckedCount(cloneDataSet(CENSUS_DATASET), ["State"])).toEqual({
+  expect(uncheckedCount(CENSUS_DATASET, ["State"])).toEqual({
     collections: [
       {
         name: "Count (State)",
@@ -71,7 +70,7 @@ test("count single attribute", () => {
 });
 
 test("count multiple attributes", () => {
-  expect(uncheckedCount(cloneDataSet(DATASET_A), ["A", "B"])).toEqual({
+  expect(uncheckedCount(DATASET_A, ["A", "B"])).toEqual({
     collections: [
       {
         name: "Count (A, B)",
@@ -103,9 +102,7 @@ test("count multiple attributes", () => {
 });
 
 test("works with boundaries", () => {
-  expect(
-    uncheckedCount(cloneDataSet(FULLY_FEATURED_DATASET), ["Attribute 3"])
-  ).toEqual({
+  expect(uncheckedCount(FULLY_FEATURED_DATASET, ["Attribute 3"])).toEqual({
     collections: [
       {
         name: "Count (Attribute 3)",
@@ -131,24 +128,20 @@ test("works with boundaries", () => {
 
 test("errors on invalid attribute", () => {
   const invalidAttributeErr = /Invalid attribute/;
+  expect(() => uncheckedCount(DATASET_B, ["Nonexistent"])).toThrowError(
+    invalidAttributeErr
+  );
+  expect(() => uncheckedCount(EMPTY_DATASET, ["Anything"])).toThrowError(
+    invalidAttributeErr
+  );
   expect(() =>
-    uncheckedCount(cloneDataSet(DATASET_B), ["Nonexistent"])
-  ).toThrowError(invalidAttributeErr);
-  expect(() =>
-    uncheckedCount(cloneDataSet(EMPTY_DATASET), ["Anything"])
-  ).toThrowError(invalidAttributeErr);
-  expect(() =>
-    uncheckedCount(cloneDataSet(CENSUS_DATASET), [
-      "Sex",
-      "Age",
-      "Bad attribute",
-    ])
+    uncheckedCount(CENSUS_DATASET, ["Sex", "Age", "Bad attribute"])
   ).toThrowError(invalidAttributeErr);
 });
 
 test("preserves metadata and erases formulas", () => {
   expect(
-    uncheckedCount(cloneDataSet(DATASET_WITH_META), ["A", "B", "C"]).collections
+    uncheckedCount(DATASET_WITH_META, ["A", "B", "C"]).collections
   ).toEqual([
     {
       name: "Count (A, B, C)",

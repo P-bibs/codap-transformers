@@ -1,12 +1,7 @@
 import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
 import { uncheckedFlatten } from "./flatten";
-import {
-  allAttrNames,
-  eraseFormulas,
-  getAttributeDataFromDataset,
-} from "./util";
+import { getAttributeDataFromDataset } from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformer-components/util";
@@ -92,16 +87,6 @@ function compareCategorical(
     "Comparison"
   );
   return out;
-}
-
-function objectsAreEqualForKeys(
-  object1: Record<string, unknown>,
-  object2: Record<string, unknown>,
-  keys: string[]
-): boolean {
-  return keys.every(
-    (key) => JSON.stringify(object1[key]) === JSON.stringify(object2[key])
-  );
 }
 
 function compareRecordsNumerical(

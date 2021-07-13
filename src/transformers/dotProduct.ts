@@ -50,7 +50,7 @@ function uncheckedDotProduct(dataset: DataSet, attributes: string[]): number {
         if (row[attribute] === undefined) {
           throw new Error(`Invalid attribute name: ${attribute}`);
         }
-        const value = Number(row[attribute]);
+        const value = parseFloat(String(row[attribute]));
         if (isNaN(value)) {
           throw new Error(
             `Expected number in attribute ${attribute}, instead got ${codapValueToString(

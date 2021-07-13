@@ -21,6 +21,8 @@ import {
   removeInteractiveStateRequestListener,
   addContextUpdateHook,
   removeContextUpdateHook,
+  addContextDeletedHook,
+  removeContextDeletedHook,
 } from "./codapPhone/listeners";
 import { InteractiveState } from "./codapPhone/types";
 import { PartitionSaveState } from "../transformers/partition";
@@ -85,6 +87,29 @@ export function useActiveTransformations(
     return () => removeContextUpdateHook(callback);
   }, [activeTransformations, setErrMsg]);
 
+  // Delete transformations for deleted contexts
+  useEffect(() => {
+    async function callback(deletedContext: string) {
+      console.log(`Deleted: ${deletedContext}`);
+      const cloned = { ...activeTransformations };
+      for (const input of Object.keys(cloned)) {
+        cloned[input] = cloned[input].filter(
+          (description) =>
+            !(
+              description.inputs.includes(deletedContext) ||
+              description.extraDependencies.includes(deletedContext)
+            )
+        );
+      }
+      activeTransformationsDispatch({
+        type: ActionTypes.SET,
+        newTransformations: cloned,
+      });
+    }
+    addContextDeletedHook(callback);
+    return () => removeContextDeletedHook(callback);
+  }, [activeTransformations]);
+
   return [
     activeTransformations,
     activeTransformationsDispatch,
@@ -99,6 +124,7 @@ export enum TransformationOutputType {
 
 interface BaseTransformationDescription {
   inputs: string[];
+  extraDependencies: string[];
 }
 
 interface DatasetCreatorDescription extends BaseTransformationDescription {
@@ -272,7 +298,10 @@ type ActiveTransformationsAction =
   | {
       type: ActionTypes.EDIT;
       transformation: FullOverrideDescription;
-      newState: Partial<FullOverrideDescription["state"]>;
+      newState: {
+        extraDependencies?: string[];
+        state?: Partial<FullOverrideDescription["state"]>;
+      };
     };
 
 export type SafeActiveTransformationsDispatch = React.Dispatch<SafeActions>;
@@ -295,7 +324,10 @@ function addTransformation(
 function editTransformation(
   transformations: ActiveTransformations,
   oldTransformation: FullOverrideDescription,
-  newState: Partial<FullOverrideDescription["state"]>
+  newState: {
+    extraDependencies?: string[];
+    state?: Partial<FullOverrideDescription["state"]>;
+  }
 ): ActiveTransformations {
   const cloned = { ...transformations };
   for (const input of oldTransformation.inputs) {
@@ -303,7 +335,9 @@ function editTransformation(
       if (description === oldTransformation) {
         description = {
           ...description,
-          state: { ...description.state, ...newState },
+          extraDependencies:
+            newState.extraDependencies || description.extraDependencies,
+          state: { ...description.state, ...newState.state },
         };
       }
       return description;

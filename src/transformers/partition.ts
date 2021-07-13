@@ -123,6 +123,7 @@ export const partitionOverride = async (
     type: ActionTypes.ADD,
     newTransformation: {
       inputs: [inputDataCtxt],
+      extraDependencies: outputContexts,
       transformer: "Partition",
       state: {
         inputDataCtxt,
@@ -161,7 +162,10 @@ export async function partitionUpdate({
   attributeName,
   outputContexts,
   valueToContext,
-}: PartitionSaveState): Promise<Partial<PartitionSaveState>> {
+}: PartitionSaveState): Promise<{
+  extraDependencies?: string[];
+  state?: Partial<PartitionSaveState>;
+}> {
   const transformed = await doTransform(inputDataCtxt, attributeName);
 
   const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
@@ -173,7 +177,7 @@ export async function partitionUpdate({
       `Updating the partition of ${inputDataCtxtName} will lead to ${transformed.length} total output datasets`
     )
   ) {
-    return { valueToContext };
+    return {};
   }
 
   const newValueToContext: Record<string, string> = {};
@@ -216,7 +220,10 @@ export async function partitionUpdate({
     }
   }
 
-  return { valueToContext: newValueToContext };
+  return {
+    extraDependencies: outputContexts,
+    state: { valueToContext: newValueToContext },
+  };
 }
 
 /**

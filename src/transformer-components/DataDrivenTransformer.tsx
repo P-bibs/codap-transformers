@@ -202,9 +202,10 @@ export interface FullOverrideFunction {
     props: DDTransformerProps,
     state: DDTransformerState
   ) => Promise<void>;
-  updateFunc: (
-    state: FullOverrideSaveState
-  ) => Promise<Partial<FullOverrideSaveState>>;
+  updateFunc: (state: FullOverrideSaveState) => Promise<{
+    extraDependencies?: string[];
+    state?: Partial<FullOverrideSaveState>;
+  }>;
 }
 
 export type TransformFunction = DatasetCreatorFunction | FullOverrideFunction;
@@ -334,6 +335,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
           type: ActiveTransformationActionTypes.ADD,
           newTransformation: {
             inputs,
+            extraDependencies: [],
             outputType: TransformationOutputType.TEXT,
             output: textName,
             transformer: base as DatasetCreatorTransformerName,
@@ -355,6 +357,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
           type: ActiveTransformationActionTypes.ADD,
           newTransformation: {
             inputs,
+            extraDependencies: [newContextName],
             outputType: TransformationOutputType.CONTEXT,
             output: newContextName,
             transformer: base as DatasetCreatorTransformerName,

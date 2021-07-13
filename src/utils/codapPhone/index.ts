@@ -38,6 +38,7 @@ import {
   popFromRedoStackAndExecute,
   clearUndoAndRedoStacks,
   callAllContextUpdateHooks,
+  callAllContextDeletedHooks,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -184,6 +185,7 @@ function codapRequestHandler(
   ) {
     removeContextUpdateListenersForContext(command.values.deletedContext);
     removeListenersWithDependency(command.values.deletedContext);
+    callAllContextDeletedHooks(command.values.deletedContext);
     callback({ success: true });
     return;
   }

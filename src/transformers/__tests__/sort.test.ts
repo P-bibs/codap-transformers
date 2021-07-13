@@ -1,9 +1,11 @@
 import { uncheckedSort } from "../sort";
 import {
+  CENSUS_DATASET,
   cloneDataSet,
   DATASET_A,
   DATASET_B,
   EMPTY_RECORDS,
+  FULLY_FEATURED_DATASET,
   jsEvalExpression,
   makeCollection,
   makeRecords,
@@ -97,15 +99,21 @@ test("sorts booleans", async () => {
   ).toEqual(sortedByBAscending);
 });
 
+function sortStr(a: string, b: string): number {
+  if (a === b) {
+    return 0;
+  } else if (a > b) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
 test("sorts strings", async () => {
   const sortedByNameAscending = cloneDataSet(DATASET_B);
-  sortedByNameAscending.records.sort((a, b) => {
-    if (a === b) {
-      return 0;
-    } else {
-      return a > b ? 1 : -1;
-    }
-  });
+  sortedByNameAscending.records.sort((aRec, bRec) =>
+    sortStr(aRec["Name"] as string, bRec["Name"] as string)
+  );
 
   expect(
     await uncheckedSort(
@@ -118,13 +126,9 @@ test("sorts strings", async () => {
   ).toEqual(sortedByNameAscending);
 
   const sortedByNameDescending = cloneDataSet(DATASET_B);
-  sortedByNameDescending.records.sort((a, b) => {
-    if (a === b) {
-      return 0;
-    } else {
-      return b > a ? 1 : -1;
-    }
-  });
+  sortedByNameDescending.records.sort((aRec, bRec) =>
+    sortStr(bRec["Name"] as string, aRec["Name"] as string)
+  );
 
   expect(
     await uncheckedSort(
@@ -136,16 +140,6 @@ test("sorts strings", async () => {
     )
   ).toEqual(sortedByNameDescending);
 });
-
-function sortStr(a: string, b: string): number {
-  if (a === b) {
-    return 0;
-  } else if (a > b) {
-    return 1;
-  } else {
-    return -1;
-  }
-}
 
 test("sorts objects", async () => {
   const withObjects = {
@@ -163,11 +157,9 @@ test("sorts objects", async () => {
   };
 
   const sortedWithObjectsAsc = cloneDataSet(withObjects);
-  sortedWithObjectsAsc.records.sort((a, b) => {
-    const aStr = JSON.stringify(a["Boundaries"]);
-    const bStr = JSON.stringify(b["Boundaries"]);
-    return sortStr(aStr, bStr);
-  });
+  sortedWithObjectsAsc.records.sort((a, b) =>
+    sortStr(JSON.stringify(a["Boundaries"]), JSON.stringify(b["Boundaries"]))
+  );
   expect(
     await uncheckedSort(
       withObjects,
@@ -179,11 +171,9 @@ test("sorts objects", async () => {
   ).toEqual(sortedWithObjectsAsc);
 
   const sortedWithObjectsDesc = cloneDataSet(withObjects);
-  sortedWithObjectsDesc.records.sort((a, b) => {
-    const aStr = JSON.stringify(a["Boundaries"]);
-    const bStr = JSON.stringify(b["Boundaries"]);
-    return sortStr(bStr, aStr);
-  });
+  sortedWithObjectsDesc.records.sort((a, b) =>
+    sortStr(JSON.stringify(b["Boundaries"]), JSON.stringify(a["Boundaries"]))
+  );
   expect(
     await uncheckedSort(
       withObjects,
@@ -215,8 +205,98 @@ test("sorts objects", async () => {
   ).toEqual(TYPES_DATASET);
 });
 
-// type errors with expected key expression type
-// ascending vs descending
-// can sort objects, strings, booleans, numbers
-// errors on key expression evaling to different types for diff cases
-// sort stability?
+test("errors on type error with key expression and type contract", async () => {
+  expect.assertions(2);
+  try {
+    // Year is a numeric, not boundary, attribute
+    await uncheckedSort(
+      CENSUS_DATASET,
+      "Year",
+      "boundary",
+      "ascending",
+      jsEvalExpression
+    );
+  } catch (e) {
+    expect(e.message).toMatch(/did not evaluate to boundary/);
+  }
+
+  try {
+    // Name is string, not boolean
+    await uncheckedSort(
+      DATASET_B,
+      "Name",
+      "boolean",
+      "descending",
+      jsEvalExpression
+    );
+  } catch (e) {
+    expect(e.message).toMatch(/did not evaluate to boolean/);
+  }
+});
+
+test("errors when key expression evaluates to multiple types", async () => {
+  expect.assertions(2);
+  try {
+    await uncheckedSort(
+      FULLY_FEATURED_DATASET,
+      "Attribute_3",
+      "any",
+      "ascending",
+      jsEvalExpression
+    );
+  } catch (e) {
+    expect(e.message).toMatch(/keys of differing types/);
+  }
+
+  try {
+    await uncheckedSort(
+      FULLY_FEATURED_DATASET,
+      "Attribute_5",
+      "any",
+      "descending",
+      jsEvalExpression
+    );
+  } catch (e) {
+    expect(e.message).toMatch(/keys of differing types/);
+  }
+});
+
+test("sort is stable", async () => {
+  const dataset = {
+    collections: [makeCollection("Collection", ["Letter", "Number"])],
+    records: makeRecords(
+      ["Letter", "Number"],
+      [
+        ["A", 3],
+        ["B", 3],
+        ["C", 2],
+        ["D", 1],
+        ["E", 2],
+        ["F", 6],
+      ]
+    ),
+  };
+
+  expect(
+    await uncheckedSort(
+      dataset,
+      "Number",
+      "number",
+      "ascending",
+      jsEvalExpression
+    )
+  ).toEqual({
+    collections: dataset.collections,
+    records: makeRecords(
+      ["Letter", "Number"],
+      [
+        ["D", 1],
+        ["C", 2],
+        ["E", 2],
+        ["A", 3],
+        ["B", 3],
+        ["F", 6],
+      ]
+    ),
+  });
+});

@@ -378,7 +378,7 @@ export interface Collection {
   description?: string;
   parent?: string;
   attrs?: CodapAttribute[];
-  labels: {
+  labels?: {
     singleCase?: string;
     pluralCase?: string;
     singleCaseWithArticle?: string;

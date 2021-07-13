@@ -29,6 +29,7 @@ import { dotProduct } from "../transformers/dotProduct";
 import { mean } from "../transformers/mean";
 import { median } from "../transformers/median";
 import { mode } from "../transformers/mode";
+import { standardDeviation } from "../transformers/standardDeviation";
 import { partitionOverride } from "../transformers/partition";
 import { transformColumn } from "../transformers/transformColumn";
 
@@ -76,10 +77,11 @@ export type BaseTransformerName =
   | "Copy"
   | "Copy Structure"
   | "Join"
-  | "Dot Product"
   | "Mean"
   | "Median"
   | "Mode"
+  | "Standard Deviation"
+  | "Dot Product"
   | "Combine Cases"
   | "Reduce"
   | "Partition";
@@ -617,32 +619,6 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Dot Product": {
-    group: "Aggregators",
-    componentData: {
-      init: {
-        context1: {
-          title: "Dataset to Take Dot Product of",
-        },
-        attributeSet1: {
-          title: "Attributes to Take Dot Product of",
-        },
-      },
-      transformerFunction: { kind: "datasetCreator", func: dotProduct },
-      info: {
-        summary:
-          "Calculates a dot product of the indicated attributes \
-        by multiplying the values of these attributes in each case and summing \
-        these products across the entire dataset.",
-        consumes:
-          "A dataset and a list of attributes whose values are used \
-        in the dot product.",
-        produces:
-          "A single number which is the sum of products of the values \
-        from the indicated attributes in the input dataset.",
-      },
-    },
-  },
   Mean: {
     group: "Aggregators",
     componentData: {
@@ -709,6 +685,55 @@ const transformerList: TransformerList = {
         consumes: "A dataset and an attribute within it to find the mode of.",
         produces:
           "A single number which is the mode value of the given attribute.",
+      },
+    },
+  },
+  "Standard Deviation": {
+    group: "Aggregators",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Compute Standard Deviation Over",
+        },
+        attribute1: {
+          title: "Attribute to Find Standard Deviation of",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: standardDeviation },
+      info: {
+        summary:
+          "Finds the standard deviation of a given numeric attribute in the given \
+          dataset.",
+        consumes:
+          "A dataset and an attribute within it to find the standard deviation of.",
+        produces:
+          "A single number which is the standard deviation of the given attribute.",
+      },
+    },
+  },
+  "Dot Product": {
+    group: "Aggregators",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Take Dot Product of",
+        },
+        attributeSet1: {
+          title: "Attributes to Take Dot Product of",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: dotProduct },
+      info: {
+        summary:
+          "Calculates a dot product of the indicated attributes \
+        by multiplying the values of these attributes in each case and summing \
+        these products across the entire dataset.",
+        consumes:
+          "A dataset and a list of attributes whose values are used \
+        in the dot product.",
+        produces:
+          "A single number which is the sum of products of the values \
+        from the indicated attributes in the input dataset.",
       },
     },
   },

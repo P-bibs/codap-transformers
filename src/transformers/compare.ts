@@ -12,12 +12,16 @@ import { DDTransformerState } from "../transformer-components/DataDrivenTransfor
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformer-components/util";
 import { uniqueName } from "../utils/names";
+import {
+  colorToRgbString,
+  GREEN,
+  GREY,
+  interpolateColor,
+  RED,
+} from "../utils/colors";
 
 const COMPARE_STATUS_COLUMN_BASE = "Compare Status";
 const COMPARE_VALUE_COLUMN_BASE = "Difference";
-const GREEN = "rgb(0,255,0)";
-const RED = "rgb(255,0,0)";
-const GREY = "rgb(100,100,100)";
 
 const DECISION_1_COLUMN_BASE = "Category 1";
 const DECISION_2_COLUMN_BASE = "Category 2";
@@ -184,19 +188,19 @@ function compareRecordsStructural(
         records.push({
           [attributeName1]: change.value[j],
           [attributeName2]: "",
-          [compareStatusColumnName]: RED,
+          [compareStatusColumnName]: colorToRgbString(RED),
         });
       } else if (change.added) {
         records.push({
           [attributeName1]: "",
           [attributeName2]: change.value[j],
-          [compareStatusColumnName]: GREEN,
+          [compareStatusColumnName]: colorToRgbString(GREEN),
         });
       } else {
         records.push({
           [attributeName1]: change.value[j],
           [attributeName2]: change.value[j],
-          [compareStatusColumnName]: GREY,
+          [compareStatusColumnName]: colorToRgbString(GREY),
         });
       }
     }
@@ -341,18 +345,16 @@ function compareRecordsNumerical(
   compareStatusColumnName: string
 ): Record<string, unknown>[] {
   const records = [];
+
+  // Start by looping through all records and finding those that
+  // can be numerically compared successfully
+  const validIndicesAndValues: Record<number, [number, number]> = {};
   for (let i = 0; i < Math.max(values1.length, values2.length); i++) {
     const v1 = values1[i];
     const v2 = values2[i];
 
     // If either is null/undefined, skip and continue
     if (v1 === null || v2 === null || v1 === undefined || v2 === undefined) {
-      records.push({
-        [attributeName1]: values1[i],
-        [attributeName2]: values2[i],
-        [compareValueColumnName]: "",
-        [compareStatusColumnName]: "",
-      });
       continue;
     }
 
@@ -361,23 +363,54 @@ function compareRecordsNumerical(
 
     // If either is not a number, skip and continue
     if (isNaN(parsed1) || isNaN(parsed2)) {
+      continue;
+    }
+
+    validIndicesAndValues[i] = [parsed1, parsed2];
+  }
+
+  // Loop through all valid values and find the largest numeric difference
+  // (negative or positive)
+  let largestDifference = 0;
+  for (const [, [v1, v2]] of Object.entries(validIndicesAndValues)) {
+    const difference = v2 - v1;
+    if (Math.abs(difference) > Math.abs(largestDifference)) {
+      largestDifference = difference;
+    }
+  }
+
+  // Loop through all indices and add records to output dataset. If we've
+  // previously seen that a given index has two valid values that can be compared,
+  // then compare them and compute a color for the output. Otherwise, just include
+  // the values as strings and leave the comparison columns blank.
+  for (let i = 0; i < Math.max(values1.length, values2.length); i++) {
+    if (i in validIndicesAndValues) {
+      const [v1, v2] = validIndicesAndValues[i];
+      const difference = v2 - v1;
+
+      const colorScalar = Math.abs(difference / largestDifference);
+      let color;
+      if (difference > 0) {
+        color = colorToRgbString(interpolateColor(GREY, GREEN, colorScalar));
+      } else if (difference < 0) {
+        color = colorToRgbString(interpolateColor(GREY, RED, colorScalar));
+      } else {
+        color = colorToRgbString(GREY);
+      }
+      records.push({
+        [attributeName1]: v1,
+        [attributeName2]: v2,
+        [compareValueColumnName]: difference,
+        [compareStatusColumnName]: color,
+      });
+    } else {
       records.push({
         [attributeName1]: values1[i],
         [attributeName2]: values2[i],
         [compareValueColumnName]: "",
         [compareStatusColumnName]: "",
       });
-      continue;
     }
-
-    const difference = parsed2 - parsed1;
-    records.push({
-      [attributeName1]: values1[i],
-      [attributeName2]: values2[i],
-      [compareValueColumnName]: difference,
-      [compareStatusColumnName]:
-        difference > 0 ? GREEN : difference < 0 ? RED : GREY,
-    });
   }
 
   return records;

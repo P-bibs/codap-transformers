@@ -10,7 +10,7 @@ import {
 
 test("sums a single attribute", () => {
   expect(uncheckedDotProduct(DATASET_A, ["A"])).toEqual(3 + 8 + 10 + 4 + 10);
-  expect(uncheckedDotProduct(DATASET_B, ["Birth Year"])).toEqual(
+  expect(uncheckedDotProduct(DATASET_B, ["Birth_Year"])).toEqual(
     1990 + 1995 + 2001 + 2000 + 1998 + 1988
   );
   // All the records have a "Year" of 2017
@@ -24,7 +24,7 @@ test("works with multiple attributes", () => {
     3 * 2000 + 8 * 2003 + 10 * 1998 + 4 * 2010 + 10 * 2014
   );
   expect(
-    uncheckedDotProduct(DATASET_B, ["Birth Year", "Current Year", "Grade"])
+    uncheckedDotProduct(DATASET_B, ["Birth_Year", "Current_Year", "Grade"])
   ).toEqual(
     1990 * 2021 * 88 +
       1995 * 2021 * 91 +
@@ -60,7 +60,7 @@ test("errors on non-number values", () => {
     nonNumberErr
   );
   expect(() =>
-    uncheckedDotProduct(FULLY_FEATURED_DATASET, ["Attribute 3", "Attribute 1"])
+    uncheckedDotProduct(FULLY_FEATURED_DATASET, ["Attribute_3", "Attribute_1"])
   ).toThrowError(nonNumberErr);
   expect(() =>
     uncheckedDotProduct(TYPES_DATASET, ["Boolean", "Color"])

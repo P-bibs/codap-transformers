@@ -85,7 +85,7 @@ export async function sort({
   ];
 }
 
-async function uncheckedSort(
+export async function uncheckedSort(
   dataset: DataSet,
   keyExpr: string,
   outputType: CodapLanguageType,

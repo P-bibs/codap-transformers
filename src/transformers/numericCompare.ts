@@ -1,5 +1,4 @@
 import { DataSet, TransformationOutput } from "./types";
-import { Collection } from "../utils/codapPhone/types";
 import {
   allAttrNames,
   cloneCollection,
@@ -27,13 +26,9 @@ export async function numericCompare({
   context1: inputDataContext1,
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
-  collection1: collection,
 }: DDTransformerState): Promise<TransformationOutput> {
   if (!inputDataContext1) {
     throw new Error("Please select a data context");
-  }
-  if (!collection) {
-    throw new Error("Please select a collection");
   }
   if (!(inputAttribute1 && inputAttribute2)) {
     throw new Error("Please select two attributes");
@@ -44,12 +39,7 @@ export async function numericCompare({
   const contextName = readableName(context);
 
   return [
-    await uncheckedNumericCompare(
-      dataset,
-      collection,
-      inputAttribute1,
-      inputAttribute2
-    ),
+    await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
     `Compare of ${contextName}`,
     `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
   ];
@@ -57,7 +47,6 @@ export async function numericCompare({
 
 function uncheckedNumericCompare(
   dataset: DataSet,
-  collectionName: string,
   attributeName1: string,
   attributeName2: string
 ): DataSet {
@@ -65,10 +54,30 @@ function uncheckedNumericCompare(
   const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
 
   const collections = dataset.collections.map(cloneCollection);
-  const toAdd = collections.find((coll) => coll.name === collectionName);
-  if (!toAdd) {
-    throw new Error(`Collection ${collectionName} not found`);
+
+  // Find the index of the collections that contain the attributes
+  const attribute1CollectionIndex = collections.findIndex(
+    (collection) =>
+      collection.attrs?.find((attr) => attr.name === attribute1Data.name) !==
+      undefined
+  );
+  const attribute2CollectionIndex = collections.findIndex(
+    (collection) =>
+      collection.attrs?.find((attr) => attr.name === attribute2Data.name) !==
+      undefined
+  );
+
+  // Make sure both attributes were found
+  if (attribute1CollectionIndex === -1) {
+    throw new Error("First attribute not found in dataset");
   }
+  if (attribute2CollectionIndex === -1) {
+    throw new Error("Second attribute not found in dataset");
+  }
+
+  // Between the two collections that the attributes are in, we want to pick the rightmost one.
+  const toAdd =
+    collections[Math.max(attribute1CollectionIndex, attribute2CollectionIndex)];
 
   // Ensure generated comparison attributes don't collide with attributes being compared
   const compareStatusColumnName = uniqueName(

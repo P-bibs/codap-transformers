@@ -335,9 +335,6 @@ const transformerList: TransformerList = {
         context1: {
           title: "Dataset to Compare",
         },
-        collection1: {
-          title: "Collection to Compare",
-        },
         attribute1: {
           title: "First attribute to Compare",
         },

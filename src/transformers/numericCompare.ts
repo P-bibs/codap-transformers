@@ -1,6 +1,10 @@
 import { DataSet, TransformationOutput } from "./types";
 import { Collection } from "../utils/codapPhone/types";
-import { getAttributeDataFromDataset } from "./util";
+import {
+  allAttrNames,
+  cloneCollection,
+  getAttributeDataFromDataset,
+} from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { readableName } from "../transformer-components/util";
@@ -23,9 +27,16 @@ export async function numericCompare({
   context1: inputDataContext1,
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
+  collection1: collection,
 }: DDTransformerState): Promise<TransformationOutput> {
-  if (!inputDataContext1 || !inputAttribute1 || !inputAttribute2) {
-    throw new Error("Please choose a dataset and two attributes");
+  if (!inputDataContext1) {
+    throw new Error("Please select a data context");
+  }
+  if (!collection) {
+    throw new Error("Please select a collection");
+  }
+  if (!(inputAttribute1 && inputAttribute2)) {
+    throw new Error("Please select two attributes");
   }
 
   const { context, dataset } = await getContextAndDataSet(inputDataContext1);
@@ -33,7 +44,12 @@ export async function numericCompare({
   const contextName = readableName(context);
 
   return [
-    await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
+    await uncheckedNumericCompare(
+      dataset,
+      collection,
+      inputAttribute1,
+      inputAttribute2
+    ),
     `Compare of ${contextName}`,
     `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
   ];
@@ -41,60 +57,52 @@ export async function numericCompare({
 
 function uncheckedNumericCompare(
   dataset: DataSet,
+  collectionName: string,
   attributeName1: string,
   attributeName2: string
 ): DataSet {
   const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
   const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
 
-  // Make sure that the two attributes shown in comparison don't have the same name
-  const safeAttributeName2 = uniqueName(attribute2Data.name, [
-    attribute1Data.name,
-  ]);
-  const attributeNames = [attribute1Data.name, safeAttributeName2];
+  const collections = dataset.collections.map(cloneCollection);
+  const toAdd = collections.find((coll) => coll.name === collectionName);
+  if (!toAdd) {
+    throw new Error(`Collection ${collectionName} not found`);
+  }
 
   // Ensure generated comparison attributes don't collide with attributes being compared
-  const compareValueColumnName = uniqueName(
-    COMPARE_VALUE_COLUMN_BASE,
-    attributeNames
-  );
   const compareStatusColumnName = uniqueName(
     COMPARE_STATUS_COLUMN_BASE,
-    attributeNames
+    allAttrNames(dataset)
+  );
+  const compareValueColumnName = uniqueName(
+    COMPARE_VALUE_COLUMN_BASE,
+    allAttrNames(dataset)
   );
 
-  const collections: Collection[] = [
-    {
-      name: `Comparison of ${attribute1Data.name} and ${attribute2Data.name}`,
-      labels: {},
-      // copy attributes to compare
-      // NOTE: do not copy formulas: formulas may be separated from their
-      // dependencies and would be invalid.
-      attrs: [
-        { ...attribute1Data, formula: undefined },
-        { ...attribute2Data, name: safeAttributeName2, formula: undefined },
-        {
-          name: compareValueColumnName,
-          description: "",
-          editable: true,
-          hidden: false,
-          type: "numeric",
-        },
-        {
-          name: compareStatusColumnName,
-          description: "",
-          editable: true,
-          hidden: false,
-          type: "categorical",
-        },
-      ],
-    },
-  ];
+  if (!toAdd.attrs) {
+    toAdd.attrs = [];
+  }
+
+  toAdd.attrs.push({
+    name: compareValueColumnName,
+    description: "",
+    editable: true,
+    hidden: false,
+    type: "numeric",
+  });
+  toAdd.attrs.push({
+    name: compareStatusColumnName,
+    description: "",
+    editable: true,
+    hidden: false,
+    type: "categorical",
+  });
 
   const values1 = dataset.records.map((record) => record[attribute1Data.name]);
   const values2 = dataset.records.map((record) => record[attribute2Data.name]);
 
-  const records = [];
+  const records = dataset.records;
 
   // Start by looping through all records and finding those that
   // can be numerically compared successfully
@@ -147,19 +155,11 @@ function uncheckedNumericCompare(
       } else {
         color = colorToRgbString(GREY);
       }
-      records.push({
-        [attribute1Data.name]: v1,
-        [attribute2Data.name]: v2,
-        [compareValueColumnName]: difference,
-        [compareStatusColumnName]: color,
-      });
+      records[i][compareValueColumnName] = difference;
+      records[i][compareStatusColumnName] = color;
     } else {
-      records.push({
-        [attribute1Data.name]: values1[i],
-        [attribute2Data.name]: values2[i],
-        [compareValueColumnName]: "",
-        [compareStatusColumnName]: "",
-      });
+      records[i][compareValueColumnName] = "";
+      records[i][compareStatusColumnName] = "";
     }
   }
 

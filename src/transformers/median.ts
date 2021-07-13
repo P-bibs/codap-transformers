@@ -2,7 +2,7 @@ import { DDTransformerState } from "../transformer-components/DataDrivenTransfor
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { codapValueToString } from "./util";
+import { extractNumericValues } from "./util";
 
 /**
  * Finds the median of a given attribute's values.
@@ -41,18 +41,7 @@ function uncheckedMedian(dataset: DataSet, attribute: string): number {
   }
 
   // Extract numeric values from the indicated attribute
-  const values = dataset.records.map((record) => {
-    if (record[attribute] === undefined) {
-      throw new Error(`Invalid attribute name: ${attribute}`);
-    }
-    const numericValue = parseFloat(String(record[attribute]));
-    if (isNaN(numericValue)) {
-      throw new Error(
-        `Expected number, instead got ${codapValueToString(record[attribute])}`
-      );
-    }
-    return numericValue;
-  });
+  const values = extractNumericValues(dataset, attribute);
 
   // Sort the numeric values ascending
   values.sort((a, b) => a - b);

@@ -28,6 +28,7 @@ import {
 import { dotProduct } from "../transformers/dotProduct";
 import { mean } from "../transformers/mean";
 import { median } from "../transformers/median";
+import { mode } from "../transformers/mode";
 import { partitionOverride } from "../transformers/partition";
 import { transformColumn } from "../transformers/transformColumn";
 
@@ -78,6 +79,7 @@ export type BaseTransformerName =
   | "Dot Product"
   | "Mean"
   | "Median"
+  | "Mode"
   | "Combine Cases"
   | "Reduce"
   | "Partition";
@@ -655,8 +657,9 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: mean },
       info: {
         summary:
-          "Finds the mean value of a given numeric attribute \
-        in the given dataset.",
+          "Finds the mean value of a given numeric attribute in the given dataset. \
+          This is the sum of all values under the attribute, divided by the number \
+          of values.",
         consumes: "A dataset and an attribute within it to take the mean of.",
         produces:
           "A single number which is the mean value of the given attribute.",
@@ -678,11 +681,34 @@ const transformerList: TransformerList = {
       info: {
         summary:
           "Finds the median value of a given numeric attribute in the given \
-          dataset. For datasets with an even number of cases, the average of \
-          the two middle values is used.",
+          dataset. This is the middle value which separates the higher half from \
+          the lower half of the dataset (when sorted). For datasets with an even \
+          number of cases, the average of the two middle values is used.",
         consumes: "A dataset and an attribute within it to find the median of.",
         produces:
           "A single number which is the median value of the given attribute.",
+      },
+    },
+  },
+  Mode: {
+    group: "Aggregators",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Compute Mode Over",
+        },
+        attribute1: {
+          title: "Attribute to Find Mode of",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: mode },
+      info: {
+        summary:
+          "Finds the mode value of a given numeric attribute in the given \
+          dataset. This is the value which occurs most often under the given attribute.",
+        consumes: "A dataset and an attribute within it to find the mode of.",
+        produces:
+          "A single number which is the mode value of the given attribute.",
       },
     },
   },

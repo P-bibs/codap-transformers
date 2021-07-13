@@ -1,6 +1,5 @@
 import { DataSet, TransformationOutput } from "./types";
-import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { uncheckedFlatten } from "./flatten";
+import { Collection } from "../utils/codapPhone/types";
 import { getAttributeDataFromDataset } from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -13,30 +12,20 @@ import {
   interpolateColor,
   RED,
 } from "../utils/colors";
-import { uncheckedGroupBy } from "./groupBy";
 
 const COMPARE_STATUS_COLUMN_BASE = "Compare Status";
 const COMPARE_VALUE_COLUMN_BASE = "Difference";
 
-export type CompareType = "numeric" | "categorical";
-function isCompareType(s: unknown): s is CompareType {
-  return s === "numeric" || s === "categorical";
-}
-
 /**
  * Compares two contexts in a variety of ways
  */
-export async function compare({
+export async function numericCompare({
   context1: inputDataContext1,
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
-  dropdown1: kind,
 }: DDTransformerState): Promise<TransformationOutput> {
   if (!inputDataContext1 || !inputAttribute1 || !inputAttribute2) {
     throw new Error("Please choose a dataset and two attributes");
-  }
-  if (!isCompareType(kind)) {
-    throw new Error("Please select a valid compare type");
   }
 
   const { context, dataset } = await getContextAndDataSet(inputDataContext1);
@@ -44,56 +33,20 @@ export async function compare({
   const contextName = readableName(context);
 
   return [
-    await uncheckedCompare(dataset, inputAttribute1, inputAttribute2, kind),
+    await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
     `Compare of ${contextName}`,
-    `A ${kind} comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
+    `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
   ];
 }
 
-function uncheckedCompare(
+function uncheckedNumericCompare(
   dataset: DataSet,
   attributeName1: string,
-  attributeName2: string,
-  kind: CompareType
+  attributeName2: string
 ): DataSet {
-  const attributeData1 = getAttributeDataFromDataset(attributeName1, dataset);
-  const attributeData2 = getAttributeDataFromDataset(attributeName2, dataset);
+  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
+  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
 
-  if (kind === "categorical") {
-    return compareCategorical(dataset, attributeData1, attributeData2);
-  } else {
-    return compareRecordsNumerical(dataset, attributeData1, attributeData2);
-  }
-}
-
-function compareCategorical(
-  dataset: DataSet,
-  attribute1Data: CodapAttribute,
-  attribute2Data: CodapAttribute
-): DataSet {
-  dataset = uncheckedFlatten(dataset);
-  const out = uncheckedGroupBy(
-    dataset,
-    [
-      {
-        attrName: attribute1Data.name,
-        groupedName: `${attribute1Data.name} Category`,
-      },
-      {
-        attrName: attribute2Data.name,
-        groupedName: `${attribute2Data.name} Group`,
-      },
-    ],
-    "Comparison"
-  );
-  return out;
-}
-
-function compareRecordsNumerical(
-  dataset1: DataSet,
-  attribute1Data: CodapAttribute,
-  attribute2Data: CodapAttribute
-): DataSet {
   // Make sure that the two attributes shown in comparison don't have the same name
   const safeAttributeName2 = uniqueName(attribute2Data.name, [
     attribute1Data.name,
@@ -138,8 +91,8 @@ function compareRecordsNumerical(
     },
   ];
 
-  const values1 = dataset1.records.map((record) => record[attribute1Data.name]);
-  const values2 = dataset1.records.map((record) => record[attribute2Data.name]);
+  const values1 = dataset.records.map((record) => record[attribute1Data.name]);
+  const values2 = dataset.records.map((record) => record[attribute2Data.name]);
 
   const records = [];
 

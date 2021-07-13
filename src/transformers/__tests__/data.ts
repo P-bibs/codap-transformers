@@ -200,15 +200,15 @@ export const DATASET_A_SUBSET: DataSet = {
 };
 
 /**
- * A small example dataset with attributes Name, Birth Year, Current
+ * A small example dataset with attributes Name, Birth_Year, Current
  * Year, and Grade.
  */
 export const DATASET_B: DataSet = {
   collections: [
-    makeCollection("cases", ["Name", "Birth Year", "Current Year", "Grade"]),
+    makeCollection("cases", ["Name", "Birth_Year", "Current_Year", "Grade"]),
   ],
   records: makeRecords(
-    ["Name", "Birth Year", "Current Year", "Grade"],
+    ["Name", "Birth_Year", "Current_Year", "Grade"],
     [
       ["Jon", 1990, 2021, 88],
       ["Sheila", 1995, 2021, 91],
@@ -413,12 +413,12 @@ export const CENSUS_DATASET: DataSet = {
  */
 export const FULLY_FEATURED_DATASET: DataSet = {
   collections: [
-    makeCollection("Collection 1", ["Attribute 1", "Attribute 2"]),
-    makeCollection("Collection 2", ["Attribute 3", "Attribute 4"]),
-    makeCollection("Collection 3", ["Attribute 5"]),
+    makeCollection("Collection 1", ["Attribute_1", "Attribute_2"]),
+    makeCollection("Collection 2", ["Attribute_3", "Attribute_4"]),
+    makeCollection("Collection 3", ["Attribute_5"]),
   ],
   records: makeRecords(
-    ["Attribute 1", "Attribute 2", "Attribute 3", "Attribute 4", "Attribute 5"],
+    ["Attribute_1", "Attribute_2", "Attribute_3", "Attribute_4", "Attribute_5"],
     [
       ["rgb(100,200,0)", -1, makeSimpleBoundary(false), "test 1", true],
       ["  \n  ", -2, makeSimpleBoundary(false), "test 2", true],

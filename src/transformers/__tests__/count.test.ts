@@ -102,22 +102,22 @@ test("count multiple attributes", () => {
 });
 
 test("works with boundaries", () => {
-  expect(uncheckedCount(FULLY_FEATURED_DATASET, ["Attribute 3"])).toEqual({
+  expect(uncheckedCount(FULLY_FEATURED_DATASET, ["Attribute_3"])).toEqual({
     collections: [
       {
-        name: "Count (Attribute 3)",
+        name: "Count (Attribute_3)",
         labels: {},
         attrs: [
-          ...copyAttributes(FULLY_FEATURED_DATASET, ["Attribute 3"]),
+          ...copyAttributes(FULLY_FEATURED_DATASET, ["Attribute_3"]),
           {
             name: "Count",
-            description: "The frequency of each tuple of (Attribute 3)",
+            description: "The frequency of each tuple of (Attribute_3)",
           },
         ],
       },
     ],
     records: makeRecords(
-      ["Attribute 3", "Count"],
+      ["Attribute_3", "Count"],
       [
         [makeSimpleBoundary(false), 3],
         ["", 1],

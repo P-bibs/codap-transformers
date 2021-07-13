@@ -111,7 +111,7 @@ export const jsEvalExpression = (
     // Prepend to the beginning of the expression `let` statements that bind
     // all values in `record`
     const fullExpr = Object.entries(record)
-      .map(([key, value]) => `let ${key} = ${value}`)
+      .map(([key, value]) => `let ${key} = ${JSON.stringify(value)}`)
       .join(";\n")
       .concat(`;\n${expr}`);
 

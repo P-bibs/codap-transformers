@@ -28,7 +28,7 @@ import {
 } from "../transformers/fold";
 import { dotProduct } from "../transformers/dotProduct";
 import { average } from "../transformers/average";
-import { partitionOverride } from "../transformers/partition";
+import { partitionOverride, partitionUpdate } from "../transformers/partition";
 import { transformColumn } from "../transformers/transformColumn";
 
 export type TransformersInteractiveState = {
@@ -55,7 +55,7 @@ export type TransformerGroup =
 /**
  *  All valid values of the `base` field of a saved transformer object
  */
-export type BaseTransformerName =
+export type DatasetCreatorTransformerName =
   | "Build Column"
   | "Compare"
   | "Count"
@@ -79,8 +79,13 @@ export type BaseTransformerName =
   | "Dot Product"
   | "Average"
   | "Combine Cases"
-  | "Reduce"
-  | "Partition";
+  | "Reduce";
+
+export type FullOverrideTransformerName = "Partition";
+
+export type BaseTransformerName =
+  | DatasetCreatorTransformerName
+  | FullOverrideTransformerName;
 
 export type TransformerList = Record<
   BaseTransformerName,
@@ -112,7 +117,8 @@ const transformerList: TransformerList = {
       },
       transformerFunction: {
         kind: "fullOverride",
-        func: partitionOverride,
+        createFunc: partitionOverride,
+        updateFunc: partitionUpdate,
       },
       info: {
         summary:

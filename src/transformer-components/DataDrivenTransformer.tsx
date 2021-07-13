@@ -7,7 +7,11 @@ import {
   deleteDataContext,
 } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
-import { CodapLanguageType, TransformationOutput } from "../transformers/types";
+import {
+  CodapLanguageType,
+  TransformationOutput,
+  FullOverrideSaveState,
+} from "../transformers/types";
 import {
   Select,
   AttributeSelector,
@@ -21,7 +25,10 @@ import {
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
 import TransformerSaveButton from "../ui-components/TransformerSaveButton";
-import { BaseTransformerName } from "./transformerList";
+import {
+  DatasetCreatorTransformerName,
+  BaseTransformerName,
+} from "./transformerList";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
@@ -184,15 +191,23 @@ const titleFromComponent = (
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
-export type TransformFunction =
-  | {
-      kind: "datasetCreator";
-      func: (state: DDTransformerState) => Promise<TransformationOutput>;
-    }
-  | {
-      kind: "fullOverride";
-      func: (props: DDTransformerProps, state: DDTransformerState) => void;
-    };
+interface DatasetCreatorFunction {
+  kind: "datasetCreator";
+  func: (state: DDTransformerState) => Promise<TransformationOutput>;
+}
+
+export interface FullOverrideFunction {
+  kind: "fullOverride";
+  createFunc: (
+    props: DDTransformerProps,
+    state: DDTransformerState
+  ) => Promise<void>;
+  updateFunc: (
+    state: FullOverrideSaveState
+  ) => Promise<Partial<FullOverrideSaveState>>;
+}
+
+export type TransformFunction = DatasetCreatorFunction | FullOverrideFunction;
 
 export type DDTransformerProps = {
   transformerFunction: TransformFunction;
@@ -321,7 +336,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             inputs,
             outputType: TransformationOutputType.TEXT,
             output: textName,
-            transformer: base,
+            transformer: base as DatasetCreatorTransformerName,
             state,
           },
         });
@@ -342,7 +357,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
             inputs,
             outputType: TransformationOutputType.CONTEXT,
             output: newContextName,
-            transformer: base,
+            transformer: base as DatasetCreatorTransformerName,
             state,
           },
         });
@@ -564,7 +579,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         <TransformerSubmitButtons
           onCreate={
             transformerFunction.kind === "fullOverride"
-              ? () => transformerFunction.func(props, state)
+              ? () => transformerFunction.createFunc(props, state)
               : transform
           }
         />

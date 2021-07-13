@@ -3,7 +3,10 @@ import {
   BaseTransformerName,
   default as transformerList,
 } from "../transformer-components/transformerList";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import {
+  DDTransformerState,
+  FullOverrideFunction,
+} from "../transformer-components/DataDrivenTransformer";
 import {
   DataSetTransformationOutput,
   NumberTransformationOutput,
@@ -20,6 +23,7 @@ import {
   removeContextUpdateHook,
 } from "./codapPhone/listeners";
 import { InteractiveState } from "./codapPhone/types";
+import { PartitionSaveState } from "../transformers/partition";
 
 /**
  * useActiveTransformations
@@ -68,7 +72,10 @@ export function useActiveTransformations(
       }
       for (const description of activeTransformations[contextName]) {
         try {
-          await updateFromDescription(description);
+          await updateFromDescription(
+            description,
+            activeTransformationsDispatch
+          );
         } catch (e) {
           setErrMsg(e.message);
         }
@@ -90,13 +97,28 @@ export enum TransformationOutputType {
   TEXT = "text",
 }
 
-export interface TransformationDescription {
+interface BaseTransformationDescription {
   inputs: string[];
+}
+
+interface DatasetCreatorDescription extends BaseTransformationDescription {
   outputType: TransformationOutputType;
   output: string;
-  transformer: BaseTransformerName;
+  transformer: Exclude<BaseTransformerName, "Partition">;
   state: DDTransformerState;
 }
+
+interface PartitionDescription extends BaseTransformationDescription {
+  transformer: "Partition";
+  state: PartitionSaveState;
+}
+
+// Future fullOverride transformers would be added to this union
+type FullOverrideDescription = PartitionDescription;
+
+export type TransformationDescription =
+  | DatasetCreatorDescription
+  | FullOverrideDescription;
 
 export type ActiveTransformations = Record<string, TransformationDescription[]>;
 
@@ -112,7 +134,7 @@ function serializeActiveTransformations(
 
 export function deserializeActiveTransformations(
   transformations: TransformationDescription[]
-) {
+): ActiveTransformations {
   const deserialized: ActiveTransformations = {};
   for (const transform of transformations) {
     for (const input of transform.inputs) {
@@ -127,11 +149,13 @@ export function deserializeActiveTransformations(
 }
 
 async function updateFromDescription(
-  description: TransformationDescription
+  description: TransformationDescription,
+  dispatch: React.Dispatch<ActiveTransformationsAction>
 ): Promise<void> {
   const transformFunc =
     transformerList[description.transformer].componentData.transformerFunction;
   if (transformFunc.kind === "datasetCreator") {
+    description = description as DatasetCreatorDescription;
     if (description.outputType === TransformationOutputType.CONTEXT) {
       await updateContextFromDatasetCreator(
         description.state,
@@ -150,7 +174,8 @@ async function updateFromDescription(
       );
     }
   } else if (transformFunc.kind === "fullOverride") {
-    // Do nothing for now
+    description = description as FullOverrideDescription;
+    await updateFromFullOverride(description, dispatch);
   }
 }
 
@@ -176,12 +201,59 @@ async function updateTextFromDatasetCreator(
   await updateText(outputName, String(result));
 }
 
+async function updateFromFullOverride(
+  description: FullOverrideDescription,
+  dispatch: React.Dispatch<ActiveTransformationsAction>
+) {
+  const newState = await (
+    transformerList[description.transformer].componentData
+      .transformerFunction as FullOverrideFunction
+  ).updateFunc(description.state);
+  dispatch({
+    type: ActionTypes.EDIT,
+    transformation: description,
+    newState,
+  });
+}
+
+/**
+ * Active Transformtions Reducer
+ *
+ * Reducer function for the activeTransformations object
+ */
+export function activeTransformationsReducer(
+  oldState: ActiveTransformations,
+  action: ActiveTransformationsAction
+): ActiveTransformations {
+  console.group("Reducer");
+  console.log(action);
+  console.groupEnd();
+  switch (action.type) {
+    case ActionTypes.SET:
+      return action.newTransformations;
+    case ActionTypes.ADD:
+      return addTransformation(oldState, action.newTransformation);
+    case ActionTypes.EDIT:
+      return editTransformation(
+        oldState,
+        action.transformation,
+        action.newState
+      );
+    case ActionTypes.DELETE:
+      return deleteTransformation(oldState, action.transformation);
+  }
+}
+
 export enum ActionTypes {
   SET,
   ADD,
+  EDIT,
   DELETE,
 }
 
+// Only allow editing of fullOverride save state, since partition might need to
+// update the map from values to context names each time it updates. Don't see
+// a reason to update datasetCreator transformations.
 type SafeActions = {
   type: ActionTypes.ADD;
   newTransformation: TransformationDescription;
@@ -191,10 +263,16 @@ type ActiveTransformationsAction =
   | SafeActions
   | {
       type: ActionTypes.DELETE;
+      transformation: TransformationDescription;
     }
   | {
       type: ActionTypes.SET;
       newTransformations: ActiveTransformations;
+    }
+  | {
+      type: ActionTypes.EDIT;
+      transformation: FullOverrideDescription;
+      newState: Partial<FullOverrideDescription["state"]>;
     };
 
 export type SafeActiveTransformationsDispatch = React.Dispatch<SafeActions>;
@@ -214,16 +292,33 @@ function addTransformation(
   return cloned;
 }
 
-export function activeTransformationsReducer(
-  oldState: ActiveTransformations,
-  action: ActiveTransformationsAction
+function editTransformation(
+  transformations: ActiveTransformations,
+  oldTransformation: FullOverrideDescription,
+  newState: Partial<FullOverrideDescription["state"]>
 ): ActiveTransformations {
-  switch (action.type) {
-    case ActionTypes.SET:
-      return action.newTransformations;
-    case ActionTypes.ADD:
-      return addTransformation(oldState, action.newTransformation);
-    default:
-      return oldState;
+  const cloned = { ...transformations };
+  for (const input of oldTransformation.inputs) {
+    cloned[input] = cloned[input].map((description) => {
+      if (description === oldTransformation) {
+        description = {
+          ...description,
+          state: { ...description.state, ...newState },
+        };
+      }
+      return description;
+    });
   }
+  return cloned;
+}
+
+function deleteTransformation(
+  transformations: ActiveTransformations,
+  toDelete: TransformationDescription
+): ActiveTransformations {
+  const cloned = { ...transformations };
+  for (const input of toDelete.inputs) {
+    cloned[input] = cloned[input].filter((d) => d !== toDelete);
+  }
+  return cloned;
 }

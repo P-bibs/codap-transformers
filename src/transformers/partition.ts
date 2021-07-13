@@ -4,16 +4,14 @@ import {
   updateContextWithDataSet,
   deleteDataContext,
 } from "../utils/codapPhone";
-import {
-  addContextUpdateListener,
-  pushToUndoStack,
-} from "../utils/codapPhone/listeners";
+import { pushToUndoStack } from "../utils/codapPhone/listeners";
 import { codapValueToString } from "./util";
 import {
   DDTransformerProps,
   DDTransformerState,
 } from "../transformer-components/DataDrivenTransformer";
 import { applyNewDataSet, readableName } from "../transformer-components/util";
+import { ActionTypes } from "../utils/transformationDescription";
 
 /**
  * Contains a dataset as a result of a partition, and the distinct
@@ -26,15 +24,65 @@ export interface PartitionDataset {
   distinctValueAsStr: string;
 }
 
+// At or more than this number of output datasets triggers a warning
+const OUTPUT_WARN_THRESHOLD = 10;
+
+/**
+ * If the indicated number of output datasets is at or beyond OUTPUT_WARN_THRESHOLD,
+ * this warns the user and prompts them to confirm that they'd like
+ * to go ahead with creating/updating the output.
+ *
+ * @returns true if the number is below threshold or the user
+ *  has confirmed they want the output. false otherwise.
+ */
+function confirmLargeOutput(outputDatasets: number, msg: string): boolean {
+  if (outputDatasets >= OUTPUT_WARN_THRESHOLD) {
+    return confirm(`${msg}. Are you sure you want to proceed?`);
+  }
+  return true;
+}
+
+function partitionDatasetDescription(
+  pd: PartitionDataset,
+  originalCtxt: string,
+  partitionedAttribute: string
+): string {
+  return (
+    `One of the datasets from a partition of the ${originalCtxt} dataset ` +
+    `by the ${partitionedAttribute} attribute. This dataset contains all cases ` +
+    `from the original which had a value of ${codapValueToString(
+      pd.distinctValue
+    )} ` +
+    `for the ${partitionedAttribute} attribute.`
+  );
+}
+
+async function doTransform(
+  inputDataCtxt: string,
+  attributeName: string
+): Promise<[PartitionDataset, string][]> {
+  const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
+  const partitioned = partition(dataset, attributeName);
+
+  // assign names to each partitioned dataset
+  const readableContext = readableName(context);
+
+  // return both the datasets and their names
+  return partitioned.map((pd) => [
+    pd,
+    `${attributeName} = ${codapValueToString(
+      pd.distinctValue
+    )} in ${readableContext}`,
+  ]);
+}
+
 /**
  * Sets up handlers and listeners for partition transformer
  */
 export const partitionOverride = async (
-  { setErrMsg }: DDTransformerProps,
+  { setErrMsg, activeTransformationsDispatch }: DDTransformerProps,
   { context1: inputDataCtxt, attribute1: attributeName }: DDTransformerState
 ): Promise<void> => {
-  setErrMsg(null);
-
   if (inputDataCtxt === null) {
     setErrMsg("Please choose a valid dataset to transform.");
     return;
@@ -44,75 +92,100 @@ export const partitionOverride = async (
     return;
   }
 
-  const doTransform: () => Promise<[PartitionDataset, string][]> = async () => {
-    const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-    const partitioned = partition(dataset, attributeName);
+  const transformed = await doTransform(inputDataCtxt, attributeName);
 
-    // assign names to each partitioned dataset
-    const readableContext = readableName(context);
-
-    // return both the datasets and their names
-    return partitioned.map((pd) => [
-      pd,
-      `${attributeName} = ${codapValueToString(
-        pd.distinctValue
-      )} in ${readableContext}`,
-    ]);
-  };
-
-  // At or more than this number of output datasets triggers a warning
-  const OUTPUT_WARN_THRESHOLD = 10;
-
-  /**
-   * If the indicated number of output datasets is at or beyond OUTPUT_WARN_THRESHOLD,
-   * this warns the user and prompts them to confirm that they'd like
-   * to go ahead with creating/updating the output.
-   *
-   * @returns true if the number is below threshold or the user
-   *  has confirmed they want the output. false otherwise.
-   */
-  function confirmLargeOutput(outputDatasets: number, msg: string): boolean {
-    if (outputDatasets >= OUTPUT_WARN_THRESHOLD) {
-      return confirm(`${msg}. Are you sure you want to proceed?`);
-    }
-    return true;
+  if (
+    !confirmLargeOutput(
+      transformed.length,
+      `This partition will create ${transformed.length} new datasets`
+    )
+  ) {
+    return;
   }
 
-  function partitionDatasetDescription(
-    pd: PartitionDataset,
-    originalCtxt: string,
-    partitionedAttribute: string
-  ): string {
-    return (
-      `One of the datasets from a partition of the ${originalCtxt} dataset ` +
-      `by the ${partitionedAttribute} attribute. This dataset contains all cases ` +
-      `from the original which had a value of ${codapValueToString(
-        pd.distinctValue
-      )} ` +
-      `for the ${partitionedAttribute} attribute.`
+  const valueToContext: Record<string, string> = {};
+  const outputContexts: string[] = [];
+
+  const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
+  const inputDataCtxtName = readableName(inputContext);
+
+  for (const [partitioned, name] of transformed) {
+    const newContextName = await applyNewDataSet(
+      partitioned.dataset,
+      name,
+      partitionDatasetDescription(partitioned, inputDataCtxtName, attributeName)
     );
+    valueToContext[partitioned.distinctValueAsStr] = newContextName;
+    outputContexts.push(newContextName);
   }
 
-  try {
-    const transformed = await doTransform();
+  activeTransformationsDispatch({
+    type: ActionTypes.ADD,
+    newTransformation: {
+      inputs: [inputDataCtxt],
+      transformer: "Partition",
+      state: {
+        inputDataCtxt,
+        attributeName,
+        outputContexts,
+        valueToContext,
+      },
+    },
+  });
 
-    if (
-      !confirmLargeOutput(
-        transformed.length,
-        `This partition will create ${transformed.length} new datasets`
+  // Register undo action for partition transformer
+  console.log("Pushing partition undo");
+  pushToUndoStack(
+    "Apply partition transformer",
+    () => outputContexts.forEach((context) => deleteDataContext(context)),
+    () =>
+      partitionOverride(
+        { setErrMsg } as DDTransformerProps,
+        {
+          context1: inputDataCtxt,
+          attribute1: attributeName,
+        } as DDTransformerState
       )
-    ) {
-      return;
-    }
+  );
+};
 
-    let valueToContext: Record<string, string> = {};
-    const outputContexts: string[] = [];
+export interface PartitionSaveState {
+  inputDataCtxt: string;
+  attributeName: string;
+  outputContexts: string[];
+  valueToContext: Record<string, string>;
+}
 
-    const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
-    const inputDataCtxtName = readableName(inputContext);
+export async function partitionUpdate({
+  inputDataCtxt,
+  attributeName,
+  outputContexts,
+  valueToContext,
+}: PartitionSaveState): Promise<Partial<PartitionSaveState>> {
+  const transformed = await doTransform(inputDataCtxt, attributeName);
 
-    for (const [partitioned, name] of transformed) {
-      const newContextName = await applyNewDataSet(
+  const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
+  const inputDataCtxtName = readableName(inputContext);
+
+  if (
+    !confirmLargeOutput(
+      transformed.length,
+      `Updating the partition of ${inputDataCtxtName} will lead to ${transformed.length} total output datasets`
+    )
+  ) {
+    return { valueToContext };
+  }
+
+  const newValueToContext: Record<string, string> = {};
+  while (outputContexts.length > 0) {
+    outputContexts.pop();
+  }
+
+  for (const [partitioned, name] of transformed) {
+    console.log("Name: " + name);
+    const contextName = valueToContext[partitioned.distinctValueAsStr];
+    if (contextName === undefined) {
+      const newName = await applyNewDataSet(
         partitioned.dataset,
         name,
         partitionDatasetDescription(
@@ -121,90 +194,30 @@ export const partitionOverride = async (
           attributeName
         )
       );
-      valueToContext[partitioned.distinctValueAsStr] = newContextName;
-      outputContexts.push(newContextName);
+      // this is a new table (a new distinct value)
+      newValueToContext[partitioned.distinctValueAsStr] = newName;
+      outputContexts.push(newName);
+    } else {
+      // apply an update to a previous dataset
+      updateContextWithDataSet(contextName, partitioned.dataset);
+
+      // copy over existing context name into new valueToContext mapping
+      newValueToContext[partitioned.distinctValueAsStr] = contextName;
+      outputContexts.push(contextName);
     }
-
-    // Register undo action for partition transformer
-    console.log("Pushing partition undo");
-    pushToUndoStack(
-      "Apply partition transformer",
-      () => outputContexts.forEach((context) => deleteDataContext(context)),
-      () =>
-        partitionOverride(
-          { setErrMsg } as DDTransformerProps,
-          {
-            context1: inputDataCtxt,
-            attribute1: attributeName,
-          } as DDTransformerState
-        )
-    );
-
-    // listen for updates to the input data context
-    addContextUpdateListener(inputDataCtxt, outputContexts, async () => {
-      try {
-        setErrMsg(null);
-        const transformed = await doTransform();
-
-        if (
-          !confirmLargeOutput(
-            transformed.length,
-            `Updating the partition of ${inputDataCtxtName} will lead to ${transformed.length} total output datasets`
-          )
-        ) {
-          return;
-        }
-
-        const newValueToContext: Record<string, string> = {};
-        while (outputContexts.length > 0) {
-          outputContexts.pop();
-        }
-
-        for (const [partitioned, name] of transformed) {
-          const contextName = valueToContext[partitioned.distinctValueAsStr];
-          if (contextName === undefined) {
-            const newName = await applyNewDataSet(
-              partitioned.dataset,
-              name,
-              partitionDatasetDescription(
-                partitioned,
-                inputDataCtxtName,
-                attributeName
-              )
-            );
-            // this is a new table (a new distinct value)
-            newValueToContext[partitioned.distinctValueAsStr] = newName;
-            outputContexts.push(newName);
-          } else {
-            // apply an update to a previous dataset
-            updateContextWithDataSet(contextName, partitioned.dataset);
-
-            // copy over existing context name into new valueToContext mapping
-            newValueToContext[partitioned.distinctValueAsStr] = contextName;
-            outputContexts.push(contextName);
-          }
-        }
-
-        for (const [value, context] of Object.entries(valueToContext)) {
-          // if there is no longer a partition for this value
-          if (
-            transformed.find(([pd]) => pd.distinctValueAsStr === value) ===
-            undefined
-          ) {
-            deleteDataContext(context);
-          }
-        }
-
-        // update valueToContext to reflect the updates
-        valueToContext = newValueToContext;
-      } catch (e) {
-        setErrMsg(`Error updating partitioned tables: ${e.message}`);
-      }
-    });
-  } catch (e) {
-    setErrMsg(e.message);
   }
-};
+
+  for (const [value, context] of Object.entries(valueToContext)) {
+    // if there is no longer a partition for this value
+    if (
+      transformed.find(([pd]) => pd.distinctValueAsStr === value) === undefined
+    ) {
+      deleteDataContext(context);
+    }
+  }
+
+  return { valueToContext: newValueToContext };
+}
 
 /**
  * Breaks a dataset into multiple datasets, each which contain all

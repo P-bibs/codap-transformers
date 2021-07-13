@@ -1,4 +1,5 @@
 import { Collection } from "../utils/codapPhone/types";
+import { PartitionSaveState } from "./partition";
 
 /**
  * DataSet represents a data context and all of the actual data
@@ -40,3 +41,5 @@ export type NumberTransformationOutput = [number, string, string];
 export type TransformationOutput =
   | DataSetTransformationOutput
   | NumberTransformationOutput;
+
+export type FullOverrideSaveState = PartitionSaveState;

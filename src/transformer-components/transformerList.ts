@@ -24,8 +24,11 @@ import {
   runningMin,
   runningSum,
 } from "../transformers/fold";
-import { dotProduct } from "../transformers/dotProduct";
-import { average } from "../transformers/average";
+import { sumProduct } from "../transformers/sumProduct";
+import { mean } from "../transformers/mean";
+import { median } from "../transformers/median";
+import { mode } from "../transformers/mode";
+import { standardDeviation } from "../transformers/standardDeviation";
 import { partitionOverride } from "../transformers/partition";
 import { transformColumn } from "../transformers/transformColumn";
 import { compare } from "../transformers/compare";
@@ -74,8 +77,11 @@ export type BaseTransformerName =
   | "Copy"
   | "Copy Structure"
   | "Join"
-  | "Dot Product"
-  | "Average"
+  | "Mean"
+  | "Median"
+  | "Mode"
+  | "Standard Deviation"
+  | "Sum Product"
   | "Combine Cases"
   | "Reduce"
   | "Partition";
@@ -405,7 +411,7 @@ const transformerList: TransformerList = {
       info: {
         summary:
           "Produces a new dataset with an attribute added \
-        that contains the running mean (average) of the given attribute's values across \
+        that contains the running mean of the given attribute's values across \
         the whole dataset.",
         consumes:
           "A dataset to compute the mean over, and an attribute whose values \
@@ -602,52 +608,121 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Dot Product": {
+  Mean: {
     group: "Aggregators",
     componentData: {
       init: {
         context1: {
-          title: "Dataset to Take Dot Product of",
+          title: "Dataset to Compute Mean Over",
         },
-        attributeSet1: {
-          title: "Attributes to Take Dot Product of",
+        attribute1: {
+          title: "Attribute to Find Mean of",
         },
       },
-      transformerFunction: { kind: "datasetCreator", func: dotProduct },
+      transformerFunction: { kind: "datasetCreator", func: mean },
       info: {
         summary:
-          "Calculates a dot product of the indicated attributes \
+          "Finds the mean value of a given numeric attribute in the given dataset. \
+          This is the sum of all values under the attribute, divided by the number \
+          of values.",
+        consumes: "A dataset and an attribute within it to take the mean of.",
+        produces:
+          "A single number which is the mean value of the given attribute.",
+      },
+    },
+  },
+  Median: {
+    group: "Aggregators",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Compute Median Over",
+        },
+        attribute1: {
+          title: "Attribute to Find Median of",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: median },
+      info: {
+        summary:
+          "Finds the median value of a given numeric attribute in the given \
+          dataset. This is the middle value which separates the higher half from \
+          the lower half of the dataset (when sorted). For datasets with an even \
+          number of cases, the average of the two middle values is used.",
+        consumes: "A dataset and an attribute within it to find the median of.",
+        produces:
+          "A single number which is the median value of the given attribute.",
+      },
+    },
+  },
+  Mode: {
+    group: "Aggregators",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Compute Mode Over",
+        },
+        attribute1: {
+          title: "Attribute to Find Mode of",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: mode },
+      info: {
+        summary:
+          "Finds the mode value of a given numeric attribute in the given \
+          dataset. This is the value which occurs most often under the given attribute.",
+        consumes: "A dataset and an attribute within it to find the mode of.",
+        produces:
+          "A single number which is the mode value of the given attribute.",
+      },
+    },
+  },
+  "Standard Deviation": {
+    group: "Aggregators",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Compute Standard Deviation Over",
+        },
+        attribute1: {
+          title: "Attribute to Find Standard Deviation of",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: standardDeviation },
+      info: {
+        summary:
+          "Finds the standard deviation of a given numeric attribute in the given \
+          dataset.",
+        consumes:
+          "A dataset and an attribute within it to find the standard deviation of.",
+        produces:
+          "A single number which is the standard deviation of the given attribute.",
+      },
+    },
+  },
+  "Sum Product": {
+    group: "Aggregators",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Take Sum Product of",
+        },
+        attributeSet1: {
+          title: "Attributes to Take Sum Product of",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: sumProduct },
+      info: {
+        summary:
+          "Calculates a sum product of the indicated attributes \
         by multiplying the values of these attributes in each case and summing \
         these products across the entire dataset.",
         consumes:
           "A dataset and a list of attributes whose values are used \
-        in the dot product.",
+        in the sum product.",
         produces:
           "A single number which is the sum of products of the values \
         from the indicated attributes in the input dataset.",
-      },
-    },
-  },
-  Average: {
-    group: "Aggregators",
-    componentData: {
-      init: {
-        context1: {
-          title: "Dataset to Take Average of",
-        },
-        attribute1: {
-          title: "Attribute to Average",
-        },
-      },
-      transformerFunction: { kind: "datasetCreator", func: average },
-      info: {
-        summary:
-          "Takes the average value of a given numeric attribute \
-        in the given dataset.",
-        consumes:
-          "A dataset and an attribute within it to take the average of.",
-        produces:
-          "A single number which is the average value of the given attribute.",
       },
     },
   },

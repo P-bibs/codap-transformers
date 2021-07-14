@@ -17,6 +17,7 @@ import {
   removeInteractiveStateRequestListener,
 } from "../utils/codapPhone/listeners";
 import { InteractiveState } from "../utils/codapPhone/types";
+import AboutInfo from "./AboutInfo";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -74,6 +75,7 @@ function TransformerREPLView(): ReactElement {
     }
     fetchSavedState();
   }, []);
+
   // Register a listener to generate the plugins state
   useEffect(() => {
     const callback = (
@@ -94,12 +96,15 @@ function TransformerREPLView(): ReactElement {
     addInteractiveStateRequestListener(callback);
     return () => removeInteractiveStateRequestListener(callback);
   }, [transformType]);
+
   function notifyStateIsDirty() {
     notifyInteractiveFrameIsDirty();
   }
 
   return (
     <div className="transformer-view">
+      <AboutInfo />
+
       <h3>Transformer Type</h3>
 
       <select

@@ -25,7 +25,7 @@ import {
   runningMin,
   runningSum,
 } from "../transformers/fold";
-import { dotProduct } from "../transformers/dotProduct";
+import { sumProduct } from "../transformers/sumProduct";
 import { mean } from "../transformers/mean";
 import { median } from "../transformers/median";
 import { mode } from "../transformers/mode";
@@ -81,7 +81,7 @@ export type BaseTransformerName =
   | "Median"
   | "Mode"
   | "Standard Deviation"
-  | "Dot Product"
+  | "Sum Product"
   | "Combine Cases"
   | "Reduce"
   | "Partition";
@@ -711,26 +711,26 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Dot Product": {
+  "Sum Product": {
     group: "Aggregators",
     componentData: {
       init: {
         context1: {
-          title: "Dataset to Take Dot Product of",
+          title: "Dataset to Take Sum Product of",
         },
         attributeSet1: {
-          title: "Attributes to Take Dot Product of",
+          title: "Attributes to Take Sum Product of",
         },
       },
-      transformerFunction: { kind: "datasetCreator", func: dotProduct },
+      transformerFunction: { kind: "datasetCreator", func: sumProduct },
       info: {
         summary:
-          "Calculates a dot product of the indicated attributes \
+          "Calculates a sum product of the indicated attributes \
         by multiplying the values of these attributes in each case and summing \
         these products across the entire dataset.",
         consumes:
           "A dataset and a list of attributes whose values are used \
-        in the dot product.",
+        in the sum product.",
         produces:
           "A single number which is the sum of products of the values \
         from the indicated attributes in the input dataset.",

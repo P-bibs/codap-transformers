@@ -4,6 +4,7 @@ import {
   DATASET_A,
   DATASET_B,
   DATASET_WITH_META,
+  EMPTY_RECORDS,
   jsEvalExpression,
   makeCollection,
   makeRecords,
@@ -30,6 +31,15 @@ test("filtering with false predicate returns no records", async () => {
     ...CENSUS_DATASET,
     records: [],
   });
+});
+
+test("filtering does nothing to dataset with no records", async () => {
+  expect(await uncheckedFilter(EMPTY_RECORDS, "true", jsEvalExpression)).toEqual(
+    EMPTY_RECORDS
+  );
+  expect(await uncheckedFilter(EMPTY_RECORDS, "false", jsEvalExpression)).toEqual(
+    EMPTY_RECORDS
+  );
 });
 
 test("only includes cases for which predicate is true", async () => {

@@ -5,11 +5,16 @@ import { cloneCollection, shallowCopy } from "../util";
 /**
  * Make a collection object from its pieces.
  */
-export function makeCollection(name: string, attributes: string[]): Collection {
+export function makeCollection(
+  name: string,
+  attributes: string[],
+  parent?: string
+): Collection {
   return {
     name,
     labels: {},
     attrs: attributes.map((attr) => makeAttribute(attr)),
+    parent,
   };
 }
 

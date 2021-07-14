@@ -2,7 +2,7 @@ import { DDTransformerState } from "../transformer-components/DataDrivenTransfor
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { extractNumericValues } from "./util";
+import { extractAttributeAsNumeric } from "./util";
 
 /**
  * Finds the standard deviation of a given attribute's values.
@@ -56,7 +56,7 @@ function uncheckedStandardDeviation(
   }
 
   // Extract numeric values from the indicated attribute
-  const values = extractNumericValues(dataset, attribute);
+  const values = extractAttributeAsNumeric(dataset, attribute);
 
   const populationMean = mean(values);
   const squaredDeviations = values.map((v) => Math.pow(v - populationMean, 2));

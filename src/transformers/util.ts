@@ -483,7 +483,7 @@ export const cloneAttribute = shallowCopy;
  * @param attribute The attribute containing numeric values.
  * @returns A list of the attributes values parsed to numbers.
  */
-export function extractNumericValues(
+export function extractAttributeAsNumeric(
   dataset: DataSet,
   attribute: string
 ): number[] {

@@ -2,7 +2,7 @@ import { DDTransformerState } from "../transformer-components/DataDrivenTransfor
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { extractNumericValues } from "./util";
+import { extractAttributeAsNumeric } from "./util";
 
 /**
  * Takes the mean of a given column.
@@ -41,7 +41,7 @@ function uncheckedMean(dataset: DataSet, attribute: string): number {
   }
 
   // Extract the numeric values from the indicated attribute.
-  const values = extractNumericValues(dataset, attribute);
+  const values = extractAttributeAsNumeric(dataset, attribute);
 
   // Sum them and divide by the number of records.
   return values.reduce((acc, value) => acc + value, 0) / dataset.records.length;

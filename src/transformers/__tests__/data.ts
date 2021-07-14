@@ -156,7 +156,7 @@ export function copyAttributes(
 export const DATASET_A: DataSet = {
   collections: [
     makeCollection("parent", ["A"]),
-    makeCollection("child", ["B", "C"]),
+    makeCollection("child", ["B", "C"], "parent"),
   ],
   records: makeRecords(
     ["A", "B", "C"],
@@ -173,7 +173,7 @@ export const DATASET_A: DataSet = {
 export const DATASET_A_SUPERSET: DataSet = {
   collections: [
     makeCollection("parent", ["A"]),
-    makeCollection("child", ["B", "C", "D"]),
+    makeCollection("child", ["B", "C", "D"], "parent"),
   ],
   records: makeRecords(
     ["A", "B", "C", "D"],
@@ -190,7 +190,7 @@ export const DATASET_A_SUPERSET: DataSet = {
 export const DATASET_A_SUBSET: DataSet = {
   collections: [
     makeCollection("parent", ["A"]),
-    makeCollection("child", ["B"]),
+    makeCollection("child", ["B"], "parent"),
   ],
   records: makeRecords(
     ["A", "B"],
@@ -290,8 +290,8 @@ export const EMPTY_DATASET: DataSet = {
 export const EMPTY_RECORDS: DataSet = {
   collections: [
     makeCollection("Collection A", ["A", "B", "C"]),
-    makeCollection("Collection B", ["D"]),
-    makeCollection("Collection C", ["E", "F"]),
+    makeCollection("Collection B", ["D"], "Collection A"),
+    makeCollection("Collection C", ["E", "F"], "Collection B"),
   ],
   records: [],
 };
@@ -419,8 +419,12 @@ export const CENSUS_DATASET: DataSet = {
 export const FULLY_FEATURED_DATASET: DataSet = {
   collections: [
     makeCollection("Collection 1", ["Attribute_1", "Attribute_2"]),
-    makeCollection("Collection 2", ["Attribute_3", "Attribute_4"]),
-    makeCollection("Collection 3", ["Attribute_5"]),
+    makeCollection(
+      "Collection 2",
+      ["Attribute_3", "Attribute_4"],
+      "Collection 1"
+    ),
+    makeCollection("Collection 3", ["Attribute_5"], "Collection 2"),
   ],
   records: makeRecords(
     ["Attribute_1", "Attribute_2", "Attribute_3", "Attribute_4", "Attribute_5"],

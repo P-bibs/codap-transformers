@@ -77,7 +77,7 @@ export async function uncheckedTransformColumn(
     // erase the transformed attribute's formula and set description
     if (attr !== undefined) {
       attr.formula = undefined;
-      attr.description = `The ${attributeName} attribute, transformed by the formula ${expression}`;
+      attr.description = `The ${attributeName} attribute, transformed by the formula \`${expression}\``;
       break;
     }
   }

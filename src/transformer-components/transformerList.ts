@@ -28,8 +28,7 @@ import { dotProduct } from "../transformers/dotProduct";
 import { average } from "../transformers/average";
 import { partitionOverride } from "../transformers/partition";
 import { transformColumn } from "../transformers/transformColumn";
-import { categoricalCompare } from "../transformers/categoricalCompare";
-import { numericCompare } from "../transformers/numericCompare";
+import { compare } from "../transformers/compare";
 
 export type TransformersInteractiveState = {
   transformerREPL?: {
@@ -56,8 +55,7 @@ export type TransformerGroup =
  */
 export type BaseTransformerName =
   | "Build Column"
-  | "Numeric Compare"
-  | "Categorical Compare"
+  | "Compare"
   | "Count"
   | "Filter"
   | "Flatten"
@@ -328,56 +326,42 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Numeric Compare": {
+  Compare: {
     group: "Summarizing Transformers",
     componentData: {
       init: {
         context1: {
-          title: "Dataset to Compare",
+          title: "First Dataset to Compare",
         },
         attribute1: {
           title: "First attribute to Compare",
         },
         attribute2: {
           title: "Second attribute to Compare",
-          context: "context1",
+        },
+        dropdown1: {
+          title: "What kind of Comparison?",
+          options: [
+            { value: "categorical", title: "Categorical" },
+            { value: "numeric", title: "Numeric" },
+          ],
+          defaultValue: "Select a type",
         },
       },
-      transformerFunction: { kind: "datasetCreator", func: numericCompare },
+      transformerFunction: { kind: "datasetCreator", func: compare },
       info: {
-        summary: "Compares the data of two numeric attributes in a dataset.",
-        consumes: "Two attributes from within a dataset to compare.",
+        summary: "Provides methods for comparing data within a dataset.",
+        consumes:
+          "A dataset to compare, two attributes from within the dataset, \
+        and an indication of what kind of comparison to perform.",
         produces:
-          "Produces a dataset identical to the input but with two new attributes:\
-          the numeric difference of the selected attributes and a color indicating whether \
-          the difference was negative, positive, or neutral.",
-      },
-    },
-  },
-  "Categorical Compare": {
-    group: "Summarizing Transformers",
-    componentData: {
-      init: {
-        context1: {
-          title: "Dataset to Compare",
-        },
-        attribute1: {
-          title: "First attribute to Compare",
-        },
-        attribute2: {
-          title: "Second attribute to Compare",
-          context: "context1",
-        },
-      },
-      transformerFunction: { kind: "datasetCreator", func: categoricalCompare },
-      info: {
-        summary:
-          "Compares the data of two categorical attributes in a dataset.",
-        consumes: "Two attributes from within a dataset to compare.",
-        produces:
-          "Produces a dataset that is grouped by the \
-          two selected attributes, and identical cases from the input datasets \
-          are merged together.",
+          "Output differs depending on the type of comparison:\n\
+        A categorical comparison produces a dataset that is grouped by the \
+        two selected attributes, and identical cases from the input datasets \
+        are merged together.\n\
+        A numeric comparison produces a dataset with four attributes: the original \
+        two attributes, their numeric difference, and a color indicating whether \
+        the difference was negative, positive, or neutral.",
       },
     },
   },

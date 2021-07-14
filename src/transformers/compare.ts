@@ -15,6 +15,8 @@ import {
   interpolateColor,
   RED,
 } from "../utils/colors";
+import { uncheckedFlatten } from "./flatten";
+import { uncheckedGroupBy } from "./groupBy";
 
 const COMPARE_STATUS_COLUMN_BASE = "Compare Status";
 const COMPARE_VALUE_COLUMN_BASE = "Difference";
@@ -22,10 +24,11 @@ const COMPARE_VALUE_COLUMN_BASE = "Difference";
 /**
  * Compares two contexts in a variety of ways
  */
-export async function numericCompare({
+export async function compare({
   context1: inputDataContext1,
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
+  dropdown1: kind,
 }: DDTransformerState): Promise<TransformationOutput> {
   if (!inputDataContext1) {
     throw new Error("Please select a data context");
@@ -33,16 +36,31 @@ export async function numericCompare({
   if (!(inputAttribute1 && inputAttribute2)) {
     throw new Error("Please select two attributes");
   }
+  if (!(kind === "categorical" || kind === "numeric")) {
+    throw new Error("Please select a valid comparison type");
+  }
 
   const { context, dataset } = await getContextAndDataSet(inputDataContext1);
 
   const contextName = readableName(context);
 
-  return [
-    await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
-    `Compare of ${contextName}`,
-    `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
-  ];
+  if (kind === "categorical") {
+    return [
+      await uncheckedCategoricalCompare(
+        dataset,
+        inputAttribute1,
+        inputAttribute2
+      ),
+      `Compare of ${contextName}`,
+      `A categorical comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
+    ];
+  } else {
+    return [
+      await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
+      `Compare of ${contextName}`,
+      `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
+    ];
+  }
 }
 
 function uncheckedNumericCompare(
@@ -173,4 +191,30 @@ function uncheckedNumericCompare(
   }
 
   return { records, collections };
+}
+
+function uncheckedCategoricalCompare(
+  dataset: DataSet,
+  attributeName1: string,
+  attributeName2: string
+): DataSet {
+  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
+  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
+
+  dataset = uncheckedFlatten(dataset);
+  const out = uncheckedGroupBy(
+    dataset,
+    [
+      {
+        attrName: attribute1Data.name,
+        groupedName: `${attribute1Data.name} Category`,
+      },
+      {
+        attrName: attribute2Data.name,
+        groupedName: `${attribute2Data.name} Category`,
+      },
+    ],
+    "Comparison"
+  );
+  return out;
 }

@@ -47,7 +47,7 @@ export async function transformColumn({
   ];
 }
 
-async function uncheckedTransformColumn(
+export async function uncheckedTransformColumn(
   dataset: DataSet,
   attributeName: string,
   expression: string,

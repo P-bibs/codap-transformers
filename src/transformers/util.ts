@@ -473,3 +473,38 @@ export function shallowCopy<T>(x: T): T {
 }
 
 export const cloneAttribute = shallowCopy;
+
+/**
+ * Extracts a list of numbers from an attribute in a dataset that is expected
+ * to contain numeric values. Errors if the attribute is undefined for some
+ * records, or if the attribute's values parse to non-numeric.
+ *
+ * @param dataset The dataset to extract from.
+ * @param attribute The attribute containing numeric values.
+ * @returns A list of the attributes values parsed to numbers.
+ */
+export function extractAttributeAsNumeric(
+  dataset: DataSet,
+  attribute: string
+): number[] {
+  const numericValues = [];
+
+  for (const record of dataset.records) {
+    if (record[attribute] === undefined) {
+      throw new Error(`Invalid attribute name: ${attribute}`);
+    }
+    // Ignore missing values
+    if (record[attribute] === "") {
+      continue;
+    }
+    const value = parseFloat(String(record[attribute]));
+    if (isNaN(value)) {
+      throw new Error(
+        `Expected number, instead got ${codapValueToString(record[attribute])}`
+      );
+    }
+    numericValues.push(value);
+  }
+
+  return numericValues;
+}

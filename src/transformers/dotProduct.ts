@@ -85,7 +85,6 @@ export function dotProductTable(
           name: "Dot Product",
         },
       ],
-      labels: {},
     },
   ];
   return {

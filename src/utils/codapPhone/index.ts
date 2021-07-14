@@ -617,7 +617,6 @@ export async function updateContextWithDataSet(
       Actions.createCollections(contextName, [
         {
           name: uniqueName,
-          labels: {},
         },
       ])
     );

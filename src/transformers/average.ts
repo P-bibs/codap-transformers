@@ -69,7 +69,6 @@ export function averageTable(dataset: DataSet, attribute: string): DataSet {
           name: "Average",
         },
       ],
-      labels: {},
     },
   ];
   return {

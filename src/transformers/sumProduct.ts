@@ -50,6 +50,10 @@ function uncheckedSumProduct(dataset: DataSet, attributes: string[]): number {
         if (row[attribute] === undefined) {
           throw new Error(`Invalid attribute name: ${attribute}`);
         }
+        // Missing values turn the whole row into NaN
+        if (row[attribute] === "") {
+          return NaN;
+        }
         const value = parseFloat(String(row[attribute]));
         if (isNaN(value)) {
           throw new Error(
@@ -61,5 +65,6 @@ function uncheckedSumProduct(dataset: DataSet, attributes: string[]): number {
         return product * value;
       }, 1)
     )
+    .filter((product) => !isNaN(product))
     .reduce((a, b) => a + b, 0);
 }

@@ -5,6 +5,7 @@ import transformerList from "./transformerList";
 
 interface TransformerRendererProps {
   transformer?: SavedTransformer;
+  editable: boolean;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
 }
@@ -14,6 +15,7 @@ interface TransformerRendererProps {
  */
 export const TransformerRenderer = ({
   transformer,
+  editable,
   setErrMsg,
   errorDisplay,
 }: TransformerRendererProps): ReactElement => {
@@ -34,6 +36,7 @@ export const TransformerRenderer = ({
           info={transformerList[key].componentData.info}
           base={transformer.content.base}
           saveData={transformer.content.data}
+          editable={editable}
         />
       );
     }

@@ -4,7 +4,10 @@ import {
   updateContextWithDataSet,
   deleteDataContext,
 } from "../utils/codapPhone";
-import { addContextUpdateListener } from "../utils/codapPhone/listeners";
+import {
+  addContextUpdateListener,
+  pushToUndoStack,
+} from "../utils/codapPhone/listeners";
 import { codapValueToString } from "./util";
 import {
   DDTransformerProps,
@@ -121,6 +124,21 @@ export const partitionOverride = async (
       valueToContext[partitioned.distinctValueAsStr] = newContextName;
       outputContexts.push(newContextName);
     }
+
+    // Register undo action for partition transformer
+    console.log("Pushing partition undo");
+    pushToUndoStack(
+      "Apply partition transformer",
+      () => outputContexts.forEach((context) => deleteDataContext(context)),
+      () =>
+        partitionOverride(
+          { setErrMsg } as DDTransformerProps,
+          {
+            context1: inputDataCtxt,
+            attribute1: attributeName,
+          } as DDTransformerState
+        )
+    );
 
     // listen for updates to the input data context
     addContextUpdateListener(inputDataCtxt, outputContexts, async () => {

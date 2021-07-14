@@ -138,14 +138,13 @@ export default function ExpressionEditor({
             completeSingle: false,
             hint: codapFormulaHints,
           },
+          readOnly: disabled,
         }}
         onInputRead={(editor) => {
           editor.showHint();
         }}
         onBeforeChange={(editor, data, value) => {
-          if (!disabled) {
-            onChange(value);
-          }
+          onChange(value);
         }}
         onBlur={onBlur}
       />

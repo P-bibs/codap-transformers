@@ -8,6 +8,7 @@ export enum CodapResource {
   Collection = "collection",
   CollectionList = "collectionList",
   FormulaEngine = "formulaEngine",
+  UndoChangeNotice = "undoChangeNotice",
 }
 
 export enum CodapListResource {
@@ -121,6 +122,18 @@ export interface UpdateTextRequest {
   values: Partial<Text>;
 }
 
+export interface NotifyUndoChangeNoticeRequest {
+  action: CodapActions.Notify;
+  resource: CodapResource.UndoChangeNotice;
+  values:
+    | {
+        operation: "undoAction" | "redoAction" | "clearUndo" | "clearRedo";
+        canUndo: boolean;
+        canRedo: boolean;
+      }
+    | { operation: "undoableActionPerformed"; logMessage?: string };
+}
+
 export interface EvalExpressionRequest {
   action: CodapActions.Notify;
   resource: CodapResource.FormulaEngine;
@@ -232,6 +245,7 @@ export type CodapPhone = {
     r: GetFunctionInfoRequest,
     cb: (r: GetFunctionInfoResponse) => void
   ): void;
+  call(r: NotifyUndoChangeNoticeRequest, cb: (r: CodapResponse) => void): void;
   call(r: CodapRequest[], cb: (r: CodapResponse[]) => void): void;
 };
 
@@ -307,7 +321,7 @@ export type CodapInitiatedCommand =
       action: CodapActions.Notify;
       resource: CodapInitiatedResource.UndoChangeNotice;
       values: {
-        operation: string;
+        operation: "undoAction" | "redoAction" | "clearUndo" | "clearRedo";
         canUndo: boolean;
         canRedo: boolean;
       };
@@ -364,7 +378,7 @@ export interface Collection {
   description?: string;
   parent?: string;
   attrs?: CodapAttribute[];
-  labels: {
+  labels?: {
     singleCase?: string;
     pluralCase?: string;
     singleCaseWithArticle?: string;

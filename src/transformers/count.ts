@@ -81,7 +81,6 @@ export function uncheckedCount(
   const collections: Collection[] = [
     {
       name: `Count (${attributeNames})`,
-      labels: {},
       attrs: [
         ...countedAttrs,
         {

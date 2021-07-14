@@ -12,7 +12,6 @@ export function makeCollection(
 ): Collection {
   return {
     name,
-    labels: {},
     attrs: attributes.map((attr) => makeAttribute(attr)),
     parent,
   };
@@ -307,7 +306,6 @@ export const CENSUS_DATASET: DataSet = {
     {
       name: "places",
       title: "places",
-      labels: {},
       attrs: [
         {
           name: "State",
@@ -328,7 +326,6 @@ export const CENSUS_DATASET: DataSet = {
     {
       name: "people",
       title: "people",
-      labels: {},
       attrs: [
         {
           name: "sample",

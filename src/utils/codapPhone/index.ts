@@ -34,6 +34,9 @@ import {
   removeContextUpdateListenersForContext,
   removeListenersWithDependency,
   callAllInteractiveStateRequestListeners,
+  popFromUndoStackAndExecute,
+  popFromRedoStackAndExecute,
+  clearUndoAndRedoStacks,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -72,27 +75,33 @@ const phone: CodapPhone = new IframePhoneRpcEndpoint(
 const DEFAULT_PLUGIN_WIDTH = 350;
 const DEFAULT_PLUGIN_HEIGHT = 500;
 
-// Initialize
+// Initialize the interactive frame with a given title.
 export async function initPhone(title: string): Promise<void> {
+  const hasState = (await getInteractiveFrame()).savedState !== undefined;
   // Only resize the plugin to default dimensions if this is it's
   // first time being initialized (no savedState)
-  const dimensions =
-    (await getInteractiveFrame()).savedState === undefined
-      ? {
-          width: DEFAULT_PLUGIN_WIDTH,
-          height: DEFAULT_PLUGIN_HEIGHT,
-        }
-      : undefined;
+  const dimensions = hasState
+    ? undefined
+    : {
+        width: DEFAULT_PLUGIN_WIDTH,
+        height: DEFAULT_PLUGIN_HEIGHT,
+      };
+  return updateInteractiveFrame({
+    // Don't update the title if there is save data.
+    title: hasState ? undefined : title,
+    dimensions,
+  });
+}
 
+export async function updateInteractiveFrame(
+  values: Partial<Omit<InteractiveFrame, "interactiveState">>
+): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(
       {
         action: CodapActions.Update,
         resource: CodapResource.InteractiveFrame,
-        values: {
-          title,
-          dimensions,
-        },
+        values,
       },
       (response) => {
         // NOTE: Ensure the response exists, since if this is run
@@ -141,6 +150,30 @@ function codapRequestHandler(
   if (command.action !== CodapActions.Notify) {
     callback({ success: true });
     return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "undoAction"
+  ) {
+    // if CODAP notifies us it's undo time, then fire an undo callback
+    popFromUndoStackAndExecute();
+    return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "redoAction"
+  ) {
+    popFromRedoStackAndExecute();
+    return;
+  }
+
+  if (
+    command.resource === CodapInitiatedResource.UndoChangeNotice &&
+    command.values.operation === "clearUndo"
+  ) {
+    clearUndoAndRedoStacks();
   }
 
   // notification of which data context was deleted
@@ -584,7 +617,6 @@ export async function updateContextWithDataSet(
       Actions.createCollections(contextName, [
         {
           name: uniqueName,
-          labels: {},
         },
       ])
     );
@@ -791,6 +823,24 @@ export async function updateText(name: string, content: string): Promise<void> {
   );
 }
 
+export async function deleteText(name: string): Promise<void> {
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Delete,
+        resource: resourceFromComponent(name),
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to delete text"));
+        }
+      }
+    )
+  );
+}
+
 async function ensureUniqueName(
   name: string,
   resourceType: CodapListResource
@@ -919,3 +969,25 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
     });
   };
 })();
+
+export function notifyUndoableActionPerformed(message: string): Promise<void> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: CodapResource.UndoChangeNotice,
+        values: {
+          operation: "undoableActionPerformed",
+          logMessage: message,
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed notifying about undoable action performed"));
+        }
+      }
+    )
+  );
+}

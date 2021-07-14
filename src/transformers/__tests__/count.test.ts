@@ -19,7 +19,6 @@ test("count single attribute", () => {
     collections: [
       {
         name: "Count (B)",
-        labels: {},
         attrs: [
           {
             name: "B",
@@ -44,7 +43,6 @@ test("count single attribute", () => {
     collections: [
       {
         name: "Count (State)",
-        labels: {},
         attrs: [
           ...copyAttributes(CENSUS_DATASET, ["State"]),
           {
@@ -74,7 +72,6 @@ test("count multiple attributes", () => {
     collections: [
       {
         name: "Count (A, B)",
-        labels: {},
         attrs: [
           {
             name: "A",
@@ -106,7 +103,6 @@ test("works with boundaries", () => {
     collections: [
       {
         name: "Count (Attribute_3)",
-        labels: {},
         attrs: [
           ...copyAttributes(FULLY_FEATURED_DATASET, ["Attribute_3"]),
           {
@@ -145,7 +141,6 @@ test("preserves metadata and erases formulas", () => {
   ).toEqual([
     {
       name: "Count (A, B, C)",
-      labels: {},
       attrs: [
         // Formulas are wiped
         ...eraseFormulas(copyAttributes(DATASET_WITH_META, ["A", "B", "C"])),

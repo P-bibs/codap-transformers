@@ -38,7 +38,6 @@ export function uncheckedFlatten(dataset: DataSet): DataSet {
   const collection = {
     name,
     attrs,
-    labels: {},
   };
 
   // dataset with same records but single collection

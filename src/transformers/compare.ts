@@ -113,7 +113,6 @@ function uncheckedCompare(
   const collections: Collection[] = [
     {
       name: `Comparison of ${attributeName1} and ${attributeName2}`,
-      labels: {},
       // copy attributes to compare
       // NOTE: do not copy formulas: formulas may be separated from their
       // dependencies and would be invalid.
@@ -251,7 +250,6 @@ function compareCategorical(
   const collections: Collection[] = [
     {
       name: "Decisions",
-      labels: {},
       attrs: [
         {
           name: decision1ColumnName,
@@ -264,7 +262,6 @@ function compareCategorical(
     {
       name: "Values",
       parent: "Decisions",
-      labels: {},
       attrs: attributesIntersection,
     },
   ];

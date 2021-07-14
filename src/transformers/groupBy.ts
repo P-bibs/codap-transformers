@@ -132,7 +132,6 @@ function uncheckedGroupBy(
   const collection: Collection = {
     name: newParentName,
     attrs: groupedAttrs,
-    labels: {},
   };
 
   const records = dataset.records.map(shallowCopy);

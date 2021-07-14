@@ -36,13 +36,13 @@ export async function mean({
  * @param attribute - The column to find the mean of.
  */
 function uncheckedMean(dataset: DataSet, attribute: string): number {
-  if (dataset.records.length === 0) {
-    throw new Error(`Cannot take mean of dataset with no cases`);
-  }
-
   // Extract the numeric values from the indicated attribute.
   const values = extractAttributeAsNumeric(dataset, attribute);
 
+  if (values.length === 0) {
+    throw new Error(`Cannot find mean of no numeric values`);
+  }
+
   // Sum them and divide by the number of records.
-  return values.reduce((acc, value) => acc + value, 0) / dataset.records.length;
+  return values.reduce((acc, value) => acc + value, 0) / values.length;
 }

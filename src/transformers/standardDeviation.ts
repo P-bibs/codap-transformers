@@ -51,12 +51,12 @@ function uncheckedStandardDeviation(
   dataset: DataSet,
   attribute: string
 ): number {
-  if (dataset.records.length === 0) {
-    throw new Error(`Cannot find standard deviation of dataset with no cases`);
-  }
-
   // Extract numeric values from the indicated attribute
   const values = extractAttributeAsNumeric(dataset, attribute);
+
+  if (values.length === 0) {
+    throw new Error(`Cannot find standard deviation of no numeric values`);
+  }
 
   const populationMean = mean(values);
   const squaredDeviations = values.map((v) => Math.pow(v - populationMean, 2));

@@ -36,12 +36,12 @@ export async function mode({
  * @param attribute - The column to find the mode of.
  */
 function uncheckedMode(dataset: DataSet, attribute: string): number {
-  if (dataset.records.length === 0) {
-    throw new Error(`Cannot find mode of dataset with no cases`);
-  }
-
   // Extract numeric values from the indicated attribute
   const values = extractAttributeAsNumeric(dataset, attribute);
+
+  if (values.length === 0) {
+    throw new Error(`Cannot find mode of no numeric values`);
+  }
 
   // Determine the frequency of each value
   const valueToFrequency: Record<number, number> = {};

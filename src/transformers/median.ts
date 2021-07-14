@@ -36,12 +36,12 @@ export async function median({
  * @param attribute - The column to find the median of.
  */
 function uncheckedMedian(dataset: DataSet, attribute: string): number {
-  if (dataset.records.length === 0) {
-    throw new Error(`Cannot find median of dataset with no cases`);
-  }
-
   // Extract numeric values from the indicated attribute
   const values = extractAttributeAsNumeric(dataset, attribute);
+
+  if (values.length === 0) {
+    throw new Error(`Cannot find median of no numeric values`);
+  }
 
   // Sort the numeric values ascending
   values.sort((a, b) => a - b);

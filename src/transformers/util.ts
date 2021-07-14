@@ -487,16 +487,24 @@ export function extractAttributeAsNumeric(
   dataset: DataSet,
   attribute: string
 ): number[] {
-  return dataset.records.map((record) => {
+  const numericValues = [];
+
+  for (const record of dataset.records) {
     if (record[attribute] === undefined) {
       throw new Error(`Invalid attribute name: ${attribute}`);
     }
-    const numericValue = parseFloat(String(record[attribute]));
-    if (isNaN(numericValue)) {
+    // Ignore missing values
+    if (record[attribute] === "") {
+      continue;
+    }
+    const value = parseFloat(String(record[attribute]));
+    if (isNaN(value)) {
       throw new Error(
         `Expected number, instead got ${codapValueToString(record[attribute])}`
       );
     }
-    return numericValue;
-  });
+    numericValues.push(value);
+  }
+
+  return numericValues;
 }

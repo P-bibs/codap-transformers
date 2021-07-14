@@ -29,7 +29,7 @@ export async function filter({
   ];
 }
 
-async function uncheckedFilter(
+export async function uncheckedFilter(
   dataset: DataSet,
   predicate: string,
   evalFormula = evalExpression

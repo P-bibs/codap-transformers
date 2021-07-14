@@ -79,7 +79,18 @@ export function useActiveTransformations(
             activeTransformationsDispatch
           );
         } catch (e) {
-          setErrMsg(e.message);
+          if (
+            transformerList[description.transformer].componentData
+              .transformerFunction.kind === "datasetCreator"
+          ) {
+            setErrMsg(
+              `Error updating ${
+                (description as DatasetCreatorDescription).output
+              }: ${e.message}`
+            );
+          } else {
+            setErrMsg(e.message);
+          }
         }
       }
     }

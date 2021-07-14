@@ -157,7 +157,18 @@ export interface PartitionSaveState {
   valueToContext: Record<string, string>;
 }
 
-export async function partitionUpdate({
+export async function partitionUpdate(state: PartitionSaveState): Promise<{
+  extraDependencies?: string[];
+  state?: Partial<PartitionSaveState>;
+}> {
+  try {
+    return await partitionUpdateInner(state);
+  } catch (e) {
+    throw new Error(`Error updating partitioned tables: ${e.message}`);
+  }
+}
+
+async function partitionUpdateInner({
   inputDataCtxt,
   attributeName,
   outputContexts,

@@ -2,11 +2,10 @@ import { uncheckedMean } from "../mean";
 import {
   CENSUS_DATASET,
   DATASET_A,
+  DATASET_WITH_MISSING,
   EMPTY_RECORDS,
   TYPES_DATASET,
 } from "./data";
-
-// TODO: test that mean ignores missing values w/o erroring
 
 test("averages small datasets", () => {
   expect(uncheckedMean(DATASET_A, "A")).toStrictEqual(
@@ -63,5 +62,19 @@ test("errors when no values or only missing values provided", () => {
   // Only missing values
   expect(() => uncheckedMean(TYPES_DATASET, "Missing")).toThrowError(
     noNumericValuesErr
+  );
+});
+
+test("ignores missing values", () => {
+  expect(uncheckedMean(DATASET_WITH_MISSING, "A")).toEqual(
+    (6 + 3 + 10 + 5) / 4
+  );
+
+  expect(uncheckedMean(DATASET_WITH_MISSING, "B")).toEqual(
+    (12 + 2 + 2) / 3
+  );
+
+  expect(uncheckedMean(DATASET_WITH_MISSING, "C")).toEqual(
+    (10 + 1 + 4 + 3) / 4
   );
 });

@@ -461,3 +461,25 @@ export const TYPES_DATASET: DataSet = {
     ]
   ),
 };
+
+/**
+ * A dataset which contains numeric values interspersed with missing values.
+ */
+export const DATASET_WITH_MISSING: DataSet = {
+  collections: [
+    makeCollection("Collection", [
+      "A", "B", "C"
+    ])
+  ],
+  records: makeRecords(
+    ["A", "B", "C"],
+    [
+      [6, "", 10],
+      [3, 12, 1],
+      ["", "", 4],
+      [10, 2, ""],
+      ["", "", ""],
+      [5, 2, 3],
+    ]
+  )
+};

@@ -3,12 +3,11 @@ import {
   CENSUS_DATASET,
   DATASET_A,
   DATASET_B,
+  DATASET_WITH_MISSING,
   EMPTY_RECORDS,
   FULLY_FEATURED_DATASET,
   TYPES_DATASET,
 } from "./data";
-
-// TODO: test that sum product ignores missing values
 
 test("sums a single attribute", () => {
   expect(uncheckedSumProduct(DATASET_A, ["A"])).toEqual(3 + 8 + 10 + 4 + 10);
@@ -87,4 +86,21 @@ test("sum product of no records / only missing values is 0", () => {
 
   // Only missing values is equivalent to no records since they are ignored.
   expect(uncheckedSumProduct(TYPES_DATASET, ["Missing"])).toEqual(0);
+});
+
+test("ignores rows containing missing values", () => {
+  expect(uncheckedSumProduct(DATASET_WITH_MISSING, ["C"])).toEqual(
+    10 + 1 + 4 + 3
+  );
+
+  expect(uncheckedSumProduct(DATASET_WITH_MISSING, ["A", "B"])).toEqual(
+    (3 * 12) + 
+    (10 * 2) + 
+    (5 * 2)
+  );
+
+  expect(uncheckedSumProduct(DATASET_WITH_MISSING, ["A", "B", "C"])).toEqual(
+    (3 * 12 * 1) + 
+    (5 * 2 * 3)
+  );
 });

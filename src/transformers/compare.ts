@@ -139,6 +139,17 @@ function uncheckedNumericCompare(
     const v1 = values1[i];
     const v2 = values2[i];
 
+    const parsed1: number = parseFloat(`${v1}`);
+    const parsed2: number = parseFloat(`${v2}`);
+
+    // If either is not a number, throw an error
+    if (isNaN(parsed1)) {
+      throw new Error(`Expected number, instead got ${codapValueToString(v1)}`);
+    }
+    if (isNaN(parsed2)) {
+      throw new Error(`Expected number, instead got ${codapValueToString(v2)}`);
+    }
+
     // If either is null/undefined/empty string, skip and continue
     if (
       v1 === null ||
@@ -149,17 +160,6 @@ function uncheckedNumericCompare(
       v2 === ""
     ) {
       continue;
-    }
-
-    const parsed1: number = parseFloat(`${v1}`);
-    const parsed2: number = parseFloat(`${v2}`);
-
-    // If either is not a number, throw an error
-    if (isNaN(parsed1)) {
-      throw new Error(`Expected number, instead got ${codapValueToString(v1)}`);
-    }
-    if (isNaN(parsed2)) {
-      throw new Error(`Expected number, instead got ${codapValueToString(v2)}`);
     }
 
     validIndicesAndValues[i] = [parsed1, parsed2];

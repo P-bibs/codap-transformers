@@ -94,13 +94,10 @@ test("ignores rows containing missing values", () => {
   );
 
   expect(uncheckedSumProduct(DATASET_WITH_MISSING, ["A", "B"])).toEqual(
-    (3 * 12) + 
-    (10 * 2) + 
-    (5 * 2)
+    3 * 12 + 10 * 2 + 5 * 2
   );
 
   expect(uncheckedSumProduct(DATASET_WITH_MISSING, ["A", "B", "C"])).toEqual(
-    (3 * 12 * 1) + 
-    (5 * 2 * 3)
+    3 * 12 * 1 + 5 * 2 * 3
   );
 });

@@ -70,9 +70,7 @@ test("ignores missing values", () => {
     (6 + 3 + 10 + 5) / 4
   );
 
-  expect(uncheckedMean(DATASET_WITH_MISSING, "B")).toEqual(
-    (12 + 2 + 2) / 3
-  );
+  expect(uncheckedMean(DATASET_WITH_MISSING, "B")).toEqual((12 + 2 + 2) / 3);
 
   expect(uncheckedMean(DATASET_WITH_MISSING, "C")).toEqual(
     (10 + 1 + 4 + 3) / 4

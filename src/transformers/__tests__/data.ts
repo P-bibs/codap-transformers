@@ -466,11 +466,7 @@ export const TYPES_DATASET: DataSet = {
  * A dataset which contains numeric values interspersed with missing values.
  */
 export const DATASET_WITH_MISSING: DataSet = {
-  collections: [
-    makeCollection("Collection", [
-      "A", "B", "C"
-    ])
-  ],
+  collections: [makeCollection("Collection", ["A", "B", "C"])],
   records: makeRecords(
     ["A", "B", "C"],
     [
@@ -481,5 +477,5 @@ export const DATASET_WITH_MISSING: DataSet = {
       ["", "", ""],
       [5, 2, 3],
     ]
-  )
+  ),
 };

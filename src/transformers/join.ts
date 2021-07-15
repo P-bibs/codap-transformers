@@ -9,6 +9,7 @@ import {
   cloneCollection,
   cloneAttribute,
   allAttrNames,
+  eraseFormulas,
 } from "./util";
 
 /**
@@ -101,6 +102,11 @@ export function uncheckedJoin(
     attr.name = attrToUnique[attr.name];
     namesToAvoid.push(attr.name);
   }
+
+  // Erase formulas of attributes that are copied from the joining dataset,
+  // since they might depend on an attribute in another collection (which is
+  // not being copied) and would break.
+  eraseFormulas(addedAttrs);
 
   // add the attrs from the joining collection into the collection being joined into
   baseCollection.attrs = baseCollection.attrs.concat(addedAttrs);

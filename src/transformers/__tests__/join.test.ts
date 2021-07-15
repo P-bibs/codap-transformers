@@ -1,5 +1,16 @@
 import { uncheckedJoin } from "../join";
-import { DATASET_A, DATASET_B, makeCollection, makeRecords } from "./data";
+import {
+  CENSUS_DATASET,
+  DATASET_A,
+  DATASET_B,
+  DATASET_WITH_META,
+  EMPTY_DATASET,
+  EMPTY_RECORDS,
+  makeCollection,
+  makeRecords,
+  TYPES_DATASET,
+} from "./data";
+import { CodapAttribute } from "../../utils/codapPhone/types";
 
 test("join with all cases from both datasets matched", () => {
   const joining = {
@@ -191,12 +202,166 @@ test("attributes from joining attr's collection are copied into collection of ba
   ]);
 });
 
-// - join dataset with itself
-// - base and joining attrs don't have to be same name
-// - cases with no matching cases in the joining ds have missing values
-// - copies attributes from collection of joining attribute to collection of base attribute
-// - empty dataset?
+test("base and joining attributes can have different names", () => {
+  const joining = {
+    collections: [makeCollection("cases", ["Not_Birth_Year"])],
+    records: makeRecords(["Not_Birth_Year"], [[2001], [2000], [40], [1988]]),
+  };
 
-// - errors on invalid base attribute
-// - errors on invalid joining attribute
-// - ensures unique names!
+  expect(
+    uncheckedJoin(DATASET_B, "Birth_Year", joining, "Not_Birth_Year")
+  ).toEqual({
+    collections: [
+      makeCollection("cases", [
+        "Name",
+        "Birth_Year",
+        "Current_Year",
+        "Grade",
+        "Not_Birth_Year",
+      ]),
+    ],
+    records: makeRecords(
+      ["Name", "Birth_Year", "Current_Year", "Grade", "Not_Birth_Year"],
+      [
+        ["Jon", 1990, 2021, 88, ""],
+        ["Sheila", 1995, 2021, 91, ""],
+        ["Joseph", 2001, 2021, 100, 2001],
+        ["Eve", 2000, 2021, 93, 2000],
+        ["Nick", 1998, 2021, 95, ""],
+        ["Paula", 1988, 2021, 81, 1988],
+      ]
+    ),
+  });
+});
+
+test("can join dataset with itself", () => {
+  expect(uncheckedJoin(DATASET_A, "C", DATASET_A, "C")).toEqual({
+    collections: [
+      makeCollection("parent", ["A"]),
+      makeCollection("child", ["B", "C", "B {1}", "C {1}"], "parent"),
+    ],
+    records: makeRecords(
+      ["A", "B", "C", "B {1}", "C {1}"],
+      [
+        [3, true, 2000, true, 2000],
+        [8, true, 2003, true, 2003],
+        [10, false, 1998, false, 1998],
+        [4, true, 2010, true, 2010],
+        [10, false, 2014, false, 2014],
+      ]
+    ),
+  });
+});
+
+test("joining with empty base/joining datasets just copies attributes", () => {
+  expect(uncheckedJoin(DATASET_B, "Name", EMPTY_RECORDS, "E")).toEqual({
+    collections: [
+      makeCollection("cases", [
+        "Name",
+        "Birth_Year",
+        "Current_Year",
+        "Grade",
+        "E",
+        "F",
+      ]),
+    ],
+    records: makeRecords(
+      ["Name", "Birth_Year", "Current_Year", "Grade", "E", "F"],
+      [
+        ["Jon", 1990, 2021, 88, "", ""],
+        ["Sheila", 1995, 2021, 91, "", ""],
+        ["Joseph", 2001, 2021, 100, "", ""],
+        ["Eve", 2000, 2021, 93, "", ""],
+        ["Nick", 1998, 2021, 95, "", ""],
+        ["Paula", 1988, 2021, 81, "", ""],
+      ]
+    ),
+  });
+
+  expect(uncheckedJoin(EMPTY_RECORDS, "D", DATASET_A, "A")).toEqual({
+    collections: [
+      makeCollection("Collection A", ["A", "B", "C"]),
+      makeCollection("Collection B", ["D", "A {1}"], "Collection A"),
+      makeCollection("Collection C", ["E", "F"], "Collection B"),
+    ],
+    records: [],
+  });
+});
+
+test("all attribute metadata except formulas is copied from joining", () => {
+  const base = {
+    collections: [makeCollection("collection", ["attr"])],
+    records: [],
+  };
+
+  // Attributes from DATASET_WITH_META but without formulas
+  const metaAttrsWithoutFormulas: CodapAttribute[] =
+    DATASET_WITH_META.collections[0].attrs?.map((attr) => {
+      return { ...attr, formula: undefined };
+    }) as CodapAttribute[];
+
+  expect(uncheckedJoin(base, "attr", DATASET_WITH_META, "A")).toEqual({
+    collections: [
+      {
+        name: "collection",
+        attrs: [
+          {
+            name: "attr",
+          },
+          // All attribute metadata is copied (barring formulas)
+          ...metaAttrsWithoutFormulas,
+        ],
+      },
+    ],
+    records: [],
+  });
+});
+
+test("errors on invalid base attribute", () => {
+  const invalidBaseAttrErr = /Invalid base attribute/;
+  expect(() =>
+    uncheckedJoin(CENSUS_DATASET, "Nonexistent", DATASET_A, "A")
+  ).toThrowError(invalidBaseAttrErr);
+
+  expect(() =>
+    uncheckedJoin(DATASET_B, "Last Name", DATASET_A, "A")
+  ).toThrowError(invalidBaseAttrErr);
+
+  expect(() =>
+    uncheckedJoin(EMPTY_DATASET, "Some Attribute", DATASET_A, "A")
+  ).toThrowError(invalidBaseAttrErr);
+});
+
+test("errors on invalid joining attribute", () => {
+  const invalidJoiningAttrErr = /Invalid joining attribute/;
+  expect(() =>
+    uncheckedJoin(DATASET_B, "Name", CENSUS_DATASET, "Not here")
+  ).toThrowError(invalidJoiningAttrErr);
+
+  expect(() =>
+    uncheckedJoin(DATASET_A, "C", TYPES_DATASET, "Bad attribute")
+  ).toThrowError(invalidJoiningAttrErr);
+
+  expect(() =>
+    uncheckedJoin(DATASET_WITH_META, "A", EMPTY_DATASET, "Any Attribute")
+  ).toThrowError(invalidJoiningAttrErr);
+});
+
+test("ensures unique attribute names when copying", () => {
+  const base = {
+    collections: [
+      makeCollection("parent", ["abc", "def"]),
+      makeCollection("child", ["ghi"], "parent"),
+    ],
+    records: [],
+  };
+  const joining = {
+    collections: [makeCollection("parent", ["abc", "def", "ghi"])],
+    records: [],
+  };
+
+  expect(uncheckedJoin(base, "ghi", joining, "ghi").collections).toEqual([
+    makeCollection("parent", ["abc", "def"]),
+    makeCollection("child", ["ghi", "abc {1}", "def {1}", "ghi {1}"], "parent"),
+  ]);
+});

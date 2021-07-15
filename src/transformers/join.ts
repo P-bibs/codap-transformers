@@ -62,7 +62,7 @@ export async function join({
  * @param joiningDataset dataset to take cases from and add to baseDataset
  * @param joiningAttr attribute to join on from joiningDataset
  */
-function uncheckedJoin(
+export function uncheckedJoin(
   baseDataset: DataSet,
   baseAttr: string,
   joiningDataset: DataSet,
@@ -115,12 +115,13 @@ function uncheckedJoin(
       (rec) => rec[joiningAttr] === record[baseAttr]
     );
 
-    if (matchingRecord !== undefined) {
-      // copy values for added attrs in matching record into current record
-      for (const attrName of addedAttrOriginalNames) {
-        const unique = attrToUnique[attrName];
-        record[unique] = matchingRecord[attrName];
-      }
+    for (const attrName of addedAttrOriginalNames) {
+      const unique = attrToUnique[attrName];
+
+      // Copy values for added attrs in matching record into current record.
+      // Or, if there is no matching record, make these explicit missing values.
+      record[unique] =
+        matchingRecord !== undefined ? matchingRecord[attrName] : "";
     }
   }
 

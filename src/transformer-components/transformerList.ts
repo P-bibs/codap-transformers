@@ -344,6 +344,7 @@ const transformerList: TransformerList = {
         },
         attribute2: {
           title: "Second attribute to Compare",
+          context: "context1",
         },
         dropdown1: {
           title: "What kind of Comparison?",

@@ -1,6 +1,12 @@
 import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { listAsString, eraseFormulas, shallowCopy, pluralSuffix, validateAttribute } from "./util";
+import {
+  listAsString,
+  eraseFormulas,
+  shallowCopy,
+  pluralSuffix,
+  validateAttribute,
+} from "./util";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -86,10 +92,6 @@ function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
   const tuples = dataset.records.map((record) => {
     const copy: Record<string, unknown> = {};
     for (const attrName of attributes) {
-      if (record[attrName] === undefined) {
-        throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute name: ${attrName}`);
-      }
-
       copy[attrName] = record[attrName];
     }
     return copy;

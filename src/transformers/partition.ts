@@ -231,12 +231,9 @@ export function partition(
 
   const records = dataset.records;
   for (const record of records) {
-    if (record[attribute] === undefined) {
-      throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute: ${attribute}`);
-    }
-
-    // convert CODAP value to string to use as a key
-    const valueAsStr = JSON.stringify(record[attribute]);
+    // Convert CODAP value to string to use as a key.
+    // NOTE: If record[attribute] is undefined (missing), this will use "" instead.
+    const valueAsStr = JSON.stringify(record[attribute] || "");
 
     // initialize this category if needed
     if (partitioned[valueAsStr] === undefined) {

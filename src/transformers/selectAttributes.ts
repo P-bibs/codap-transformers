@@ -73,11 +73,6 @@ function uncheckedSelectAttributes(
   for (const record of dataset.records) {
     const copy: Record<string, unknown> = {};
     for (const attrName of selectedAttrs) {
-      // attribute does not appear on record, error
-      if (record[attrName] === undefined) {
-        throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute name: ${attrName}`);
-      }
-
       copy[attrName] = record[attrName];
     }
     records.push(copy);

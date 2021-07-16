@@ -69,15 +69,21 @@ function uncheckedJoin(
   joiningAttr: string
 ): DataSet {
   // find collection containing joining attribute in joining dataset
-  const [joiningCollection] = validateAttribute(joiningDataset.collections, joiningAttr, 
-    `Invalid joining attribute: ${joiningAttr}`);
+  const [joiningCollection] = validateAttribute(
+    joiningDataset.collections,
+    joiningAttr,
+    `Invalid joining attribute: ${joiningAttr}`
+  );
 
   const addedAttrs = joiningCollection.attrs?.map(cloneAttribute) || [];
   const addedAttrOriginalNames = addedAttrs.map((attr) => attr.name);
 
   const collections = baseDataset.collections.map(cloneCollection);
-  const [baseCollection] = validateAttribute(collections, baseAttr, 
-    `Invalid base attribute: ${baseAttr}`);
+  const [baseCollection] = validateAttribute(
+    collections,
+    baseAttr,
+    `Invalid base attribute: ${baseAttr}`
+  );
 
   // list of attributes whose names cannot be duplicated by the added attrs
   const namesToAvoid = allAttrNames(baseDataset);

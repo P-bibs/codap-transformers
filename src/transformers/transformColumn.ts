@@ -54,8 +54,11 @@ async function uncheckedTransformColumn(
   expression: string,
   outputType: CodapLanguageType
 ): Promise<DataSet> {
-  validateAttribute(dataset.collections, attributeName,
-    `Invalid attribute to transform: ${attributeName}`);
+  validateAttribute(
+    dataset.collections,
+    attributeName,
+    `Invalid attribute to transform: ${attributeName}`
+  );
 
   const records = dataset.records.map(shallowCopy);
   const exprValues = await evalExpression(expression, records);
@@ -64,13 +67,7 @@ async function uncheckedTransformColumn(
   reportTypeErrorsForRecords(records, exprValues, outputType);
 
   exprValues.forEach((value, i) => {
-    const record = records[i];
-
-    if (record[attributeName] === undefined) {
-      throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute to transform: ${attributeName}`);
-    }
-
-    record[attributeName] = value;
+    records[i][attributeName] = value;
   });
 
   const collections = dataset.collections.map(cloneCollection);

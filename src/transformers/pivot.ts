@@ -207,11 +207,6 @@ function uncheckedPivotWider(
   const newAttrs = Array.from(
     new Set(
       dataset.records.map((rec, i) => {
-        if (rec[namesFrom] === undefined) {
-          throw new Error(
-            `TODO: MAYBE NO ERROR? Invalid attribute to retrieve names from: ${namesFrom}`
-          );
-        }
         if (typeof rec[namesFrom] === "object") {
           throw new Error(
             `Cannot use ${codapValueToString(
@@ -222,14 +217,18 @@ function uncheckedPivotWider(
           );
         }
 
-        return String(rec[namesFrom]);
+        // NOTE: If rec[namesFrom] is undefined (missing), this returns ""
+        return String(rec[namesFrom] || "");
       })
     )
   );
 
   // find attribute to take values from
-  const [, valuesFromAttr] = validateAttribute([collection], valuesFrom,
-    `Invalid attribute to retrieve values from: ${valuesFrom}`);
+  const [, valuesFromAttr] = validateAttribute(
+    [collection],
+    valuesFrom,
+    `Invalid attribute to retrieve values from: ${valuesFrom}`
+  );
 
   // remove namesFrom/valuesFrom attributes from collection
   collection.attrs =

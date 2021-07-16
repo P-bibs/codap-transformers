@@ -85,10 +85,6 @@ function makeNumFold<T>(
     let acc = base;
 
     const resultRecords = dataset.records.map((row) => {
-      if (row[inputColumnName] === undefined) {
-        throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute name: ${inputColumnName}`);
-      }
-
       const numValue = Number(row[inputColumnName]);
       if (!isNaN(numValue)) {
         const [newAcc, result] = f(acc, numValue);

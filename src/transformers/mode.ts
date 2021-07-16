@@ -37,7 +37,7 @@ export async function mode({
  */
 function uncheckedMode(dataset: DataSet, attribute: string): number {
   validateAttribute(dataset.collections, attribute);
-  
+
   // Extract numeric values from the indicated attribute
   const values = extractAttributeAsNumeric(dataset, attribute);
 

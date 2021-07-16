@@ -18,6 +18,11 @@ import {
 } from "../utils/codapPhone/listeners";
 import { InteractiveState } from "../utils/codapPhone/types";
 import AboutInfo from "./AboutInfo";
+import {
+  useActiveTransformations,
+  deserializeActiveTransformations,
+  ActionTypes,
+} from "../utils/transformationDescription";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -59,6 +64,10 @@ function TransformerREPLView(): ReactElement {
 
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
+  // activeTransformations (first element of tuple) can be used to draw a diagram
+  const [, activeTransformationsDispatch, wrappedDispatch] =
+    useActiveTransformations(setErrMsg);
+
   function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     notifyStateIsDirty();
     setTransformType(event.target.value);
@@ -69,12 +78,23 @@ function TransformerREPLView(): ReactElement {
   useEffect(() => {
     async function fetchSavedState() {
       const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState && savedState.transformerREPL) {
+      if (savedState === undefined) {
+        return;
+      }
+      if (savedState.transformerREPL) {
         setTransformType(savedState.transformerREPL.transformer);
+      }
+      if (savedState.activeTransformations) {
+        activeTransformationsDispatch({
+          type: ActionTypes.SET,
+          newTransformations: deserializeActiveTransformations(
+            savedState.activeTransformations
+          ),
+        });
       }
     }
     fetchSavedState();
-  }, []);
+  }, [activeTransformationsDispatch]);
 
   // Register a listener to generate the plugins state
   useEffect(() => {
@@ -131,6 +151,7 @@ function TransformerREPLView(): ReactElement {
           ({ name }) => name === transformType
         )}
         editable={true}
+        activeTransformationsDispatch={wrappedDispatch}
       />
     </div>
   );

@@ -10,7 +10,6 @@ import { flatten } from "../transformers/flatten";
 import { groupBy } from "../transformers/groupBy";
 import { selectAttributes } from "../transformers/selectAttributes";
 import { count } from "../transformers/count";
-import { compare } from "../transformers/compare";
 import { sort } from "../transformers/sort";
 import { pivotLonger, pivotWider } from "../transformers/pivot";
 import { join } from "../transformers/join";
@@ -33,6 +32,7 @@ import { mode } from "../transformers/mode";
 import { standardDeviation } from "../transformers/standardDeviation";
 import { partitionOverride, partitionUpdate } from "../transformers/partition";
 import { transformColumn } from "../transformers/transformColumn";
+import { compare } from "../transformers/compare";
 
 export type TransformersInteractiveState = {
   transformerREPL?: {
@@ -345,34 +345,29 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "First Dataset to Compare",
-        },
-        context2: {
-          title: "Second Dataset to Compare",
+          title: "Dataset to Compare",
         },
         attribute1: {
           title: "First attribute to Compare",
         },
         attribute2: {
           title: "Second attribute to Compare",
+          context: "context1",
         },
         dropdown1: {
           title: "What kind of Comparison?",
           options: [
             { value: "categorical", title: "Categorical" },
             { value: "numeric", title: "Numeric" },
-            { value: "structural", title: "Structural" },
           ],
           defaultValue: "Select a type",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: compare },
       info: {
-        summary:
-          "Provides several ways of comparing the data \
-        from two datasets (or possibly the same dataset with itself).",
+        summary: "Provides methods for comparing data within a dataset.",
         consumes:
-          "Two datasets to compare, an attribute from each to compare, \
+          "A dataset to compare, two attributes from within the dataset, \
         and an indication of what kind of comparison to perform.",
         produces:
           "Output differs depending on the type of comparison:\n\
@@ -381,12 +376,7 @@ const transformerList: TransformerList = {
         are merged together.\n\
         A numeric comparison produces a dataset with four attributes: the original \
         two attributes, their numeric difference, and a color indicating whether \
-        the difference was negative, positive, or neutral.\n\
-        A structural comparison produces a dataset that compares the two attributes \
-        by attempting to match their values up. The output dataset has a copy of \
-        the original two attributes, as well as a comparison status indicating \
-        whether or not the values differ by an insertion, a deletion, or have \
-        matching contents.",
+        the difference was negative, positive, or neutral.",
       },
     },
   },

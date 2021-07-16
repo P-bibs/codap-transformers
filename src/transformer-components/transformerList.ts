@@ -32,6 +32,7 @@ import { median } from "../transformers/median";
 import { mode } from "../transformers/mode";
 import { standardDeviation } from "../transformers/standardDeviation";
 import { partitionOverride, partitionUpdate } from "../transformers/partition";
+import { mutableCloneOverride } from "../transformers/mutableClone";
 import { transformColumn } from "../transformers/transformColumn";
 
 export type TransformersInteractiveState = {
@@ -87,7 +88,7 @@ export type DatasetCreatorTransformerName =
   | "Combine Cases"
   | "Reduce";
 
-export type FullOverrideTransformerName = "Partition";
+export type FullOverrideTransformerName = "Partition" | "Mutable Clone";
 
 export type BaseTransformerName =
   | DatasetCreatorTransformerName
@@ -624,6 +625,28 @@ const transformerList: TransformerList = {
         produces:
           "A dataset with the same collection and attribute structure as \
         the input, but no cases.",
+      },
+    },
+  },
+  "Mutable Clone": {
+    group: "Copy Transformers",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Clone",
+        },
+      },
+      transformerFunction: {
+        kind: "fullOverride",
+        createFunc: mutableCloneOverride,
+        updateFunc: async () => ({}),
+      },
+      info: {
+        summary:
+          "Produces an editable copy of the given dataset \
+        that does not update when the original dataset is changed.",
+        consumes: "A dataset to clone.",
+        produces: "An editable clone of the input dataset.",
       },
     },
   },

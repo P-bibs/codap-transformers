@@ -23,7 +23,7 @@ export async function copy({
   ];
 }
 
-function uncheckedCopy(dataset: DataSet): DataSet {
+export function uncheckedCopy(dataset: DataSet): DataSet {
   return {
     collections: dataset.collections,
     records: dataset.records,

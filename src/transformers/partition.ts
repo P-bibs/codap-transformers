@@ -71,7 +71,7 @@ export const partitionOverride = async (
    * @returns true if the number is below threshold or the user
    *  has confirmed they want the output. false otherwise.
    */
-  function confirmLargeOutput(outputDatasets: number, msg: string): boolean {
+  function confirmOutput(outputDatasets: number, msg: string): boolean {
     if (outputDatasets >= OUTPUT_WARN_THRESHOLD) {
       return confirm(`${msg}. Are you sure you want to proceed?`);
     }
@@ -96,8 +96,18 @@ export const partitionOverride = async (
   try {
     const transformed = await doTransform();
 
+    if (transformed.length === 0) {
+      if (
+        !confirm(
+          `This partition will create 0 datasets but still go through. Is this what you intend?`
+        )
+      ) {
+        return;
+      }
+    }
+
     if (
-      !confirmLargeOutput(
+      !confirmOutput(
         transformed.length,
         `This partition will create ${transformed.length} new datasets`
       )
@@ -147,7 +157,7 @@ export const partitionOverride = async (
         const transformed = await doTransform();
 
         if (
-          !confirmLargeOutput(
+          !confirmOutput(
             transformed.length,
             `Updating the partition of ${inputDataCtxtName} will lead to ${transformed.length} total output datasets`
           )

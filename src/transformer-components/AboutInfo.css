@@ -1,0 +1,5 @@
+
+/* space out paragraphs in the about info */
+#about-info p {
+  margin-bottom: 10px;
+}

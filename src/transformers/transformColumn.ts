@@ -47,14 +47,15 @@ export async function transformColumn({
   ];
 }
 
-async function uncheckedTransformColumn(
+export async function uncheckedTransformColumn(
   dataset: DataSet,
   attributeName: string,
   expression: string,
-  outputType: CodapLanguageType
+  outputType: CodapLanguageType,
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   const records = dataset.records.map(shallowCopy);
-  const exprValues = await evalExpression(expression, records);
+  const exprValues = await evalFormula(expression, records);
 
   // Check for type errors (might throw error and abort transformer)
   reportTypeErrorsForRecords(records, exprValues, outputType);
@@ -76,7 +77,7 @@ async function uncheckedTransformColumn(
     // erase the transformed attribute's formula and set description
     if (attr !== undefined) {
       attr.formula = undefined;
-      attr.description = `The ${attributeName} attribute, transformed by the formula ${expression}`;
+      attr.description = `The ${attributeName} attribute, transformed by the formula \`${expression}\``;
       break;
     }
   }

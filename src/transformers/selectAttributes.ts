@@ -49,7 +49,7 @@ export async function selectAttributes({
  * @param allBut should "all but" the given attributes be selected,
  *  or only the given attributes
  */
-function uncheckedSelectAttributes(
+export function uncheckedSelectAttributes(
   dataset: DataSet,
   attributes: string[],
   allBut: boolean

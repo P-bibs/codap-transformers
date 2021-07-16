@@ -44,7 +44,10 @@ export async function count({
   ];
 }
 
-function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
+export function uncheckedCount(
+  dataset: DataSet,
+  attributes: string[]
+): DataSet {
   // validate attribute names
   for (const attrName of attributes) {
     if (
@@ -78,7 +81,6 @@ function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
   const collections: Collection[] = [
     {
       name: `Count (${attributeNames})`,
-      labels: {},
       attrs: [
         ...countedAttrs,
         {

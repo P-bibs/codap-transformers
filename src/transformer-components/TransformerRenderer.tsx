@@ -2,12 +2,14 @@ import React, { ReactElement } from "react";
 import { SavedTransformer } from "./types";
 import DDTransformer from "./DataDrivenTransformer";
 import transformerList from "./transformerList";
+import { SafeActiveTransformationsDispatch } from "../utils/transformationDescription";
 
 interface TransformerRendererProps {
   transformer?: SavedTransformer;
   editable: boolean;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
+  activeTransformationsDispatch: SafeActiveTransformationsDispatch;
 }
 
 /**
@@ -18,6 +20,7 @@ export const TransformerRenderer = ({
   editable,
   setErrMsg,
   errorDisplay,
+  activeTransformationsDispatch,
 }: TransformerRendererProps): ReactElement => {
   if (transformer === undefined) {
     return <></>;
@@ -37,6 +40,7 @@ export const TransformerRenderer = ({
           base={transformer.content.base}
           saveData={transformer.content.data}
           editable={editable}
+          activeTransformationsDispatch={activeTransformationsDispatch}
         />
       );
     }

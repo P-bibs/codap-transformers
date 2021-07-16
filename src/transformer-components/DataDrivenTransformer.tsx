@@ -5,13 +5,12 @@ import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
   deleteDataContext,
-  updateText,
 } from "../utils/codapPhone";
 import { useAttributes } from "../utils/hooks";
 import {
   CodapLanguageType,
-  DataSet,
   TransformationOutput,
+  FullOverrideSaveState,
 } from "../transformers/types";
 import {
   Select,
@@ -24,13 +23,12 @@ import {
   TypeSelector,
   ExpressionEditor,
 } from "../ui-components";
-import {
-  applyNewDataSet,
-  addUpdateListener,
-  addUpdateTextListener,
-} from "./util";
+import { applyNewDataSet } from "./util";
 import TransformerSaveButton from "../ui-components/TransformerSaveButton";
-import { BaseTransformerName } from "./transformerList";
+import {
+  DatasetCreatorTransformerName,
+  BaseTransformerName,
+} from "./transformerList";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
@@ -40,6 +38,11 @@ import Popover from "../ui-components/Popover";
 import InfoIcon from "@material-ui/icons/Info";
 import { IconButton } from "@material-ui/core";
 import { pushToUndoStack } from "../utils/codapPhone/listeners";
+import {
+  TransformationOutputType,
+  SafeActiveTransformationsDispatch,
+  ActionTypes as ActiveTransformationActionTypes,
+} from "../utils/transformationDescription";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -188,15 +191,24 @@ const titleFromComponent = (
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
-export type TransformFunction =
-  | {
-      kind: "datasetCreator";
-      func: (state: DDTransformerState) => Promise<TransformationOutput>;
-    }
-  | {
-      kind: "fullOverride";
-      func: (props: DDTransformerProps, state: DDTransformerState) => void;
-    };
+interface DatasetCreatorFunction {
+  kind: "datasetCreator";
+  func: (state: DDTransformerState) => Promise<TransformationOutput>;
+}
+
+export interface FullOverrideFunction {
+  kind: "fullOverride";
+  createFunc: (
+    props: DDTransformerProps,
+    state: DDTransformerState
+  ) => Promise<void>;
+  updateFunc: (state: FullOverrideSaveState) => Promise<{
+    extraDependencies?: string[];
+    state?: Partial<FullOverrideSaveState>;
+  }>;
+}
+
+export type TransformFunction = DatasetCreatorFunction | FullOverrideFunction;
 
 export type DDTransformerProps = {
   transformerFunction: TransformFunction;
@@ -211,6 +223,7 @@ export type DDTransformerProps = {
     consumes: string;
     produces: string;
   };
+  activeTransformationsDispatch: SafeActiveTransformationsDispatch;
 };
 
 /**
@@ -231,6 +244,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     editable,
     errorDisplay,
     setErrMsg,
+    activeTransformationsDispatch,
   } = props;
 
   const [state, setState] = useReducer(
@@ -302,38 +316,32 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     try {
       const [result, name, description] = await doTransform();
 
+      const inputs: string[] = [];
+      for (const i of ["1", "2"]) {
+        const contextKey = ("context" + i) as "context1" | "context2";
+        const contextName = state[contextKey];
+        if (order.includes(contextKey) && contextName !== null) {
+          inputs.push(contextName);
+        }
+      }
+
       // Determine whether the transformerFunction returns a textbox or a table
       if (typeof result === "number") {
         // This is the case where the transformer returns a number
 
         const textName = await createText(name, String(result));
 
-        // Workaround because the text doesn't show up after creation
-        // See https://codap.concord.org/forums/topic/issue-creating-and-updating-text-views-through-data-interactive-api/#post-6483
-        updateText(textName, String(result));
-
-        if (order.includes("context1") && state["context1"] !== null) {
-          addUpdateTextListener(
-            state["context1"],
-            textName,
-            doTransform as () => Promise<[number, string, string]>,
-            setErrMsg,
-            order.includes("context2") && state["context2"] !== null
-              ? [state["context2"]]
-              : []
-          );
-        }
-        if (order.includes("context2") && state["context2"] !== null) {
-          addUpdateTextListener(
-            state["context2"],
-            textName,
-            doTransform as () => Promise<[number, string, string]>,
-            setErrMsg,
-            order.includes("context1") && state["context1"] !== null
-              ? [state["context1"]]
-              : []
-          );
-        }
+        activeTransformationsDispatch({
+          type: ActiveTransformationActionTypes.ADD,
+          newTransformation: {
+            inputs,
+            extraDependencies: [],
+            outputType: TransformationOutputType.TEXT,
+            output: textName,
+            transformer: base as DatasetCreatorTransformerName,
+            state,
+          },
+        });
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
         const newContextName = await applyNewDataSet(result, name, description);
@@ -345,28 +353,17 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
           transform
         );
 
-        if (order.includes("context1") && state["context1"] !== null) {
-          addUpdateListener(
-            state["context1"],
-            newContextName,
-            doTransform as () => Promise<[DataSet, string, string]>,
-            setErrMsg,
-            order.includes("context2") && state["context2"] !== null
-              ? [state["context2"]]
-              : []
-          );
-        }
-        if (order.includes("context2") && state["context2"] !== null) {
-          addUpdateListener(
-            state["context2"],
-            newContextName,
-            doTransform as () => Promise<[DataSet, string, string]>,
-            setErrMsg,
-            order.includes("context1") && state["context1"] !== null
-              ? [state["context1"]]
-              : []
-          );
-        }
+        activeTransformationsDispatch({
+          type: ActiveTransformationActionTypes.ADD,
+          newTransformation: {
+            inputs,
+            extraDependencies: [newContextName],
+            outputType: TransformationOutputType.CONTEXT,
+            output: newContextName,
+            transformer: base as DatasetCreatorTransformerName,
+            state,
+          },
+        });
       }
     } catch (e) {
       setErrMsg(e.message);
@@ -585,7 +582,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         <TransformerSubmitButtons
           onCreate={
             transformerFunction.kind === "fullOverride"
-              ? () => transformerFunction.func(props, state)
+              ? () => transformerFunction.createFunc(props, state)
               : transform
           }
         />

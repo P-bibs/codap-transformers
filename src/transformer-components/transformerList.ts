@@ -337,7 +337,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "First Dataset to Compare",
+          title: "Dataset to Compare",
         },
         attribute1: {
           title: "First attribute to Compare",

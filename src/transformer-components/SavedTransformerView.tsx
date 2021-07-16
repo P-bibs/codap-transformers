@@ -46,6 +46,7 @@ function SavedTransformerView({
       }
     }
     fetchSavedState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Register a listener to generate the plugin's state

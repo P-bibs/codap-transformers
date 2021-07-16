@@ -138,6 +138,71 @@ test("join with some cases from joining dataset unmatched", () => {
   });
 });
 
+test("join on larger dataset", () => {
+  const joining = {
+    collections: [makeCollection("cases", ["State", "Population"])],
+    records: makeRecords(
+      ["State", "Population"],
+      [
+        ["Massachusetts", 6.893],
+        ["North Carolina", 10.49],
+        ["South Carolina", 5.149],
+        ["Arizona", 7.279],
+        ["Florida", 21.48],
+        ["Virginia", 8.536],
+        ["California", 39.51],
+        ["Idaho", 1.787],
+        ["Texas", 29],
+      ]
+    ),
+  };
+
+  expect(uncheckedJoin(CENSUS_DATASET, "State", joining, "State")).toEqual({
+    collections: [
+      {
+        ...CENSUS_DATASET.collections[0],
+        attrs: [
+          ...(CENSUS_DATASET.collections[0].attrs || []),
+          {
+            name: "State {1}",
+          },
+          {
+            name: "Population",
+          },
+        ],
+      },
+      { ...CENSUS_DATASET.collections[1] },
+    ],
+    records: makeRecords(
+      ["State", "sample", "Sex", "Age", "Year", "State {1}", "Population"],
+      [
+        ["Arizona", 1, "Male", 71, 2017, "Arizona", 7.279],
+        ["Arizona", 1, "Male", 11, 2017, "Arizona", 7.279],
+        ["Florida", 1, "Female", 16, 2017, "Florida", 21.48],
+        ["Florida", 1, "Male", 5, 2017, "Florida", 21.48],
+        ["Florida", 1, "Female", 52, 2017, "Florida", 21.48],
+        ["California", 1, "Male", 18, 2017, "California", 39.51],
+        ["California", 1, "Male", 72, 2017, "California", 39.51],
+        ["California", 1, "Female", 22, 2017, "California", 39.51],
+        ["California", 1, "Female", 48, 2017, "California", 39.51],
+        ["Texas", 1, "Female", 18, 2017, "Texas", 29],
+        ["Texas", 1, "Female", 47, 2017, "Texas", 29],
+        ["Texas", 1, "Female", 20, 2017, "Texas", 29],
+        ["Texas", 1, "Female", 4, 2017, "Texas", 29],
+        ["Texas", 1, "Male", 30, 2017, "Texas", 29],
+        ["Texas", 1, "Male", 63, 2017, "Texas", 29],
+        ["South Carolina", 1, "Female", 27, 2017, "South Carolina", 5.149],
+        ["South Carolina", 1, "Female", 38, 2017, "South Carolina", 5.149],
+        ["Idaho", 1, "Male", 67, 2017, "Idaho", 1.787],
+        ["Idaho", 1, "Female", 47, 2017, "Idaho", 1.787],
+        ["Massachusetts", 1, "Female", 64, 2017, "Massachusetts", 6.893],
+        ["Massachusetts", 1, "Male", 33, 2017, "Massachusetts", 6.893],
+        ["Massachusetts", 1, "Female", 83, 2017, "Massachusetts", 6.893],
+      ]
+    ),
+  });
+});
+
 test("*first* matching case in joining dataset is copied", () => {
   const joining = {
     collections: [makeCollection("cases", ["B", "Extra_Attribute"])],

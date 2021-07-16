@@ -1,7 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { CodapLanguageType, DataSet } from "./types";
+import { Boundary, CodapLanguageType, DataSet } from "./types";
 import { prettyPrintCase } from "../utils/prettyPrint";
 
 /**
@@ -182,8 +182,7 @@ export function pluralSuffix<T>(word: string, describing: T[]): string {
 }
 
 /**
- * Converts a CODAP cell value into a user-friendly string
- * for printing in error messages.
+ * Converts a CODAP cell value into a user-friendly string.
  *
  * @param codapValue the value to convert to a string for printing
  * @returns string version of the value
@@ -209,9 +208,20 @@ export function codapValueToString(codapValue: unknown): string {
     return String(codapValue);
   }
 
+  // colors
+  if (isColor(codapValue)) {
+    return `the color ${codapValue}`;
+  }
+
   // boundaries
   if (isBoundary(codapValue)) {
-    return "a boundary";
+    // Try to extract the name of the boundary, but not all have one.
+    const name = (codapValue as Boundary).jsonBoundaryObject.properties.NAME;
+    if (name !== undefined) {
+      return `a boundary (${name})`;
+    } else {
+      return "a boundary";
+    }
   }
 
   // boundary maps
@@ -243,6 +253,26 @@ export function isBoundaryMap(value: unknown): boolean {
 export function isBoundary(value: unknown): boolean {
   return (
     typeof value === "object" && value !== null && "jsonBoundaryObject" in value
+  );
+}
+
+/**
+ * Determines if a given CODAP value is a color.
+ */
+export function isColor(value: unknown): boolean {
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const noWhitespace = value.replace(/\s+/g, "");
+
+  // Hex, rgb, and rgba are the allowed syntaxes for defining color values in CODAP.
+  // Source: https://github.com/concord-consortium/codap/wiki/CODAP-Data-
+  // Interactive-Plugin-API#data-types-and-typeless-data
+  return (
+    /#[0-9a-fA-F]{6}/.test(noWhitespace) ||
+    /rgb\(\d{1,3},\d{1,3},\d{1,3}\)/.test(noWhitespace) ||
+    /rgba\(\d{1,3},\d{1,3},\d{1,3},(0|1)?\.\d*\)/.test(noWhitespace)
   );
 }
 
@@ -443,3 +473,38 @@ export function shallowCopy<T>(x: T): T {
 }
 
 export const cloneAttribute = shallowCopy;
+
+/**
+ * Extracts a list of numbers from an attribute in a dataset that is expected
+ * to contain numeric values. Errors if the attribute is undefined for some
+ * records, or if the attribute's values parse to non-numeric.
+ *
+ * @param dataset The dataset to extract from.
+ * @param attribute The attribute containing numeric values.
+ * @returns A list of the attributes values parsed to numbers.
+ */
+export function extractAttributeAsNumeric(
+  dataset: DataSet,
+  attribute: string
+): number[] {
+  const numericValues = [];
+
+  for (const record of dataset.records) {
+    if (record[attribute] === undefined) {
+      throw new Error(`Invalid attribute name: ${attribute}`);
+    }
+    // Ignore missing values
+    if (record[attribute] === "") {
+      continue;
+    }
+    const value = parseFloat(String(record[attribute]));
+    if (isNaN(value)) {
+      throw new Error(
+        `Expected number, instead got ${codapValueToString(record[attribute])}`
+      );
+    }
+    numericValues.push(value);
+  }
+
+  return numericValues;
+}

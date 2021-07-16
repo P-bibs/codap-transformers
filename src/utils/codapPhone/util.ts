@@ -94,6 +94,16 @@ function attributesEqual(
   return listEqual(attributes1, attributes2, shallowEqual);
 }
 
+function labelsEqual(
+  labels1?: Collection["labels"],
+  labels2?: Collection["labels"]
+) {
+  if (labels1 === undefined || labels2 === undefined) {
+    return labels1 === labels2;
+  }
+  return shallowEqual(labels1, labels2);
+}
+
 /**
  * Fill attribute with defaults
  *
@@ -130,7 +140,7 @@ function collectionEqual(c1: Collection, c2: Collection): boolean {
     c1.name === c2.name &&
     c1.title === c2.title &&
     c1.description === c2.description &&
-    shallowEqual(c1.labels, c2.labels) &&
+    labelsEqual(c1.labels, c2.labels) &&
     attributesEqual(c1.attrs, c2.attrs)
   );
 }

@@ -28,12 +28,12 @@ export async function pivotLonger({
   if (attributes.length === 0) {
     throw new Error("Please choose at least one attribute to pivot on");
   }
-  if (namesTo === "") {
+  if (namesTo.trim() === "") {
     throw new Error(
       "Please choose a non-empty name for the Names To attribute"
     );
   }
-  if (valuesTo === "") {
+  if (valuesTo.trim() === "") {
     throw new Error(
       "Please choose a non-empty name for the Values To attribute"
     );

@@ -3,6 +3,7 @@ import {
   DDTransformerState,
   TransformFunction,
 } from "./DataDrivenTransformer";
+import { TransformationDescription } from "../utils/transformationDescription";
 import { filter } from "../transformers/filter";
 import { buildColumn } from "../transformers/buildColumn";
 import { flatten } from "../transformers/flatten";
@@ -30,7 +31,7 @@ import { mean } from "../transformers/mean";
 import { median } from "../transformers/median";
 import { mode } from "../transformers/mode";
 import { standardDeviation } from "../transformers/standardDeviation";
-import { partitionOverride } from "../transformers/partition";
+import { partitionOverride, partitionUpdate } from "../transformers/partition";
 import { transformColumn } from "../transformers/transformColumn";
 
 export type TransformersInteractiveState = {
@@ -42,6 +43,7 @@ export type TransformersInteractiveState = {
     name: string;
     description: string;
   };
+  activeTransformations?: TransformationDescription[];
 };
 
 export type TransformerGroup =
@@ -56,7 +58,7 @@ export type TransformerGroup =
 /**
  *  All valid values of the `base` field of a saved transformer object
  */
-export type BaseTransformerName =
+export type DatasetCreatorTransformerName =
   | "Build Column"
   | "Compare"
   | "Count"
@@ -83,8 +85,13 @@ export type BaseTransformerName =
   | "Standard Deviation"
   | "Sum Product"
   | "Combine Cases"
-  | "Reduce"
-  | "Partition";
+  | "Reduce";
+
+export type FullOverrideTransformerName = "Partition";
+
+export type BaseTransformerName =
+  | DatasetCreatorTransformerName
+  | FullOverrideTransformerName;
 
 export type TransformerList = Record<
   BaseTransformerName,
@@ -116,7 +123,8 @@ const transformerList: TransformerList = {
       },
       transformerFunction: {
         kind: "fullOverride",
-        func: partitionOverride,
+        createFunc: partitionOverride,
+        updateFunc: partitionUpdate,
       },
       info: {
         summary:

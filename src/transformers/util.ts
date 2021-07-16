@@ -491,7 +491,7 @@ export function extractAttributeAsNumeric(
 
   for (const record of dataset.records) {
     if (record[attribute] === undefined) {
-      throw new Error(`Invalid attribute name: ${attribute}`);
+      throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute name: ${attribute}`);
     }
     // Ignore missing values
     if (record[attribute] === "") {
@@ -507,4 +507,25 @@ export function extractAttributeAsNumeric(
   }
 
   return numericValues;
+}
+
+/**
+ * Verifies that a given attribute (by name) exists in the given dataset. If
+ * the attribute is found, returns the collection it is in and the attribute 
+ * data. Otherwise, throws an error.
+ * 
+ * @param collections Collections within which to search for attribute. 
+ * @param attributeName The name of the attribute to look for.
+ * @param errorMsg A custom error message, to override the default.
+ */
+export function validateAttribute(collections: Collection[], attributeName: string, errorMsg?: string): [Collection, CodapAttribute] {
+  for (const coll of collections) {
+    const attr = coll.attrs?.find((attr) => attr.name === attributeName);
+
+    if (attr) {
+      return [coll, attr];
+    }
+  }
+
+  throw new Error(errorMsg || `Invalid attribute name: ${attributeName}`);
 }

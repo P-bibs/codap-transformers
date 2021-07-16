@@ -1,6 +1,6 @@
 import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { listAsString, eraseFormulas, shallowCopy, pluralSuffix } from "./util";
+import { listAsString, eraseFormulas, shallowCopy, pluralSuffix, validateAttribute } from "./util";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -47,13 +47,7 @@ export async function count({
 function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
   // validate attribute names
   for (const attrName of attributes) {
-    if (
-      dataset.collections.find((coll) =>
-        coll.attrs?.find((attr) => attr.name === attrName)
-      ) === undefined
-    ) {
-      throw new Error(`Invalid attribute name: ${attrName}`);
-    }
+    validateAttribute(dataset.collections, attrName);
   }
 
   let countedAttrs: CodapAttribute[] = [];
@@ -93,7 +87,7 @@ function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
     const copy: Record<string, unknown> = {};
     for (const attrName of attributes) {
       if (record[attrName] === undefined) {
-        throw new Error(`Invalid attribute name: ${attrName}`);
+        throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute name: ${attrName}`);
       }
 
       copy[attrName] = record[attrName];

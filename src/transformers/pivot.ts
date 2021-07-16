@@ -9,6 +9,7 @@ import {
   listAsString,
   pluralSuffix,
   plural,
+  validateAttribute,
 } from "./util";
 
 /**
@@ -77,6 +78,10 @@ function uncheckedPivotLonger(
   namesTo: string,
   valuesTo: string
 ): DataSet {
+  for (const attr of toPivot) {
+    validateAttribute(dataset.collections, attr);
+  }
+
   // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
@@ -186,6 +191,9 @@ function uncheckedPivotWider(
   namesFrom: string,
   valuesFrom: string
 ): DataSet {
+  validateAttribute(dataset.collections, namesFrom);
+  validateAttribute(dataset.collections, valuesFrom);
+
   // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
@@ -201,7 +209,7 @@ function uncheckedPivotWider(
       dataset.records.map((rec, i) => {
         if (rec[namesFrom] === undefined) {
           throw new Error(
-            `Invalid attribute to retrieve names from: ${namesFrom}`
+            `TODO: MAYBE NO ERROR? Invalid attribute to retrieve names from: ${namesFrom}`
           );
         }
         if (typeof rec[namesFrom] === "object") {
@@ -220,12 +228,8 @@ function uncheckedPivotWider(
   );
 
   // find attribute to take values from
-  const valuesFromAttr = collection.attrs?.find(
-    (attr) => attr.name === valuesFrom
-  );
-  if (valuesFromAttr === undefined) {
-    throw new Error(`Invalid attribute to retrieve values from: ${valuesFrom}`);
-  }
+  const [, valuesFromAttr] = validateAttribute([collection], valuesFrom,
+    `Invalid attribute to retrieve values from: ${valuesFrom}`);
 
   // remove namesFrom/valuesFrom attributes from collection
   collection.attrs =

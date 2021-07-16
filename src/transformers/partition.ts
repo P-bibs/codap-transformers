@@ -8,7 +8,7 @@ import {
   addContextUpdateListener,
   pushToUndoStack,
 } from "../utils/codapPhone/listeners";
-import { codapValueToString } from "./util";
+import { codapValueToString, validateAttribute } from "./util";
 import {
   DDTransformerProps,
   DDTransformerState,
@@ -224,13 +224,15 @@ export function partition(
   dataset: DataSet,
   attribute: string
 ): PartitionDataset[] {
+  validateAttribute(dataset.collections, attribute);
+
   // map from distinct values of an attribute to all records sharing that value
   const partitioned: Record<string, [unknown, Record<string, unknown>[]]> = {};
 
   const records = dataset.records;
   for (const record of records) {
     if (record[attribute] === undefined) {
-      throw new Error(`Invalid attribute: ${attribute}`);
+      throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute: ${attribute}`);
     }
 
     // convert CODAP value to string to use as a key

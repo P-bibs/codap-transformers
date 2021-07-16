@@ -8,6 +8,7 @@ import {
   cloneCollection,
   pluralSuffix,
   listAsString,
+  validateAttribute,
 } from "./util";
 
 /**
@@ -54,6 +55,10 @@ function uncheckedSelectAttributes(
   attributes: string[],
   allBut: boolean
 ): DataSet {
+  for (const attr of attributes) {
+    validateAttribute(dataset.collections, attr);
+  }
+
   // determine which attributes are being selected
   const selectedAttrs = attrsToSelect(dataset, attributes, allBut);
 
@@ -70,7 +75,7 @@ function uncheckedSelectAttributes(
     for (const attrName of selectedAttrs) {
       // attribute does not appear on record, error
       if (record[attrName] === undefined) {
-        throw new Error(`Invalid attribute name: ${attrName}`);
+        throw new Error(`TODO: MAYBE NO ERROR? Invalid attribute name: ${attrName}`);
       }
 
       copy[attrName] = record[attrName];

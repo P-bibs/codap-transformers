@@ -101,7 +101,6 @@ export function useActiveTransformations(
   // Delete transformations for deleted contexts
   useEffect(() => {
     async function callback(deletedContext: string) {
-      console.log(`Deleted: ${deletedContext}`);
       const cloned = { ...activeTransformations };
       for (const input of Object.keys(cloned)) {
         cloned[input] = cloned[input].filter(
@@ -262,9 +261,6 @@ export function activeTransformationsReducer(
   oldState: ActiveTransformations,
   action: ActiveTransformationsAction
 ): ActiveTransformations {
-  console.group("Reducer");
-  console.log(action);
-  console.groupEnd();
   switch (action.type) {
     case ActionTypes.SET:
       return action.newTransformations;

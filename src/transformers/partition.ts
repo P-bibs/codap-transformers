@@ -135,7 +135,6 @@ export const partitionOverride = async (
   });
 
   // Register undo action for partition transformer
-  console.log("Pushing partition undo");
   pushToUndoStack(
     "Apply partition transformer",
     () => outputContexts.forEach((context) => deleteDataContext(context)),
@@ -197,7 +196,6 @@ async function partitionUpdateInner({
   }
 
   for (const [partitioned, name] of transformed) {
-    console.log("Name: " + name);
     const contextName = valueToContext[partitioned.distinctValueAsStr];
     if (contextName === undefined) {
       const newName = await applyNewDataSet(

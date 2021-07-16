@@ -142,11 +142,11 @@ function uncheckedNumericCompare(
     const parsed1: number = parseFloat(`${v1}`);
     const parsed2: number = parseFloat(`${v2}`);
 
-    // If either is not a number, throw an error
-    if (isNaN(parsed1)) {
+    // If either is not a number (and also not empty string), throw an error
+    if (isNaN(parsed1) && v1 !== "") {
       throw new Error(`Expected number, instead got ${codapValueToString(v1)}`);
     }
-    if (isNaN(parsed2)) {
+    if (isNaN(parsed2) && v2 !== "") {
       throw new Error(`Expected number, instead got ${codapValueToString(v2)}`);
     }
 

@@ -24,6 +24,7 @@ import {
   addContextDeletedHook,
   removeContextDeletedHook,
 } from "./codapPhone/listeners";
+import { makeDatasetImmutable } from "../transformers/util";
 import { InteractiveState } from "./codapPhone/types";
 import { PartitionSaveState } from "../transformers/partition";
 
@@ -223,7 +224,8 @@ async function updateContextFromDatasetCreator(
   ) => Promise<DataSetTransformationOutput>
 ): Promise<void> {
   const [transformed] = await transformFunc(state);
-  await updateContextWithDataSet(outputName, transformed);
+  const immutableTransformed = makeDatasetImmutable(transformed);
+  await updateContextWithDataSet(outputName, immutableTransformed);
 }
 
 async function updateTextFromDatasetCreator(

@@ -508,3 +508,16 @@ export function extractAttributeAsNumeric(
 
   return numericValues;
 }
+
+export function makeDatasetImmutable(dataset: DataSet): DataSet {
+  const newCollections = dataset.collections.map(cloneCollection);
+  for (const c of newCollections) {
+    if (c.attrs) {
+      c.attrs.map((attr) => (attr.editable = false));
+    }
+  }
+  return {
+    collections: newCollections,
+    records: dataset.records,
+  };
+}

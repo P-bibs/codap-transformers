@@ -5,7 +5,7 @@ import {
   deleteDataContext,
 } from "../utils/codapPhone";
 import { pushToUndoStack } from "../utils/codapPhone/listeners";
-import { codapValueToString } from "./util";
+import { codapValueToString, makeDatasetImmutable } from "./util";
 import {
   DDTransformerProps,
   DDTransformerState,
@@ -69,7 +69,7 @@ async function doTransform(
 
   // return both the datasets and their names
   return partitioned.map((pd) => [
-    pd,
+    { ...pd, dataset: makeDatasetImmutable(pd.dataset) },
     `${attributeName} = ${codapValueToString(
       pd.distinctValue
     )} in ${readableContext}`,

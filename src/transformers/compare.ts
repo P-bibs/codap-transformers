@@ -64,7 +64,7 @@ export async function compare({
   }
 }
 
-function uncheckedNumericCompare(
+export function uncheckedNumericCompare(
   dataset: DataSet,
   attributeName1: string,
   attributeName2: string
@@ -204,7 +204,7 @@ function uncheckedNumericCompare(
   return { records, collections };
 }
 
-function uncheckedCategoricalCompare(
+export function uncheckedCategoricalCompare(
   dataset: DataSet,
   attributeName1: string,
   attributeName2: string

@@ -150,6 +150,24 @@ export function copyAttributes(
 }
 
 /**
+ * Given a list of values, constructs a dataset with a single
+ * collection "Collection" containing a single attribute "Attribute"
+ * which contains these values.
+ *
+ * @param values The values to include in the dataset
+ * @returns A dataset consisting of an attribute with the given values.
+ */
+export function datasetFromValues(values: unknown[]): DataSet {
+  return {
+    collections: [makeCollection("Collection", ["Attribute"])],
+    records: makeRecords(
+      ["Attribute"],
+      values.map((v) => [v])
+    ),
+  };
+}
+
+/**
  * A small example dataset with attributes A, B, and C across two collections.
  */
 export const DATASET_A: DataSet = {

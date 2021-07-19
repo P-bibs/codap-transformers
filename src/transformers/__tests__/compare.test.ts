@@ -5,8 +5,10 @@ import {
 import {
   cloneDataSet,
   DATASET_A,
+  DATASET_WITH_MISSING,
   EMPTY_DATASET,
   EMPTY_RECORDS,
+  makeCollection,
   TYPES_DATASET,
 } from "./data";
 
@@ -163,5 +165,98 @@ describe("numeric compare", () => {
     expect(() =>
       uncheckedNumericCompare(TYPES_DATASET, "Missing", "String")
     ).toThrow("Expected number");
+  });
+});
+
+describe("categorical compare", () => {
+  it("errors on bad first attribute", () => {
+    expect(() =>
+      uncheckedCategoricalCompare(
+        DATASET_A,
+        "BadAttributeName",
+        "EvenBadderAttributeName"
+      )
+    ).toThrow("first");
+  });
+
+  // TODO: update this when attribute check changes are merged
+  it.skip("errors on bad second attribute", () => {
+    expect(() =>
+      uncheckedCategoricalCompare(DATASET_A, "A", "EvenBadderAttributeName")
+    ).toThrow("second");
+  });
+
+  it("errors on first attribute if dataset has no attributes", () => {
+    expect(() => uncheckedCategoricalCompare(EMPTY_DATASET, "A", "B")).toThrow(
+      "first"
+    );
+  });
+
+  it("includes missing values in output group", () => {
+    const output = {
+      collections: [
+        {
+          name: "Comparison",
+          attrs: [
+            {
+              name: "A Category",
+              description:
+                "All values of the A attribute that appear in distinct tuples.",
+              formula: undefined,
+            },
+            {
+              name: "B Category",
+              description:
+                "All values of the B attribute that appear in distinct tuples.",
+              formula: undefined,
+            },
+          ],
+        },
+        makeCollection("Collection", ["A", "B", "C"], "Comparison"),
+      ],
+      records: DATASET_WITH_MISSING.records,
+    };
+    // Add new records from comparison
+    output.records.forEach((record) => {
+      record["A Category"] = record["A"];
+      record["B Category"] = record["B"];
+    });
+
+    expect(uncheckedCategoricalCompare(DATASET_WITH_MISSING, "A", "B")).toEqual(
+      output
+    );
+  });
+
+  it("works properly on multi-collection input", () => {
+    const output = {
+      collections: [
+        {
+          name: "Comparison",
+          attrs: [
+            {
+              name: "A Category",
+              description:
+                "All values of the A attribute that appear in distinct tuples.",
+              formula: undefined,
+            },
+            {
+              name: "B Category",
+              description:
+                "All values of the B attribute that appear in distinct tuples.",
+              formula: undefined,
+            },
+          ],
+        },
+        makeCollection("parent + child", ["A", "B", "C"], "Comparison"),
+      ],
+      records: DATASET_A.records,
+    };
+    // Add new records from comparison
+    output.records.forEach((record) => {
+      record["A Category"] = record["A"];
+      record["B Category"] = record["B"];
+    });
+
+    expect(uncheckedCategoricalCompare(DATASET_A, "A", "B")).toEqual(output);
   });
 });

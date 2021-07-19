@@ -4,6 +4,7 @@ import {
 } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { applyNewDataSet, readableName } from "../transformer-components/util";
+import { makeDatasetMutable } from "../transformers/util";
 import { uncheckedCopy } from "./copy";
 
 export async function editableCopyOverride(
@@ -21,7 +22,7 @@ export async function editableCopyOverride(
   const ctxtName = readableName(context);
 
   applyNewDataSet(
-    uncheckedCopy(dataset),
+    makeDatasetMutable(uncheckedCopy(dataset)),
     `Editable Copy of ${ctxtName}`,
     `An editable copy of the ${ctxtName} dataset that does not update when the \
 original dataset is changed.`

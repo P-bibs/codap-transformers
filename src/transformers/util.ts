@@ -509,15 +509,23 @@ export function extractAttributeAsNumeric(
   return numericValues;
 }
 
-export function makeDatasetImmutable(dataset: DataSet): DataSet {
+function changeDatasetMutability(dataset: DataSet, mutable: boolean): DataSet {
   const newCollections = dataset.collections.map(cloneCollection);
   for (const c of newCollections) {
     if (c.attrs) {
-      c.attrs.map((attr) => (attr.editable = false));
+      c.attrs.map((attr) => (attr.editable = mutable));
     }
   }
   return {
     collections: newCollections,
     records: dataset.records,
   };
+}
+
+export function makeDatasetImmutable(d: DataSet): DataSet {
+  return changeDatasetMutability(d, false);
+}
+
+export function makeDatasetMutable(d: DataSet): DataSet {
+  return changeDatasetMutability(d, true);
 }

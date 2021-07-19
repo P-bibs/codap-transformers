@@ -29,16 +29,18 @@ test("throws error when new attribute collides with existing", () => {
 });
 
 test("throws error when expression uses unbound values", async () => {
-  // expect(() =>
-  //   uncheckedBuildColumn(
-  //     DATASET_A,
-  //     "E",
-  //     "child",
-  //     "AttributeNameThatDoesntExist + 1",
-  //     "any",
-  //     jsEvalExpression
-  //   )
-  // ).toThrow("AttributeNameThatDoesntExist");
+  try {
+    await uncheckedBuildColumn(
+      DATASET_A,
+      "E",
+      "child",
+      "AttributeNameThatDoesntExist + 1",
+      "any",
+      jsEvalExpression
+    );
+  } catch (e) {
+    expect(e.message).toMatch("AttributeNameThatDoesntExist");
+  }
 });
 
 test("using attribute name as formula creates clone of attribute", async () => {

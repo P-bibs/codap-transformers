@@ -443,6 +443,7 @@ export const TYPES_DATASET: DataSet = {
     makeCollection("Collection", [
       "Number",
       "String",
+      "NumericString",
       "Boolean",
       "Boundary",
       "Color",
@@ -450,13 +451,22 @@ export const TYPES_DATASET: DataSet = {
     ]),
   ],
   records: makeRecords(
-    ["Number", "String", "Boolean", "Boundary", "Color", "Missing"],
     [
-      [40, "abc", true, makeSimpleBoundary(false), "#ff00ff", ""],
-      [-5, "DEFG", false, makeSimpleBoundary(false), "rgb(10,41,28)", ""],
+      "Number",
+      "String",
+      "NumericString",
+      "Boolean",
+      "Boundary",
+      "Color",
+      "Missing",
+    ],
+    [
+      [40, "abc", "10", true, makeSimpleBoundary(false), "#ff00ff", ""],
+      [-5, "DEFG", "11", false, makeSimpleBoundary(false), "rgb(10,41,28)", ""],
       [
         700.2,
         "hIjKLm",
+        "12",
         false,
         makeSimpleBoundary(false),
         "rgba(2,3,4,0.5)",
@@ -470,11 +480,7 @@ export const TYPES_DATASET: DataSet = {
  * A dataset which contains numeric values interspersed with missing values.
  */
 export const DATASET_WITH_MISSING: DataSet = {
-  collections: [
-    makeCollection("Collection", [
-      "A", "B", "C"
-    ])
-  ],
+  collections: [makeCollection("Collection", ["A", "B", "C"])],
   records: makeRecords(
     ["A", "B", "C"],
     [
@@ -485,5 +491,5 @@ export const DATASET_WITH_MISSING: DataSet = {
       ["", "", ""],
       [5, 2, 3],
     ]
-  )
+  ),
 };

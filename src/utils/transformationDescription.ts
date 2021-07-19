@@ -84,9 +84,9 @@ export function useActiveTransformations(
               .transformerFunction.kind === "datasetCreator"
           ) {
             setErrMsg(
-              `Error updating ${
+              `Error updating "${
                 (description as DatasetCreatorDescription).output
-              }: ${e.message}`
+              }": ${e.message}`
             );
           } else {
             setErrMsg(e.message);

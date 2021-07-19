@@ -24,7 +24,7 @@ export async function mode({
 
   return [
     uncheckedMode(dataset, attribute),
-    `Mode of ${attribute} in ${ctxtName}`,
+    `Mode(${ctxtName}, ${attribute})`,
     `The mode value of the ${attribute} attribute in the ${ctxtName} dataset.`,
   ];
 }

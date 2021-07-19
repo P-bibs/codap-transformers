@@ -18,7 +18,7 @@ export async function copy({
 
   return [
     await uncheckedCopy(dataset),
-    `Copy of ${ctxtName}`,
+    `Copy(${ctxtName})`,
     `A copy of the ${ctxtName} dataset.`,
   ];
 }

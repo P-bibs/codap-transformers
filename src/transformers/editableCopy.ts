@@ -6,7 +6,7 @@ import { getContextAndDataSet } from "../utils/codapPhone";
 import { applyNewDataSet, readableName } from "../transformer-components/util";
 import { uncheckedCopy } from "./copy";
 
-export async function mutableCloneOverride(
+export async function editableCopyOverride(
   { setErrMsg }: DDTransformerProps,
   { context1: inputDataCtxt }: DDTransformerState
 ): Promise<void> {
@@ -22,7 +22,8 @@ export async function mutableCloneOverride(
 
   applyNewDataSet(
     uncheckedCopy(dataset),
-    `Clone of ${ctxtName}`,
-    `A copy of the ${ctxtName} dataset.`
+    `Editable Copy of ${ctxtName}`,
+    `An editable copy of the ${ctxtName} dataset that does not update when the \
+original dataset is changed.`
   );
 }

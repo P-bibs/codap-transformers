@@ -194,7 +194,7 @@ async function partitionUpdateInner({
   if (
     !confirmOutput(
       transformed.length,
-      `Updating the partition of ${inputDataCtxtName} will lead to ${transformed.length} total output datasets`
+      `Updating the partition of "${inputDataCtxtName}" will lead to ${transformed.length} total output datasets`
     )
   ) {
     return {};

@@ -326,9 +326,8 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       }
 
       // Determine whether the transformerFunction returns a textbox or a table
-      if (typeof result === "number") {
-        // This is the case where the transformer returns a number
-
+      if (typeof result === "number" || Array.isArray(result)) {
+        // This is the case where the transformer returns a single value
         const textName = await createText(name, String(result));
 
         activeTransformationsDispatch({

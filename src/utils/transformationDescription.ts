@@ -9,7 +9,7 @@ import {
 } from "../transformer-components/DataDrivenTransformer";
 import {
   DataSetTransformationOutput,
-  NumberTransformationOutput,
+  SingleValueTransformationOutput,
 } from "../transformers/types";
 import {
   updateContextWithDataSet,
@@ -206,7 +206,7 @@ async function updateFromDescription(
         description.output,
         transformFunc.func as (
           state: DDTransformerState
-        ) => Promise<NumberTransformationOutput>
+        ) => Promise<SingleValueTransformationOutput>
       );
     }
   } else if (transformFunc.kind === "fullOverride") {
@@ -231,7 +231,7 @@ async function updateTextFromDatasetCreator(
   outputName: string,
   transformFunc: (
     state: DDTransformerState
-  ) => Promise<NumberTransformationOutput>
+  ) => Promise<SingleValueTransformationOutput>
 ): Promise<void> {
   const [result] = await transformFunc(state);
   await updateText(outputName, String(result));

@@ -33,7 +33,7 @@ export async function combineCases({
 
   return [
     await uncheckedCombineCases(dataset1, dataset2),
-    `Combined Cases of ${ctxtName1} and ${ctxtName2}`,
+    `CombinedCases(${ctxtName1}, ${ctxtName2})`,
     `A copy of ${ctxtName1}, containing all of the cases from both ${ctxtName1} and ${ctxtName2}.`,
   ];
 }

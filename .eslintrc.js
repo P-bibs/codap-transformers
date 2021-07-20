@@ -31,5 +31,11 @@ module.exports = {
     "dot-notation": "off",
     "no-unused-vars": "off",
     "no-constant-condition": ["error", { checkLoops: false }],
+    "prefer-const": [
+      "error",
+      {
+        destructuring: "all",
+      },
+    ],
   },
 };

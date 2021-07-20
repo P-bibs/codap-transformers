@@ -9,7 +9,7 @@ import {
 } from "../transformer-components/DataDrivenTransformer";
 import {
   DataSetTransformationOutput,
-  NumberTransformationOutput,
+  SingleValueTransformationOutput,
 } from "../transformers/types";
 import {
   updateContextWithDataSet,
@@ -27,6 +27,7 @@ import {
 import { makeDatasetImmutable } from "../transformers/util";
 import { InteractiveState } from "./codapPhone/types";
 import { PartitionSaveState } from "../transformers/partition";
+import { displaySingleValue } from "../transformers/util";
 
 /**
  * useActiveTransformations
@@ -207,7 +208,7 @@ async function updateFromDescription(
         description.output,
         transformFunc.func as (
           state: DDTransformerState
-        ) => Promise<NumberTransformationOutput>
+        ) => Promise<SingleValueTransformationOutput>
       );
     }
   } else if (transformFunc.kind === "fullOverride") {
@@ -233,10 +234,10 @@ async function updateTextFromDatasetCreator(
   outputName: string,
   transformFunc: (
     state: DDTransformerState
-  ) => Promise<NumberTransformationOutput>
+  ) => Promise<SingleValueTransformationOutput>
 ): Promise<void> {
   const [result] = await transformFunc(state);
-  await updateText(outputName, String(result));
+  await updateText(outputName, displaySingleValue(result));
 }
 
 async function updateFromFullOverride(

@@ -61,7 +61,7 @@ function makeFoldWrapper(
         resultAttributeName,
         attributeDescription
       ),
-      `${label} of ${ctxtName}`,
+      `${label.replace(/\s+/, "")}(${ctxtName}, ...)`,
       datasetDescription,
     ];
   };
@@ -151,7 +151,7 @@ export async function genericFold({
       accumulatorName,
       resultDescription
     ),
-    `Reduce of ${ctxtName}`,
+    `Reduce(${ctxtName}, ...)`,
     `A reduce of the ${ctxtName} dataset, with an attribute ${resultColumnName} ` +
       `whose values are determined by the formula \`${expression}\`. ` +
       `The accumulator is named ${accumulatorName} and its initial value is \`${base}\`.`,
@@ -323,7 +323,7 @@ export async function differenceFrom({
       resultAttributeName,
       Number(startingValue)
     ),
-    `Difference From of ${ctxtName}`,
+    `DifferenceFrom(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new column whose values are the difference between ` +
       `the value of ${inputAttributeName} in the current case and the value of ${inputAttributeName} ` +
       `in the case above. The first case subtracts ${startingValue} from itself.`,

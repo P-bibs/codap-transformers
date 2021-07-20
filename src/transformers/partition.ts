@@ -70,9 +70,9 @@ async function doTransform(
   // return both the datasets and their names
   return partitioned.map((pd) => [
     { ...pd, dataset: makeDatasetImmutable(pd.dataset) },
-    `${attributeName} = ${codapValueToString(
+    `Partition(${attributeName} = ${codapValueToString(
       pd.distinctValue
-    )} in ${readableContext}`,
+    )}, ${readableContext})`,
   ]);
 }
 

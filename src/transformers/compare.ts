@@ -1,11 +1,8 @@
 import { DataSet, TransformationOutput } from "./types";
-import { CodapAttribute, Collection } from "../utils/codapPhone/types";
-import { diffArrays } from "diff";
-import { intersectionWithPredicate, unionWithPredicate } from "../utils/sets";
-import { uncheckedFlatten } from "./flatten";
 import {
   allAttrNames,
-  eraseFormulas,
+  cloneCollection,
+  codapValueToString,
   getAttributeDataFromDataset,
 } from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
@@ -19,120 +16,110 @@ import {
   interpolateColor,
   RED,
 } from "../utils/colors";
+import { uncheckedFlatten } from "./flatten";
+import { uncheckedGroupBy } from "./groupBy";
 
 const COMPARE_STATUS_COLUMN_BASE = "Compare Status";
 const COMPARE_VALUE_COLUMN_BASE = "Difference";
-
-const DECISION_1_COLUMN_BASE = "Category 1";
-const DECISION_2_COLUMN_BASE = "Category 2";
-
-export type CompareType = "numeric" | "categorical" | "structural";
-function isCompareType(s: unknown): s is CompareType {
-  return s === "numeric" || s === "categorical" || s === "structural";
-}
 
 /**
  * Compares two contexts in a variety of ways
  */
 export async function compare({
   context1: inputDataContext1,
-  context2: inputDataContext2,
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
   dropdown1: kind,
 }: DDTransformerState): Promise<TransformationOutput> {
-  if (
-    !inputDataContext1 ||
-    !inputDataContext2 ||
-    !inputAttribute1 ||
-    !inputAttribute2
-  ) {
-    throw new Error("Please choose two datasets and two attributes");
+  if (!inputDataContext1) {
+    throw new Error("Please select a data context");
   }
-  if (!isCompareType(kind)) {
-    throw new Error("Please select a valid compare type");
+  if (!(inputAttribute1 && inputAttribute2)) {
+    throw new Error("Please select two attributes");
+  }
+  if (!(kind === "categorical" || kind === "numeric")) {
+    throw new Error("Please select a valid comparison type");
   }
 
-  const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
-    inputDataContext1
-  );
-  const { context: context2, dataset: dataset2 } = await getContextAndDataSet(
-    inputDataContext2
-  );
+  const { context, dataset } = await getContextAndDataSet(inputDataContext1);
 
-  const ctxtName1 = readableName(context1);
-  const ctxtName2 = readableName(context2);
-
-  return [
-    await uncheckedCompare(
-      dataset1,
-      dataset2,
-      inputAttribute1,
-      inputAttribute2,
-      kind
-    ),
-    `Compare of ${ctxtName1} and ${ctxtName2}`,
-    `A ${kind} comparison of the attributes ${inputAttribute1} (from ` +
-      `${ctxtName1}) and ${inputAttribute2} (from ${ctxtName2})`,
-  ];
-}
-
-function uncheckedCompare(
-  dataset1: DataSet,
-  dataset2: DataSet,
-  attributeName1: string,
-  attributeName2: string,
-  kind: CompareType
-): DataSet {
-  const attributeData1 = getAttributeDataFromDataset(attributeName1, dataset1);
-  const attributeData2 = getAttributeDataFromDataset(attributeName2, dataset2);
+  const contextName = readableName(context);
 
   if (kind === "categorical") {
-    return compareCategorical(
-      dataset1,
-      dataset2,
-      attributeData1,
-      attributeData2
-    );
+    return [
+      await uncheckedCategoricalCompare(
+        dataset,
+        inputAttribute1,
+        inputAttribute2
+      ),
+      `Compare(${contextName}, ...)`,
+      `A categorical comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
+    ];
+  } else {
+    return [
+      await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
+      `Compare(${contextName}, ...)`,
+      `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
+    ];
+  }
+}
+
+function uncheckedNumericCompare(
+  dataset: DataSet,
+  attributeName1: string,
+  attributeName2: string
+): DataSet {
+  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
+  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
+
+  const collections = dataset.collections.map(cloneCollection);
+
+  // Find the index of the collections that contain the attributes
+  const attribute1CollectionIndex = collections.findIndex(
+    (collection) =>
+      collection.attrs?.find((attr) => attr.name === attribute1Data.name) !==
+      undefined
+  );
+  const attribute2CollectionIndex = collections.findIndex(
+    (collection) =>
+      collection.attrs?.find((attr) => attr.name === attribute2Data.name) !==
+      undefined
+  );
+
+  // Make sure both attributes were found
+  if (attribute1CollectionIndex === -1) {
+    throw new Error("First attribute not found in dataset");
+  }
+  if (attribute2CollectionIndex === -1) {
+    throw new Error("Second attribute not found in dataset");
   }
 
-  // Make sure that the two attributes shown in comparison don't have the same name
-  const safeAttributeName2 = uniqueName(attributeName2, [attributeName1]);
-  const attributeNames = [attributeName1, safeAttributeName2];
+  // Between the two collections that the attributes are in, we want to pick the rightmost one.
+  const toAdd =
+    collections[Math.max(attribute1CollectionIndex, attribute2CollectionIndex)];
 
   // Ensure generated comparison attributes don't collide with attributes being compared
-  const compareValueColumnName = uniqueName(
-    COMPARE_VALUE_COLUMN_BASE,
-    attributeNames
-  );
   const compareStatusColumnName = uniqueName(
     COMPARE_STATUS_COLUMN_BASE,
-    attributeNames
+    allAttrNames(dataset)
+  );
+  const compareValueColumnName = uniqueName(
+    COMPARE_VALUE_COLUMN_BASE,
+    allAttrNames(dataset)
   );
 
-  const collections: Collection[] = [
-    {
-      name: `Comparison of ${attributeName1} and ${attributeName2}`,
-      // copy attributes to compare
-      // NOTE: do not copy formulas: formulas may be separated from their
-      // dependencies and would be invalid.
-      attrs: [
-        { ...attributeData1, formula: undefined },
-        { ...attributeData2, name: safeAttributeName2, formula: undefined },
-      ],
-    },
-  ];
-  // Only add this attribute if this is a numeric diff
-  if (kind === "numeric") {
-    collections[0].attrs?.push({
-      name: compareValueColumnName,
-      description: "",
-      editable: true,
-      hidden: false,
-      type: "numeric",
-    });
+  if (!toAdd.attrs) {
+    toAdd.attrs = [];
   }
-  collections[0].attrs?.push({
+
+  toAdd.attrs.push({
+    name: compareValueColumnName,
+    description: "",
+    editable: true,
+    hidden: false,
+    type: "numeric",
+  });
+  toAdd.attrs.push({
     name: compareStatusColumnName,
     description: "",
     editable: true,
@@ -140,208 +127,10 @@ function uncheckedCompare(
     type: "categorical",
   });
 
-  const values1 = dataset1.records.map((record) => record[attributeName1]);
-  const values2 = dataset2.records.map((record) => record[attributeName2]);
+  const values1 = dataset.records.map((record) => record[attribute1Data.name]);
+  const values2 = dataset.records.map((record) => record[attribute2Data.name]);
 
-  const records =
-    kind === "structural"
-      ? compareRecordsStructural(
-          attributeName1,
-          safeAttributeName2,
-          values1,
-          values2,
-          compareStatusColumnName
-        )
-      : compareRecordsNumerical(
-          attributeName1,
-          safeAttributeName2,
-          values1,
-          values2,
-          compareValueColumnName,
-          compareStatusColumnName
-        );
-
-  return {
-    collections,
-    records,
-  };
-}
-
-function compareRecordsStructural(
-  attributeName1: string,
-  attributeName2: string,
-  values1: unknown[],
-  values2: unknown[],
-  compareStatusColumnName: string
-): Record<string, unknown>[] {
-  const changeObjects = diffArrays(values1, values2);
-
-  const records = [];
-  for (let i = 0; i < changeObjects.length; i++) {
-    const change = changeObjects[i];
-    if (!change.count) {
-      throw new Error("Change object had unknown count");
-    }
-    for (let j = 0; j < change.count; j++) {
-      if (change.removed) {
-        records.push({
-          [attributeName1]: change.value[j],
-          [attributeName2]: "",
-          [compareStatusColumnName]: colorToRgbString(RED),
-        });
-      } else if (change.added) {
-        records.push({
-          [attributeName1]: "",
-          [attributeName2]: change.value[j],
-          [compareStatusColumnName]: colorToRgbString(GREEN),
-        });
-      } else {
-        records.push({
-          [attributeName1]: change.value[j],
-          [attributeName2]: change.value[j],
-          [compareStatusColumnName]: colorToRgbString(GREY),
-        });
-      }
-    }
-  }
-
-  return records;
-}
-
-function compareCategorical(
-  dataset1: DataSet,
-  dataset2: DataSet,
-  attribute1Data: CodapAttribute,
-  attribute2Data: CodapAttribute
-): DataSet {
-  dataset1 = uncheckedFlatten(dataset1);
-  dataset2 = uncheckedFlatten(dataset2);
-
-  const attributes1 = dataset1.collections[0].attrs;
-  if (attributes1 === undefined) {
-    throw new Error("First dataset doesn't have any collections");
-  }
-  const attributes2 = dataset2.collections[0].attrs;
-  if (attributes2 === undefined) {
-    throw new Error("Second dataset doesn't have any collections");
-  }
-
-  const attributesUnion = unionWithPredicate(
-    attributes1,
-    attributes2,
-    (attr1, attr2) => attr1.name === attr2.name
-  );
-  const attributesIntersection = intersectionWithPredicate(
-    attributes1,
-    attributes2,
-    (attr1, attr2) => attr1.name === attr2.name
-  ).filter(
-    (attr) =>
-      attr.name !== attribute1Data.name && attr.name !== attribute2Data.name
-  );
-  eraseFormulas(attributesUnion);
-  eraseFormulas(attributesIntersection);
-
-  const allAttributes = allAttrNames(dataset1).concat(allAttrNames(dataset2));
-
-  const decision1ColumnName = uniqueName(DECISION_1_COLUMN_BASE, allAttributes);
-  const decision2ColumnName = uniqueName(DECISION_2_COLUMN_BASE, allAttributes);
-
-  const collections: Collection[] = [
-    {
-      name: "Decisions",
-      attrs: [
-        {
-          name: decision1ColumnName,
-        },
-        {
-          name: decision2ColumnName,
-        },
-      ],
-    },
-    {
-      name: "Values",
-      parent: "Decisions",
-      attrs: attributesIntersection,
-    },
-  ];
-
-  const records = [];
-
-  // Loop through all records in the first data context
-  for (const record1 of dataset1.records) {
-    // We consider a record a duplicate between the two contexts if
-    // it has equal values for all attributes which the two contexts share
-    const duplicate = dataset2.records.find((record2) =>
-      objectsAreEqualForKeys(
-        record1,
-        record2,
-        attributesIntersection.map((attr) => attr.name)
-      )
-    );
-
-    if (duplicate === undefined) {
-      // If we didn't find a duplicate then just push the record
-      records.push({
-        ...record1,
-        [decision1ColumnName]: record1[attribute1Data.name],
-      });
-    } else {
-      // If we did find a duplicate then merge the records, set the decision
-      // attribute values, and push
-      records.push({
-        ...record1,
-        ...duplicate,
-        [decision1ColumnName]: record1[attribute1Data.name],
-        [decision2ColumnName]: duplicate[attribute2Data.name],
-      });
-    }
-  }
-
-  // Same logic as above loop
-  for (const record2 of dataset2.records) {
-    const duplicate = dataset1.records.find((record1) =>
-      objectsAreEqualForKeys(
-        record1,
-        record2,
-        attributesIntersection.map((attr) => attr.name)
-      )
-    );
-    if (duplicate !== undefined) {
-      // Skip this record since we already added it in the first loop
-    } else {
-      records.push({
-        ...record2,
-        [decision2ColumnName]: record2[attribute2Data.name],
-      });
-    }
-  }
-
-  return {
-    collections,
-    records,
-  };
-}
-
-function objectsAreEqualForKeys(
-  object1: Record<string, unknown>,
-  object2: Record<string, unknown>,
-  keys: string[]
-): boolean {
-  return keys.every(
-    (key) => JSON.stringify(object1[key]) === JSON.stringify(object2[key])
-  );
-}
-
-function compareRecordsNumerical(
-  attributeName1: string,
-  attributeName2: string,
-  values1: unknown[],
-  values2: unknown[],
-  compareValueColumnName: string,
-  compareStatusColumnName: string
-): Record<string, unknown>[] {
-  const records = [];
+  const records = dataset.records;
 
   // Start by looping through all records and finding those that
   // can be numerically compared successfully
@@ -350,16 +139,26 @@ function compareRecordsNumerical(
     const v1 = values1[i];
     const v2 = values2[i];
 
-    // If either is null/undefined, skip and continue
-    if (v1 === null || v2 === null || v1 === undefined || v2 === undefined) {
-      continue;
+    const parsed1: number = parseFloat(`${v1}`);
+    const parsed2: number = parseFloat(`${v2}`);
+
+    // If either is not a number (and also not empty string), throw an error
+    if (isNaN(parsed1) && v1 !== "") {
+      throw new Error(`Expected number, instead got ${codapValueToString(v1)}`);
+    }
+    if (isNaN(parsed2) && v2 !== "") {
+      throw new Error(`Expected number, instead got ${codapValueToString(v2)}`);
     }
 
-    const parsed1: number = parseFloat(`${values1[i]}`);
-    const parsed2: number = parseFloat(`${values2[i]}`);
-
-    // If either is not a number, skip and continue
-    if (isNaN(parsed1) || isNaN(parsed2)) {
+    // If either is null/undefined/empty string, skip and continue
+    if (
+      v1 === null ||
+      v2 === null ||
+      v1 === undefined ||
+      v2 === undefined ||
+      v1 === "" ||
+      v2 === ""
+    ) {
       continue;
     }
 
@@ -394,21 +193,39 @@ function compareRecordsNumerical(
       } else {
         color = colorToRgbString(GREY);
       }
-      records.push({
-        [attributeName1]: v1,
-        [attributeName2]: v2,
-        [compareValueColumnName]: difference,
-        [compareStatusColumnName]: color,
-      });
+      records[i][compareValueColumnName] = difference;
+      records[i][compareStatusColumnName] = color;
     } else {
-      records.push({
-        [attributeName1]: values1[i],
-        [attributeName2]: values2[i],
-        [compareValueColumnName]: "",
-        [compareStatusColumnName]: "",
-      });
+      records[i][compareValueColumnName] = "";
+      records[i][compareStatusColumnName] = "";
     }
   }
 
-  return records;
+  return { records, collections };
+}
+
+function uncheckedCategoricalCompare(
+  dataset: DataSet,
+  attributeName1: string,
+  attributeName2: string
+): DataSet {
+  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
+  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
+
+  dataset = uncheckedFlatten(dataset);
+  const out = uncheckedGroupBy(
+    dataset,
+    [
+      {
+        attrName: attribute1Data.name,
+        groupedName: `${attribute1Data.name} Category`,
+      },
+      {
+        attrName: attribute2Data.name,
+        groupedName: `${attribute2Data.name} Category`,
+      },
+    ],
+    "Comparison"
+  );
+  return out;
 }

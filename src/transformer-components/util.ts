@@ -25,15 +25,13 @@ export async function applyNewDataSet(
 }
 
 /**
- * Returns the context's title, if any, or falls back to its name. Also
- * adds parentheses around the name if it determines the name
- * is not a single word.
+ * Returns the context's title, if any, or falls back to its name.
  *
  * @param context the data context to produce a readable name for
  * @returns readable name of the context
  */
 export function readableName(context: DataContext): string {
-  return parenthesizeName(context.title ? context.title : context.name);
+  return context.title ? context.title : context.name;
 }
 
 /**

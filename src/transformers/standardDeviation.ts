@@ -26,7 +26,7 @@ export async function standardDeviation({
 
   return [
     uncheckedStandardDeviation(dataset, attribute),
-    `Standard Deviation of ${attribute} in ${ctxtName}`,
+    `StandardDeviation(${ctxtName}, ${attribute})`,
     `The standard deviation of the ${attribute} attribute in the ${ctxtName} dataset.`,
   ];
 }

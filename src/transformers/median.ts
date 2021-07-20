@@ -24,7 +24,7 @@ export async function median({
 
   return [
     uncheckedMedian(dataset, attribute),
-    `Median of ${attribute} in ${ctxtName}`,
+    `Median(${ctxtName}, ${attribute})`,
     `The median value of the ${attribute} attribute in the ${ctxtName} dataset.`,
   ];
 }

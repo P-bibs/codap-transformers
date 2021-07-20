@@ -52,13 +52,13 @@ export async function compare({
         inputAttribute1,
         inputAttribute2
       ),
-      `Compare of ${contextName}`,
+      `Compare(${contextName}, ...)`,
       `A categorical comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
     ];
   } else {
     return [
       await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
-      `Compare of ${contextName}`,
+      `Compare(${contextName}, ...)`,
       `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
     ];
   }

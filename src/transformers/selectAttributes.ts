@@ -32,7 +32,7 @@ export async function selectAttributes({
 
   return [
     await uncheckedSelectAttributes(dataset, attributes, allBut),
-    `Select Attributes of ${ctxtName}`,
+    `SelectAttributes(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with ${
       allBut ? "all but" : "only"
     } the ${pluralSuffix("attribute", attributes)} ${attributeNames} included.`,

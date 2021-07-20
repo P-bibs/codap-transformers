@@ -678,11 +678,12 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: mode },
       info: {
         summary:
-          "Finds the mode value of a given numeric attribute in the given \
-          dataset. This is the value which occurs most often under the given attribute.",
-        consumes: "A dataset and an attribute within it to find the mode of.",
+          "Finds the mode value(s) of a given numeric attribute in the given \
+          dataset. These are the values which occur most often under the given attribute.",
+        consumes:
+          "A dataset and an attribute within it to find the mode(s) of.",
         produces:
-          "A single number which is the mode value of the given attribute.",
+          "A list of numbers which are the most frequently occuring in the given attribute.",
       },
     },
   },

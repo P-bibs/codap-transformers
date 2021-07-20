@@ -19,7 +19,7 @@ export async function copyStructure({
 
   return [
     await uncheckedCopyStructure(dataset),
-    `Structure Copy of ${ctxtName}`,
+    `CopyStructure(${ctxtName})`,
     `A copy of the collections and attributes of the ${ctxtName} dataset, but with no cases.`,
   ];
 }

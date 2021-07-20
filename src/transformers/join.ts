@@ -45,7 +45,7 @@ export async function join({
 
   return [
     await uncheckedJoin(dataset1, inputAttribute1, dataset2, inputAttribute2),
-    `Join of ${ctxtName1} and ${ctxtName2}`,
+    `Join(${ctxtName1}, ${ctxtName2}, ...)`,
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
       `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
       `containing ${inputAttribute1} in ${ctxtName1}.`,

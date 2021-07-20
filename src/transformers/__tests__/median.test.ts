@@ -7,8 +7,6 @@ import {
   EMPTY_DATASET,
   EMPTY_RECORDS,
   FULLY_FEATURED_DATASET,
-  makeCollection,
-  makeRecords,
   TYPES_DATASET,
 } from "./data";
 

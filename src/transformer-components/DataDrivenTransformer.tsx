@@ -43,6 +43,7 @@ import {
   SafeActiveTransformationsDispatch,
   ActionTypes as ActiveTransformationActionTypes,
 } from "../utils/transformationDescription";
+import { displaySingleValue } from "../transformers/util";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -328,7 +329,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       // Determine whether the transformerFunction returns a textbox or a table
       if (typeof result === "number" || Array.isArray(result)) {
         // This is the case where the transformer returns a single value
-        const textName = await createText(name, String(result));
+        const textName = await createText(name, displaySingleValue(result));
 
         activeTransformationsDispatch({
           type: ActiveTransformationActionTypes.ADD,

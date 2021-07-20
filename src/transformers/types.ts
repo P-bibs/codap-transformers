@@ -32,7 +32,7 @@ export type Boundary = {
 /**
  * SingeValue represents the output of a single-value transformer (e.g. median).
  */
-type SingleValue = number | number[];
+export type SingleValue = number | number[];
 
 /**
  * The format for output for most transformations contains three parts:

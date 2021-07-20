@@ -26,6 +26,7 @@ import {
 } from "./codapPhone/listeners";
 import { InteractiveState } from "./codapPhone/types";
 import { PartitionSaveState } from "../transformers/partition";
+import { displaySingleValue } from "../transformers/util";
 
 /**
  * useActiveTransformations
@@ -234,7 +235,7 @@ async function updateTextFromDatasetCreator(
   ) => Promise<SingleValueTransformationOutput>
 ): Promise<void> {
   const [result] = await transformFunc(state);
-  await updateText(outputName, String(result));
+  await updateText(outputName, displaySingleValue(result));
 }
 
 async function updateFromFullOverride(

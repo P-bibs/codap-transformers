@@ -1,7 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { Boundary, CodapLanguageType, DataSet } from "./types";
+import { Boundary, CodapLanguageType, DataSet, SingleValue } from "./types";
 import { prettyPrintCase } from "../utils/prettyPrint";
 
 /**
@@ -507,4 +507,20 @@ export function extractAttributeAsNumeric(
   }
 
   return numericValues;
+}
+
+/**
+ * Converts a SingleValue (the output of a single-value transformer)
+ * into a string.
+ *
+ * @param value The value to convert to a string.
+ */
+export function displaySingleValue(value: SingleValue): string {
+  if (typeof value === "number") {
+    // value is a single number
+    return String(value);
+  } else {
+    // value is a list of numbers
+    return `[${value.join(", ")}]`;
+  }
 }

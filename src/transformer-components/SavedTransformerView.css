@@ -1,4 +1,10 @@
 
+/* Button that toggles editing of a saved transformer. */
+#edit-button {
+    margin-top: 5px;
+}
+
+/* Message indicating you are editing a saved transformer. */
 .editing-indicator {
     margin-bottom: 10px;
     background-color: #ffffe6;

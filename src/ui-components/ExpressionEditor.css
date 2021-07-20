@@ -1,5 +1,6 @@
 .CodeMirror {
-  height: 100px;
+  height: 55px;
+  max-width: 260px;
   border: 1px solid var(--blue-green);
   border-radius: 3px;
 }
@@ -10,11 +11,11 @@
 }
 
 .cm-variable {
-    color: magenta;
+  color: magenta;
 }
 
 .cm-function {
-    color: blue;
+  color: blue;
 }
 
 /* slightly gray out editor when disabled */

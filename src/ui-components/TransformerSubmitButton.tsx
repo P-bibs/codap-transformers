@@ -1,15 +1,15 @@
 import React, { ReactElement } from "react";
-import "./TransformerSubmitButtons.css";
+import "./TransformerSubmitButton.css";
 
-interface TransformerSubmitButtonsProps {
+interface TransformerSubmitButtonProps {
   onCreate: () => void;
   label?: string;
 }
 
-export default function TransformerSubmitButtons({
+export default function TransformerSubmitButton({
   onCreate,
   label = "Apply Transformer",
-}: TransformerSubmitButtonsProps): ReactElement {
+}: TransformerSubmitButtonProps): ReactElement {
   return (
     <>
       <button id="applyTransformer" onClick={onCreate}>

@@ -46,7 +46,7 @@ export async function pivotLonger({
 
   return [
     await uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
-    `Pivot Longer of ${ctxtName}`,
+    `PivotLonger(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the ${pluralSuffix(
       "attribute",
       attributes
@@ -170,7 +170,7 @@ export async function pivotWider({
   const ctxtName = readableName(context);
   return [
     await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
-    `Pivot Wider of ${ctxtName}`,
+    `PivotWider(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
       `into new attributes, which get their values from the attribute ${valuesFrom}.`,
   ];

@@ -33,7 +33,7 @@ export async function sumProduct({
 
   return [
     await uncheckedSumProduct(dataset, attributes),
-    `Sum Product of ${ctxtName}`,
+    `SumProduct(${ctxtName}, [${attributes.join(", ")}])`,
     `The sum across all cases in ${ctxtName} of the product ` +
       `of the ${pluralSuffix("attribute", attributes)} ${attributeNames}.`,
   ];

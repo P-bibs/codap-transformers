@@ -53,7 +53,7 @@ export async function groupBy({
 
   return [
     await uncheckedGroupBy(dataset, attrNames, parentName),
-    `Group By of ${ctxtName}`,
+    `GroupBy(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new parent collection added ` +
       `which contains a copy of the ${pluralSuffix(
         "attribute",

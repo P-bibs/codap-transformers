@@ -24,7 +24,7 @@ export async function mean({
 
   return [
     uncheckedMean(dataset, attribute),
-    `Mean of ${attribute} in ${ctxtName}`,
+    `Mean(${ctxtName}, ${attribute})`,
     `The mean value of the ${attribute} attribute in the ${ctxtName} dataset.`,
   ];
 }

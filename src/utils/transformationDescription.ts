@@ -7,11 +7,13 @@ import {
   DDTransformerState,
   FullOverrideFunction,
 } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 import {
   DataSetTransformationOutput,
   NumberTransformationOutput,
 } from "../transformers/types";
 import {
+  getDataContext,
   updateContextWithDataSet,
   updateText,
   notifyInteractiveFrameIsDirty,
@@ -83,10 +85,11 @@ export function useActiveTransformations(
             transformerList[description.transformer].componentData
               .transformerFunction.kind === "datasetCreator"
           ) {
+            const context = await getDataContext(
+              (description as DatasetCreatorDescription).output
+            );
             setErrMsg(
-              `Error updating "${
-                (description as DatasetCreatorDescription).output
-              }": ${e.message}`
+              `Error updating "${readableName(context)}": ${e.message}`
             );
           } else {
             setErrMsg(e.message);

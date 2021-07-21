@@ -193,7 +193,7 @@ export function pluralSuffix<T>(word: string, describing: T[]): string {
  */
 export function codapValueToString(codapValue: unknown): string {
   // missing values
-  if (codapValue === "") {
+  if (isMissing(codapValue)) {
     return "a missing value";
   }
 
@@ -278,6 +278,17 @@ export function isColor(value: unknown): boolean {
     /rgb\(\d{1,3},\d{1,3},\d{1,3}\)/.test(noWhitespace) ||
     /rgba\(\d{1,3},\d{1,3},\d{1,3},(0|1)?\.\d*\)/.test(noWhitespace)
   );
+}
+
+/**
+ * Determines if the value represents a missing value in CODAP. These can
+ * manifest as either empty string "" or undefined.
+ *
+ * @param value The value to check for missing-ness
+ * @returns Whether or not the value is a missing value
+ */
+export function isMissing(value: unknown): boolean {
+  return value === "" || value === undefined;
 }
 
 export function reportTypeErrorsForRecords(
@@ -479,8 +490,9 @@ export const cloneAttribute = shallowCopy;
 
 /**
  * Extracts a list of numbers from an attribute in a dataset that is expected
- * to contain numeric values. Errors if the attribute is undefined for some
- * records, or if the attribute's values parse to non-numeric.
+ * to contain numeric values. Errors if the attribute's values parse to
+ * non-numeric. NOTE: This does not validate the given attribute--if the
+ * attribute isn't defined for any cases, this will return an empty list.
  *
  * @param dataset The dataset to extract from.
  * @param attribute The attribute containing numeric values.
@@ -493,11 +505,8 @@ export function extractAttributeAsNumeric(
   const numericValues = [];
 
   for (const record of dataset.records) {
-    if (record[attribute] === undefined) {
-      throw new Error(`Invalid attribute name: ${attribute}`);
-    }
     // Ignore missing values
-    if (record[attribute] === "") {
+    if (isMissing(record[attribute])) {
       continue;
     }
     const value = parseFloat(String(record[attribute]));
@@ -510,6 +519,31 @@ export function extractAttributeAsNumeric(
   }
 
   return numericValues;
+}
+
+/**
+ * Verifies that a given attribute (by name) exists in the given dataset. If
+ * the attribute is found, returns the collection it is in and the attribute
+ * data. Otherwise, throws an error.
+ *
+ * @param collections Collections within which to search for attribute.
+ * @param attributeName The name of the attribute to look for.
+ * @param errorMsg A custom error message, to override the default.
+ */
+export function validateAttribute(
+  collections: Collection[],
+  attributeName: string,
+  errorMsg?: string
+): [Collection, CodapAttribute] {
+  for (const coll of collections) {
+    const attr = coll.attrs?.find((attr) => attr.name === attributeName);
+
+    if (attr) {
+      return [coll, attr];
+    }
+  }
+
+  throw new Error(errorMsg || `Invalid attribute name: ${attributeName}`);
 }
 
 /**

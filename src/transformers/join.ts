@@ -1,4 +1,3 @@
-import { Collection } from "../utils/codapPhone/types";
 import { DataSet, TransformationOutput } from "./types";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
@@ -10,6 +9,7 @@ import {
   cloneAttribute,
   allAttrNames,
   eraseFormulas,
+  validateAttribute,
 } from "./util";
 
 /**
@@ -70,25 +70,21 @@ export function uncheckedJoin(
   joiningAttr: string
 ): DataSet {
   // find collection containing joining attribute in joining dataset
-  const joiningCollection = findCollectionWithAttr(
+  const [joiningCollection] = validateAttribute(
     joiningDataset.collections,
-    joiningAttr
+    joiningAttr,
+    `Invalid joining attribute: ${joiningAttr}`
   );
-  if (
-    joiningCollection === undefined ||
-    joiningCollection.attrs === undefined
-  ) {
-    throw new Error(`Invalid joining attribute: ${joiningAttr}`);
-  }
 
-  const addedAttrs = joiningCollection.attrs.map(cloneAttribute);
+  const addedAttrs = joiningCollection.attrs?.map(cloneAttribute) || [];
   const addedAttrOriginalNames = addedAttrs.map((attr) => attr.name);
 
   const collections = baseDataset.collections.map(cloneCollection);
-  const baseCollection = findCollectionWithAttr(collections, baseAttr);
-  if (baseCollection === undefined || baseCollection.attrs === undefined) {
-    throw new Error(`Invalid base attribute: ${baseAttr}`);
-  }
+  const [baseCollection] = validateAttribute(
+    collections,
+    baseAttr,
+    `Invalid base attribute: ${baseAttr}`
+  );
 
   // list of attributes whose names cannot be duplicated by the added attrs
   const namesToAvoid = allAttrNames(baseDataset);
@@ -109,7 +105,7 @@ export function uncheckedJoin(
   eraseFormulas(addedAttrs);
 
   // add the attrs from the joining collection into the collection being joined into
-  baseCollection.attrs = baseCollection.attrs.concat(addedAttrs);
+  baseCollection.attrs = (baseCollection.attrs || []).concat(addedAttrs);
 
   // start with a copy of the base dataset's records
   const records = baseDataset.records.map(shallowCopy);
@@ -135,17 +131,4 @@ export function uncheckedJoin(
     collections,
     records,
   };
-}
-
-/**
- * Finds a collection which contains an attribute of the given name,
- * or undefined if no such collection exists.
- */
-function findCollectionWithAttr(
-  collections: Collection[],
-  attribute: string
-): Collection | undefined {
-  return collections.find((coll) =>
-    coll.attrs?.find((attr) => attr.name === attribute)
-  );
 }

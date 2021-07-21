@@ -2,7 +2,7 @@ import { DDTransformerState } from "../transformer-components/DataDrivenTransfor
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { extractAttributeAsNumeric } from "./util";
+import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
  * Finds the standard deviation of a given attribute's values.
@@ -51,6 +51,8 @@ export function uncheckedStandardDeviation(
   dataset: DataSet,
   attribute: string
 ): number {
+  validateAttribute(dataset.collections, attribute);
+
   // Extract numeric values from the indicated attribute
   const values = extractAttributeAsNumeric(dataset, attribute);
 

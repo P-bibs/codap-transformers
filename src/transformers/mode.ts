@@ -2,7 +2,7 @@ import { DDTransformerState } from "../transformer-components/DataDrivenTransfor
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { extractAttributeAsNumeric } from "./util";
+import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
  * Finds the mode of a given attribute's values.
@@ -36,6 +36,8 @@ export async function mode({
  * @param attribute - The column to find the mode of.
  */
 export function uncheckedMode(dataset: DataSet, attribute: string): number[] {
+  validateAttribute(dataset.collections, attribute);
+
   // Extract numeric values from the indicated attribute
   const values = extractAttributeAsNumeric(dataset, attribute);
 

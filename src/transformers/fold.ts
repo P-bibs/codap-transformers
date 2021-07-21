@@ -4,6 +4,7 @@ import {
   insertInRow,
   codapValueToString,
   allAttrNames,
+  validateAttribute,
 } from "./util";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { uniqueName } from "../utils/names";
@@ -78,14 +79,12 @@ function makeNumFold<T>(
     resultColumnName: string,
     resultColumnDescription: string
   ): DataSet => {
+    validateAttribute(dataset.collections, inputColumnName);
+
     resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
     let acc = base;
 
     const resultRecords = dataset.records.map((row) => {
-      if (row[inputColumnName] === undefined) {
-        throw new Error(`Invalid attribute name: ${inputColumnName}`);
-      }
-
       const numValue = Number(row[inputColumnName]);
       if (!isNaN(numValue)) {
         const [newAcc, result] = f(acc, numValue);
@@ -336,6 +335,8 @@ function uncheckedDifferenceFrom(
   resultColumnName: string,
   startingValue = 0
 ): DataSet {
+  validateAttribute(dataset.collections, inputColumnName);
+
   // Construct a fold that computes the difference of each case with
   // the case above, but uses the given startingValue to begin
   const differenceFromFold = makeNumFold<{ numAbove: number | null }>(

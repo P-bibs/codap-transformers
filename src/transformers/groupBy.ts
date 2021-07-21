@@ -11,6 +11,7 @@ import {
   pluralSuffix,
   allCollectionNames,
   allAttrNames,
+  validateAttribute,
 } from "./util";
 import { uniqueName } from "../utils/names";
 
@@ -78,6 +79,10 @@ export function uncheckedGroupBy(
   attrNames: { attrName: string; groupedName: string }[],
   newParentName: string
 ): DataSet {
+  for (const { attrName } of attrNames) {
+    validateAttribute(dataset.collections, attrName);
+  }
+
   const groupedAttrs: CodapAttribute[] = [];
   let collections = dataset.collections.map(cloneCollection);
   const allAttributes = allAttrNames(dataset);

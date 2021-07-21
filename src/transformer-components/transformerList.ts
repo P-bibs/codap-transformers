@@ -724,7 +724,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: standardDeviation },
       info: {
         summary:
-          "Finds the standard deviation of a given numeric attribute in the given \
+          "Finds the population standard deviation of a given numeric attribute in the given \
           dataset.",
         consumes:
           "A dataset and an attribute within it to find the standard deviation of.",

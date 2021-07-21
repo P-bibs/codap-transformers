@@ -52,6 +52,7 @@ import {
   fillCollectionWithDefaults,
   collectionsEqual,
   normalizeDataContext,
+  parseEvalError,
 } from "./util";
 import { DataSet } from "../../transformers/types";
 import { CodapEvalError } from "./error";
@@ -937,7 +938,9 @@ export function evalExpression(
           resolve(response.values);
         } else {
           // In this case, values is an error message
-          reject(new CodapEvalError(expr, response.values.error));
+          reject(
+            new CodapEvalError(expr, parseEvalError(response.values.error))
+          );
         }
       }
     )

@@ -63,6 +63,7 @@ export default function TransformerSaveUI({
     // clear save inputs after successful save
     setCurrentName("");
     setDescription("");
+    setSaveUIShown(false);
   }
 
   // Load saved state from CODAP memory

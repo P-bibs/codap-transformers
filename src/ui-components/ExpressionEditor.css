@@ -1,6 +1,7 @@
 .CodeMirror {
-  height: 55px;
-  max-width: 260px;
+  height: -moz-fit-content !important;
+  height: fit-content !important;
+  max-width: 300px;
   border: 1px solid var(--blue-green);
   border-radius: 3px;
 }

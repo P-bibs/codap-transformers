@@ -40,9 +40,7 @@ function makeFoldWrapper(
 
     const { context, dataset } = await getContextAndDataSet(contextName);
     const resultAttributeName = uniqueName(
-      `${label} of ${parenthesizeName(inputAttributeName)} from ${readableName(
-        context
-      )}`,
+      `${label} of ${parenthesizeName(inputAttributeName)}`,
       allAttrNames(dataset)
     );
 
@@ -320,6 +318,7 @@ export async function differenceFrom({
       dataset,
       inputAttributeName,
       resultAttributeName,
+      `The difference of each case with the case above it (from the ${inputAttributeName} attribute in the ${ctxtName} dataset). ${startingValue} is subtracted from the first case.`,
       Number(startingValue)
     ),
     `DifferenceFrom(${ctxtName}, ...)`,
@@ -333,6 +332,7 @@ function uncheckedDifferenceFrom(
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,
+  resultColumnDescription: string,
   startingValue = 0
 ): DataSet {
   validateAttribute(dataset.collections, inputColumnName);
@@ -351,5 +351,10 @@ function uncheckedDifferenceFrom(
     }
   );
 
-  return differenceFromFold(dataset, inputColumnName, resultColumnName, "");
+  return differenceFromFold(
+    dataset,
+    inputColumnName,
+    resultColumnName,
+    resultColumnDescription
+  );
 }

@@ -28,3 +28,8 @@
 .editor-disabled .CodeMirror-cursor { 
   display: none !important;
 }
+
+.CodeMirror pre.CodeMirror-placeholder {
+  color: #808080;
+  font-family: Montserrat;
+}

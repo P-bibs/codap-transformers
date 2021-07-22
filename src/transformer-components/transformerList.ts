@@ -52,8 +52,8 @@ export type TransformerGroup =
   | "Combining Transformers"
   | "Summarizing Transformers"
   | "Running Aggregators"
-  | "Copy Transformers"
   | "Aggregators"
+  | "Copy Transformers"
   | "Others";
 
 /**
@@ -579,67 +579,6 @@ const transformerList: TransformerList = {
       },
     },
   },
-  Copy: {
-    group: "Copy Transformers",
-    componentData: {
-      init: {
-        context1: {
-          title: "Dataset to Copy",
-        },
-      },
-      transformerFunction: { kind: "datasetCreator", func: copy },
-      info: {
-        summary:
-          "Produces a copy of the given dataset, \
-        copying all of its collections, attributes, and cases.",
-        consumes: "A dataset to create a copy of.",
-        produces: "A copy of the input dataset.",
-      },
-    },
-  },
-  "Copy Structure": {
-    group: "Copy Transformers",
-    componentData: {
-      init: {
-        context1: {
-          title: "Dataset to Copy",
-        },
-      },
-      transformerFunction: { kind: "datasetCreator", func: copyStructure },
-      info: {
-        summary:
-          "Produces a duplicate of the structure of the \
-        given dataset, but without copying any of the cases. The output has the \
-        same collections and attributes as the input, but is empty.",
-        consumes: "A dataset to copy the structure of.",
-        produces:
-          "A dataset with the same collection and attribute structure as \
-        the input, but no cases.",
-      },
-    },
-  },
-  "Editable Copy": {
-    group: "Copy Transformers",
-    componentData: {
-      init: {
-        context1: {
-          title: "Dataset to Clone",
-        },
-      },
-      transformerFunction: {
-        kind: "fullOverride",
-        createFunc: editableCopyOverride,
-        updateFunc: async () => ({}),
-      },
-      info: {
-        summary:
-          "Produces an editable copy of the given dataset \
-        that does not update when the original dataset is changed.",
-        consumes: "A dataset to copy.",
-        produces: "An editable copy of the input dataset.",
-      },
-    },
-  },
   Mean: {
     group: "Aggregators",
     componentData: {
@@ -756,6 +695,67 @@ const transformerList: TransformerList = {
         produces:
           "A single number which is the sum of products of the values \
         from the indicated attributes in the input dataset.",
+      },
+    },
+  },
+  Copy: {
+    group: "Copy Transformers",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Copy",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: copy },
+      info: {
+        summary:
+          "Produces a copy of the given dataset, \
+        copying all of its collections, attributes, and cases.",
+        consumes: "A dataset to create a copy of.",
+        produces: "A copy of the input dataset.",
+      },
+    },
+  },
+  "Copy Structure": {
+    group: "Copy Transformers",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Copy",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: copyStructure },
+      info: {
+        summary:
+          "Produces a duplicate of the structure of the \
+        given dataset, but without copying any of the cases. The output has the \
+        same collections and attributes as the input, but is empty.",
+        consumes: "A dataset to copy the structure of.",
+        produces:
+          "A dataset with the same collection and attribute structure as \
+        the input, but no cases.",
+      },
+    },
+  },
+  "Editable Copy": {
+    group: "Copy Transformers",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Clone",
+        },
+      },
+      transformerFunction: {
+        kind: "fullOverride",
+        createFunc: editableCopyOverride,
+        updateFunc: async () => ({}),
+      },
+      info: {
+        summary:
+          "Produces an editable copy of the given dataset \
+        that does not update when the original dataset is changed.",
+        consumes: "A dataset to copy.",
+        produces: "An editable copy of the input dataset.",
       },
     },
   },

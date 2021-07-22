@@ -106,12 +106,23 @@ export function useActiveTransformations(
     async function callback(deletedContext: string) {
       const cloned = { ...activeTransformations };
       for (const input of Object.keys(cloned)) {
-        const transformations = activeTransformations[input].filter(
-          (description) =>
+        // Partition transformations based on whether or not one of their input
+        // contexts was deleted
+        const transformationsWithNewlyMissingInputs = [];
+        const restOfTransformations = [];
+        for (const description of activeTransformations[input]) {
+          if (
             description.inputs.includes(deletedContext) ||
             description.extraDependencies.includes(deletedContext)
-        );
-        for (const transformation of transformations) {
+          ) {
+            transformationsWithNewlyMissingInputs.push(description);
+          } else {
+            restOfTransformations.push(description);
+          }
+        }
+
+        // Rename transformations with newly missing inputs to add a [fixed] suffix
+        for (const transformation of transformationsWithNewlyMissingInputs) {
           if ("output" in transformation) {
             console.log("transformation", transformation);
             const outputData = await getDataContext(transformation.output);
@@ -120,6 +131,7 @@ export function useActiveTransformations(
             });
           }
         }
+        // Remove transformations with newly missing inputs
         cloned[input] = cloned[input].filter(
           (description) =>
             !(

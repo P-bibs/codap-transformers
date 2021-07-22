@@ -76,3 +76,11 @@ test("ignores missing values", () => {
     (10 + 1 + 4 + 3) / 4
   );
 });
+
+test("allows numeric strings", () => {
+  expect(uncheckedMean(TYPES_DATASET, "NumericString")).toEqual(11);
+});
+
+test("allow negative numbers and decimals", () => {
+  expect(uncheckedMean(TYPES_DATASET, "Number")).toBeCloseTo(245.066666667);
+});

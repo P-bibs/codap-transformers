@@ -23,7 +23,6 @@ describe("numeric compare", () => {
     ).toThrow("first");
   });
 
-  // TODO: update this when attribute check changes are merged
   it("errors on bad second attribute", () => {
     expect(() =>
       uncheckedNumericCompare(DATASET_A, "A", "EvenBadderAttributeName")
@@ -179,7 +178,6 @@ describe("categorical compare", () => {
     ).toThrow("first");
   });
 
-  // TODO: update this when attribute check changes are merged
   it("errors on bad second attribute", () => {
     expect(() =>
       uncheckedCategoricalCompare(DATASET_A, "A", "EvenBadderAttributeName")

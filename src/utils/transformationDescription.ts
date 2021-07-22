@@ -125,8 +125,20 @@ export function useActiveTransformations(
 
         // Rename transformations with newly missing inputs to add a [fixed] suffix
         for (const transformation of transformationsWithNewlyMissingInputs) {
-          if ("output" in transformation) {
+          if (transformation.transformer === "Partition") {
+            // If the transformer was partition we have to rename each output table
+            for (const outputContext of transformation.state.outputContexts) {
+              const outputContextData = await getDataContext(outputContext);
+              await updateDataContext(outputContext, {
+                title: `${outputContextData.title} [fixed]`,
+                metadata: {
+                  description: `${outputContextData.metadata?.description}\n\n An input to the transformer that created this dataset has been deleted so this dataset will no longer update.`,
+                },
+              });
+            }
+          } else {
             if (transformation.outputType === TransformationOutputType.TEXT) {
+              // If this is an SV transformer than update the output text component title
               const outputData = await getComponent(transformation.output);
               await updateComponent(transformation.output, {
                 title: `${outputData.title} [fixed]`,
@@ -134,6 +146,7 @@ export function useActiveTransformations(
             } else if (
               transformation.outputType === TransformationOutputType.CONTEXT
             ) {
+              // If this transformer produces a dataset then rename the context
               const outputData = await getDataContext(transformation.output);
               await updateDataContext(transformation.output, {
                 title: `${outputData.title} [fixed]`,

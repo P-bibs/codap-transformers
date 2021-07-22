@@ -21,7 +21,7 @@ function AboutInfo(): ReactElement {
 
           <p>
             The result of one transformer can be used as an input to another,
-            and in this way transformers can be chained together, resulting in a
+            and in this way transformers can be composed, resulting in a
             sequence of datasets, each a transformed version of the previous.
             This way of manipulating a dataset can be useful for making clear
             the specific steps that were used to process the data or change its
@@ -29,14 +29,20 @@ function AboutInfo(): ReactElement {
           </p>
 
           <p>
-            Any updates made to the input of a transformer will flow through and
-            affect its outputs. If you have a chain of transformed datasets, the
-            updates will flow through the chain.
+            Any updates made to the input dataset of a transformer will flow
+            through and affect its outputs. If you have a chain of transformed
+            datasets and you change the original dataset, the updates will flow
+            through the chain.
           </p>
 
           <p>
             You can also save a particular configuration of a transformer, and
-            reuse this custom transformer on several datasets.
+            reuse this custom transformer on several datasets. This allows you
+            to abstract over a particular computation you might want to perform
+            on your data (the way functions in Algebra are abstractions over
+            computations in arithmetic), and also enables tweaking and refining
+            your transformer using smaller test datasets, and then later
+            applying it to real-world data.{" "}
           </p>
 
           <h3>Getting Started</h3>
@@ -48,7 +54,8 @@ function AboutInfo(): ReactElement {
 
           <h3>Authors</h3>
           <p>
-            This plugin is brought to you by the{" "}
+            This plugin is brought to you by Paul Biberstein, Thomas Castleman,
+            and Jason Chen of the{" "}
             <a
               href="https://cs.brown.edu/research/plt/"
               target="_blank"
@@ -66,7 +73,7 @@ function AboutInfo(): ReactElement {
               target="_blank"
               rel="noreferrer"
             >
-              Bootstrap World
+              Bootstrap
             </a>
             .
           </p>

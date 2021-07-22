@@ -1,7 +1,7 @@
 import { Collection, CodapAttribute } from "../utils/codapPhone/types";
 import { Env } from "../language/interpret";
 import { Value } from "../language/ast";
-import { Boundary, CodapLanguageType, DataSet } from "./types";
+import { Boundary, CodapLanguageType, DataSet, SingleValue } from "./types";
 import { prettyPrintCase } from "../utils/prettyPrint";
 
 /**
@@ -193,7 +193,7 @@ export function pluralSuffix<T>(word: string, describing: T[]): string {
  */
 export function codapValueToString(codapValue: unknown): string {
   // missing values
-  if (codapValue === "") {
+  if (isMissing(codapValue)) {
     return "a missing value";
   }
 
@@ -278,6 +278,17 @@ export function isColor(value: unknown): boolean {
     /rgb\(\d{1,3},\d{1,3},\d{1,3}\)/.test(noWhitespace) ||
     /rgba\(\d{1,3},\d{1,3},\d{1,3},(0|1)?\.\d*\)/.test(noWhitespace)
   );
+}
+
+/**
+ * Determines if the value represents a missing value in CODAP. These can
+ * manifest as either empty string "" or undefined.
+ *
+ * @param value The value to check for missing-ness
+ * @returns Whether or not the value is a missing value
+ */
+export function isMissing(value: unknown): boolean {
+  return value === "" || value === undefined;
 }
 
 export function reportTypeErrorsForRecords(
@@ -479,8 +490,9 @@ export const cloneAttribute = shallowCopy;
 
 /**
  * Extracts a list of numbers from an attribute in a dataset that is expected
- * to contain numeric values. Errors if the attribute is undefined for some
- * records, or if the attribute's values parse to non-numeric.
+ * to contain numeric values. Errors if the attribute's values parse to
+ * non-numeric. NOTE: This does not validate the given attribute--if the
+ * attribute isn't defined for any cases, this will return an empty list.
  *
  * @param dataset The dataset to extract from.
  * @param attribute The attribute containing numeric values.
@@ -493,11 +505,8 @@ export function extractAttributeAsNumeric(
   const numericValues = [];
 
   for (const record of dataset.records) {
-    if (record[attribute] === undefined) {
-      throw new Error(`Invalid attribute name: ${attribute}`);
-    }
     // Ignore missing values
-    if (record[attribute] === "") {
+    if (isMissing(record[attribute])) {
       continue;
     }
     const value = parseFloat(String(record[attribute]));
@@ -510,4 +519,66 @@ export function extractAttributeAsNumeric(
   }
 
   return numericValues;
+}
+
+function changeDatasetMutability(dataset: DataSet, mutable: boolean): DataSet {
+  const newCollections = dataset.collections.map(cloneCollection);
+  for (const c of newCollections) {
+    if (c.attrs) {
+      c.attrs.map((attr) => (attr.editable = mutable));
+    }
+  }
+  return {
+    collections: newCollections,
+    records: dataset.records,
+  };
+}
+
+export function makeDatasetImmutable(d: DataSet): DataSet {
+  return changeDatasetMutability(d, false);
+}
+
+export function makeDatasetMutable(d: DataSet): DataSet {
+  return changeDatasetMutability(d, true);
+}
+
+/**
+ * Verifies that a given attribute (by name) exists in the given dataset. If
+ * the attribute is found, returns the collection it is in and the attribute
+ * data. Otherwise, throws an error.
+ *
+ * @param collections Collections within which to search for attribute.
+ * @param attributeName The name of the attribute to look for.
+ * @param errorMsg A custom error message, to override the default.
+ */
+export function validateAttribute(
+  collections: Collection[],
+  attributeName: string,
+  errorMsg?: string
+): [Collection, CodapAttribute] {
+  for (const coll of collections) {
+    const attr = coll.attrs?.find((attr) => attr.name === attributeName);
+
+    if (attr) {
+      return [coll, attr];
+    }
+  }
+
+  throw new Error(errorMsg || `Invalid attribute name: ${attributeName}`);
+}
+
+/**
+ * Converts a SingleValue (the output of a single-value transformer)
+ * into a string.
+ *
+ * @param value The value to convert to a string.
+ */
+export function displaySingleValue(value: SingleValue): string {
+  if (typeof value === "number") {
+    // value is a single number
+    return String(value);
+  } else {
+    // value is a list of numbers
+    return `[${value.join(", ")}]`;
+  }
 }

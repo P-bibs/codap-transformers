@@ -31,6 +31,7 @@ import { median } from "../transformers/median";
 import { mode } from "../transformers/mode";
 import { standardDeviation } from "../transformers/standardDeviation";
 import { partitionOverride, partitionUpdate } from "../transformers/partition";
+import { editableCopyOverride } from "../transformers/editableCopy";
 import { transformColumn } from "../transformers/transformColumn";
 import { compare } from "../transformers/compare";
 
@@ -87,7 +88,7 @@ export type DatasetCreatorTransformerName =
   | "Combine Cases"
   | "Reduce";
 
-export type FullOverrideTransformerName = "Partition";
+export type FullOverrideTransformerName = "Partition" | "Editable Copy";
 
 export type BaseTransformerName =
   | DatasetCreatorTransformerName
@@ -617,6 +618,28 @@ const transformerList: TransformerList = {
       },
     },
   },
+  "Editable Copy": {
+    group: "Copy Transformers",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Clone",
+        },
+      },
+      transformerFunction: {
+        kind: "fullOverride",
+        createFunc: editableCopyOverride,
+        updateFunc: async () => ({}),
+      },
+      info: {
+        summary:
+          "Produces an editable copy of the given dataset \
+        that does not update when the original dataset is changed.",
+        consumes: "A dataset to copy.",
+        produces: "An editable copy of the input dataset.",
+      },
+    },
+  },
   Mean: {
     group: "Aggregators",
     componentData: {
@@ -678,11 +701,12 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: mode },
       info: {
         summary:
-          "Finds the mode value of a given numeric attribute in the given \
-          dataset. This is the value which occurs most often under the given attribute.",
-        consumes: "A dataset and an attribute within it to find the mode of.",
+          "Finds the mode value(s) of a given numeric attribute in the given \
+          dataset. These are the values which occur most often under the given attribute.",
+        consumes:
+          "A dataset and an attribute within it to find the mode(s) of.",
         produces:
-          "A single number which is the mode value of the given attribute.",
+          "A list of numbers which are the most frequently occuring in the given attribute.",
       },
     },
   },
@@ -700,7 +724,7 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: standardDeviation },
       info: {
         summary:
-          "Finds the standard deviation of a given numeric attribute in the given \
+          "Finds the population standard deviation of a given numeric attribute in the given \
           dataset.",
         consumes:
           "A dataset and an attribute within it to find the standard deviation of.",

@@ -6,6 +6,7 @@ import {
   reportTypeErrorsForRecords,
   cloneCollection,
   shallowCopy,
+  validateAttribute,
 } from "./util";
 
 /**
@@ -41,7 +42,7 @@ export async function transformColumn({
       expression,
       outputType
     ),
-    `Transform Column of ${ctxtName}`,
+    `TransformColumn(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, with the ${attributeName} attribute's values ` +
       `determined by the formula \`${expression}\`.`,
   ];
@@ -54,6 +55,12 @@ export async function uncheckedTransformColumn(
   outputType: CodapLanguageType,
   evalFormula = evalExpression
 ): Promise<DataSet> {
+  validateAttribute(
+    dataset.collections,
+    attributeName,
+    `Invalid attribute to transform: ${attributeName}`
+  );
+
   const records = dataset.records.map(shallowCopy);
   const exprValues = await evalFormula(expression, records);
 
@@ -61,13 +68,7 @@ export async function uncheckedTransformColumn(
   reportTypeErrorsForRecords(records, exprValues, outputType);
 
   exprValues.forEach((value, i) => {
-    const record = records[i];
-
-    if (record[attributeName] === undefined) {
-      throw new Error(`Invalid attribute to transform: ${attributeName}`);
-    }
-
-    record[attributeName] = value;
+    records[i][attributeName] = value;
   });
 
   const collections = dataset.collections.map(cloneCollection);

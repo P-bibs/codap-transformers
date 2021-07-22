@@ -80,7 +80,7 @@ export async function sort({
   const ctxtName = readableName(context);
   return [
     await uncheckedSort(dataset, expression, outputType, sortDirection),
-    `Sort ${sortDirection} of ${ctxtName}`,
+    `Sort(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, sorted by the value of the key formula: \`${expression}\`.`,
   ];
 }

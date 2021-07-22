@@ -2,7 +2,13 @@ import { DDTransformerState } from "../transformer-components/DataDrivenTransfor
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { codapValueToString, listAsString, pluralSuffix } from "./util";
+import {
+  codapValueToString,
+  isMissing,
+  listAsString,
+  pluralSuffix,
+  validateAttribute,
+} from "./util";
 
 /**
  * Takes the sum product of the given attributes' values.
@@ -27,7 +33,7 @@ export async function sumProduct({
 
   return [
     await uncheckedSumProduct(dataset, attributes),
-    `Sum Product of ${ctxtName}`,
+    `SumProduct(${ctxtName}, [${attributes.join(", ")}])`,
     `The sum across all cases in ${ctxtName} of the product ` +
       `of the ${pluralSuffix("attribute", attributes)} ${attributeNames}.`,
   ];
@@ -47,14 +53,15 @@ export function uncheckedSumProduct(
     throw new Error("Cannot take the sum product of zero attributes.");
   }
 
+  for (const attr of attributes) {
+    validateAttribute(dataset.collections, attr);
+  }
+
   return dataset.records
     .map((row) =>
       attributes.reduce((product, attribute) => {
-        if (row[attribute] === undefined) {
-          throw new Error(`Invalid attribute name: ${attribute}`);
-        }
         // Missing values turn the whole row into NaN
-        if (row[attribute] === "") {
+        if (isMissing(row[attribute])) {
           return NaN;
         }
         const value = parseFloat(String(row[attribute]));

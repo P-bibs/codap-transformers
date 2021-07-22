@@ -27,6 +27,9 @@ import {
   CodapAttribute,
   GetInteractiveStateResponse,
   InteractiveFrame,
+  CodapComponent,
+  GetComponentResponse,
+  ComponentListResponse,
 } from "./types";
 import {
   callUpdateListenersForContext,
@@ -303,6 +306,85 @@ export function notifyInteractiveFrameIsDirty(): Promise<void> {
           reject(
             new Error("Failed to notify interactive frame that state is dirty.")
           );
+        }
+      }
+    )
+  );
+}
+
+export function getAllComponents(): Promise<ComponentListResponse["values"]> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: CodapListResource.ComponentList,
+      },
+      (response: ComponentListResponse) => {
+        if (Array.isArray(response.values)) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get components."));
+        }
+      }
+    )
+  );
+}
+
+export function getComponent(component: string): Promise<CodapComponent> {
+  return new Promise<CodapComponent>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: resourceFromComponent(component),
+      },
+      (response: GetComponentResponse) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get component."));
+        }
+      }
+    )
+  );
+}
+
+export function updateComponent(
+  component: string,
+  values: Partial<CaseTable>
+): Promise<void> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Update,
+        resource: resourceFromComponent(component),
+        values: values,
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update component."));
+        }
+      }
+    )
+  );
+}
+export function updateDataContext(
+  context: string,
+  values: Partial<DataContext>
+): Promise<void> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Update,
+        resource: resourceFromContext(context),
+        values: values,
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update context."));
         }
       }
     )

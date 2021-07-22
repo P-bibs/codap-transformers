@@ -62,7 +62,7 @@ test("build column does nothing to dataset with no records", async () => {
   const COLLECTION_A_OUTPUT = cloneDataSet(EMPTY_RECORDS);
   COLLECTION_A_OUTPUT.collections[0].attrs?.push({
     description:
-      "An attribute whose values were computed with the formula A + B * F + 1",
+      "An attribute whose values were computed with the formula `A + B * F + 1`",
     name: "G",
   });
   expect(
@@ -79,7 +79,7 @@ test("build column does nothing to dataset with no records", async () => {
   const COLLECTION_B_OUTPUT = cloneDataSet(EMPTY_RECORDS);
   COLLECTION_B_OUTPUT.collections[1].attrs?.push({
     description:
-      "An attribute whose values were computed with the formula A + B * F + 1",
+      "An attribute whose values were computed with the formula `A + B * F + 1`",
     name: "G",
   });
   expect(
@@ -96,7 +96,7 @@ test("build column does nothing to dataset with no records", async () => {
   const COLLECTION_C_OUTPUT = cloneDataSet(EMPTY_RECORDS);
   COLLECTION_C_OUTPUT.collections[2].attrs?.push({
     description:
-      "An attribute whose values were computed with the formula A + B * F + 1",
+      "An attribute whose values were computed with the formula `A + B * F + 1`",
     name: "G",
   });
   expect(
@@ -116,7 +116,7 @@ test("using attribute name as formula creates clone of attribute", async () => {
   CENSUS_DATASET_OUTPUT.collections[1].attrs?.push({
     name: "BirthYear",
     description:
-      "An attribute whose values were computed with the formula Year - Age",
+      "An attribute whose values were computed with the formula `Year - Age`",
   });
   CENSUS_DATASET_OUTPUT.records.forEach(
     (row) => (row["BirthYear"] = row["Year"] - row["Age"])
@@ -137,7 +137,8 @@ test("using attribute name as formula creates clone of attribute", async () => {
 test("all attribute metadata is copied", async () => {
   const OUTPUT = cloneDataSet(DATASET_WITH_META);
   OUTPUT.collections[0].attrs?.push({
-    description: 'An attribute whose values were computed with the formula ""',
+    description:
+      'An attribute whose values were computed with the formula `""`',
     name: "D",
   });
   expect(

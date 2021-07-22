@@ -87,7 +87,7 @@ export async function uncheckedBuildColumn(
   // add new attribute
   toAdd.attrs.push({
     name: newAttributeName,
-    description: `An attribute whose values were computed with the formula ${expression}`,
+    description: `An attribute whose values were computed with the formula \`${expression}\``,
   });
 
   const colValues = await evalFormula(expression, dataset.records);

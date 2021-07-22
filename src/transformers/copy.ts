@@ -18,12 +18,12 @@ export async function copy({
 
   return [
     await uncheckedCopy(dataset),
-    `Copy of ${ctxtName}`,
+    `Copy(${ctxtName})`,
     `A copy of the ${ctxtName} dataset.`,
   ];
 }
 
-function uncheckedCopy(dataset: DataSet): DataSet {
+export function uncheckedCopy(dataset: DataSet): DataSet {
   return {
     collections: dataset.collections,
     records: dataset.records,

@@ -37,6 +37,8 @@ import {
   popFromUndoStackAndExecute,
   popFromRedoStackAndExecute,
   clearUndoAndRedoStacks,
+  callAllContextUpdateHooks,
+  callAllContextDeletedHooks,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -50,6 +52,7 @@ import {
   fillCollectionWithDefaults,
   collectionsEqual,
   normalizeDataContext,
+  parseEvalError,
 } from "./util";
 import { DataSet } from "../../transformers/types";
 import { CodapEvalError } from "./error";
@@ -183,6 +186,7 @@ function codapRequestHandler(
   ) {
     removeContextUpdateListenersForContext(command.values.deletedContext);
     removeListenersWithDependency(command.values.deletedContext);
+    callAllContextDeletedHooks(command.values.deletedContext);
     callback({ success: true });
     return;
   }
@@ -248,6 +252,7 @@ function codapRequestHandler(
     if (contextUpdate) {
       Cache.invalidateContext(contextName);
       callUpdateListenersForContext(contextName);
+      callAllContextUpdateHooks(contextName);
     }
 
     if (contextListUpdate) {
@@ -933,7 +938,9 @@ export function evalExpression(
           resolve(response.values);
         } else {
           // In this case, values is an error message
-          reject(new CodapEvalError(expr, response.values.error));
+          reject(
+            new CodapEvalError(expr, parseEvalError(response.values.error))
+          );
         }
       }
     )

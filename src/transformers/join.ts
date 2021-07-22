@@ -1,4 +1,3 @@
-import { Collection } from "../utils/codapPhone/types";
 import { DataSet, TransformationOutput } from "./types";
 import { uniqueName } from "../utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
@@ -9,6 +8,7 @@ import {
   cloneCollection,
   cloneAttribute,
   allAttrNames,
+  validateAttribute,
 } from "./util";
 
 /**
@@ -44,7 +44,7 @@ export async function join({
 
   return [
     await uncheckedJoin(dataset1, inputAttribute1, dataset2, inputAttribute2),
-    `Join of ${ctxtName1} and ${ctxtName2}`,
+    `Join(${ctxtName1}, ${ctxtName2}, ...)`,
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
       `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
       `containing ${inputAttribute1} in ${ctxtName1}.`,
@@ -69,25 +69,21 @@ function uncheckedJoin(
   joiningAttr: string
 ): DataSet {
   // find collection containing joining attribute in joining dataset
-  const joiningCollection = findCollectionWithAttr(
+  const [joiningCollection] = validateAttribute(
     joiningDataset.collections,
-    joiningAttr
+    joiningAttr,
+    `Invalid joining attribute: ${joiningAttr}`
   );
-  if (
-    joiningCollection === undefined ||
-    joiningCollection.attrs === undefined
-  ) {
-    throw new Error(`Invalid joining attribute: ${joiningAttr}`);
-  }
 
-  const addedAttrs = joiningCollection.attrs.map(cloneAttribute);
+  const addedAttrs = joiningCollection.attrs?.map(cloneAttribute) || [];
   const addedAttrOriginalNames = addedAttrs.map((attr) => attr.name);
 
   const collections = baseDataset.collections.map(cloneCollection);
-  const baseCollection = findCollectionWithAttr(collections, baseAttr);
-  if (baseCollection === undefined || baseCollection.attrs === undefined) {
-    throw new Error(`Invalid base attribute: ${baseAttr}`);
-  }
+  const [baseCollection] = validateAttribute(
+    collections,
+    baseAttr,
+    `Invalid base attribute: ${baseAttr}`
+  );
 
   // list of attributes whose names cannot be duplicated by the added attrs
   const namesToAvoid = allAttrNames(baseDataset);
@@ -103,7 +99,7 @@ function uncheckedJoin(
   }
 
   // add the attrs from the joining collection into the collection being joined into
-  baseCollection.attrs = baseCollection.attrs.concat(addedAttrs);
+  baseCollection.attrs = (baseCollection.attrs || []).concat(addedAttrs);
 
   // start with a copy of the base dataset's records
   const records = baseDataset.records.map(shallowCopy);
@@ -128,17 +124,4 @@ function uncheckedJoin(
     collections,
     records,
   };
-}
-
-/**
- * Finds a collection which contains an attribute of the given name,
- * or undefined if no such collection exists.
- */
-function findCollectionWithAttr(
-  collections: Collection[],
-  attribute: string
-): Collection | undefined {
-  return collections.find((coll) =>
-    coll.attrs?.find((attr) => attr.name === attribute)
-  );
 }

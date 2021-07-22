@@ -2,7 +2,7 @@ import { DDTransformerState } from "../transformer-components/DataDrivenTransfor
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../utils/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
-import { extractAttributeAsNumeric } from "./util";
+import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
  * Takes the mean of a given column.
@@ -24,7 +24,7 @@ export async function mean({
 
   return [
     uncheckedMean(dataset, attribute),
-    `Mean of ${attribute} in ${ctxtName}`,
+    `Mean(${ctxtName}, ${attribute})`,
     `The mean value of the ${attribute} attribute in the ${ctxtName} dataset.`,
   ];
 }
@@ -36,6 +36,8 @@ export async function mean({
  * @param attribute - The column to find the mean of.
  */
 function uncheckedMean(dataset: DataSet, attribute: string): number {
+  validateAttribute(dataset.collections, attribute);
+
   // Extract the numeric values from the indicated attribute.
   const values = extractAttributeAsNumeric(dataset, attribute);
 

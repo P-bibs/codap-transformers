@@ -18,6 +18,11 @@ import {
 } from "../utils/codapPhone/listeners";
 import "../ui-components/TransformerSaveButton.css";
 import "./SavedTransformerView.css";
+import {
+  useActiveTransformations,
+  ActionTypes,
+  deserializeActiveTransformations,
+} from "../utils/transformationDescription";
 
 /**
  * SavedTransformerView wraps a saved transformer in other important info
@@ -32,22 +37,36 @@ function SavedTransformerView({
   const [editable, setEditable] = useState<boolean>(false);
   const [savedTransformer, setSavedTransformer] = useState(urlTransformer);
   const [saveErr, setSaveErr] = useState<string | null>(null);
+  const [, activeTransformationsDispatch, wrappedDispatch] =
+    useActiveTransformations(setErrMsg);
 
   // Load saved state from CODAP memory
   useEffect(() => {
     async function fetchSavedState() {
       const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState && savedState.savedTransformation) {
+      if (savedState === undefined) {
+        return;
+      }
+      if (savedState.savedTransformation) {
         setSavedTransformer({
           ...savedTransformer,
           name: savedState.savedTransformation.name,
           description: savedState.savedTransformation.description,
         });
       }
+      if (savedState.activeTransformations) {
+        activeTransformationsDispatch({
+          type: ActionTypes.SET,
+          newTransformations: deserializeActiveTransformations(
+            savedState.activeTransformations
+          ),
+        });
+      }
     }
     fetchSavedState();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    // Identity of dispatch is stable since it came from useReducer
+  }, [activeTransformationsDispatch, savedTransformer]);
 
   // Register a listener to generate the plugin's state
   useEffect(() => {
@@ -120,6 +139,7 @@ function SavedTransformerView({
         errorDisplay={<ErrorDisplay message={errMsg} />}
         transformer={savedTransformer}
         editable={editable}
+        activeTransformationsDispatch={wrappedDispatch}
       />
       <button
         id="edit-button"

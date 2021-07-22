@@ -9,6 +9,7 @@ import {
   listAsString,
   pluralSuffix,
   plural,
+  validateAttribute,
 } from "./util";
 
 /**
@@ -45,7 +46,7 @@ export async function pivotLonger({
 
   return [
     await uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
-    `Pivot Longer of ${ctxtName}`,
+    `PivotLonger(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the ${pluralSuffix(
       "attribute",
       attributes
@@ -77,6 +78,10 @@ function uncheckedPivotLonger(
   namesTo: string,
   valuesTo: string
 ): DataSet {
+  for (const attr of toPivot) {
+    validateAttribute(dataset.collections, attr);
+  }
+
   // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
@@ -165,7 +170,7 @@ export async function pivotWider({
   const ctxtName = readableName(context);
   return [
     await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
-    `Pivot Wider of ${ctxtName}`,
+    `PivotWider(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
       `into new attributes, which get their values from the attribute ${valuesFrom}.`,
   ];
@@ -186,6 +191,9 @@ function uncheckedPivotWider(
   namesFrom: string,
   valuesFrom: string
 ): DataSet {
+  validateAttribute(dataset.collections, namesFrom);
+  validateAttribute(dataset.collections, valuesFrom);
+
   // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
@@ -199,11 +207,6 @@ function uncheckedPivotWider(
   const newAttrs = Array.from(
     new Set(
       dataset.records.map((rec, i) => {
-        if (rec[namesFrom] === undefined) {
-          throw new Error(
-            `Invalid attribute to retrieve names from: ${namesFrom}`
-          );
-        }
         if (typeof rec[namesFrom] === "object") {
           throw new Error(
             `Cannot use ${codapValueToString(
@@ -214,18 +217,18 @@ function uncheckedPivotWider(
           );
         }
 
-        return String(rec[namesFrom]);
+        // NOTE: If rec[namesFrom] is undefined (missing), this returns ""
+        return String(rec[namesFrom] || "");
       })
     )
   );
 
   // find attribute to take values from
-  const valuesFromAttr = collection.attrs?.find(
-    (attr) => attr.name === valuesFrom
+  const [, valuesFromAttr] = validateAttribute(
+    [collection],
+    valuesFrom,
+    `Invalid attribute to retrieve values from: ${valuesFrom}`
   );
-  if (valuesFromAttr === undefined) {
-    throw new Error(`Invalid attribute to retrieve values from: ${valuesFrom}`);
-  }
 
   // remove namesFrom/valuesFrom attributes from collection
   collection.attrs =

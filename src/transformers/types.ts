@@ -1,4 +1,5 @@
 import { Collection } from "../utils/codapPhone/types";
+import { PartitionSaveState } from "./partition";
 
 /**
  * DataSet represents a data context and all of the actual data
@@ -29,9 +30,21 @@ export type Boundary = {
 };
 
 /**
+ * SingeValue represents the output of a single-value transformer (e.g. median).
+ */
+export type SingleValue = number | number[];
+
+/**
  * The format for output for most transformations contains three parts:
  *  1) dataset or numeric value (DataSet | number)
  *  2) output context name (string)
  *  3) output context description] (string)
  */
-export type TransformationOutput = [DataSet | number, string, string];
+export type DataSetTransformationOutput = [DataSet, string, string];
+export type SingleValueTransformationOutput = [SingleValue, string, string];
+
+export type TransformationOutput =
+  | DataSetTransformationOutput
+  | SingleValueTransformationOutput;
+
+export type FullOverrideSaveState = PartitionSaveState;

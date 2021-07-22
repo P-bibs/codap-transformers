@@ -237,3 +237,12 @@ export class DefaultMap<K, V> extends Map<K, V> {
     return super.get(key) as V;
   }
 }
+
+const X_EMOJI_START = "❌: ";
+export function parseEvalError(message: string): string {
+  if (message.startsWith(X_EMOJI_START)) {
+    return message.substring(3);
+  } else {
+    return message;
+  }
+}

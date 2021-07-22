@@ -15,6 +15,8 @@ import {
   updateContextWithDataSet,
   updateText,
   notifyInteractiveFrameIsDirty,
+  updateDataContext,
+  getDataContext,
 } from "./codapPhone";
 import {
   addInteractiveStateRequestListener,
@@ -104,6 +106,20 @@ export function useActiveTransformations(
     async function callback(deletedContext: string) {
       const cloned = { ...activeTransformations };
       for (const input of Object.keys(cloned)) {
+        const transformations = activeTransformations[input].filter(
+          (description) =>
+            description.inputs.includes(deletedContext) ||
+            description.extraDependencies.includes(deletedContext)
+        );
+        for (const transformation of transformations) {
+          if ("output" in transformation) {
+            console.log("transformation", transformation);
+            const outputData = await getDataContext(transformation.output);
+            await updateDataContext(transformation.output, {
+              title: `${outputData.title} [fixed]`,
+            });
+          }
+        }
         cloned[input] = cloned[input].filter(
           (description) =>
             !(

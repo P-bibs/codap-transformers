@@ -28,6 +28,7 @@ import {
   removeContextUpdateHook,
   addContextDeletedHook,
   removeContextDeletedHook,
+  callAllContextListeners,
 } from "./codapPhone/listeners";
 import { makeDatasetImmutable } from "../transformers/util";
 import { InteractiveState } from "./codapPhone/types";
@@ -162,6 +163,8 @@ export function useActiveTransformations(
             }
           }
         }
+        callAllContextListeners();
+
         // Remove transformations with newly missing inputs
         cloned[input] = cloned[input].filter(
           (description) =>

@@ -17,6 +17,8 @@ import {
   notifyInteractiveFrameIsDirty,
   updateDataContext,
   getDataContext,
+  getComponent,
+  updateComponent,
 } from "./codapPhone";
 import {
   addInteractiveStateRequestListener,
@@ -124,11 +126,22 @@ export function useActiveTransformations(
         // Rename transformations with newly missing inputs to add a [fixed] suffix
         for (const transformation of transformationsWithNewlyMissingInputs) {
           if ("output" in transformation) {
-            console.log("transformation", transformation);
-            const outputData = await getDataContext(transformation.output);
-            await updateDataContext(transformation.output, {
-              title: `${outputData.title} [fixed]`,
-            });
+            if (transformation.outputType === TransformationOutputType.TEXT) {
+              const outputData = await getComponent(transformation.output);
+              await updateComponent(transformation.output, {
+                title: `${outputData.title} [fixed]`,
+              });
+            } else if (
+              transformation.outputType === TransformationOutputType.CONTEXT
+            ) {
+              const outputData = await getDataContext(transformation.output);
+              await updateDataContext(transformation.output, {
+                title: `${outputData.title} [fixed]`,
+                metadata: {
+                  description: `${outputData.metadata?.description}\n\n An input to the transformer that created this dataset has been deleted so this dataset will no longer update.`,
+                },
+              });
+            }
           }
         }
         // Remove transformations with newly missing inputs

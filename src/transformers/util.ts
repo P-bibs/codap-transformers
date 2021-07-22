@@ -124,25 +124,6 @@ export function eraseFormulas(attrs: CodapAttribute[]): CodapAttribute[] {
   return attrs;
 }
 
-export function getAttributeDataFromDataset(
-  attributeName: string,
-  dataset: DataSet
-): CodapAttribute {
-  let attributeData: CodapAttribute | undefined;
-  for (const collection of dataset.collections) {
-    attributeData =
-      collection.attrs?.find((attribute) => attribute.name === attributeName) ??
-      attributeData;
-  }
-  if (!attributeData) {
-    throw new Error(
-      "Couldn't find first selected attribute in selected context"
-    );
-  }
-
-  return attributeData;
-}
-
 /**
  * Formats a list of strings as a single string listing all the elements,
  * with an 'and' at the end where appropriate.

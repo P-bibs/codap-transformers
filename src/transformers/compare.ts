@@ -3,7 +3,7 @@ import {
   allAttrNames,
   cloneCollection,
   codapValueToString,
-  getAttributeDataFromDataset,
+  validateAttribute,
 } from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { getContextAndDataSet } from "../utils/codapPhone";
@@ -69,9 +69,16 @@ export function uncheckedNumericCompare(
   attributeName1: string,
   attributeName2: string
 ): DataSet {
-  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
-  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
-
+  const [, attribute1Data] = validateAttribute(
+    dataset.collections,
+    attributeName1,
+    "Invalid first attribute"
+  );
+  const [, attribute2Data] = validateAttribute(
+    dataset.collections,
+    attributeName2,
+    "Invalid second attribute"
+  );
   const collections = dataset.collections.map(cloneCollection);
 
   // Find the index of the collections that contain the attributes
@@ -209,8 +216,16 @@ export function uncheckedCategoricalCompare(
   attributeName1: string,
   attributeName2: string
 ): DataSet {
-  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
-  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
+  const [, attribute1Data] = validateAttribute(
+    dataset.collections,
+    attributeName1,
+    "Invalid first attribute"
+  );
+  const [, attribute2Data] = validateAttribute(
+    dataset.collections,
+    attributeName2,
+    "Invalid second attribute"
+  );
 
   dataset = uncheckedFlatten(dataset);
   const out = uncheckedGroupBy(

@@ -66,6 +66,7 @@ function makeFoldWrapper(
   };
 }
 
+const WHITESPACE_REGEX = /^\s*$/;
 function makeNumFold<T>(
   foldName: string,
   base: T,
@@ -80,14 +81,23 @@ function makeNumFold<T>(
     validateAttribute(dataset.collections, inputColumnName);
 
     resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
+
+    // Default acc is base, default result is "" (when first value is missing,
+    // the result field is blank)
     let acc = base;
+    let result: string | number = "";
 
     const resultRecords = dataset.records.map((row) => {
-      const numValue = Number(row[inputColumnName]);
-      if (!isNaN(numValue)) {
-        const [newAcc, result] = f(acc, numValue);
-        acc = newAcc;
+      const rowValue = row[inputColumnName];
 
+      // Test for whitespace, since Number(whitespace) gives 0
+      if (typeof rowValue === "string" && WHITESPACE_REGEX.test(rowValue)) {
+        return insertInRow(row, resultColumnName, result);
+      }
+
+      const numValue = Number(rowValue);
+      if (!isNaN(numValue)) {
+        [acc, result] = f(acc, numValue);
         return insertInRow(row, resultColumnName, result);
       } else {
         throw new Error(

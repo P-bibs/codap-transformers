@@ -18,7 +18,6 @@ import {
   updateText,
   notifyInteractiveFrameIsDirty,
   updateDataContext,
-  getDataContext,
   getComponent,
   updateComponent,
 } from "./codapPhone";
@@ -140,6 +139,8 @@ export function useActiveTransformations(
                 },
               });
             }
+          } else if (transformation.transformer === "Editable Copy") {
+            // If the transformer was editable copy then we don't have to do anything
           } else {
             if (transformation.outputType === TransformationOutputType.TEXT) {
               // If this is an SV transformer than update the output text component title

@@ -521,6 +521,27 @@ export function extractAttributeAsNumeric(
   return numericValues;
 }
 
+function changeDatasetMutability(dataset: DataSet, mutable: boolean): DataSet {
+  const newCollections = dataset.collections.map(cloneCollection);
+  for (const c of newCollections) {
+    if (c.attrs) {
+      c.attrs.map((attr) => (attr.editable = mutable));
+    }
+  }
+  return {
+    collections: newCollections,
+    records: dataset.records,
+  };
+}
+
+export function makeDatasetImmutable(d: DataSet): DataSet {
+  return changeDatasetMutability(d, false);
+}
+
+export function makeDatasetMutable(d: DataSet): DataSet {
+  return changeDatasetMutability(d, true);
+}
+
 /**
  * Verifies that a given attribute (by name) exists in the given dataset. If
  * the attribute is found, returns the collection it is in and the attribute

@@ -5,7 +5,11 @@ import {
   deleteDataContext,
 } from "../utils/codapPhone";
 import { pushToUndoStack } from "../utils/codapPhone/listeners";
-import { codapValueToString, validateAttribute } from "./util";
+import {
+  codapValueToString,
+  makeDatasetImmutable,
+  validateAttribute,
+} from "./util";
 import {
   DDTransformerProps,
   DDTransformerState,
@@ -69,7 +73,7 @@ async function doTransform(
 
   // return both the datasets and their names
   return partitioned.map((pd) => [
-    pd,
+    { ...pd, dataset: makeDatasetImmutable(pd.dataset) },
     `Partition(${attributeName} = ${codapValueToString(
       pd.distinctValue
     )}, ${readableContext})`,
@@ -194,7 +198,7 @@ async function partitionUpdateInner({
   if (
     !confirmOutput(
       transformed.length,
-      `Updating the partition of ${inputDataCtxtName} will lead to ${transformed.length} total output datasets`
+      `Updating the partition of "${inputDataCtxtName}" will lead to ${transformed.length} total output datasets`
     )
   ) {
     return {};

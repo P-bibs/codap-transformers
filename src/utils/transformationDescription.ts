@@ -7,11 +7,13 @@ import {
   DDTransformerState,
   FullOverrideFunction,
 } from "../transformer-components/DataDrivenTransformer";
+import { readableName } from "../transformer-components/util";
 import {
   DataSetTransformationOutput,
   SingleValueTransformationOutput,
 } from "../transformers/types";
 import {
+  getDataContext,
   updateContextWithDataSet,
   updateText,
   notifyInteractiveFrameIsDirty,
@@ -24,6 +26,7 @@ import {
   addContextDeletedHook,
   removeContextDeletedHook,
 } from "./codapPhone/listeners";
+import { makeDatasetImmutable } from "../transformers/util";
 import { InteractiveState } from "./codapPhone/types";
 import { PartitionSaveState } from "../transformers/partition";
 import { displaySingleValue } from "../transformers/util";
@@ -84,10 +87,11 @@ export function useActiveTransformations(
             transformerList[description.transformer].componentData
               .transformerFunction.kind === "datasetCreator"
           ) {
+            const context = await getDataContext(
+              (description as DatasetCreatorDescription).output
+            );
             setErrMsg(
-              `Error updating ${
-                (description as DatasetCreatorDescription).output
-              }: ${e.message}`
+              `Error updating "${readableName(context)}": ${e.message}`
             );
           } else {
             setErrMsg(e.message);
@@ -224,7 +228,8 @@ async function updateContextFromDatasetCreator(
   ) => Promise<DataSetTransformationOutput>
 ): Promise<void> {
   const [transformed] = await transformFunc(state);
-  await updateContextWithDataSet(outputName, transformed);
+  const immutableTransformed = makeDatasetImmutable(transformed);
+  await updateContextWithDataSet(outputName, immutableTransformed);
 }
 
 async function updateTextFromDatasetCreator(

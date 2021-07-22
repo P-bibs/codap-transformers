@@ -44,6 +44,7 @@ import {
   ActionTypes as ActiveTransformationActionTypes,
 } from "../utils/transformationDescription";
 import { displaySingleValue } from "../transformers/util";
+import { makeDatasetImmutable } from "../transformers/util";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -344,7 +345,12 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         });
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
-        const newContextName = await applyNewDataSet(result, name, description);
+        const immutableDataset = makeDatasetImmutable(result);
+        const newContextName = await applyNewDataSet(
+          immutableDataset,
+          name,
+          description
+        );
 
         // Add action to undo stack
         pushToUndoStack(

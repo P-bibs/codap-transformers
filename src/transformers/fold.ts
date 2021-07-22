@@ -4,6 +4,7 @@ import {
   insertInRow,
   codapValueToString,
   allAttrNames,
+  validateAttribute,
 } from "./util";
 import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
 import { uniqueName } from "../utils/names";
@@ -39,9 +40,7 @@ function makeFoldWrapper(
 
     const { context, dataset } = await getContextAndDataSet(contextName);
     const resultAttributeName = uniqueName(
-      `${label} of ${parenthesizeName(inputAttributeName)} from ${readableName(
-        context
-      )}`,
+      `${label} of ${parenthesizeName(inputAttributeName)}`,
       allAttrNames(dataset)
     );
 
@@ -78,14 +77,12 @@ function makeNumFold<T>(
     resultColumnName: string,
     resultColumnDescription: string
   ): DataSet => {
+    validateAttribute(dataset.collections, inputColumnName);
+
     resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
     let acc = base;
 
     const resultRecords = dataset.records.map((row) => {
-      if (row[inputColumnName] === undefined) {
-        throw new Error(`Invalid attribute name: ${inputColumnName}`);
-      }
-
       const numValue = Number(row[inputColumnName]);
       if (!isNaN(numValue)) {
         const [newAcc, result] = f(acc, numValue);
@@ -312,7 +309,7 @@ export async function differenceFrom({
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = readableName(context);
   const resultAttributeName = uniqueName(
-    `Difference From of ${inputAttributeName} in ${ctxtName}`,
+    `Difference From of ${inputAttributeName}`,
     allAttrNames(dataset)
   );
 
@@ -321,6 +318,7 @@ export async function differenceFrom({
       dataset,
       inputAttributeName,
       resultAttributeName,
+      `The difference of each case with the case above it (from the ${inputAttributeName} attribute in the ${ctxtName} dataset). ${startingValue} is subtracted from the first case.`,
       Number(startingValue)
     ),
     `DifferenceFrom(${ctxtName}, ...)`,
@@ -334,8 +332,11 @@ function uncheckedDifferenceFrom(
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,
+  resultColumnDescription: string,
   startingValue = 0
 ): DataSet {
+  validateAttribute(dataset.collections, inputColumnName);
+
   // Construct a fold that computes the difference of each case with
   // the case above, but uses the given startingValue to begin
   const differenceFromFold = makeNumFold<{ numAbove: number | null }>(
@@ -350,5 +351,10 @@ function uncheckedDifferenceFrom(
     }
   );
 
-  return differenceFromFold(dataset, inputColumnName, resultColumnName, "");
+  return differenceFromFold(
+    dataset,
+    inputColumnName,
+    resultColumnName,
+    resultColumnDescription
+  );
 }

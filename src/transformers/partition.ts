@@ -5,7 +5,11 @@ import {
   deleteDataContext,
 } from "../utils/codapPhone";
 import { pushToUndoStack } from "../utils/codapPhone/listeners";
-import { codapValueToString } from "./util";
+import {
+  codapValueToString,
+  makeDatasetImmutable,
+  validateAttribute,
+} from "./util";
 import {
   DDTransformerProps,
   DDTransformerState,
@@ -69,7 +73,7 @@ async function doTransform(
 
   // return both the datasets and their names
   return partitioned.map((pd) => [
-    pd,
+    { ...pd, dataset: makeDatasetImmutable(pd.dataset) },
     `Partition(${attributeName} = ${codapValueToString(
       pd.distinctValue
     )}, ${readableContext})`,
@@ -194,7 +198,7 @@ async function partitionUpdateInner({
   if (
     !confirmOutput(
       transformed.length,
-      `Updating the partition of ${inputDataCtxtName} will lead to ${transformed.length} total output datasets`
+      `Updating the partition of "${inputDataCtxtName}" will lead to ${transformed.length} total output datasets`
     )
   ) {
     return {};
@@ -253,17 +257,16 @@ export function partition(
   dataset: DataSet,
   attribute: string
 ): PartitionDataset[] {
+  validateAttribute(dataset.collections, attribute);
+
   // map from distinct values of an attribute to all records sharing that value
   const partitioned: Record<string, [unknown, Record<string, unknown>[]]> = {};
 
   const records = dataset.records;
   for (const record of records) {
-    if (record[attribute] === undefined) {
-      throw new Error(`Invalid attribute: ${attribute}`);
-    }
-
-    // convert CODAP value to string to use as a key
-    const valueAsStr = JSON.stringify(record[attribute]);
+    // Convert CODAP value to string to use as a key.
+    // NOTE: If record[attribute] is undefined (missing), this will use "" instead.
+    const valueAsStr = JSON.stringify(record[attribute] || "");
 
     // initialize this category if needed
     if (partitioned[valueAsStr] === undefined) {

@@ -11,6 +11,7 @@ import { TransformerRenderer } from "./TransformerRenderer";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
+  createDataInteractive,
 } from "../utils/codapPhone";
 import {
   addInteractiveStateRequestListener,
@@ -121,9 +122,20 @@ function TransformerREPLView(): ReactElement {
     notifyInteractiveFrameIsDirty();
   }
 
+  function launchImporter() {
+    createDataInteractive(
+      "Google Sheets Importer",
+      "https://google-sheets-importer.netlify.app/"
+    );
+  }
+
   return (
     <div className="transformer-view">
       <AboutInfo />
+
+      <button onClick={launchImporter} style={{ marginBottom: "10px" }}>
+        Importer
+      </button>
 
       <h3>Transformer Type</h3>
 

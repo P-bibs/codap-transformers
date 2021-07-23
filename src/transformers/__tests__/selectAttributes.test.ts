@@ -157,8 +157,6 @@ test("errors on invalid attribute", () => {
       false
     )
   ).toThrowError(invalidAttributeErr);
-
-  // FIXME: arguably this should error?
   expect(() =>
     uncheckedSelectAttributes(EMPTY_DATASET, ["Anything"], false)
   ).toThrowError(invalidAttributeErr);

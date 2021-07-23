@@ -108,8 +108,6 @@ test("errors on invalid attribute", async () => {
   } catch (e) {
     expect(e.message).toMatch(invalidAttributeErr);
   }
-
-  // FIXME: this should error but doesn't bc we lack attribute validation
   try {
     await uncheckedTransformColumn(
       EMPTY_DATASET,

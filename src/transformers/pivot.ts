@@ -218,7 +218,7 @@ function uncheckedPivotWider(
         }
 
         // NOTE: If rec[namesFrom] is undefined (missing), this returns ""
-        return String(rec[namesFrom] || "");
+        return rec[namesFrom] === undefined ? "" : String(rec[namesFrom]);
       })
     )
   );

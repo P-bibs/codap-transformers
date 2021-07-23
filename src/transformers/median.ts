@@ -35,7 +35,7 @@ export async function median({
  * @param dataset - The input DataSet
  * @param attribute - The column to find the median of.
  */
-function uncheckedMedian(dataset: DataSet, attribute: string): number {
+export function uncheckedMedian(dataset: DataSet, attribute: string): number {
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute

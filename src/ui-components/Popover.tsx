@@ -1,8 +1,9 @@
 // Adapted from example at https://material-ui.com/components/popover/
 import React, { ReactElement } from "react";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
-import { Popover as MaterialUIPopover } from "@material-ui/core";
+import { IconButton, Popover as MaterialUIPopover } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
+import CancelIcon from "@material-ui/icons/Cancel";
 import "./Popover.css";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -68,7 +69,17 @@ export default function Popover({
           horizontal: "center",
         }}
       >
-        <Typography className={classes.typography}>{innerContent}</Typography>
+        <IconButton
+          className="close-button"
+          onClick={handleClose}
+          style={{ padding: "0" }}
+          size="small"
+        >
+          <CancelIcon htmlColor="#ff6666" fontSize="small" />
+        </IconButton>
+        <Typography style={{}} className={classes.typography}>
+          {innerContent}
+        </Typography>
       </MaterialUIPopover>
     </>
   );

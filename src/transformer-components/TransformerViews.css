@@ -3,16 +3,12 @@
   padding: 15px;
 }
 
-.transformer-view textarea {
-  width: 20em;
-  height: 7em;
-}
+/* .transformer-view textarea {
+  width: 17em;
+  height: 5em;
+} */
 
 #transformerBase {
   color: gray;
   font-size: 0.7em;
-}
-
-#edit-button {
-  margin-top: 5px;
 }

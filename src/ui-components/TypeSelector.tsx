@@ -31,7 +31,7 @@ export default function TypeSelector({
         onChange={inputTypeOnChange}
         disabled={inputTypeDisabled}
       />
-      {"->"}
+      {" → "}
       <Select
         defaultValue="Type"
         value={selectedOutputType}

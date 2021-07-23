@@ -19,8 +19,8 @@ export const App = (): ReactElement => {
      * and turns off loading once it has succeeded, or indicates an
      * error should be displayed if it fails.
      */
-    const initWithPluginName = (name: string): void => {
-      initPhone(name)
+    const initWithPluginName = (name: string, saved: boolean): void => {
+      initPhone(name, saved)
         .then(() => {
           setStatus("ready");
         })
@@ -32,14 +32,14 @@ export const App = (): ReactElement => {
     const parsedUrl = new URL(window.location.href);
     const transformer = parsedUrl.searchParams.get("transform");
     if (transformer === null) {
-      initWithPluginName("Transformers");
+      initWithPluginName("Transformers", false);
       setPluginContent(<TransformerREPLView />);
     } else {
       const parsedTransformer: SavedTransformer = JSON.parse(
         decodeURIComponent(transformer)
       );
 
-      initWithPluginName(`Transformer: ${parsedTransformer.name}`);
+      initWithPluginName(`Transformer: ${parsedTransformer.name}`, true);
       setPluginContent(
         <SavedTransformerView transformer={parsedTransformer} />
       );

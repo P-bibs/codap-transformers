@@ -16,7 +16,7 @@ import {
   Select,
   AttributeSelector,
   ContextSelector,
-  TransformerSubmitButtons,
+  TransformerSubmitButton,
   CollectionSelector,
   MultiAttributeSelector,
   TextInput,
@@ -24,7 +24,7 @@ import {
   ExpressionEditor,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
-import TransformerSaveButton from "../ui-components/TransformerSaveButton";
+import TransformerSaveUI from "../ui-components/TransformerSaveUI";
 import {
   DatasetCreatorTransformerName,
   BaseTransformerName,
@@ -585,7 +585,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         }
       })}
       <div>
-        <TransformerSubmitButtons
+        <TransformerSubmitButton
           onCreate={
             transformerFunction.kind === "fullOverride"
               ? () => transformerFunction.createFunc(props, state)
@@ -595,7 +595,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       </div>
       {errorDisplay}
       {saveData === undefined && (
-        <TransformerSaveButton base={base} generateSaveData={() => state} />
+        <TransformerSaveUI base={base} generateSaveData={() => state} />
       )}
     </>
   );

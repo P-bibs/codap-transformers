@@ -213,7 +213,6 @@ test("errors on invalid attribute", () => {
   expect(() => partition(CENSUS_DATASET, "Family Size")).toThrowError(
     invalidAttributeErr
   );
-  // FIXME: this should error
   expect(() => partition(EMPTY_DATASET, "Anything")).toThrowError(
     invalidAttributeErr
   );

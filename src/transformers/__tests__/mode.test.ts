@@ -64,8 +64,6 @@ test("mode errors on invalid attribute", () => {
   expect(() => uncheckedMode(CENSUS_DATASET, "Date of Birth")).toThrowError(
     invalidAttributeErr
   );
-
-  // FIXME: this should error
   expect(() => uncheckedMode(EMPTY_DATASET, "Some attribute")).toThrowError(
     invalidAttributeErr
   );

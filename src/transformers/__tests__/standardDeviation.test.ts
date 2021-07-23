@@ -49,7 +49,6 @@ test("std deviation errors on invalid attribute", () => {
   expect(() =>
     uncheckedStandardDeviation(CENSUS_DATASET, "Years Old")
   ).toThrowError(invalidAttributeErr);
-  // FIXME: should error wtih invalid attribute
   expect(() =>
     uncheckedStandardDeviation(EMPTY_RECORDS, "Some Attribute")
   ).toThrowError(invalidAttributeErr);

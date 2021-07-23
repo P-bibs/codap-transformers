@@ -71,7 +71,6 @@ test("median errors on invalid attribute", () => {
   expect(() =>
     uncheckedMedian(FULLY_FEATURED_DATASET, "Attribute_0")
   ).toThrowError(invalidAttributeErr);
-  // FIXME: this should error with invalid attribute
   expect(() => uncheckedMedian(EMPTY_DATASET, "Any attribute")).toThrowError(
     invalidAttributeErr
   );

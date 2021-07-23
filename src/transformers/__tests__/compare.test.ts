@@ -122,7 +122,7 @@ describe("numeric compare", () => {
           parseFloat(record["NumericString"]) - record["Number"];
         record["Compare Status"] = undefined;
       });
-      let result = cloneDataSet(
+      const result = cloneDataSet(
         uncheckedNumericCompare(TYPES_DATASET, "Number", "NumericString")
       );
       // Don't bother comparing the rbg values

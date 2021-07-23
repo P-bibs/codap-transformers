@@ -16,7 +16,7 @@ import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
 } from "../utils/codapPhone/listeners";
-import "../ui-components/TransformerSaveButton.css";
+import "../ui-components/TransformerSaveUI.css";
 import "./SavedTransformerView.css";
 import {
   useActiveTransformations,
@@ -144,6 +144,9 @@ function SavedTransformerView({
       <button
         id="edit-button"
         onClick={() => {
+          // clear the transformer application error message
+          setErrMsg(null);
+
           // if going to non-editable (saving) and name is blank
           if (editable && savedTransformer.name.trim() === "") {
             setSaveErr("Please choose a name for the transformer");

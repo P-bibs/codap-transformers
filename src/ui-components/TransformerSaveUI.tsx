@@ -15,23 +15,27 @@ import {
   removeInteractiveStateRequestListener,
 } from "../utils/codapPhone/listeners";
 import { InteractiveState } from "../utils/codapPhone/types";
-import "./TransformerSaveButton.css";
+import "./TransformerSaveUI.css";
 import ErrorDisplay from "./Error";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
+import { IconButton } from "@material-ui/core";
 
-interface TransformerSaveButtonProps {
+interface TransformerSaveUIProps {
   generateSaveData: () => TransformerSaveData;
   base: BaseTransformerName;
   disabled?: boolean;
 }
 
-export default function TransformerSaveButton({
+export default function TransformerSaveUI({
   generateSaveData,
   base,
   disabled,
-}: TransformerSaveButtonProps): ReactElement {
+}: TransformerSaveUIProps): ReactElement {
   const [currentName, setCurrentName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [saveErr, setSaveErr] = useState<string | null>(null);
+  const [saveUIShown, setSaveUIShown] = useState<boolean>(false);
 
   function saveTransformer(
     name: string,
@@ -59,6 +63,7 @@ export default function TransformerSaveButton({
     // clear save inputs after successful save
     setCurrentName("");
     setDescription("");
+    setSaveUIShown(false);
   }
 
   // Load saved state from CODAP memory
@@ -92,12 +97,36 @@ export default function TransformerSaveButton({
     notifyInteractiveFrameIsDirty();
   }
 
+  function toggleSaveUI(): void {
+    setSaveUIShown(!saveUIShown);
+    setSaveErr(null);
+  }
+
   return (
     <div style={{ marginTop: "5px" }}>
       <hr style={{ marginTop: "15px" }} />
       <div className="input-group">
-        <h3>Save This Transformer</h3>
+        <h3>
+          Save This Transformer
+          <IconButton
+            style={{
+              marginLeft: "5px",
+              padding: "0",
+              background: "var(--blue-green)",
+              color: "white",
+            }}
+            size="small"
+            onClick={toggleSaveUI}
+          >
+            {saveUIShown ? (
+              <ArrowDropUpIcon fontSize="inherit" />
+            ) : (
+              <ArrowDropDownIcon fontSize="inherit" />
+            )}
+          </IconButton>
+        </h3>
         <div
+          hidden={!saveUIShown}
           style={{
             marginTop: "2px",
           }}

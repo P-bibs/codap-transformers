@@ -6,6 +6,7 @@ import { getFunctionNames } from "../utils/codapPhone";
 import "codemirror/addon/mode/simple.js";
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/show-hint.js";
+import "codemirror/addon/display/placeholder.js";
 import "codemirror/lib/codemirror.css";
 import CodeMirror, { HintFunction } from "codemirror";
 import "./ExpressionEditor.css";
@@ -139,6 +140,7 @@ export default function ExpressionEditor({
             hint: codapFormulaHints,
           },
           readOnly: disabled,
+          placeholder: "Formula expression",
         }}
         onInputRead={(editor) => {
           editor.showHint();

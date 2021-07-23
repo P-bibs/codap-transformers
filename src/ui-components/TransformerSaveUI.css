@@ -13,6 +13,8 @@
   display: block;
   border: solid 1px var(--blue-green);
   border-radius: 3px;
+  height: 60px;
+  width: 300px;
 }
 
 .save-transformer-button {

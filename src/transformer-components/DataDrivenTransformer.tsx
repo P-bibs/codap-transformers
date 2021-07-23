@@ -16,7 +16,7 @@ import {
   Select,
   AttributeSelector,
   ContextSelector,
-  TransformerSubmitButtons,
+  TransformerSubmitButton,
   CollectionSelector,
   MultiAttributeSelector,
   TextInput,
@@ -24,7 +24,7 @@ import {
   ExpressionEditor,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
-import TransformerSaveButton from "../ui-components/TransformerSaveButton";
+import TransformerSaveUI from "../ui-components/TransformerSaveUI";
 import {
   DatasetCreatorTransformerName,
   BaseTransformerName,
@@ -34,9 +34,6 @@ import {
   removeInteractiveStateRequestListener,
 } from "../utils/codapPhone/listeners";
 import { InteractiveState } from "../utils/codapPhone/types";
-import Popover from "../ui-components/Popover";
-import InfoIcon from "@material-ui/icons/Info";
-import { IconButton } from "@material-ui/core";
 import { pushToUndoStack } from "../utils/codapPhone/listeners";
 import {
   TransformationOutputType,
@@ -45,6 +42,7 @@ import {
 } from "../utils/transformationDescription";
 import { displaySingleValue } from "../transformers/util";
 import { makeDatasetImmutable } from "../transformers/util";
+import TransformerInfo from "./TransformerInfo";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -224,6 +222,7 @@ export type DDTransformerProps = {
     summary: string;
     consumes: string;
     produces: string;
+    docLink: string;
   };
   activeTransformationsDispatch: SafeActiveTransformationsDispatch;
 };
@@ -376,44 +375,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
     }
   };
 
-  /**
-   * Splits a string into several <p> tags, one for each line of text.
-   */
-  function splitIntoParagraphs(text: string): JSX.Element[] {
-    return text.split("\n").map((paragraph, i) => (
-      <>
-        <p key={i}>{paragraph}</p>
-      </>
-    ));
-  }
-
   return (
     <>
-      {/* Only render info icon if NOT a saved transformation. */}
-      {!saveData && (
-        <Popover
-          button={
-            <IconButton style={{ padding: "0" }} size="small">
-              <InfoIcon htmlColor="var(--blue-green)" fontSize="inherit" />
-            </IconButton>
-          }
-          buttonStyles={{ marginLeft: "5px", display: "inline" }}
-          tooltip={`More Info on ${base}`}
-          innerContent={
-            <>
-              <p>{splitIntoParagraphs(info.summary)}</p>
-              <p>
-                <b>Consumes: </b>
-                {splitIntoParagraphs(info.consumes)}
-              </p>
-              <p>
-                <b>Produces: </b>
-                {splitIntoParagraphs(info.produces)}
-              </p>
-            </>
-          }
-        />
-      )}
+      {/* Only render info if NOT a saved transformation. */}
+      {!saveData && <TransformerInfo {...info} transformerName={base} />}
 
       {order.map((component) => {
         if (component === "context1" || component === "context2") {
@@ -585,7 +550,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         }
       })}
       <div>
-        <TransformerSubmitButtons
+        <TransformerSubmitButton
           onCreate={
             transformerFunction.kind === "fullOverride"
               ? () => transformerFunction.createFunc(props, state)
@@ -595,7 +560,7 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       </div>
       {errorDisplay}
       {saveData === undefined && (
-        <TransformerSaveButton base={base} generateSaveData={() => state} />
+        <TransformerSaveUI base={base} generateSaveData={() => state} />
       )}
     </>
   );

@@ -27,6 +27,9 @@ import {
   CodapAttribute,
   GetInteractiveStateResponse,
   InteractiveFrame,
+  CodapComponent,
+  GetComponentResponse,
+  ComponentListResponse,
 } from "./types";
 import {
   callUpdateListenersForContext,
@@ -76,10 +79,11 @@ const phone: CodapPhone = new IframePhoneRpcEndpoint(
 );
 
 const DEFAULT_PLUGIN_WIDTH = 350;
-const DEFAULT_PLUGIN_HEIGHT = 500;
+const DEFAULT_PLUGIN_HEIGHT = 450;
+const DEFAULT_SAVED_TRANSFORMER_HEIGHT = 370;
 
 // Initialize the interactive frame with a given title.
-export async function initPhone(title: string): Promise<void> {
+export async function initPhone(title: string, saved: boolean): Promise<void> {
   const hasState = (await getInteractiveFrame()).savedState !== undefined;
   // Only resize the plugin to default dimensions if this is it's
   // first time being initialized (no savedState)
@@ -87,7 +91,9 @@ export async function initPhone(title: string): Promise<void> {
     ? undefined
     : {
         width: DEFAULT_PLUGIN_WIDTH,
-        height: DEFAULT_PLUGIN_HEIGHT,
+        height: saved
+          ? DEFAULT_SAVED_TRANSFORMER_HEIGHT
+          : DEFAULT_PLUGIN_HEIGHT,
       };
   return updateInteractiveFrame({
     // Don't update the title if there is save data.
@@ -304,6 +310,85 @@ export function notifyInteractiveFrameIsDirty(): Promise<void> {
           reject(
             new Error("Failed to notify interactive frame that state is dirty.")
           );
+        }
+      }
+    )
+  );
+}
+
+export function getAllComponents(): Promise<ComponentListResponse["values"]> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: CodapListResource.ComponentList,
+      },
+      (response: ComponentListResponse) => {
+        if (Array.isArray(response.values)) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get components."));
+        }
+      }
+    )
+  );
+}
+
+export function getComponent(component: string): Promise<CodapComponent> {
+  return new Promise<CodapComponent>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Get,
+        resource: resourceFromComponent(component),
+      },
+      (response: GetComponentResponse) => {
+        if (response.success) {
+          resolve(response.values);
+        } else {
+          reject(new Error("Failed to get component."));
+        }
+      }
+    )
+  );
+}
+
+export function updateComponent(
+  component: string,
+  values: Partial<CaseTable>
+): Promise<void> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Update,
+        resource: resourceFromComponent(component),
+        values: values,
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update component."));
+        }
+      }
+    )
+  );
+}
+export function updateDataContext(
+  context: string,
+  values: Partial<DataContext>
+): Promise<void> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Update,
+        resource: resourceFromContext(context),
+        values: values,
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to update context."));
         }
       }
     )

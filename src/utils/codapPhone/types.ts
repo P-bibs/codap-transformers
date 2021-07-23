@@ -81,6 +81,11 @@ export type GetListRequest = {
   resource: CodapListResource;
 };
 
+export type GetComponentListRequest = {
+  action: CodapActions.Get;
+  resource: CodapListResource.ComponentList;
+};
+
 export type CreateContextRequest = {
   action: CodapActions.Create;
   resource: CodapResource.DataContext;
@@ -120,6 +125,17 @@ export interface UpdateTextRequest {
   action: CodapActions.Update;
   resource: string;
   values: Partial<Text>;
+}
+
+export interface UpdateComponentRequest {
+  action: CodapActions.Update;
+  resource: string;
+  values: Partial<CodapComponent>;
+}
+export interface UpdateContextRequest {
+  action: CodapActions.Update;
+  resource: string;
+  values: Partial<DataContext>;
 }
 
 export interface NotifyUndoChangeNoticeRequest {
@@ -170,6 +186,10 @@ interface ListResponse extends CodapResponse {
   values: CodapIdentifyingInfo[];
 }
 
+export interface ComponentListResponse extends CodapResponse {
+  values: (CodapIdentifyingInfo & { type: CodapComponentType })[];
+}
+
 interface GetDataResponse extends CodapResponse {
   values: {
     values: Record<string, unknown>;
@@ -188,6 +208,10 @@ export interface GetCaseResponse extends CodapResponse {
   values: {
     case: ReturnedCase;
   };
+}
+
+export interface GetComponentResponse extends CodapResponse {
+  values: CodapComponent;
 }
 
 export interface GetContextResponse extends CodapResponse {
@@ -228,11 +252,16 @@ export type CodapPhone = {
   ): void;
   call(r: GetContextListRequest, cb: (r: ListResponse) => void): void;
   call(r: GetListRequest, cb: (r: ListResponse) => void): void;
+  call(
+    r: GetComponentListRequest,
+    cb: (r: ComponentListResponse) => void
+  ): void;
   call(r: GetRequest, cb: (r: GetDataResponse) => void): void;
   call(r: GetRequest, cb: (r: GetContextResponse) => void): void;
   call(r: GetRequest, cb: (r: GetDataListResponse) => void): void;
   call(r: GetRequest, cb: (r: GetCasesResponse) => void): void;
   call(r: GetRequest, cb: (r: GetCaseResponse) => void): void;
+  call(r: GetRequest, cb: (r: GetComponentResponse) => void): void;
   call(r: CreateContextRequest, cb: (r: CreateContextResponse) => void): void;
   call(r: CreateDataItemsRequest, cb: (r: CodapResponse) => void): void;
   call(r: CreateCollectionsRequest, cb: (r: ListResponse) => void): void;
@@ -240,6 +269,8 @@ export type CodapPhone = {
   call(r: CreateTableRequest, cb: (r: TableResponse) => void): void;
   call(r: CreateTextRequest, cb: (r: CodapResponse) => void): void;
   call(r: UpdateTextRequest, cb: (r: CodapResponse) => void): void;
+  call(r: UpdateComponentRequest, cb: (r: CodapResponse) => void): void;
+  call(r: UpdateContextRequest, cb: (r: CodapResponse) => void): void;
   call(r: EvalExpressionRequest, cb: (r: EvalExpressionResponse) => void): void;
   call(
     r: GetFunctionInfoRequest,

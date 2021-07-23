@@ -1,5 +1,7 @@
 .CodeMirror {
-  height: 100px;
+  height: -moz-fit-content !important;
+  height: fit-content !important;
+  max-width: 300px;
   border: 1px solid var(--blue-green);
   border-radius: 3px;
 }
@@ -10,11 +12,11 @@
 }
 
 .cm-variable {
-    color: magenta;
+  color: magenta;
 }
 
 .cm-function {
-    color: blue;
+  color: blue;
 }
 
 /* slightly gray out editor when disabled */
@@ -25,4 +27,9 @@
 /* make cursor disappear when disabled */
 .editor-disabled .CodeMirror-cursor { 
   display: none !important;
+}
+
+.CodeMirror pre.CodeMirror-placeholder {
+  color: #808080;
+  font-family: Montserrat;
 }

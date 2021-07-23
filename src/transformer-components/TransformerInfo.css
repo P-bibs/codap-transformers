@@ -1,0 +1,5 @@
+
+/* Space out the summary/consumes/produces/link sections */
+.transformer-info-section {
+  margin-bottom: 10px;
+}

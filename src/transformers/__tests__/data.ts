@@ -225,6 +225,54 @@ export const DATASET_B: DataSet = {
 };
 
 /**
+ * A dataset with student names and grades on multiple assessments, with each
+ * assessment as a separate attribute
+ */
+export const GRADES_DATASET_WIDER: DataSet = {
+  collections: [
+    makeCollection("Collection", ["name", "quiz1", "quiz2", "test1"]),
+  ],
+  records: makeRecords(
+    ["name", "quiz1", "quiz2", "test1"],
+    [
+      ["Billy", "", "D", "C"],
+      ["Jenny", "A", "A", "B"],
+      ["Joshua", "C", "B", "B"],
+      ["Suzy", "F", "", ""],
+      ["Lionel", "B", "C", "B"],
+    ]
+  ),
+};
+
+/**
+ * A dataset with student names and grades on multiple assessments, with all assessments
+ * in one column
+ */
+export const GRADES_DATASET_LONGER: DataSet = {
+  collections: [makeCollection("Collection", ["name", "Assessment", "Grades"])],
+  records: makeRecords(
+    ["name", "Assessment", "Grades"],
+    [
+      ["Billy", "quiz1", ""],
+      ["Billy", "quiz2", "D"],
+      ["Billy", "test1", "C"],
+      ["Jenny", "quiz1", "A"],
+      ["Jenny", "quiz2", "A"],
+      ["Jenny", "test1", "B"],
+      ["Joshua", "quiz1", "C"],
+      ["Joshua", "quiz2", "B"],
+      ["Joshua", "test1", "B"],
+      ["Suzy", "quiz1", "F"],
+      ["Suzy", "quiz2", ""],
+      ["Suzy", "test1", ""],
+      ["Lionel", "quiz1", "B"],
+      ["Lionel", "quiz2", "C"],
+      ["Lionel", "test1", "B"],
+    ]
+  ),
+};
+
+/**
  * A dataset with lots of collection/attribute metadata (titles,
  * descriptions, formulas, etc.), but no records.
  */

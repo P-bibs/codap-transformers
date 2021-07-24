@@ -72,7 +72,7 @@ export async function pivotLonger({
  *  attributes will go
  * @returns pivoted dataset
  */
-function uncheckedPivotLonger(
+export function uncheckedPivotLonger(
   dataset: DataSet,
   toPivot: string[],
   namesTo: string,
@@ -186,7 +186,7 @@ export async function pivotWider({
  * @param valuesFrom name of attribute holding the values that will go
  *  under the new attribute names
  */
-function uncheckedPivotWider(
+export function uncheckedPivotWider(
   dataset: DataSet,
   namesFrom: string,
   valuesFrom: string

@@ -1,6 +1,6 @@
 import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../lib/codapPhone/types";
-import { readableName } from "../transformer-components/util";
+import { readableName } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import {

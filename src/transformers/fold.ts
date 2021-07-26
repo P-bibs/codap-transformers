@@ -9,7 +9,7 @@ import {
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { parenthesizeName, readableName } from "../transformer-components/util";
+import { parenthesizeName, readableName } from "../transformers/util";
 
 type FoldFunction = (
   dataset: DataSet,

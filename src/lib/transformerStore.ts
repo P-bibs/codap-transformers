@@ -7,7 +7,7 @@ import {
   TransformerTemplateState,
   FullOverrideFunction,
 } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformer-components/util";
+import { readableName } from "../transformers/util";
 import {
   DataSetTransformationOutput,
   SingleValueTransformationOutput,

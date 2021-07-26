@@ -2,7 +2,7 @@ import { DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformer-components/util";
+import { readableName } from "../transformers/util";
 
 /**
  * Filter produces a dataset with certain records excluded

@@ -2,7 +2,7 @@ import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformer-components/util";
+import { readableName } from "../transformers/util";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {

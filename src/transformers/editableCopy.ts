@@ -3,7 +3,8 @@ import {
   TransformerTemplateState,
 } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { applyNewDataSet, readableName } from "../transformer-components/util";
+import { applyNewDataSet } from "../components/transformer-template/util";
+import { readableName } from "../transformers/util";
 import { makeDatasetMutable } from "../transformers/util";
 import { uncheckedCopy } from "./copy";
 

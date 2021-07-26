@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import "./styles/Views.css";
 import ErrorDisplay from "../components/ui-components/Error";
-import { SavedTransformer } from "../transformer-components/types";
+import { SavedTransformer } from "../components/transformer-template/types";
 import transformerList, {
   BaseTransformerName,
   TransformerGroup,
@@ -21,7 +21,7 @@ import {
   useActiveTransformations,
   deserializeActiveTransformations,
   ActionTypes,
-} from "../lib/transformationDescription";
+} from "../lib/transformerStore";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 // These are the base transformer types represented as SavedTransformer

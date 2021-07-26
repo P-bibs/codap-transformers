@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import { useState } from "react";
 import "./styles/Views.css";
 import ErrorDisplay from "../components/ui-components/Error";
-import { SavedTransformer } from "../transformer-components/types";
+import { SavedTransformer } from "../components/transformer-template/types";
 import { TextArea, TextInput } from "../components/ui-components";
 import {
   getInteractiveFrame,
@@ -21,7 +21,7 @@ import {
   useActiveTransformations,
   ActionTypes,
   deserializeActiveTransformations,
-} from "../lib/transformationDescription";
+} from "../lib/transformerStore";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 /**

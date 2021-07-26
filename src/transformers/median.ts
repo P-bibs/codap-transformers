@@ -1,5 +1,5 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformer-components/util";
+import { readableName } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";

@@ -1,10 +1,7 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import { TextArea, TextInput } from "../ui-components";
 import { BaseTransformerName } from "../../transformerList";
-import {
-  SavedTransformerContent,
-  TransformerSaveData,
-} from "../../transformer-components/types";
+import { SavedTransformerContent, TransformerSaveData } from "./types";
 import {
   createDataInteractive,
   getInteractiveFrame,

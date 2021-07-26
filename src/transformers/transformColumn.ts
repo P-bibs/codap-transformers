@@ -1,7 +1,7 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformer-components/util";
+import { readableName } from "../transformers/util";
 import {
   reportTypeErrorsForRecords,
   cloneCollection,

@@ -22,7 +22,7 @@ import {
   TypeSelector,
   ExpressionEditor,
 } from "../ui-components";
-import { applyNewDataSet } from "../../transformer-components/util";
+import { applyNewDataSet } from "./util";
 import {
   DatasetCreatorTransformerName,
   BaseTransformerName,
@@ -37,7 +37,7 @@ import {
   TransformationOutputType,
   SafeActiveTransformationsDispatch,
   ActionTypes as ActiveTransformationActionTypes,
-} from "../../lib/transformationDescription";
+} from "../../lib/transformerStore";
 import { displaySingleValue } from "../../transformers/util";
 import { makeDatasetImmutable } from "../../transformers/util";
 import TransformerInfo from "../info-components/TransformerInfo";

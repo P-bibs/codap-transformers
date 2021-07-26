@@ -1,6 +1,5 @@
-import { ReactElement } from "react";
-import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { BaseTransformerName } from "../transformerList";
+import { TransformerTemplateState } from "./TransformerTemplate";
+import { BaseTransformerName } from "../../transformerList";
 
 /**
  * The content associated with a saved transformer. Includes the base

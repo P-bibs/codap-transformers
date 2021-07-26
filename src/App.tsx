@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from "react";
 import SavedDefinitionView from "./views/SavedDefinitionView";
-import { SavedTransformer } from "./transformer-components/types";
+import { SavedTransformer } from "./components/transformer-template/types";
 import REPLView from "./views/REPLView";
 import { initPhone } from "./lib/codapPhone";
 import "./App.css";

@@ -14,8 +14,9 @@ import {
   TransformerTemplateProps,
   TransformerTemplateState,
 } from "../components/transformer-template/TransformerTemplate";
-import { applyNewDataSet, readableName } from "../transformer-components/util";
-import { ActionTypes } from "../lib/transformationDescription";
+import { readableName } from "../transformers/util";
+import { applyNewDataSet } from "../components/transformer-template/util";
+import { ActionTypes } from "../lib/transformerStore";
 
 /**
  * Contains a dataset as a result of a partition, and the distinct

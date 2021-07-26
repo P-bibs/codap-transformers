@@ -10,7 +10,7 @@ import {
 import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { readableName } from "../transformer-components/util";
+import { readableName } from "../transformers/util";
 
 // TODO: allow for two modes:
 //  1) treat data like one table, values are counted across all cases

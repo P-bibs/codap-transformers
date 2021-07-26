@@ -2,7 +2,7 @@ import { DataSet, TransformationOutput } from "./types";
 import { setEquality } from "../lib/utils/sets";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { readableName } from "../transformer-components/util";
+import { readableName } from "../transformers/util";
 import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
 
 /**

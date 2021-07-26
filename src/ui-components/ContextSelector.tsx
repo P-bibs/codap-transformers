@@ -13,6 +13,7 @@ export default function ContextSelector({
 }: ContextSelectorProps): ReactElement {
   const dataContexts = useDataContexts();
 
+  // Check if selected context still exists. If not, reset the selection.
   useEffect(() => {
     if (value !== null && !dataContexts.map((d) => d.name).includes(value)) {
       onChange(null);

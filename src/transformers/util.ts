@@ -176,6 +176,9 @@ export function pluralSuffix<T>(word: string, describing: T[]): string {
 
 /**
  * Converts a CODAP cell value into a user-friendly string.
+ * TODO: With type predicates added to the CODAP expression language,
+ * this should use those to determine the type of the codapValue to be
+ * as consistent as possible with CODAP.
  *
  * @param codapValue the value to convert to a string for printing
  * @returns string version of the value
@@ -220,6 +223,11 @@ export function codapValueToString(codapValue: unknown): string {
   // boundary maps
   if (isBoundaryMap(codapValue)) {
     return "a boundary map";
+  }
+
+  // dates
+  if (isDate(codapValue)) {
+    return `a date (${codapValue})`;
   }
 
   // objects
@@ -278,6 +286,34 @@ export function isColor(value: unknown): boolean {
  */
 export function isMissing(value: unknown): boolean {
   return value === "" || value === undefined;
+}
+
+/**
+ * Determines whether a given unknown CODAP value represents a date.
+ * There are several supported date formats per the documentation here:
+ * https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#data-types-and-typeless-data
+ *
+ * @param value The value to check if it is a date
+ * @returns true if the value is a date, false otherwise
+ */
+function isDate(value: unknown): boolean {
+  // if Date() can parse it, consider it a date
+  if (!isNaN(Date.parse(String(value)))) {
+    return true;
+  }
+
+  const noWhitespace = String(value).replace(/\s+/g, "");
+
+  // Formats not supported by Date.parse() but allowed in CODAP:
+  // - hh:mm
+  // - hh:mm:ss
+  // - hh:mm:ss.ddd
+  // Any can contain AM/PM.
+  return (
+    /\d{2}:\d{2}(AM|PM)?/.test(noWhitespace) ||
+    /\d{2}:\d{2}:\d{2}(AM|PM)?/.test(noWhitespace) ||
+    /\d{2}:\d{2}:\d{2}.\d{3}(AM|PM)?/.test(noWhitespace)
+  );
 }
 
 export function reportTypeErrorsForRecords(

@@ -387,9 +387,9 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
               {titleFromComponent(component, init)}
               <ContextSelector
                 value={state[component]}
-                onChange={(e) => {
+                onChange={(context) => {
                   notifyStateIsDirty();
-                  setState({ [component]: e.target.value });
+                  setState({ [component]: context });
                 }}
               />
             </div>

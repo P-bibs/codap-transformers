@@ -183,6 +183,9 @@ export function pluralSuffix<T>(word: string, describing: T[]): string {
 
 /**
  * Converts a CODAP cell value into a user-friendly string.
+ * TODO: With type predicates added to the CODAP expression language,
+ * this should use those to determine the type of the codapValue to be
+ * as consistent as possible with CODAP.
  *
  * @param codapValue the value to convert to a string for printing
  * @returns string version of the value

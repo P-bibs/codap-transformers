@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import { SavedTransformer } from "./types";
 import TransformerTemplate from "./TransformerTemplate";
 import transformerList from "../../transformerList";
-import { SafeActiveTransformationsDispatch } from "../../lib/transformerStore";
+import { SafeActiveTransformationsDispatch } from "../../store/transformerStore";
 
 interface TransformerRendererProps {
   transformer?: SavedTransformer;

@@ -37,7 +37,7 @@ import {
   TransformationOutputType,
   SafeActiveTransformationsDispatch,
   ActionTypes as ActiveTransformationActionTypes,
-} from "../../lib/transformerStore";
+} from "../../store/transformerStore";
 import { displaySingleValue } from "../../transformers/util";
 import { makeDatasetImmutable } from "../../transformers/util";
 import TransformerInfo from "../info-components/TransformerInfo";

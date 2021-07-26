@@ -16,7 +16,7 @@ import {
 } from "../components/transformer-template/TransformerTemplate";
 import { readableName } from "../transformers/util";
 import { applyNewDataSet } from "../components/transformer-template/util";
-import { ActionTypes } from "../lib/transformerStore";
+import { ActionTypes } from "../store/transformerStore";
 
 /**
  * Contains a dataset as a result of a partition, and the distinct

@@ -21,7 +21,7 @@ import {
   useActiveTransformations,
   deserializeActiveTransformations,
   ActionTypes,
-} from "../lib/transformerStore";
+} from "../store/transformerStore";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 // These are the base transformer types represented as SavedTransformer

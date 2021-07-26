@@ -20,7 +20,7 @@ import {
   updateDataContext,
   getComponent,
   updateComponent,
-} from "./codapPhone";
+} from "../lib/codapPhone";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
@@ -29,9 +29,9 @@ import {
   addContextDeletedHook,
   removeContextDeletedHook,
   callAllContextListeners,
-} from "./codapPhone/listeners";
+} from "../lib/codapPhone/listeners";
 import { makeDatasetImmutable } from "../transformers/util";
-import { InteractiveState } from "./codapPhone/types";
+import { InteractiveState } from "../lib/codapPhone/types";
 import { PartitionSaveState } from "../transformers/partition";
 import { displaySingleValue } from "../transformers/util";
 
@@ -213,6 +213,8 @@ interface PartitionDescription extends BaseTransformationDescription {
 }
 
 // Future fullOverride transformers would be added to this union
+// NOTE: Editable Copy is not listed here because, by its very nature,
+// it does not participate in updates.
 type FullOverrideDescription = PartitionDescription;
 
 export type TransformationDescription =

@@ -21,7 +21,7 @@ import {
   useActiveTransformations,
   ActionTypes,
   deserializeActiveTransformations,
-} from "../lib/transformerStore";
+} from "../store/transformerStore";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 /**

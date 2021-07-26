@@ -17,9 +17,9 @@ import {
 } from "../lib/codapPhone/listeners";
 import "../components/transformer-template/styles/DefinitionCreator.css";
 import "./styles/SavedDefinitionView.css";
-import { useActiveTransformations } from "../store/transformerStore";
-import { ActionTypes } from "../store/transformerStore/types";
-import { deserializeActiveTransformations } from "../store/transformerStore/util";
+import { useActiveTransformations } from "../transformerStore";
+import { ActionTypes } from "../transformerStore/types";
+import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 /**

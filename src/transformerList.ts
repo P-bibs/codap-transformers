@@ -3,7 +3,7 @@ import {
   TransformerTemplateState,
   TransformFunction,
 } from "./components/transformer-template/TransformerTemplate";
-import { TransformationDescription } from "./store/transformerStore/types";
+import { TransformationDescription } from "./transformerStore/types";
 import { filter } from "./transformers/filter";
 import { buildColumn } from "./transformers/buildColumn";
 import { flatten } from "./transformers/flatten";

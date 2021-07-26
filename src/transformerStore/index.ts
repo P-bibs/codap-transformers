@@ -1,13 +1,13 @@
 import React, { useReducer, useEffect } from "react";
-import { default as transformerList } from "../../transformerList";
-import { readableName } from "../../transformers/util";
+import { default as transformerList } from "../transformerList";
+import { readableName } from "../transformers/util";
 import {
   getDataContext,
   notifyInteractiveFrameIsDirty,
   updateDataContext,
   getComponent,
   updateComponent,
-} from "../../lib/codapPhone";
+} from "../lib/codapPhone";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
@@ -16,8 +16,8 @@ import {
   addContextDeletedHook,
   removeContextDeletedHook,
   callAllContextListeners,
-} from "../../lib/codapPhone/listeners";
-import { InteractiveState } from "../../lib/codapPhone/types";
+} from "../lib/codapPhone/listeners";
+import { InteractiveState } from "../lib/codapPhone/types";
 import {
   ActionTypes,
   ActiveTransformationsAction,

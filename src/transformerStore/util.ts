@@ -1,15 +1,15 @@
-import { default as transformerList } from "../../transformerList";
+import { default as transformerList } from "../transformerList";
 import {
   TransformerTemplateState,
   FullOverrideFunction,
-} from "../../components/transformer-template/TransformerTemplate";
+} from "../components/transformer-template/TransformerTemplate";
 import {
   DataSetTransformationOutput,
   SingleValueTransformationOutput,
-} from "../../transformers/types";
-import { updateContextWithDataSet, updateText } from "../../lib/codapPhone";
-import { makeDatasetImmutable } from "../../transformers/util";
-import { displaySingleValue } from "../../transformers/util";
+} from "../transformers/types";
+import { updateContextWithDataSet, updateText } from "../lib/codapPhone";
+import { makeDatasetImmutable } from "../transformers/util";
+import { displaySingleValue } from "../transformers/util";
 import {
   ActionTypes,
   ActiveTransformations,

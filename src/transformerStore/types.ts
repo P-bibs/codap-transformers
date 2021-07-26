@@ -1,6 +1,6 @@
-import { BaseTransformerName } from "../../transformerList";
-import { TransformerTemplateState } from "../../components/transformer-template/TransformerTemplate";
-import { PartitionSaveState } from "../../transformers/partition";
+import { BaseTransformerName } from "../transformerList";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { PartitionSaveState } from "../transformers/partition";
 
 export enum TransformationOutputType {
   CONTEXT = "context",

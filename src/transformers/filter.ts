@@ -1,7 +1,7 @@
 import { DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString } from "./util";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 
 /**

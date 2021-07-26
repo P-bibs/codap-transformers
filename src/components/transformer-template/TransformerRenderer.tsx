@@ -1,8 +1,8 @@
 import React, { ReactElement } from "react";
-import { SavedTransformer } from "./types";
+import { SavedTransformer } from "../../transformer-components/types";
 import DDTransformer from "./DataDrivenTransformer";
-import transformerList from "./transformerList";
-import { SafeActiveTransformationsDispatch } from "../lib/transformationDescription";
+import transformerList from "../../transformerList";
+import { SafeActiveTransformationsDispatch } from "../../lib/transformationDescription";
 
 interface TransformerRendererProps {
   transformer?: SavedTransformer;

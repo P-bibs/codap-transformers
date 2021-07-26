@@ -1,6 +1,6 @@
 import { DataSet, TransformationOutput } from "./types";
 import { setEquality } from "../lib/utils/sets";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformer-components/util";
 import { eraseFormulas, allAttrNames, cloneCollection } from "./util";

@@ -2,7 +2,7 @@ import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../lib/codapPhone/types";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
 import {
   reparent,
   cloneCollection,

@@ -1,9 +1,8 @@
 import React, { ReactElement } from "react";
 import { useState } from "react";
-import "./TransformerViews.css";
+import "./styles/TransformerViews.css";
 import ErrorDisplay from "../components/ui-components/Error";
-import { SavedTransformer } from "./types";
-import { TransformerRenderer } from "./TransformerRenderer";
+import { SavedTransformer } from "../transformer-components/types";
 import { TextArea, TextInput } from "../components/ui-components";
 import {
   getInteractiveFrame,
@@ -16,13 +15,14 @@ import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
 } from "../lib/codapPhone/listeners";
-import "./TransformerSaveUI.css";
-import "./SavedTransformerView.css";
+import "../components/transformer-template/styles/TransformerSaveUI.css";
+import "./styles/SavedTransformerView.css";
 import {
   useActiveTransformations,
   ActionTypes,
   deserializeActiveTransformations,
 } from "../lib/transformationDescription";
+import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 /**
  * SavedTransformerView wraps a saved transformer in other important info

@@ -5,13 +5,13 @@ import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
   deleteDataContext,
-} from "../lib/codapPhone";
-import { useAttributes } from "../lib/utils/hooks";
+} from "../../lib/codapPhone";
+import { useAttributes } from "../../lib/utils/hooks";
 import {
   CodapLanguageType,
   TransformationOutput,
   FullOverrideSaveState,
-} from "../transformers/types";
+} from "../../transformers/types";
 import {
   Select,
   AttributeSelector,
@@ -21,28 +21,28 @@ import {
   TextInput,
   TypeSelector,
   ExpressionEditor,
-} from "../components/ui-components";
-import { applyNewDataSet } from "./util";
-import TransformerSaveUI from "./TransformerSaveUI";
+} from "../ui-components";
+import { applyNewDataSet } from "../../transformer-components/util";
 import {
   DatasetCreatorTransformerName,
   BaseTransformerName,
-} from "./transformerList";
+} from "../../transformerList";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
-} from "../lib/codapPhone/listeners";
-import { InteractiveState } from "../lib/codapPhone/types";
-import { pushToUndoStack } from "../lib/codapPhone/listeners";
+} from "../../lib/codapPhone/listeners";
+import { InteractiveState } from "../../lib/codapPhone/types";
+import { pushToUndoStack } from "../../lib/codapPhone/listeners";
 import {
   TransformationOutputType,
   SafeActiveTransformationsDispatch,
   ActionTypes as ActiveTransformationActionTypes,
-} from "../lib/transformationDescription";
-import { displaySingleValue } from "../transformers/util";
-import { makeDatasetImmutable } from "../transformers/util";
-import TransformerInfo from "../components/info-components/TransformerInfo";
-import "./DataDrivenTransformer.css";
+} from "../../lib/transformationDescription";
+import { displaySingleValue } from "../../transformers/util";
+import { makeDatasetImmutable } from "../../transformers/util";
+import TransformerInfo from "../info-components/TransformerInfo";
+import "./styles/DataDrivenTransformer.css";
+import TransformerSaveUI from "./TransformerSaveUI";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {

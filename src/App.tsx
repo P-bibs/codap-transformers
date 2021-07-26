@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from "react";
-import SavedTransformerView from "./transformer-components/SavedTransformerView";
+import SavedTransformerView from "./views/SavedTransformerView";
 import { SavedTransformer } from "./transformer-components/types";
-import TransformerREPLView from "./transformer-components/TransformerREPLView";
+import TransformerREPLView from "./views/TransformerREPLView";
 import { initPhone } from "./lib/codapPhone";
 import "./App.css";
 import { useEffect } from "react";

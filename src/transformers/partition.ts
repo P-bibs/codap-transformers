@@ -13,7 +13,7 @@ import {
 import {
   DDTransformerProps,
   DDTransformerState,
-} from "../transformer-components/DataDrivenTransformer";
+} from "../components/transformer-template/DataDrivenTransformer";
 import { applyNewDataSet, readableName } from "../transformer-components/util";
 import { ActionTypes } from "../lib/transformationDescription";
 

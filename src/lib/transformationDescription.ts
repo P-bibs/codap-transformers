@@ -2,11 +2,11 @@ import React, { useReducer, useEffect } from "react";
 import {
   BaseTransformerName,
   default as transformerList,
-} from "../transformer-components/transformerList";
+} from "../transformerList";
 import {
   DDTransformerState,
   FullOverrideFunction,
-} from "../transformer-components/DataDrivenTransformer";
+} from "../components/transformer-template/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import {
   DataSetTransformationOutput,

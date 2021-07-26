@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
-import { DDTransformerState } from "./DataDrivenTransformer";
-import { BaseTransformerName } from "./transformerList";
+import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { BaseTransformerName } from "../transformerList";
 
 /**
  * The content associated with a saved transformer. Includes the base

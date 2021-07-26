@@ -2,20 +2,20 @@ import {
   DDTransformerInit,
   DDTransformerState,
   TransformFunction,
-} from "./DataDrivenTransformer";
-import { TransformationDescription } from "../lib/transformationDescription";
-import { filter } from "../transformers/filter";
-import { buildColumn } from "../transformers/buildColumn";
-import { flatten } from "../transformers/flatten";
-import { groupBy } from "../transformers/groupBy";
-import { selectAttributes } from "../transformers/selectAttributes";
-import { count } from "../transformers/count";
-import { sort } from "../transformers/sort";
-import { pivotLonger, pivotWider } from "../transformers/pivot";
-import { join } from "../transformers/join";
-import { copy } from "../transformers/copy";
-import { copyStructure } from "../transformers/copyStructure";
-import { combineCases } from "../transformers/combineCases";
+} from "./components/transformer-template/DataDrivenTransformer";
+import { TransformationDescription } from "./lib/transformationDescription";
+import { filter } from "./transformers/filter";
+import { buildColumn } from "./transformers/buildColumn";
+import { flatten } from "./transformers/flatten";
+import { groupBy } from "./transformers/groupBy";
+import { selectAttributes } from "./transformers/selectAttributes";
+import { count } from "./transformers/count";
+import { sort } from "./transformers/sort";
+import { pivotLonger, pivotWider } from "./transformers/pivot";
+import { join } from "./transformers/join";
+import { copy } from "./transformers/copy";
+import { copyStructure } from "./transformers/copyStructure";
+import { combineCases } from "./transformers/combineCases";
 import {
   difference,
   differenceFrom,
@@ -24,16 +24,16 @@ import {
   runningMean,
   runningMin,
   runningSum,
-} from "../transformers/fold";
-import { sumProduct } from "../transformers/sumProduct";
-import { mean } from "../transformers/mean";
-import { median } from "../transformers/median";
-import { mode } from "../transformers/mode";
-import { standardDeviation } from "../transformers/standardDeviation";
-import { partitionOverride, partitionUpdate } from "../transformers/partition";
-import { editableCopyOverride } from "../transformers/editableCopy";
-import { transformColumn } from "../transformers/transformColumn";
-import { compare } from "../transformers/compare";
+} from "./transformers/fold";
+import { sumProduct } from "./transformers/sumProduct";
+import { mean } from "./transformers/mean";
+import { median } from "./transformers/median";
+import { mode } from "./transformers/mode";
+import { standardDeviation } from "./transformers/standardDeviation";
+import { partitionOverride, partitionUpdate } from "./transformers/partition";
+import { editableCopyOverride } from "./transformers/editableCopy";
+import { transformColumn } from "./transformers/transformColumn";
+import { compare } from "./transformers/compare";
 
 export type TransformersInteractiveState = {
   transformerREPL?: {

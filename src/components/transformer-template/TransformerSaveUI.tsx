@@ -1,22 +1,22 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { TextArea, TextInput } from "../components/ui-components";
-import { BaseTransformerName } from "../transformer-components/transformerList";
+import { TextArea, TextInput } from "../../components/ui-components";
+import { BaseTransformerName } from "../../transformerList";
 import {
   SavedTransformerContent,
   TransformerSaveData,
-} from "../transformer-components/types";
+} from "../../transformer-components/types";
 import {
   createDataInteractive,
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
-} from "../lib/codapPhone";
+} from "../../lib/codapPhone";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
-} from "../lib/codapPhone/listeners";
-import { InteractiveState } from "../lib/codapPhone/types";
-import "./TransformerSaveUI.css";
-import ErrorDisplay from "../components/ui-components/Error";
+} from "../../lib/codapPhone/listeners";
+import { InteractiveState } from "../../lib/codapPhone/types";
+import "./styles/TransformerSaveUI.css";
+import ErrorDisplay from "../../components/ui-components/Error";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
 import { IconButton } from "@material-ui/core";

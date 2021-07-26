@@ -1,4 +1,4 @@
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
+import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, TransformationOutput } from "./types";

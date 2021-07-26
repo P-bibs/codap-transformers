@@ -1,13 +1,12 @@
 import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
-import "./TransformerViews.css";
+import "./styles/TransformerViews.css";
 import ErrorDisplay from "../components/ui-components/Error";
-import { SavedTransformer } from "./types";
+import { SavedTransformer } from "../transformer-components/types";
 import transformerList, {
   BaseTransformerName,
   TransformerGroup,
-} from "./transformerList";
-import { TransformerRenderer } from "./TransformerRenderer";
+} from "../transformerList";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
@@ -23,6 +22,7 @@ import {
   deserializeActiveTransformations,
   ActionTypes,
 } from "../lib/transformationDescription";
+import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 // These are the base transformer types represented as SavedTransformer
 // objects

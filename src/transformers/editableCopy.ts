@@ -1,7 +1,7 @@
 import {
   DDTransformerProps,
   DDTransformerState,
-} from "../transformer-components/DataDrivenTransformer";
+} from "../components/transformer-template/DataDrivenTransformer";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { applyNewDataSet, readableName } from "../transformer-components/util";
 import { makeDatasetMutable } from "../transformers/util";

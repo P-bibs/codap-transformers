@@ -1,4 +1,4 @@
-import { TransformersInteractiveState } from "../../transformer-components/transformerList";
+import { TransformersInteractiveState } from "../../transformerList";
 
 export enum CodapResource {
   InteractiveFrame = "interactiveFrame",

@@ -66,11 +66,20 @@ function makeFoldWrapper(
   };
 }
 
+// Which value to put in the fold column if the current row contains a missing
+// value. UseLast uses the value in the previous row. LeaveBlank leaves the
+// cell blank.
+enum MissingBehavior {
+  UseLast,
+  LeaveBlank,
+}
+
 const WHITESPACE_REGEX = /^\s*$/;
 function makeNumFold<T>(
   foldName: string,
   base: T,
-  f: (acc: T, input: number) => [newAcc: T, result: number]
+  f: (acc: T, input: number) => [newAcc: T, result: number],
+  missingBehavior: MissingBehavior = MissingBehavior.UseLast
 ) {
   return (
     dataset: DataSet,
@@ -92,7 +101,12 @@ function makeNumFold<T>(
 
       // Test for whitespace, since Number(whitespace) gives 0
       if (typeof rowValue === "string" && WHITESPACE_REGEX.test(rowValue)) {
-        return insertInRow(row, resultColumnName, result);
+        switch (missingBehavior) {
+          case MissingBehavior.UseLast:
+            return insertInRow(row, resultColumnName, result);
+          case MissingBehavior.LeaveBlank:
+            return insertInRow(row, resultColumnName, "");
+        }
       }
 
       const numValue = Number(rowValue);
@@ -249,7 +263,8 @@ const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
     } else {
       return [{ numAbove: input }, input - acc.numAbove];
     }
-  }
+  },
+  MissingBehavior.LeaveBlank
 );
 
 function defaultDescriptions(
@@ -358,7 +373,8 @@ function uncheckedDifferenceFrom(
       } else {
         return [{ numAbove: input }, input - acc.numAbove];
       }
-    }
+    },
+    MissingBehavior.LeaveBlank
   );
 
   return differenceFromFold(

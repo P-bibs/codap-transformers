@@ -26,11 +26,3 @@ export type SavedTransformer = {
   description?: string;
   content: SavedTransformerContent;
 };
-
-export interface TransformerProps {
-  setErrMsg: (s: string | null) => void;
-  saveData?: TransformerSaveData;
-  errorDisplay: ReactElement;
-}
-
-export type TransformerComponent = (props: TransformerProps) => ReactElement;

@@ -1,11 +1,6 @@
 import { DataSet } from "../transformers/types";
 import { DataContext } from "../lib/codapPhone/types";
-import {
-  createTableWithDataSet,
-  updateContextWithDataSet,
-  addContextUpdateListener,
-  updateText,
-} from "../lib/codapPhone";
+import { createTableWithDataSet } from "../lib/codapPhone";
 
 /**
  * This function takes a dataset as well as a `doUpdate` flag and either
@@ -44,58 +39,4 @@ export function readableName(context: DataContext): string {
  */
 export function parenthesizeName(name: string): string {
   return name.includes(" ") ? `(${name})` : name;
-}
-
-/**
- * Set up a listener to update `outputContext` when `inputContext` changes.
- *
- * @param inputContext - The input context
- * @param outputContext - The context to update
- * @param doTransform - A transformer function that returns the result
- * dataset
- * @param setErrMsg - A function that displays the error message to the user
- */
-export function addUpdateListener(
-  inputContext: string,
-  outputContext: string,
-  doTransform: () => Promise<[DataSet, string, string]>,
-  setErrMsg: (msg: string | null) => void,
-  extraDeps: string[] = []
-): void {
-  addContextUpdateListener(
-    inputContext,
-    [outputContext, ...extraDeps],
-    async () => {
-      setErrMsg(null);
-      try {
-        const [transformed] = await doTransform();
-        updateContextWithDataSet(outputContext, transformed);
-      } catch (e) {
-        setErrMsg(`Error updating ${outputContext}: ${e.message}`);
-      }
-    }
-  );
-}
-
-export function addUpdateTextListener(
-  inputContext: string,
-  textName: string,
-  doTransform: () => Promise<[number, string, string]>,
-  setErrMsg: (msg: string) => void,
-  extraDeps: string[] = []
-): void {
-  addContextUpdateListener(inputContext, [textName, ...extraDeps], async () => {
-    try {
-      const [result] = await doTransform();
-      updateText(textName, String(result));
-    } catch (e) {
-      setErrMsg(`Error updating ${textName}: ${e.message}`);
-    }
-  });
-}
-
-export function allAttributesFromContext(context: DataContext): string[] {
-  return context.collections.flatMap((c) =>
-    c.attrs ? c.attrs.map((a) => a.name) : []
-  );
 }

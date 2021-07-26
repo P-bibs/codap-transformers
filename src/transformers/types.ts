@@ -1,4 +1,4 @@
-import { Collection } from "../utils/codapPhone/types";
+import { Collection } from "../lib/codapPhone/types";
 import { PartitionSaveState } from "./partition";
 
 /**

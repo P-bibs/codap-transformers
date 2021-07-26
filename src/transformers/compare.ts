@@ -5,17 +5,17 @@ import {
   codapValueToString,
   getAttributeDataFromDataset,
 } from "./util";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { getContextAndDataSet } from "../utils/codapPhone";
-import { readableName } from "../transformer-components/util";
-import { uniqueName } from "../utils/names";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { getContextAndDataSet } from "../lib/codapPhone";
+import { readableName } from "../transformers/util";
+import { uniqueName } from "../lib/utils/names";
 import {
   colorToRgbString,
   GREEN,
   GREY,
   interpolateColor,
   RED,
-} from "../utils/colors";
+} from "../lib/utils/colors";
 import { uncheckedFlatten } from "./flatten";
 import { uncheckedGroupBy } from "./groupBy";
 
@@ -30,7 +30,7 @@ export async function compare({
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
   dropdown1: kind,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1) {
     throw new Error("Please select a data context");
   }

@@ -1,6 +1,32 @@
-import { Collection, CodapAttribute } from "../utils/codapPhone/types";
+import {
+  Collection,
+  CodapAttribute,
+  DataContext,
+} from "../lib/codapPhone/types";
 import { Boundary, CodapLanguageType, DataSet, SingleValue } from "./types";
-import { prettyPrintCase } from "../utils/prettyPrint";
+import { prettyPrintCase } from "../lib/utils/prettyPrint";
+
+/**
+ * Returns the context's title, if any, or falls back to its name.
+ *
+ * @param context the data context to produce a readable name for
+ * @returns readable name of the context
+ */
+export function readableName(context: DataContext): string {
+  return context.title ? context.title : context.name;
+}
+
+/**
+ * If the given name contains spaces, this will add parentheses
+ * to it, to keep it readable as a unit. Otherwise, returns
+ * the name unchanged.
+ *
+ * @param name the name to parenthesize
+ * @returns the input name, with parentheses added or not
+ */
+export function parenthesizeName(name: string): string {
+  return name.includes(" ") ? `(${name})` : name;
+}
 
 /**
  * Reparents any collections that have the given parent, to the

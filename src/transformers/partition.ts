@@ -3,19 +3,20 @@ import {
   getContextAndDataSet,
   updateContextWithDataSet,
   deleteDataContext,
-} from "../utils/codapPhone";
-import { pushToUndoStack } from "../utils/codapPhone/listeners";
+} from "../lib/codapPhone";
+import { pushToUndoStack } from "../lib/codapPhone/listeners";
 import {
   codapValueToString,
   makeDatasetImmutable,
   validateAttribute,
 } from "./util";
 import {
-  DDTransformerProps,
-  DDTransformerState,
-} from "../transformer-components/DataDrivenTransformer";
-import { applyNewDataSet, readableName } from "../transformer-components/util";
-import { ActionTypes } from "../utils/transformationDescription";
+  TransformerTemplateProps,
+  TransformerTemplateState,
+} from "../components/transformer-template/TransformerTemplate";
+import { readableName } from "../transformers/util";
+import { applyNewDataSet } from "../components/transformer-template/util";
+import { ActionTypes } from "../transformerStore/types";
 
 /**
  * Contains a dataset as a result of a partition, and the distinct
@@ -84,8 +85,11 @@ async function doTransform(
  * Sets up handlers and listeners for partition transformer
  */
 export const partitionOverride = async (
-  { setErrMsg, activeTransformationsDispatch }: DDTransformerProps,
-  { context1: inputDataCtxt, attribute1: attributeName }: DDTransformerState
+  { setErrMsg, activeTransformationsDispatch }: TransformerTemplateProps,
+  {
+    context1: inputDataCtxt,
+    attribute1: attributeName,
+  }: TransformerTemplateState
 ): Promise<void> => {
   if (inputDataCtxt === null) {
     setErrMsg("Please choose a valid dataset to transform.");
@@ -139,11 +143,11 @@ export const partitionOverride = async (
     () => outputContexts.forEach((context) => deleteDataContext(context)),
     () =>
       partitionOverride(
-        { setErrMsg } as DDTransformerProps,
+        { setErrMsg } as TransformerTemplateProps,
         {
           context1: inputDataCtxt,
           attribute1: attributeName,
-        } as DDTransformerState
+        } as TransformerTemplateState
       )
   );
 

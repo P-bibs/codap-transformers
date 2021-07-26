@@ -17,11 +17,9 @@ import {
 } from "../lib/codapPhone/listeners";
 import { InteractiveState } from "../lib/codapPhone/types";
 import AboutInfo from "../components/info-components/AboutInfo";
-import {
-  useActiveTransformations,
-  deserializeActiveTransformations,
-  ActionTypes,
-} from "../store/transformerStore";
+import { useActiveTransformations } from "../store/transformerStore";
+import { ActionTypes } from "../store/transformerStore/types";
+import { deserializeActiveTransformations } from "../store/transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 // These are the base transformer types represented as SavedTransformer

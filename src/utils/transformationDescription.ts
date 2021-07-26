@@ -132,6 +132,10 @@ export function useActiveTransformations(
           if (transformation.transformer === "Partition") {
             // If the transformer was partition we have to rename each output table
             for (const outputContext of transformation.state.outputContexts) {
+              // Do not attempt to rename deleted contexts
+              if (outputContext === deletedContext) {
+                continue;
+              }
               const outputContextData = await getDataContext(outputContext);
               await updateDataContext(outputContext, {
                 title: `${outputContextData.title} [fixed]`,
@@ -143,6 +147,10 @@ export function useActiveTransformations(
           } else if (transformation.transformer === "Editable Copy") {
             // If the transformer was editable copy then we don't have to do anything
           } else {
+            // Do not add [fixed] to the output if it's already been deleted
+            if (transformation.output === deletedContext) {
+              continue;
+            }
             if (transformation.outputType === TransformationOutputType.TEXT) {
               // If this is an SV transformer than update the output text component title
               const outputData = await getComponent(transformation.output);

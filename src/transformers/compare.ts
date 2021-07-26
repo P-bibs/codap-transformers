@@ -6,16 +6,16 @@ import {
   getAttributeDataFromDataset,
 } from "./util";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformer-components/util";
-import { uniqueName } from "../utils/names";
+import { uniqueName } from "../lib/utils/names";
 import {
   colorToRgbString,
   GREEN,
   GREY,
   interpolateColor,
   RED,
-} from "../utils/colors";
+} from "../lib/utils/colors";
 import { uncheckedFlatten } from "./flatten";
 import { uncheckedGroupBy } from "./groupBy";
 

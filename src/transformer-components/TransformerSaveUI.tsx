@@ -9,12 +9,12 @@ import {
   createDataInteractive,
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
-} from "../utils/codapPhone";
+} from "../lib/codapPhone";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
-} from "../utils/codapPhone/listeners";
-import { InteractiveState } from "../utils/codapPhone/types";
+} from "../lib/codapPhone/listeners";
+import { InteractiveState } from "../lib/codapPhone/types";
 import "./TransformerSaveUI.css";
 import ErrorDisplay from "../ui-components/Error";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";

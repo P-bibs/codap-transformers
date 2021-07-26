@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback } from "react";
 import { Controlled as CodeMirrorElement } from "react17-codemirror2";
-import { getFunctionNames } from "../utils/codapPhone";
+import { getFunctionNames } from "../lib/codapPhone";
 
 // This is required for defineSimpleMode
 import "codemirror/addon/mode/simple.js";

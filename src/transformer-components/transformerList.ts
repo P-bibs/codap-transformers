@@ -3,7 +3,7 @@ import {
   DDTransformerState,
   TransformFunction,
 } from "./DataDrivenTransformer";
-import { TransformationDescription } from "../utils/transformationDescription";
+import { TransformationDescription } from "../lib/transformationDescription";
 import { filter } from "../transformers/filter";
 import { buildColumn } from "../transformers/buildColumn";
 import { flatten } from "../transformers/flatten";

@@ -1,6 +1,6 @@
-import { Collection, CodapAttribute } from "../utils/codapPhone/types";
+import { Collection, CodapAttribute } from "../lib/codapPhone/types";
 import { Boundary, CodapLanguageType, DataSet, SingleValue } from "./types";
-import { prettyPrintCase } from "../utils/prettyPrint";
+import { prettyPrintCase } from "../lib/utils/prettyPrint";
 
 /**
  * Reparents any collections that have the given parent, to the

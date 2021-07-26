@@ -9,20 +9,20 @@ import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
   updateInteractiveFrame,
-} from "../utils/codapPhone";
+} from "../lib/codapPhone";
 import { useEffect } from "react";
-import { InteractiveState } from "../utils/codapPhone/types";
+import { InteractiveState } from "../lib/codapPhone/types";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
-} from "../utils/codapPhone/listeners";
+} from "../lib/codapPhone/listeners";
 import "./TransformerSaveUI.css";
 import "./SavedTransformerView.css";
 import {
   useActiveTransformations,
   ActionTypes,
   deserializeActiveTransformations,
-} from "../utils/transformationDescription";
+} from "../lib/transformationDescription";
 
 /**
  * SavedTransformerView wraps a saved transformer in other important info

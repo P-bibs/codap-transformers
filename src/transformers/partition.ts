@@ -3,8 +3,8 @@ import {
   getContextAndDataSet,
   updateContextWithDataSet,
   deleteDataContext,
-} from "../utils/codapPhone";
-import { pushToUndoStack } from "../utils/codapPhone/listeners";
+} from "../lib/codapPhone";
+import { pushToUndoStack } from "../lib/codapPhone/listeners";
 import {
   codapValueToString,
   makeDatasetImmutable,
@@ -15,7 +15,7 @@ import {
   DDTransformerState,
 } from "../transformer-components/DataDrivenTransformer";
 import { applyNewDataSet, readableName } from "../transformer-components/util";
-import { ActionTypes } from "../utils/transformationDescription";
+import { ActionTypes } from "../lib/transformationDescription";
 
 /**
  * Contains a dataset as a result of a partition, and the distinct

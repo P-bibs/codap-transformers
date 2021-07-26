@@ -5,8 +5,8 @@ import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
   deleteDataContext,
-} from "../utils/codapPhone";
-import { useAttributes } from "../utils/hooks";
+} from "../lib/codapPhone";
+import { useAttributes } from "../lib/utils/hooks";
 import {
   CodapLanguageType,
   TransformationOutput,
@@ -31,14 +31,14 @@ import {
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
-} from "../utils/codapPhone/listeners";
-import { InteractiveState } from "../utils/codapPhone/types";
-import { pushToUndoStack } from "../utils/codapPhone/listeners";
+} from "../lib/codapPhone/listeners";
+import { InteractiveState } from "../lib/codapPhone/types";
+import { pushToUndoStack } from "../lib/codapPhone/listeners";
 import {
   TransformationOutputType,
   SafeActiveTransformationsDispatch,
   ActionTypes as ActiveTransformationActionTypes,
-} from "../utils/transformationDescription";
+} from "../lib/transformationDescription";
 import { displaySingleValue } from "../transformers/util";
 import { makeDatasetImmutable } from "../transformers/util";
 import TransformerInfo from "./TransformerInfo";
@@ -550,11 +550,14 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         }
       })}
       <div>
-        <button id="applyTransformer" onClick={
-          transformerFunction.kind === "fullOverride"
-          ? () => transformerFunction.createFunc(props, state)
-          : transform
-        }>
+        <button
+          id="applyTransformer"
+          onClick={
+            transformerFunction.kind === "fullOverride"
+              ? () => transformerFunction.createFunc(props, state)
+              : transform
+          }
+        >
           Apply Transformer
         </button>
       </div>

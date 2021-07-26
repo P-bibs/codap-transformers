@@ -1,11 +1,11 @@
 import { DataSet } from "../transformers/types";
-import { DataContext } from "../utils/codapPhone/types";
+import { DataContext } from "../lib/codapPhone/types";
 import {
   createTableWithDataSet,
   updateContextWithDataSet,
   addContextUpdateListener,
   updateText,
-} from "../utils/codapPhone";
+} from "../lib/codapPhone";
 
 /**
  * This function takes a dataset as well as a `doUpdate` flag and either

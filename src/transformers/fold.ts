@@ -6,8 +6,8 @@ import {
   allAttrNames,
   validateAttribute,
 } from "./util";
-import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
-import { uniqueName } from "../utils/names";
+import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
+import { uniqueName } from "../lib/utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { parenthesizeName, readableName } from "../transformer-components/util";
 

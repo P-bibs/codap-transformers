@@ -11,18 +11,18 @@ import { TransformerRenderer } from "./TransformerRenderer";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
-} from "../utils/codapPhone";
+} from "../lib/codapPhone";
 import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
-} from "../utils/codapPhone/listeners";
-import { InteractiveState } from "../utils/codapPhone/types";
+} from "../lib/codapPhone/listeners";
+import { InteractiveState } from "../lib/codapPhone/types";
 import AboutInfo from "./AboutInfo";
 import {
   useActiveTransformations,
   deserializeActiveTransformations,
   ActionTypes,
-} from "../utils/transformationDescription";
+} from "../lib/transformationDescription";
 
 // These are the base transformer types represented as SavedTransformer
 // objects

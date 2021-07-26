@@ -1,5 +1,5 @@
 import { DataSet, TransformationOutput } from "./types";
-import { CodapAttribute, Collection } from "../utils/codapPhone/types";
+import { CodapAttribute, Collection } from "../lib/codapPhone/types";
 import {
   listAsString,
   eraseFormulas,
@@ -7,9 +7,9 @@ import {
   pluralSuffix,
   validateAttribute,
 } from "./util";
-import { uniqueName } from "../utils/names";
+import { uniqueName } from "../lib/utils/names";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformer-components/util";
 
 // TODO: allow for two modes:

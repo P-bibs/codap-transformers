@@ -1,7 +1,7 @@
 import { DataSet, TransformationOutput } from "./types";
-import { CodapAttribute, Collection } from "../utils/codapPhone/types";
+import { CodapAttribute, Collection } from "../lib/codapPhone/types";
 import { readableName } from "../transformer-components/util";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import { getContextAndDataSet } from "../lib/codapPhone";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import {
   reparent,
@@ -13,7 +13,7 @@ import {
   allAttrNames,
   validateAttribute,
 } from "./util";
-import { uniqueName } from "../utils/names";
+import { uniqueName } from "../lib/utils/names";
 
 // TODO: add option for "collapse other groupings" which will
 // not only group by the indicated attributes, but ensure that

@@ -1,5 +1,5 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
-import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
 import {

@@ -59,7 +59,7 @@ import {
 } from "./util";
 import { DataSet } from "../../transformers/types";
 import { CodapEvalError } from "./error";
-import { uniqueName } from "../names";
+import { uniqueName } from "../utils/names";
 import * as Actions from "./actions";
 import * as Cache from "./cache";
 

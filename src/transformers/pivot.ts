@@ -1,7 +1,7 @@
 import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
 import { readableName } from "../transformer-components/util";
-import { getContextAndDataSet } from "../utils/codapPhone";
-import { uniqueName } from "../utils/names";
+import { getContextAndDataSet } from "../lib/codapPhone";
+import { uniqueName } from "../lib/utils/names";
 import { DataSet, TransformationOutput } from "./types";
 import {
   eraseFormulas,

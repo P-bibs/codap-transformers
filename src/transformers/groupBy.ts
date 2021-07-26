@@ -15,13 +15,6 @@ import {
 } from "./util";
 import { uniqueName } from "../lib/utils/names";
 
-// TODO: add option for "collapse other groupings" which will
-// not only group by the indicated attributes, but ensure that
-// all other attributes are collapsed into the same collection
-// in the output. This is useful if you have a currently grouped dataset,
-// but want to "re-group" it.
-// User can supply a name for the collection holding all other attributes.
-
 /**
  * Groups a dataset by the indicated attributes, by removing them from
  * their current positions and putting them all together in a new

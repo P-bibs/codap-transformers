@@ -82,7 +82,6 @@ function uncheckedPivotLonger(
     validateAttribute(dataset.collections, attr);
   }
 
-  // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
       `Pivot longer can only be used on a single-collection dataset`
@@ -194,7 +193,6 @@ function uncheckedPivotWider(
   validateAttribute(dataset.collections, namesFrom);
   validateAttribute(dataset.collections, valuesFrom);
 
-  // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
       `Pivot wider can only be used on a single-collection dataset`

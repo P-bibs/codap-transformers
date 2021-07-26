@@ -32,8 +32,6 @@ function boolCompareFn(a: boolean, b: boolean) {
 }
 
 function objectCompareFn(a: unknown, b: unknown) {
-  // TODO: not sure this is a meaningful comparison,
-  // but it should at least give the same result every time.
   return stringCompareFn(JSON.stringify(a), JSON.stringify(b));
 }
 

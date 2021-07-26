@@ -12,10 +12,6 @@ import { TransformerTemplateState } from "../components/transformer-template/Tra
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformers/util";
 
-// TODO: allow for two modes:
-//  1) treat data like one table, values are counted across all cases
-//  2) treat hierarchy as subtables, values are counted *within subtable*
-
 /**
  * Count consumes a dataset and list of attribute names and produces a new
  * dataset that presents a summary of the frequency of all tuples of values

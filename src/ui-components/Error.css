@@ -5,6 +5,7 @@
     padding: 6px;
     border: solid 1px red;
     border-radius: 5px;
+    overflow-wrap: break-word;
 }
 
 .Error * {

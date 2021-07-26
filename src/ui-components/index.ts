@@ -1,8 +1,6 @@
 export { default as TextInput } from "./TextInput";
 export { default as Select } from "./Select";
 export { default as TextArea } from "./TextArea";
-export { default as TransformerSubmitButton } from "./TransformerSubmitButton";
-export { default as TransformerSaveUI } from "./TransformerSaveUI";
 export { default as ContextSelector } from "./ContextSelector";
 export { default as AttributeSelector } from "./AttributeSelector";
 export { default as MultiAttributeSelector } from "./MultiAttributeSelector";

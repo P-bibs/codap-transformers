@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect } from "react";
 import Select from "./Select";
 import { useAttributes } from "../utils/hooks";
-import "./MultiAttributeSelector.css";
+import "./styles/MultiAttributeSelector.css";
 
 interface MultiAttributeSelectorProps {
   context: string | null;

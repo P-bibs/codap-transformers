@@ -9,7 +9,7 @@ import "codemirror/addon/hint/show-hint.js";
 import "codemirror/addon/display/placeholder.js";
 import "codemirror/lib/codemirror.css";
 import CodeMirror, { HintFunction } from "codemirror";
-import "./ExpressionEditor.css";
+import "./styles/ExpressionEditor.css";
 
 // Adapted from codap/apps/dg/formula/formula.js
 const firstChar =

@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import "./Error.css";
+import "./styles/Error.css";
 
 type ErrorProps = {
   message: string | null;

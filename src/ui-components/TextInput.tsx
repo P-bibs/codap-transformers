@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import "./TextInput.css";
+import "./styles/TextInput.css";
 
 interface TextInputProps {
   onChange: React.ChangeEventHandler<HTMLInputElement>;

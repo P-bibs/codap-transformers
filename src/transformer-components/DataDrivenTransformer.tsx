@@ -16,7 +16,6 @@ import {
   Select,
   AttributeSelector,
   ContextSelector,
-  TransformerSubmitButton,
   CollectionSelector,
   MultiAttributeSelector,
   TextInput,
@@ -24,7 +23,7 @@ import {
   ExpressionEditor,
 } from "../ui-components";
 import { applyNewDataSet } from "./util";
-import TransformerSaveUI from "../ui-components/TransformerSaveUI";
+import TransformerSaveUI from "./TransformerSaveUI";
 import {
   DatasetCreatorTransformerName,
   BaseTransformerName,
@@ -43,6 +42,7 @@ import {
 import { displaySingleValue } from "../transformers/util";
 import { makeDatasetImmutable } from "../transformers/util";
 import TransformerInfo from "./TransformerInfo";
+import "./DataDrivenTransformer.css";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -550,13 +550,13 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
         }
       })}
       <div>
-        <TransformerSubmitButton
-          onCreate={
-            transformerFunction.kind === "fullOverride"
-              ? () => transformerFunction.createFunc(props, state)
-              : transform
-          }
-        />
+        <button id="applyTransformer" onClick={
+          transformerFunction.kind === "fullOverride"
+          ? () => transformerFunction.createFunc(props, state)
+          : transform
+        }>
+          Apply Transformer
+        </button>
       </div>
       {errorDisplay}
       {saveData === undefined && (

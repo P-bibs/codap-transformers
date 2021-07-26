@@ -4,7 +4,7 @@ import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import { IconButton, Popover as MaterialUIPopover } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import CancelIcon from "@material-ui/icons/Cancel";
-import "./Popover.css";
+import "./styles/Popover.css";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

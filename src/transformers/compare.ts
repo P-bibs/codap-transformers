@@ -5,7 +5,7 @@ import {
   codapValueToString,
   getAttributeDataFromDataset,
 } from "./util";
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformer-components/util";
 import { uniqueName } from "../lib/utils/names";
@@ -30,7 +30,7 @@ export async function compare({
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
   dropdown1: kind,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1) {
     throw new Error("Please select a data context");
   }

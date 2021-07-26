@@ -11,9 +11,9 @@ import {
   validateAttribute,
 } from "./util";
 import {
-  DDTransformerProps,
-  DDTransformerState,
-} from "../components/transformer-template/DataDrivenTransformer";
+  TransformerTemplateProps,
+  TransformerTemplateState,
+} from "../components/transformer-template/TransformerTemplate";
 import { applyNewDataSet, readableName } from "../transformer-components/util";
 import { ActionTypes } from "../lib/transformationDescription";
 
@@ -84,8 +84,11 @@ async function doTransform(
  * Sets up handlers and listeners for partition transformer
  */
 export const partitionOverride = async (
-  { setErrMsg, activeTransformationsDispatch }: DDTransformerProps,
-  { context1: inputDataCtxt, attribute1: attributeName }: DDTransformerState
+  { setErrMsg, activeTransformationsDispatch }: TransformerTemplateProps,
+  {
+    context1: inputDataCtxt,
+    attribute1: attributeName,
+  }: TransformerTemplateState
 ): Promise<void> => {
   if (inputDataCtxt === null) {
     setErrMsg("Please choose a valid dataset to transform.");
@@ -139,11 +142,11 @@ export const partitionOverride = async (
     () => outputContexts.forEach((context) => deleteDataContext(context)),
     () =>
       partitionOverride(
-        { setErrMsg } as DDTransformerProps,
+        { setErrMsg } as TransformerTemplateProps,
         {
           context1: inputDataCtxt,
           attribute1: attributeName,
-        } as DDTransformerState
+        } as TransformerTemplateState
       )
   );
 

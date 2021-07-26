@@ -1,6 +1,6 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { readableName } from "../transformer-components/util";
 import {
   reportTypeErrorsForRecords,
@@ -19,7 +19,7 @@ export async function transformColumn({
   attribute1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

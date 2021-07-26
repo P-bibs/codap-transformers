@@ -2,7 +2,7 @@ import { DataSet, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../lib/codapPhone/types";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import {
   reparent,
   cloneCollection,
@@ -31,7 +31,7 @@ import { uniqueName } from "../lib/utils/names";
 export async function groupBy({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

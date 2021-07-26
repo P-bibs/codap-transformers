@@ -1,4 +1,4 @@
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
@@ -16,7 +16,7 @@ import {
 export async function sumProduct({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

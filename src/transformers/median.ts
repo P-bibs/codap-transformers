@@ -1,4 +1,4 @@
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
@@ -10,7 +10,7 @@ import { extractAttributeAsNumeric, validateAttribute } from "./util";
 export async function median({
   context1: contextName,
   attribute1: attribute,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

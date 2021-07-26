@@ -1,8 +1,8 @@
 import {
-  DDTransformerInit,
-  DDTransformerState,
+  TransformerTemplateInit,
+  TransformerTemplateState,
   TransformFunction,
-} from "./components/transformer-template/DataDrivenTransformer";
+} from "./components/transformer-template/TransformerTemplate";
 import { TransformationDescription } from "./lib/transformationDescription";
 import { filter } from "./transformers/filter";
 import { buildColumn } from "./transformers/buildColumn";
@@ -39,7 +39,7 @@ export type TransformersInteractiveState = {
   transformerREPL?: {
     transformer: BaseTransformerName;
   };
-  DDTransformation?: DDTransformerState;
+  DDTransformation?: TransformerTemplateState;
   savedTransformation?: {
     name: string;
     description: string;
@@ -99,7 +99,7 @@ export type TransformerList = Record<
   {
     group: TransformerGroup;
     componentData: {
-      init: DDTransformerInit;
+      init: TransformerTemplateInit;
       transformerFunction: TransformFunction;
       info: {
         summary: string;

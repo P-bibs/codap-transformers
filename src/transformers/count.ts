@@ -8,7 +8,7 @@ import {
   validateAttribute,
 } from "./util";
 import { uniqueName } from "../lib/utils/names";
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformer-components/util";
 
@@ -28,7 +28,7 @@ import { readableName } from "../transformer-components/util";
 export async function count({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

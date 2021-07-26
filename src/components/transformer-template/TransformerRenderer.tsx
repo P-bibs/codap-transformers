@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { SavedTransformer } from "../../transformer-components/types";
-import DDTransformer from "./DataDrivenTransformer";
+import TransformerTemplate from "./TransformerTemplate";
 import transformerList from "../../transformerList";
 import { SafeActiveTransformationsDispatch } from "../../lib/transformationDescription";
 
@@ -29,7 +29,7 @@ export const TransformerRenderer = ({
   for (const key in transformerList) {
     if (transformer.content.base === key) {
       return (
-        <DDTransformer
+        <TransformerTemplate
           setErrMsg={setErrMsg}
           errorDisplay={errorDisplay}
           init={transformerList[key].componentData.init}

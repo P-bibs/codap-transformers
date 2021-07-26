@@ -41,8 +41,8 @@ import {
 import { displaySingleValue } from "../../transformers/util";
 import { makeDatasetImmutable } from "../../transformers/util";
 import TransformerInfo from "../info-components/TransformerInfo";
-import "./styles/DataDrivenTransformer.css";
-import TransformerSaveUI from "./TransformerSaveUI";
+import "./styles/TransformerTemplate.css";
+import DefinitionCreator from "./DefinitionCreator";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -73,7 +73,7 @@ interface TypeContractInit extends ComponentInit {
   outputTypes: string[];
   outputTypeDisabled?: boolean;
 }
-export type DDTransformerInit = {
+export type TransformerTemplateInit = {
   context1?: ContextInit;
   context2?: ContextInit;
   collection1?: CollectionInit;
@@ -104,7 +104,7 @@ type TypeContractState = {
   inputType: CodapLanguageType;
   outputType: CodapLanguageType;
 };
-export type DDTransformerState = {
+export type TransformerTemplateState = {
   context1: ContextState;
   context2: ContextState;
   collection1: CollectionState;
@@ -123,7 +123,7 @@ export type DDTransformerState = {
   typeContract2: TypeContractState;
 };
 
-const DEFAULT_STATE: DDTransformerState = {
+const DEFAULT_STATE: TransformerTemplateState = {
   context1: null,
   context2: null,
   collection1: null,
@@ -184,8 +184,8 @@ const convertNames = (
  * Makes a header from a ui component's title
  */
 const titleFromComponent = (
-  component: keyof DDTransformerInit,
-  init: DDTransformerInit
+  component: keyof TransformerTemplateInit,
+  init: TransformerTemplateInit
 ): ReactElement => {
   const tmp = init[component];
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
@@ -193,14 +193,14 @@ const titleFromComponent = (
 
 interface DatasetCreatorFunction {
   kind: "datasetCreator";
-  func: (state: DDTransformerState) => Promise<TransformationOutput>;
+  func: (state: TransformerTemplateState) => Promise<TransformationOutput>;
 }
 
 export interface FullOverrideFunction {
   kind: "fullOverride";
   createFunc: (
-    props: DDTransformerProps,
-    state: DDTransformerState
+    props: TransformerTemplateProps,
+    state: TransformerTemplateState
   ) => Promise<void>;
   updateFunc: (state: FullOverrideSaveState) => Promise<{
     extraDependencies?: string[];
@@ -210,13 +210,13 @@ export interface FullOverrideFunction {
 
 export type TransformFunction = DatasetCreatorFunction | FullOverrideFunction;
 
-export type DDTransformerProps = {
+export type TransformerTemplateProps = {
   transformerFunction: TransformFunction;
   setErrMsg: (s: string | null) => void;
   errorDisplay: ReactElement;
   base: BaseTransformerName;
-  init: DDTransformerInit;
-  saveData?: DDTransformerState;
+  init: TransformerTemplateInit;
+  saveData?: TransformerTemplateState;
   editable: boolean;
   info: {
     summary: string;
@@ -235,7 +235,7 @@ export type DDTransformerProps = {
  *
  * Only UI elements in `init` will be included and they will appear in order.
  */
-const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
+const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   const {
     transformerFunction,
     init,
@@ -250,9 +250,9 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
 
   const [state, setState] = useReducer(
     (
-      oldState: DDTransformerState,
-      newState: Partial<DDTransformerState>
-    ): DDTransformerState => {
+      oldState: TransformerTemplateState,
+      newState: Partial<TransformerTemplateState>
+    ): TransformerTemplateState => {
       return { ...oldState, ...newState };
     },
     saveData !== undefined ? saveData : DEFAULT_STATE
@@ -563,10 +563,10 @@ const DataDrivenTransformer = (props: DDTransformerProps): ReactElement => {
       </div>
       {errorDisplay}
       {saveData === undefined && (
-        <TransformerSaveUI base={base} generateSaveData={() => state} />
+        <DefinitionCreator base={base} generateSaveData={() => state} />
       )}
     </>
   );
 };
 
-export default DataDrivenTransformer;
+export default TransformerTemplate;

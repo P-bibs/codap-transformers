@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from "react";
-import SavedView from "./views/SavedView";
+import SavedDefinitionView from "./views/SavedDefinitionView";
 import { SavedTransformer } from "./transformer-components/types";
 import REPLView from "./views/REPLView";
 import { initPhone } from "./lib/codapPhone";
@@ -40,7 +40,7 @@ export const App = (): ReactElement => {
       );
 
       initWithPluginName(`Transformer: ${parsedTransformer.name}`, true);
-      setPluginContent(<SavedView transformer={parsedTransformer} />);
+      setPluginContent(<SavedDefinitionView transformer={parsedTransformer} />);
     }
   }, []);
 

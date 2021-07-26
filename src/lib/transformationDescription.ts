@@ -4,9 +4,9 @@ import {
   default as transformerList,
 } from "../transformerList";
 import {
-  DDTransformerState,
+  TransformerTemplateState,
   FullOverrideFunction,
-} from "../components/transformer-template/DataDrivenTransformer";
+} from "../components/transformer-template/TransformerTemplate";
 import { readableName } from "../transformer-components/util";
 import {
   DataSetTransformationOutput,
@@ -204,7 +204,7 @@ interface DatasetCreatorDescription extends BaseTransformationDescription {
   outputType: TransformationOutputType;
   output: string;
   transformer: Exclude<BaseTransformerName, "Partition">;
-  state: DDTransformerState;
+  state: TransformerTemplateState;
 }
 
 interface PartitionDescription extends BaseTransformationDescription {
@@ -260,7 +260,7 @@ async function updateFromDescription(
         description.state,
         description.output,
         transformFunc.func as (
-          state: DDTransformerState
+          state: TransformerTemplateState
         ) => Promise<DataSetTransformationOutput>
       );
     } else if (description.outputType === TransformationOutputType.TEXT) {
@@ -268,7 +268,7 @@ async function updateFromDescription(
         description.state,
         description.output,
         transformFunc.func as (
-          state: DDTransformerState
+          state: TransformerTemplateState
         ) => Promise<SingleValueTransformationOutput>
       );
     }
@@ -279,10 +279,10 @@ async function updateFromDescription(
 }
 
 async function updateContextFromDatasetCreator(
-  state: DDTransformerState,
+  state: TransformerTemplateState,
   outputName: string,
   transformFunc: (
-    state: DDTransformerState
+    state: TransformerTemplateState
   ) => Promise<DataSetTransformationOutput>
 ): Promise<void> {
   const [transformed] = await transformFunc(state);
@@ -291,10 +291,10 @@ async function updateContextFromDatasetCreator(
 }
 
 async function updateTextFromDatasetCreator(
-  state: DDTransformerState,
+  state: TransformerTemplateState,
   outputName: string,
   transformFunc: (
-    state: DDTransformerState
+    state: TransformerTemplateState
   ) => Promise<SingleValueTransformationOutput>
 ): Promise<void> {
   const [result] = await transformFunc(state);

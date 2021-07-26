@@ -1,4 +1,4 @@
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { readableName } from "../transformer-components/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { uniqueName } from "../lib/utils/names";
@@ -22,7 +22,7 @@ export async function pivotLonger({
   attributeSet1: attributes,
   textInput1: namesTo,
   textInput2: valuesTo,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -155,7 +155,7 @@ export async function pivotWider({
   context1: contextName,
   attribute1: namesFrom,
   attribute2: valuesFrom,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

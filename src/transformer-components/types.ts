@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { BaseTransformerName } from "../transformerList";
 
 /**
@@ -9,7 +9,7 @@ import { BaseTransformerName } from "../transformerList";
  */
 export type SavedTransformerContent = {
   base: BaseTransformerName;
-  data?: DDTransformerState;
+  data?: TransformerTemplateState;
 };
 
 /**

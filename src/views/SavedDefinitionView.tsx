@@ -15,8 +15,8 @@ import {
   addInteractiveStateRequestListener,
   removeInteractiveStateRequestListener,
 } from "../lib/codapPhone/listeners";
-import "../components/transformer-template/styles/TransformerSaveUI.css";
-import "./styles/SavedView.css";
+import "../components/transformer-template/styles/DefinitionCreator.css";
+import "./styles/SavedDefinitionView.css";
 import {
   useActiveTransformations,
   ActionTypes,
@@ -25,10 +25,10 @@ import {
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 /**
- * SavedView wraps a saved transformer in other important info
+ * SavedDefinitionView wraps a saved transformer in other important info
  * like it's name/purpose statement and an error box
  */
-function SavedView({
+function SavedDefinitionView({
   transformer: urlTransformer,
 }: {
   transformer: SavedTransformer;
@@ -175,4 +175,4 @@ function SavedView({
   );
 }
 
-export default SavedView;
+export default SavedDefinitionView;

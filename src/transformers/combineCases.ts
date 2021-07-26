@@ -1,6 +1,6 @@
 import { DataSet, TransformationOutput } from "./types";
 import { setEquality } from "../lib/utils/sets";
-import { DDTransformerState } from "../components/transformer-template/DataDrivenTransformer";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformer-components/util";
 import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
@@ -17,7 +17,7 @@ import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
 export async function combineCases({
   context1: inputDataContext1,
   context2: inputDataContext2,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1 || !inputDataContext2) {
     throw new Error("Please choose two datasets to combine.");
   }

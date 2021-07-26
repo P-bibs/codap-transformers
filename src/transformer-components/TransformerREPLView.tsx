@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import "./TransformerViews.css";
-import ErrorDisplay from "../ui-components/Error";
+import ErrorDisplay from "../components/ui-components/Error";
 import { SavedTransformer } from "./types";
 import transformerList, {
   BaseTransformerName,
@@ -17,7 +17,7 @@ import {
   removeInteractiveStateRequestListener,
 } from "../lib/codapPhone/listeners";
 import { InteractiveState } from "../lib/codapPhone/types";
-import AboutInfo from "./AboutInfo";
+import AboutInfo from "../components/info-components/AboutInfo";
 import {
   useActiveTransformations,
   deserializeActiveTransformations,

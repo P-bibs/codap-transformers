@@ -1,6 +1,6 @@
 import React, { ReactElement, ChangeEvent } from "react";
 import Select from "./Select";
-import { useCollections } from "../lib/utils/hooks";
+import { useCollections } from "../../lib/utils/hooks";
 
 interface CollectionSelectorProps {
   context: string | null;

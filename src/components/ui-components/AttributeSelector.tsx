@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect } from "react";
 import Select from "./Select";
-import { useAttributes } from "../lib/utils/hooks";
+import { useAttributes } from "../../lib/utils/hooks";
 
 interface AttributeSelectorProps {
   context: string | null;

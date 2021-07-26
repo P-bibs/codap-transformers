@@ -1,10 +1,10 @@
 import React, { ReactElement } from "react";
 import { useState } from "react";
 import "./TransformerViews.css";
-import ErrorDisplay from "../ui-components/Error";
+import ErrorDisplay from "../components/ui-components/Error";
 import { SavedTransformer } from "./types";
 import { TransformerRenderer } from "./TransformerRenderer";
-import { TextArea, TextInput } from "../ui-components";
+import { TextArea, TextInput } from "../components/ui-components";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,

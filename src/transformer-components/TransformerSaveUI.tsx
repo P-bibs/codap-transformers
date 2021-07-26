@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { TextArea, TextInput } from "../ui-components";
+import { TextArea, TextInput } from "../components/ui-components";
 import { BaseTransformerName } from "../transformer-components/transformerList";
 import {
   SavedTransformerContent,
@@ -16,7 +16,7 @@ import {
 } from "../lib/codapPhone/listeners";
 import { InteractiveState } from "../lib/codapPhone/types";
 import "./TransformerSaveUI.css";
-import ErrorDisplay from "../ui-components/Error";
+import ErrorDisplay from "../components/ui-components/Error";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
 import { IconButton } from "@material-ui/core";

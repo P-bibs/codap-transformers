@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import Popover from "../ui-components/Popover";
-import "./AboutInfo.css";
+import "./styles/AboutInfo.css";
 
 function AboutInfo(): ReactElement {
   return (

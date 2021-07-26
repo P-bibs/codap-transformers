@@ -1,6 +1,6 @@
 import React, { ReactElement, ChangeEvent } from "react";
 import Select from "./Select";
-import { useDataContexts } from "../lib/utils/hooks";
+import { useDataContexts } from "../../lib/utils/hooks";
 
 interface ContextSelectorProps {
   value: string | null;

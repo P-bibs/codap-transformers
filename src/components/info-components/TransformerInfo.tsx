@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import Popover from "../ui-components/Popover";
 import { IconButton } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
-import "./TransformerInfo.css";
+import "./styles/TransformerInfo.css";
 
 /**
  * Splits a string into several <p> tags, one for each line of text.

@@ -21,7 +21,7 @@ import {
   TextInput,
   TypeSelector,
   ExpressionEditor,
-} from "../ui-components";
+} from "../components/ui-components";
 import { applyNewDataSet } from "./util";
 import TransformerSaveUI from "./TransformerSaveUI";
 import {
@@ -41,7 +41,7 @@ import {
 } from "../lib/transformationDescription";
 import { displaySingleValue } from "../transformers/util";
 import { makeDatasetImmutable } from "../transformers/util";
-import TransformerInfo from "./TransformerInfo";
+import TransformerInfo from "../components/info-components/TransformerInfo";
 import "./DataDrivenTransformer.css";
 
 // These types represent the configuration required for different UI elements

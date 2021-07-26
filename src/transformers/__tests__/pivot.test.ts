@@ -45,12 +45,12 @@ describe("pivot wider", () => {
     ).toEqual(output);
   });
 
-  it("errors on non-displayable value in  valuesFrom attribute", () => {
+  it("errors on non-displayable value in  namesFrom attribute", () => {
     expect(() =>
       uncheckedPivotWider(TYPES_DATASET, "Boundary", "Number")
     ).toThrow("Cannot use a boundary");
   });
-  it("allows non-displayable value in  namesFrom attribute", () => {
+  it("allows non-displayable value in  valuesFrom attribute", () => {
     expect(() =>
       uncheckedPivotWider(TYPES_DATASET, "Number", "Boundary")
     ).not.toThrow();

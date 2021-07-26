@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
-import "./styles/TransformerViews.css";
+import "./styles/Views.css";
 import ErrorDisplay from "../components/ui-components/Error";
 import { SavedTransformer } from "../transformer-components/types";
 import transformerList, {
@@ -56,10 +56,10 @@ const transformerGroups: [TransformerGroup, string[]][] = (function () {
 })();
 
 /**
- * TransformerREPLView provides a dropdown to select from the base transformations
+ * REPLView provides a dropdown to select from the base transformations
  * and functionality to render the selected transformation.
  */
-function TransformerREPLView(): ReactElement {
+function REPLView(): ReactElement {
   const [transformType, setTransformType] = useState<string | null>(null);
 
   const [errMsg, setErrMsg] = useState<string | null>(null);
@@ -157,4 +157,4 @@ function TransformerREPLView(): ReactElement {
   );
 }
 
-export default TransformerREPLView;
+export default REPLView;

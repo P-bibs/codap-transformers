@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { useState } from "react";
-import "./styles/TransformerViews.css";
+import "./styles/Views.css";
 import ErrorDisplay from "../components/ui-components/Error";
 import { SavedTransformer } from "../transformer-components/types";
 import { TextArea, TextInput } from "../components/ui-components";
@@ -16,7 +16,7 @@ import {
   removeInteractiveStateRequestListener,
 } from "../lib/codapPhone/listeners";
 import "../components/transformer-template/styles/TransformerSaveUI.css";
-import "./styles/SavedTransformerView.css";
+import "./styles/SavedView.css";
 import {
   useActiveTransformations,
   ActionTypes,
@@ -25,10 +25,10 @@ import {
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 
 /**
- * SavedTransformerView wraps a saved transformer in other important info
+ * SavedView wraps a saved transformer in other important info
  * like it's name/purpose statement and an error box
  */
-function SavedTransformerView({
+function SavedView({
   transformer: urlTransformer,
 }: {
   transformer: SavedTransformer;
@@ -175,4 +175,4 @@ function SavedTransformerView({
   );
 }
 
-export default SavedTransformerView;
+export default SavedView;

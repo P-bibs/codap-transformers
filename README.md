@@ -44,7 +44,7 @@ http://localhost:4020/dg?di=http://localhost:3000
 
 ## Available Scripts
 
-In the project directory, the following commans are available:
+In the project directory, the following commands are available:
 
 ```bash
 # Runs the app in the development mode. See above section for opening the plugin inside CODAP.

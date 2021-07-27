@@ -559,3 +559,42 @@ export const DATASET_WITH_MISSING: DataSet = {
     ]
   ),
 };
+
+/**
+ * A dataset whose attributes are all marked as uneditable.
+ */
+export const DATASET_WITH_UNEDITABLE_ATTRS: DataSet = {
+  collections: [
+    {
+      name: "Collection 1",
+      attrs: [
+        {
+          name: "A",
+          editable: false,
+        },
+        {
+          name: "B",
+          editable: false,
+        },
+      ],
+    },
+    {
+      name: "Collection 2",
+      attrs: [
+        {
+          name: "C",
+          editable: false,
+        },
+        {
+          name: "D",
+          editable: false,
+        },
+        {
+          name: "E",
+          editable: false,
+        },
+      ],
+    },
+  ],
+  records: [],
+};

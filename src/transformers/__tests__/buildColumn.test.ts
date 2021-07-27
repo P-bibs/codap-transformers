@@ -8,8 +8,6 @@ import {
   jsEvalExpression,
 } from "./data";
 
-// TODO: how to test because buildColumn evaluates expressions
-
 test("throws error when non-existent collection given", () => {
   expect.assertions(1);
   return uncheckedBuildColumn(

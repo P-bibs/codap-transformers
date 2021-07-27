@@ -137,7 +137,7 @@ function REPLView(): ReactElement {
   return (
     <div className="transformer-view">
       <div className="title-row">
-        <h2>Transformer Type</h2>
+        <h3>Transformer Type</h3>
 
         <AboutInfo />
       </div>

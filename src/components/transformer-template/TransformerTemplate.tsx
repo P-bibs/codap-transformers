@@ -40,7 +40,6 @@ import {
 } from "../../transformerStore/types";
 import { displaySingleValue } from "../../transformers/util";
 import { makeDatasetImmutable } from "../../transformers/util";
-import TransformerInfo from "../info-components/TransformerInfo";
 import "./styles/TransformerTemplate.css";
 import DefinitionCreator from "./DefinitionCreator";
 
@@ -218,12 +217,6 @@ export type TransformerTemplateProps = {
   init: TransformerTemplateInit;
   saveData?: TransformerTemplateState;
   editable: boolean;
-  info: {
-    summary: string;
-    consumes: string;
-    produces: string;
-    docLink: string;
-  };
   activeTransformationsDispatch: SafeActiveTransformationsDispatch;
 };
 
@@ -239,7 +232,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   const {
     transformerFunction,
     init,
-    info,
     base,
     saveData,
     editable,
@@ -377,9 +369,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
 
   return (
     <>
-      {/* Only render info if NOT a saved transformation. */}
-      {!saveData && <TransformerInfo {...info} transformerName={base} />}
-
       {order.map((component) => {
         if (component === "context1" || component === "context2") {
           return (

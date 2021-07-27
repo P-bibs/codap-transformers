@@ -24,7 +24,7 @@ export async function copyStructure({
   ];
 }
 
-function uncheckedCopyStructure(dataset: DataSet): DataSet {
+export function uncheckedCopyStructure(dataset: DataSet): DataSet {
   return {
     collections: dataset.collections,
     records: [],

@@ -3,7 +3,7 @@ import {
   allAttrNames,
   cloneCollection,
   codapValueToString,
-  getAttributeDataFromDataset,
+  validateAttribute,
 } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
@@ -64,14 +64,21 @@ export async function compare({
   }
 }
 
-function uncheckedNumericCompare(
+export function uncheckedNumericCompare(
   dataset: DataSet,
   attributeName1: string,
   attributeName2: string
 ): DataSet {
-  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
-  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
-
+  const [, attribute1Data] = validateAttribute(
+    dataset.collections,
+    attributeName1,
+    "Invalid first attribute"
+  );
+  const [, attribute2Data] = validateAttribute(
+    dataset.collections,
+    attributeName2,
+    "Invalid second attribute"
+  );
   const collections = dataset.collections.map(cloneCollection);
 
   // Find the index of the collections that contain the attributes
@@ -204,13 +211,21 @@ function uncheckedNumericCompare(
   return { records, collections };
 }
 
-function uncheckedCategoricalCompare(
+export function uncheckedCategoricalCompare(
   dataset: DataSet,
   attributeName1: string,
   attributeName2: string
 ): DataSet {
-  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
-  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
+  const [, attribute1Data] = validateAttribute(
+    dataset.collections,
+    attributeName1,
+    "Invalid first attribute"
+  );
+  const [, attribute2Data] = validateAttribute(
+    dataset.collections,
+    attributeName2,
+    "Invalid second attribute"
+  );
 
   dataset = uncheckedFlatten(dataset);
   const out = uncheckedGroupBy(

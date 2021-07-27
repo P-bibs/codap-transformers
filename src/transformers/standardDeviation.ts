@@ -47,7 +47,7 @@ function mean(vs: number[]): number {
  * @param dataset - The input DataSet
  * @param attribute - The column to find the standard deviation of.
  */
-function uncheckedStandardDeviation(
+export function uncheckedStandardDeviation(
   dataset: DataSet,
   attribute: string
 ): number {

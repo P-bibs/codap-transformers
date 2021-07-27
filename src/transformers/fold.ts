@@ -185,11 +185,12 @@ async function uncheckedGenericFold(
   expression: string,
   resultColumnName: string,
   accumulatorName: string,
-  resultColumnDescription = ""
+  resultColumnDescription = "",
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
 
-  let acc = (await evalExpression(base, [{}]))[0];
+  let acc = (await evalFormula(base, [{}]))[0];
   const resultRecords = [];
 
   for (const row of dataset.records) {
@@ -201,7 +202,7 @@ async function uncheckedGenericFold(
     }
 
     environment[accumulatorName] = acc;
-    acc = (await evalExpression(expression, [environment]))[0];
+    acc = (await evalFormula(expression, [environment]))[0];
     resultRecords.push(insertInRow(row, resultColumnName, acc));
   }
 
@@ -216,7 +217,7 @@ async function uncheckedGenericFold(
   };
 }
 
-const uncheckedRunningSum = makeNumFold(
+export const uncheckedRunningSum = makeNumFold(
   "Running Sum",
   { sum: 0 },
   (acc, input) => {
@@ -224,7 +225,7 @@ const uncheckedRunningSum = makeNumFold(
     return [newAcc, newAcc.sum];
   }
 );
-const uncheckedRunningMean = makeNumFold(
+export const uncheckedRunningMean = makeNumFold(
   "Running Mean",
   { sum: 0, count: 0 },
   (acc, input) => {
@@ -232,7 +233,7 @@ const uncheckedRunningMean = makeNumFold(
     return [newAcc, newAcc.sum / newAcc.count];
   }
 );
-const uncheckedRunningMin = makeNumFold<{ min: number | null }>(
+export const uncheckedRunningMin = makeNumFold<{ min: number | null }>(
   "Running Min",
   { min: null },
   (acc, input) => {
@@ -243,7 +244,7 @@ const uncheckedRunningMin = makeNumFold<{ min: number | null }>(
     }
   }
 );
-const uncheckedRunningMax = makeNumFold<{ max: number | null }>(
+export const uncheckedRunningMax = makeNumFold<{ max: number | null }>(
   "Running Max",
   { max: null },
   (acc, input) => {
@@ -254,7 +255,7 @@ const uncheckedRunningMax = makeNumFold<{ max: number | null }>(
     }
   }
 );
-const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
+export const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
   "Difference",
   { numAbove: null },
   (acc, input) => {
@@ -353,7 +354,7 @@ export async function differenceFrom({
   ];
 }
 
-function uncheckedDifferenceFrom(
+export function uncheckedDifferenceFrom(
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,

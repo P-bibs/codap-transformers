@@ -108,28 +108,13 @@ export function insertInRow(
  * Sets `formula` field of all attributes in the given list
  * to undefined. Useful in several transformers where
  * preserving formulas will result in broken formulas.
+ *
+ * @param attrs A list of attributes to clear formulas in.
+ * @returns The input list of attributes (now without formulas).
  */
-export function eraseFormulas(attrs: CodapAttribute[]): void {
+export function eraseFormulas(attrs: CodapAttribute[]): CodapAttribute[] {
   attrs.forEach((attr) => (attr.formula = undefined));
-}
-
-export function getAttributeDataFromDataset(
-  attributeName: string,
-  dataset: DataSet
-): CodapAttribute {
-  let attributeData: CodapAttribute | undefined;
-  for (const collection of dataset.collections) {
-    attributeData =
-      collection.attrs?.find((attribute) => attribute.name === attributeName) ??
-      attributeData;
-  }
-  if (!attributeData) {
-    throw new Error(
-      "Couldn't find first selected attribute in selected context"
-    );
-  }
-
-  return attributeData;
+  return attrs;
 }
 
 /**
@@ -336,8 +321,7 @@ export function reportTypeErrorsForRecords(
  */
 export function allAttrNames(dataset: DataSet): string[] {
   return dataset.collections
-    .map((coll) => coll.attrs || [])
-    .flat()
+    .flatMap((coll) => coll.attrs || [])
     .map((attr) => attr.name);
 }
 

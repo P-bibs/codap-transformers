@@ -35,7 +35,7 @@ export async function mean({
  * @param dataset - The input DataSet
  * @param attribute - The column to find the mean of.
  */
-function uncheckedMean(dataset: DataSet, attribute: string): number {
+export function uncheckedMean(dataset: DataSet, attribute: string): number {
   validateAttribute(dataset.collections, attribute);
 
   // Extract the numeric values from the indicated attribute.

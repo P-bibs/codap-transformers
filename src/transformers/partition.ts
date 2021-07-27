@@ -270,7 +270,8 @@ export function partition(
   for (const record of records) {
     // Convert CODAP value to string to use as a key.
     // NOTE: If record[attribute] is undefined (missing), this will use "" instead.
-    const valueAsStr = JSON.stringify(record[attribute] || "");
+    const valueAsStr =
+      record[attribute] === undefined ? "" : JSON.stringify(record[attribute]);
 
     // initialize this category if needed
     if (partitioned[valueAsStr] === undefined) {

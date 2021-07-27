@@ -775,7 +775,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         context1: {
-          title: "Dataset to Clone",
+          title: "Dataset to Copy",
         },
       },
       transformerFunction: {

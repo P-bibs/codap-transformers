@@ -6,7 +6,6 @@ function AboutInfo(): ReactElement {
   return (
     <Popover
       button={<button style={{ fontSize: "11px" }}>About</button>}
-      buttonStyles={{ float: "right" }}
       tooltip={`About the Transformers Plugin`}
       innerContent={
         <div id="about-info">

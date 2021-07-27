@@ -39,7 +39,7 @@ function TransformerInfo({
   return (
     <Popover
       button={
-        <IconButton style={{ padding: "0" }} size="small">
+        <IconButton style={{ padding: "0" }} size="medium">
           <InfoIcon htmlColor="var(--blue-green)" fontSize="inherit" />
         </IconButton>
       }

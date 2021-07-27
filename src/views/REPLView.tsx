@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import "./styles/Views.css";
+import "./styles/REPLView.css";
 import ErrorDisplay from "../components/ui-components/Error";
 import { SavedTransformer } from "../components/transformer-template/types";
 import transformerList, {
@@ -21,6 +22,8 @@ import { useActiveTransformations } from "../transformerStore";
 import { ActionTypes } from "../transformerStore/types";
 import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
+import Select, { ValueType, ActionMeta } from "react-select";
+import TransformerInfo from "../components/info-components/TransformerInfo";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -33,32 +36,34 @@ const baseTransformers: SavedTransformer[] = Object.keys(transformerList).map(
 
 // Take the grouping data from transformerList and reorganize it into a form
 // thats easier to make a dropdown UI out of
-const transformerGroups: [TransformerGroup, string[]][] = (function () {
-  let groupNames = Object.entries(transformerList).map(
-    ([, data]) => data.group
-  );
-  // deduplicate group names
-  groupNames = [...new Set(groupNames)];
+const transformerGroups: [TransformerGroup, BaseTransformerName[]][] =
+  (function () {
+    let groupNames = Object.entries(transformerList).map(
+      ([, data]) => data.group
+    );
+    // deduplicate group names
+    groupNames = [...new Set(groupNames)];
 
-  return groupNames.map((groupName: TransformerGroup): [
-    TransformerGroup,
-    string[]
-  ] => {
-    // for each group name, filter to find all the transformers of that
-    // type and then map to get just the transformer name
-    const transformersMatchingGroup = Object.entries(transformerList)
-      .filter(([, data]) => data.group === groupName)
-      .map(([transform]) => transform);
-    return [groupName, transformersMatchingGroup];
-  });
-})();
+    return groupNames.map((groupName: TransformerGroup): [
+      TransformerGroup,
+      BaseTransformerName[]
+    ] => {
+      // for each group name, filter to find all the transformers of that
+      // type and then map to get just the transformer name
+      const transformersMatchingGroup = Object.entries(transformerList)
+        .filter(([, data]) => data.group === groupName)
+        .map(([transform]) => transform as BaseTransformerName);
+      return [groupName, transformersMatchingGroup];
+    });
+  })();
 
 /**
  * REPLView provides a dropdown to select from the base transformations
  * and functionality to render the selected transformation.
  */
 function REPLView(): ReactElement {
-  const [transformType, setTransformType] = useState<string | null>(null);
+  const [transformType, setTransformType] =
+    useState<BaseTransformerName | null>(null);
 
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
@@ -66,10 +71,15 @@ function REPLView(): ReactElement {
   const [, activeTransformationsDispatch, wrappedDispatch] =
     useActiveTransformations(setErrMsg);
 
-  function typeChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    notifyStateIsDirty();
-    setTransformType(event.target.value);
-    setErrMsg(null);
+  function transformerChangeHandler(
+    selected: ValueType<{ value: BaseTransformerName; label: string }, false>,
+    _actionMeta: ActionMeta<{ value: BaseTransformerName; label: string }>
+  ) {
+    if (selected !== null) {
+      notifyStateIsDirty();
+      setTransformType(selected.value);
+      setErrMsg(null);
+    }
   }
 
   // Load saved state from CODAP memory
@@ -119,29 +129,36 @@ function REPLView(): ReactElement {
     notifyInteractiveFrameIsDirty();
   }
 
+  // Tutorial info about the current transformer
+  const info = transformType
+    ? transformerList[transformType].componentData.info
+    : null;
+
   return (
     <div className="transformer-view">
-      <AboutInfo />
+      <div className="title-row">
+        <h2>Transformer Type</h2>
 
-      <h3>Transformer Type</h3>
+        <AboutInfo />
+      </div>
 
-      <select
-        onChange={typeChange}
-        value={transformType || "Select a transformer"}
-      >
-        <option disabled value="Select a transformer">
-          Select a transformer
-        </option>
-        {transformerGroups.map(([groupName, transformers]) => (
-          <optgroup label={groupName} key={groupName}>
-            {transformers.map((transformName) => (
-              <option key={transformName} value={transformName}>
-                {transformName}
-              </option>
-            ))}
-          </optgroup>
-        ))}
-      </select>
+      <div className="select-row">
+        <Select
+          className="transformer-select"
+          onChange={transformerChangeHandler}
+          options={transformerGroups.map(([groupName, transformers]) => ({
+            label: groupName,
+            options: transformers.map((transformer) => ({
+              label: transformer,
+              value: transformer,
+            })),
+          }))}
+        />
+        {info && transformType && (
+          <TransformerInfo {...info} transformerName={transformType} />
+        )}
+      </div>
+
       <TransformerRenderer
         setErrMsg={setErrMsg}
         errorDisplay={<ErrorDisplay message={errMsg} />}

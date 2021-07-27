@@ -1,16 +1,17 @@
 import {
-  DDTransformerProps,
-  DDTransformerState,
-} from "../transformer-components/DataDrivenTransformer";
-import { getContextAndDataSet } from "../utils/codapPhone";
-import { applyNewDataSet, readableName } from "../transformer-components/util";
+  TransformerTemplateProps,
+  TransformerTemplateState,
+} from "../components/transformer-template/TransformerTemplate";
+import { getContextAndDataSet } from "../lib/codapPhone";
+import { applyNewDataSet } from "../components/transformer-template/util";
+import { readableName } from "../transformers/util";
 import { makeDatasetMutable } from "../transformers/util";
 import { uncheckedCopy } from "./copy";
 import { DataSet } from "./types";
 
 export async function editableCopyOverride(
-  { setErrMsg }: DDTransformerProps,
-  { context1: inputDataCtxt }: DDTransformerState
+  { setErrMsg }: TransformerTemplateProps,
+  { context1: inputDataCtxt }: TransformerTemplateState
 ): Promise<void> {
   setErrMsg(null);
 

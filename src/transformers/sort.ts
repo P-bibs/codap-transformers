@@ -1,8 +1,8 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
-import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { readableName } from "../transformer-components/util";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { readableName } from "../transformers/util";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
@@ -32,8 +32,6 @@ function boolCompareFn(a: boolean, b: boolean) {
 }
 
 function objectCompareFn(a: unknown, b: unknown) {
-  // TODO: not sure this is a meaningful comparison,
-  // but it should at least give the same result every time.
   return stringCompareFn(JSON.stringify(a), JSON.stringify(b));
 }
 
@@ -65,7 +63,7 @@ export async function sort({
   expression1: expression,
   dropdown1: sortDirection,
   typeContract1: { outputType },
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }

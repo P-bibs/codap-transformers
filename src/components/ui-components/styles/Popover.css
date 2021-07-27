@@ -1,0 +1,17 @@
+
+/* wrapper around whatever icon/button is used to control the popover */
+.popover-button-container {
+  display: inline-block;
+}
+
+.popover-button-container:hover {
+  cursor: pointer;
+}
+
+/* Button inside popover for closing it */
+.close-button {
+  float: right;
+  margin: 16px !important;
+  margin-top: 10px !important;
+  margin-bottom: 0 !important;
+}

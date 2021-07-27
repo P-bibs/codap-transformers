@@ -1,8 +1,8 @@
 import { DataSet, TransformationOutput } from "./types";
-import { uniqueName } from "../utils/names";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { getContextAndDataSet } from "../utils/codapPhone";
-import { readableName } from "../transformer-components/util";
+import { uniqueName } from "../lib/utils/names";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { getContextAndDataSet } from "../lib/codapPhone";
+import { readableName } from "../transformers/util";
 import {
   shallowCopy,
   cloneCollection,
@@ -23,7 +23,7 @@ export async function join({
   context2: inputDataContext2,
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (
     !inputDataContext1 ||
     !inputDataContext2 ||

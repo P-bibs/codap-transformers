@@ -1,0 +1,22 @@
+
+/* Button that toggles editing of a saved transformer. */
+#edit-button {
+    margin-top: 5px;
+}
+
+/* Message indicating you are editing a saved transformer. */
+.editing-indicator {
+    margin-bottom: 10px;
+    background-color: #ffffe6;
+    padding: 6px;
+    border: solid 1px #999900;
+    border-radius: 5px;
+}
+
+.editing-indicator * {
+    color: #999900;
+}
+
+.divider {
+    margin-top: 10px;
+}

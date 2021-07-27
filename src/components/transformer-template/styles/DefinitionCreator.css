@@ -1,0 +1,23 @@
+
+.saved-transformer-name {
+  display: block;
+}
+
+/* text box for writing purpose statement */
+.purpose-statement {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  padding: 5px;
+  resize: none;
+  margin-top: 5px;
+  display: block;
+  border: solid 1px var(--blue-green);
+  border-radius: 3px;
+  height: 60px;
+  width: 300px;
+}
+
+.save-transformer-button {
+  margin-top: 5px;
+  display: block;
+}

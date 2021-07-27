@@ -1,0 +1,35 @@
+.CodeMirror {
+  height: -moz-fit-content !important;
+  height: fit-content !important;
+  max-width: 300px;
+  border: 1px solid var(--blue-green);
+  border-radius: 3px;
+}
+
+.CodeMirror * {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.cm-variable {
+  color: magenta;
+}
+
+.cm-function {
+  color: blue;
+}
+
+/* slightly gray out editor when disabled */
+.editor-disabled .CodeMirror {
+  background-color: rgba(0, 0, 0, 0.07);
+}
+
+/* make cursor disappear when disabled */
+.editor-disabled .CodeMirror-cursor { 
+  display: none !important;
+}
+
+.CodeMirror pre.CodeMirror-placeholder {
+  color: #808080;
+  font-family: Montserrat;
+}

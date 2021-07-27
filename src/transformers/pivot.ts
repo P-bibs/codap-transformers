@@ -1,7 +1,7 @@
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { readableName } from "../transformer-components/util";
-import { getContextAndDataSet } from "../utils/codapPhone";
-import { uniqueName } from "../utils/names";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { readableName } from "../transformers/util";
+import { getContextAndDataSet } from "../lib/codapPhone";
+import { uniqueName } from "../lib/utils/names";
 import { DataSet, TransformationOutput } from "./types";
 import {
   eraseFormulas,
@@ -22,7 +22,7 @@ export async function pivotLonger({
   attributeSet1: attributes,
   textInput1: namesTo,
   textInput2: valuesTo,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -82,7 +82,6 @@ export function uncheckedPivotLonger(
     validateAttribute(dataset.collections, attr);
   }
 
-  // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
       `Pivot longer can only be used on a single-collection dataset`
@@ -155,7 +154,7 @@ export async function pivotWider({
   context1: contextName,
   attribute1: namesFrom,
   attribute2: valuesFrom,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -194,7 +193,6 @@ export function uncheckedPivotWider(
   validateAttribute(dataset.collections, namesFrom);
   validateAttribute(dataset.collections, valuesFrom);
 
-  // TODO: is this a necessary requirement?
   if (dataset.collections.length !== 1) {
     throw new Error(
       `Pivot wider can only be used on a single-collection dataset`

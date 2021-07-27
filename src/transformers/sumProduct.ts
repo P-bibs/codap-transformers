@@ -1,6 +1,6 @@
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { readableName } from "../transformer-components/util";
-import { getContextAndDataSet } from "../utils/codapPhone";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { readableName } from "../transformers/util";
+import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
 import {
   codapValueToString,
@@ -11,12 +11,12 @@ import {
 } from "./util";
 
 /**
- * Takes the sum product of the given columns.
+ * Takes the sum product of the given attributes' values.
  */
 export async function sumProduct({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -40,14 +40,17 @@ export async function sumProduct({
 }
 
 /**
- * Takes the sum product of the given columns.
+ * Takes the sum product of the given attributes' values.
  *
  * @param dataset - The input DataSet
- * @param attributes - The columns to take the sum product of.
+ * @param attributes - The attributes to take the sum product of.
  */
-function uncheckedSumProduct(dataset: DataSet, attributes: string[]): number {
+export function uncheckedSumProduct(
+  dataset: DataSet,
+  attributes: string[]
+): number {
   if (attributes.length === 0) {
-    throw new Error("Cannot take the sum product of zero columns.");
+    throw new Error("Cannot take the sum product of zero attributes.");
   }
 
   for (const attr of attributes) {

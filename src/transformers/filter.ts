@@ -1,8 +1,8 @@
 import { DataSet, TransformationOutput } from "./types";
-import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
+import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString } from "./util";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { readableName } from "../transformer-components/util";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { readableName } from "../transformers/util";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -11,7 +11,7 @@ import { readableName } from "../transformer-components/util";
 export async function filter({
   context1: contextName,
   expression1: predicate,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -29,14 +29,15 @@ export async function filter({
   ];
 }
 
-async function uncheckedFilter(
+export async function uncheckedFilter(
   dataset: DataSet,
-  predicate: string
+  predicate: string,
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   const filteredRecords: Record<string, unknown>[] = [];
 
   // evaluate predicate at each case in the dataset
-  const predValues = await evalExpression(predicate, dataset.records);
+  const predValues = await evalFormula(predicate, dataset.records);
 
   predValues.forEach((value, i) => {
     if (value !== true && value !== false) {

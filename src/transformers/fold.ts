@@ -6,10 +6,10 @@ import {
   allAttrNames,
   validateAttribute,
 } from "./util";
-import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
-import { uniqueName } from "../utils/names";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { parenthesizeName, readableName } from "../transformer-components/util";
+import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
+import { uniqueName } from "../lib/utils/names";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { parenthesizeName, readableName } from "../transformers/util";
 
 type FoldFunction = (
   dataset: DataSet,
@@ -30,7 +30,7 @@ function makeFoldWrapper(
   return async ({
     context1: contextName,
     attribute1: inputAttributeName,
-  }: DDTransformerState): Promise<TransformationOutput> => {
+  }: TransformerTemplateState): Promise<TransformationOutput> => {
     if (contextName === null) {
       throw new Error("Please choose a valid dataset to transform.");
     }
@@ -66,10 +66,20 @@ function makeFoldWrapper(
   };
 }
 
+// Which value to put in the fold column if the current row contains a missing
+// value. UseLast uses the value in the previous row. LeaveBlank leaves the
+// cell blank.
+enum MissingBehavior {
+  UseLast,
+  LeaveBlank,
+}
+
+const WHITESPACE_REGEX = /^\s*$/;
 function makeNumFold<T>(
   foldName: string,
   base: T,
-  f: (acc: T, input: number) => [newAcc: T, result: number]
+  f: (acc: T, input: number) => [newAcc: T, result: number],
+  missingBehavior: MissingBehavior = MissingBehavior.UseLast
 ) {
   return (
     dataset: DataSet,
@@ -80,14 +90,28 @@ function makeNumFold<T>(
     validateAttribute(dataset.collections, inputColumnName);
 
     resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
+
+    // Default acc is base, default result is "" (when first value is missing,
+    // the result field is blank)
     let acc = base;
+    let result: string | number = "";
 
     const resultRecords = dataset.records.map((row) => {
-      const numValue = Number(row[inputColumnName]);
-      if (!isNaN(numValue)) {
-        const [newAcc, result] = f(acc, numValue);
-        acc = newAcc;
+      const rowValue = row[inputColumnName];
 
+      // Test for whitespace, since Number(whitespace) gives 0
+      if (typeof rowValue === "string" && WHITESPACE_REGEX.test(rowValue)) {
+        switch (missingBehavior) {
+          case MissingBehavior.UseLast:
+            return insertInRow(row, resultColumnName, result);
+          case MissingBehavior.LeaveBlank:
+            return insertInRow(row, resultColumnName, "");
+        }
+      }
+
+      const numValue = Number(rowValue);
+      if (!isNaN(numValue)) {
+        [acc, result] = f(acc, numValue);
         return insertInRow(row, resultColumnName, result);
       } else {
         throw new Error(
@@ -117,7 +141,7 @@ export async function genericFold({
   expression1: base,
   textInput2: accumulatorName,
   expression2: expression,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -161,11 +185,12 @@ async function uncheckedGenericFold(
   expression: string,
   resultColumnName: string,
   accumulatorName: string,
-  resultColumnDescription = ""
+  resultColumnDescription = "",
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
 
-  let acc = (await evalExpression(base, [{}]))[0];
+  let acc = (await evalFormula(base, [{}]))[0];
   const resultRecords = [];
 
   for (const row of dataset.records) {
@@ -177,7 +202,7 @@ async function uncheckedGenericFold(
     }
 
     environment[accumulatorName] = acc;
-    acc = (await evalExpression(expression, [environment]))[0];
+    acc = (await evalFormula(expression, [environment]))[0];
     resultRecords.push(insertInRow(row, resultColumnName, acc));
   }
 
@@ -192,7 +217,7 @@ async function uncheckedGenericFold(
   };
 }
 
-const uncheckedRunningSum = makeNumFold(
+export const uncheckedRunningSum = makeNumFold(
   "Running Sum",
   { sum: 0 },
   (acc, input) => {
@@ -200,7 +225,7 @@ const uncheckedRunningSum = makeNumFold(
     return [newAcc, newAcc.sum];
   }
 );
-const uncheckedRunningMean = makeNumFold(
+export const uncheckedRunningMean = makeNumFold(
   "Running Mean",
   { sum: 0, count: 0 },
   (acc, input) => {
@@ -208,7 +233,7 @@ const uncheckedRunningMean = makeNumFold(
     return [newAcc, newAcc.sum / newAcc.count];
   }
 );
-const uncheckedRunningMin = makeNumFold<{ min: number | null }>(
+export const uncheckedRunningMin = makeNumFold<{ min: number | null }>(
   "Running Min",
   { min: null },
   (acc, input) => {
@@ -219,7 +244,7 @@ const uncheckedRunningMin = makeNumFold<{ min: number | null }>(
     }
   }
 );
-const uncheckedRunningMax = makeNumFold<{ max: number | null }>(
+export const uncheckedRunningMax = makeNumFold<{ max: number | null }>(
   "Running Max",
   { max: null },
   (acc, input) => {
@@ -230,7 +255,7 @@ const uncheckedRunningMax = makeNumFold<{ max: number | null }>(
     }
   }
 );
-const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
+export const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
   "Difference",
   { numAbove: null },
   (acc, input) => {
@@ -239,7 +264,8 @@ const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
     } else {
       return [{ numAbove: input }, input - acc.numAbove];
     }
-  }
+  },
+  MissingBehavior.LeaveBlank
 );
 
 function defaultDescriptions(
@@ -290,7 +316,7 @@ export async function differenceFrom({
   context1: contextName,
   attribute1: inputAttributeName,
   textInput2: startingValue,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -328,7 +354,7 @@ export async function differenceFrom({
   ];
 }
 
-function uncheckedDifferenceFrom(
+export function uncheckedDifferenceFrom(
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,
@@ -348,7 +374,8 @@ function uncheckedDifferenceFrom(
       } else {
         return [{ numAbove: input }, input - acc.numAbove];
       }
-    }
+    },
+    MissingBehavior.LeaveBlank
   );
 
   return differenceFromFold(

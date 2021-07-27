@@ -1,7 +1,7 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
-import { evalExpression, getContextAndDataSet } from "../utils/codapPhone";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { readableName } from "../transformer-components/util";
+import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { readableName } from "../transformers/util";
 import {
   reportTypeErrorsForRecords,
   cloneCollection,
@@ -19,7 +19,7 @@ export async function transformColumn({
   attribute1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -48,11 +48,12 @@ export async function transformColumn({
   ];
 }
 
-async function uncheckedTransformColumn(
+export async function uncheckedTransformColumn(
   dataset: DataSet,
   attributeName: string,
   expression: string,
-  outputType: CodapLanguageType
+  outputType: CodapLanguageType,
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   validateAttribute(
     dataset.collections,
@@ -61,7 +62,7 @@ async function uncheckedTransformColumn(
   );
 
   const records = dataset.records.map(shallowCopy);
-  const exprValues = await evalExpression(expression, records);
+  const exprValues = await evalFormula(expression, records);
 
   // Check for type errors (might throw error and abort transformer)
   reportTypeErrorsForRecords(records, exprValues, outputType);
@@ -77,7 +78,7 @@ async function uncheckedTransformColumn(
     // erase the transformed attribute's formula and set description
     if (attr !== undefined) {
       attr.formula = undefined;
-      attr.description = `The ${attributeName} attribute, transformed by the formula ${expression}`;
+      attr.description = `The ${attributeName} attribute, transformed by the formula \`${expression}\``;
       break;
     }
   }

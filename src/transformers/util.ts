@@ -1,38 +1,31 @@
-import { Collection, CodapAttribute } from "../utils/codapPhone/types";
-import { Env } from "../language/interpret";
-import { Value } from "../language/ast";
+import {
+  Collection,
+  CodapAttribute,
+  DataContext,
+} from "../lib/codapPhone/types";
 import { Boundary, CodapLanguageType, DataSet, SingleValue } from "./types";
-import { prettyPrintCase } from "../utils/prettyPrint";
+import { prettyPrintCase } from "../lib/utils/prettyPrint";
 
 /**
- * Converts a data item object into an environment for our language. Only
- * includes numeric values.
+ * Returns the context's title, if any, or falls back to its name.
  *
- * @returns An environment from the fields of the data item.
+ * @param context the data context to produce a readable name for
+ * @returns readable name of the context
  */
-export function dataItemToEnv(dataItem: Record<string, unknown>): Env {
-  return Object.fromEntries(
-    Object.entries(dataItem).map(([key, tableValue]) => {
-      let value;
-      // parse value from CODAP table data
-      if (
-        tableValue === "true" ||
-        tableValue === "false" ||
-        tableValue === true ||
-        tableValue === false
-      ) {
-        value = {
-          kind: "Bool",
-          content: tableValue === "true" || tableValue === true,
-        };
-      } else if (!isNaN(Number(tableValue))) {
-        value = { kind: "Num", content: Number(tableValue) };
-      } else {
-        value = { kind: "String", content: tableValue };
-      }
-      return [key, value as Value];
-    })
-  );
+export function readableName(context: DataContext): string {
+  return context.title ? context.title : context.name;
+}
+
+/**
+ * If the given name contains spaces, this will add parentheses
+ * to it, to keep it readable as a unit. Otherwise, returns
+ * the name unchanged.
+ *
+ * @param name the name to parenthesize
+ * @returns the input name, with parentheses added or not
+ */
+export function parenthesizeName(name: string): string {
+  return name.includes(" ") ? `(${name})` : name;
 }
 
 /**
@@ -115,28 +108,13 @@ export function insertInRow(
  * Sets `formula` field of all attributes in the given list
  * to undefined. Useful in several transformers where
  * preserving formulas will result in broken formulas.
+ *
+ * @param attrs A list of attributes to clear formulas in.
+ * @returns The input list of attributes (now without formulas).
  */
-export function eraseFormulas(attrs: CodapAttribute[]): void {
+export function eraseFormulas(attrs: CodapAttribute[]): CodapAttribute[] {
   attrs.forEach((attr) => (attr.formula = undefined));
-}
-
-export function getAttributeDataFromDataset(
-  attributeName: string,
-  dataset: DataSet
-): CodapAttribute {
-  let attributeData: CodapAttribute | undefined;
-  for (const collection of dataset.collections) {
-    attributeData =
-      collection.attrs?.find((attribute) => attribute.name === attributeName) ??
-      attributeData;
-  }
-  if (!attributeData) {
-    throw new Error(
-      "Couldn't find first selected attribute in selected context"
-    );
-  }
-
-  return attributeData;
+  return attrs;
 }
 
 /**
@@ -183,6 +161,9 @@ export function pluralSuffix<T>(word: string, describing: T[]): string {
 
 /**
  * Converts a CODAP cell value into a user-friendly string.
+ * TODO: With type predicates added to the CODAP expression language,
+ * this should use those to determine the type of the codapValue to be
+ * as consistent as possible with CODAP.
  *
  * @param codapValue the value to convert to a string for printing
  * @returns string version of the value
@@ -227,6 +208,11 @@ export function codapValueToString(codapValue: unknown): string {
   // boundary maps
   if (isBoundaryMap(codapValue)) {
     return "a boundary map";
+  }
+
+  // dates
+  if (isDate(codapValue)) {
+    return `a date (${codapValue})`;
   }
 
   // objects
@@ -287,6 +273,34 @@ export function isMissing(value: unknown): boolean {
   return value === "" || value === undefined;
 }
 
+/**
+ * Determines whether a given unknown CODAP value represents a date.
+ * There are several supported date formats per the documentation here:
+ * https://github.com/concord-consortium/codap/wiki/CODAP-Data-Interactive-Plugin-API#data-types-and-typeless-data
+ *
+ * @param value The value to check if it is a date
+ * @returns true if the value is a date, false otherwise
+ */
+function isDate(value: unknown): boolean {
+  // if Date() can parse it, consider it a date
+  if (!isNaN(Date.parse(String(value)))) {
+    return true;
+  }
+
+  const noWhitespace = String(value).replace(/\s+/g, "");
+
+  // Formats not supported by Date.parse() but allowed in CODAP:
+  // - hh:mm
+  // - hh:mm:ss
+  // - hh:mm:ss.ddd
+  // Any can contain AM/PM.
+  return (
+    /\d{2}:\d{2}(AM|PM)?/.test(noWhitespace) ||
+    /\d{2}:\d{2}:\d{2}(AM|PM)?/.test(noWhitespace) ||
+    /\d{2}:\d{2}:\d{2}.\d{3}(AM|PM)?/.test(noWhitespace)
+  );
+}
+
 export function reportTypeErrorsForRecords(
   records: Record<string, unknown>[],
   values: unknown[],
@@ -307,8 +321,7 @@ export function reportTypeErrorsForRecords(
  */
 export function allAttrNames(dataset: DataSet): string[] {
   return dataset.collections
-    .map((coll) => coll.attrs || [])
-    .flat()
+    .flatMap((coll) => coll.attrs || [])
     .map((attr) => attr.name);
 }
 

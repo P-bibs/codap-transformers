@@ -1,8 +1,8 @@
 import React, { ReactElement, useState } from "react";
-import SavedTransformerView from "./transformer-components/SavedTransformerView";
-import { SavedTransformer } from "./transformer-components/types";
-import TransformerREPLView from "./transformer-components/TransformerREPLView";
-import { initPhone } from "./utils/codapPhone";
+import SavedDefinitionView from "./views/SavedDefinitionView";
+import { SavedTransformer } from "./components/transformer-template/types";
+import REPLView from "./views/REPLView";
+import { initPhone } from "./lib/codapPhone";
 import "./App.css";
 import { useEffect } from "react";
 
@@ -33,16 +33,14 @@ export const App = (): ReactElement => {
     const transformer = parsedUrl.searchParams.get("transform");
     if (transformer === null) {
       initWithPluginName("Transformers", false);
-      setPluginContent(<TransformerREPLView />);
+      setPluginContent(<REPLView />);
     } else {
       const parsedTransformer: SavedTransformer = JSON.parse(
         decodeURIComponent(transformer)
       );
 
       initWithPluginName(`Transformer: ${parsedTransformer.name}`, true);
-      setPluginContent(
-        <SavedTransformerView transformer={parsedTransformer} />
-      );
+      setPluginContent(<SavedDefinitionView transformer={parsedTransformer} />);
     }
   }, []);
 

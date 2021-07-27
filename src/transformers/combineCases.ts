@@ -1,8 +1,8 @@
 import { DataSet, TransformationOutput } from "./types";
-import { setEquality } from "../utils/sets";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { getContextAndDataSet } from "../utils/codapPhone";
-import { readableName } from "../transformer-components/util";
+import { setEquality } from "../lib/utils/sets";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { getContextAndDataSet } from "../lib/codapPhone";
+import { readableName } from "../transformers/util";
 import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
 
 /**
@@ -17,7 +17,7 @@ import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
 export async function combineCases({
   context1: inputDataContext1,
   context2: inputDataContext2,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1 || !inputDataContext2) {
     throw new Error("Please choose two datasets to combine.");
   }
@@ -38,7 +38,10 @@ export async function combineCases({
   ];
 }
 
-function uncheckedCombineCases(base: DataSet, combining: DataSet): DataSet {
+export function uncheckedCombineCases(
+  base: DataSet,
+  combining: DataSet
+): DataSet {
   const baseAttrs = allAttrNames(base);
   const combiningAttrs = allAttrNames(combining);
 

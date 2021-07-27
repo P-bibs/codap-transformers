@@ -1,5 +1,5 @@
 import { DataSet, TransformationOutput } from "./types";
-import { CodapAttribute, Collection } from "../utils/codapPhone/types";
+import { CodapAttribute, Collection } from "../lib/codapPhone/types";
 import {
   listAsString,
   eraseFormulas,
@@ -7,14 +7,10 @@ import {
   pluralSuffix,
   validateAttribute,
 } from "./util";
-import { uniqueName } from "../utils/names";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { getContextAndDataSet } from "../utils/codapPhone";
-import { readableName } from "../transformer-components/util";
-
-// TODO: allow for two modes:
-//  1) treat data like one table, values are counted across all cases
-//  2) treat hierarchy as subtables, values are counted *within subtable*
+import { uniqueName } from "../lib/utils/names";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { getContextAndDataSet } from "../lib/codapPhone";
+import { readableName } from "../transformers/util";
 
 /**
  * Count consumes a dataset and list of attribute names and produces a new
@@ -28,7 +24,7 @@ import { readableName } from "../transformer-components/util";
 export async function count({
   context1: contextName,
   attributeSet1: attributes,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -50,7 +46,10 @@ export async function count({
   ];
 }
 
-function uncheckedCount(dataset: DataSet, attributes: string[]): DataSet {
+export function uncheckedCount(
+  dataset: DataSet,
+  attributes: string[]
+): DataSet {
   // validate attribute names
   for (const attrName of attributes) {
     validateAttribute(dataset.collections, attrName);

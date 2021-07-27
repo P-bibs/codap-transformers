@@ -1,10 +1,7 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
-import {
-  evalExpression,
-  getContextAndDataSet,
-} from "../utils/codapPhone/index";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { readableName } from "../transformer-components/util";
+import { evalExpression, getContextAndDataSet } from "../lib/codapPhone/index";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { readableName } from "../transformers/util";
 import { reportTypeErrorsForRecords, cloneCollection } from "./util";
 
 /**
@@ -17,7 +14,7 @@ export async function buildColumn({
   textInput1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error("Please choose a valid dataset to transform.");
   }
@@ -55,12 +52,13 @@ export async function buildColumn({
  * Builds a dataset with a new attribute added to one of the collections,
  * whose case values are computed by evaluating the given expression.
  */
-async function uncheckedBuildColumn(
+export async function uncheckedBuildColumn(
   dataset: DataSet,
   newAttributeName: string,
   collectionName: string,
   expression: string,
-  outputType: CodapLanguageType
+  outputType: CodapLanguageType,
+  evalFormula = evalExpression
 ): Promise<DataSet> {
   // find collection to add attribute to
   const collections = dataset.collections.map(cloneCollection);
@@ -86,10 +84,10 @@ async function uncheckedBuildColumn(
   // add new attribute
   toAdd.attrs.push({
     name: newAttributeName,
-    description: `An attribute whose values were computed with the formula ${expression}`,
+    description: `An attribute whose values were computed with the formula \`${expression}\``,
   });
 
-  const colValues = await evalExpression(expression, dataset.records);
+  const colValues = await evalFormula(expression, dataset.records);
 
   // Check for type errors (might throw error and abort transformer)
   reportTypeErrorsForRecords(dataset.records, colValues, outputType);

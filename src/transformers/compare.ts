@@ -3,19 +3,19 @@ import {
   allAttrNames,
   cloneCollection,
   codapValueToString,
-  getAttributeDataFromDataset,
+  validateAttribute,
 } from "./util";
-import { DDTransformerState } from "../transformer-components/DataDrivenTransformer";
-import { getContextAndDataSet } from "../utils/codapPhone";
-import { readableName } from "../transformer-components/util";
-import { uniqueName } from "../utils/names";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { getContextAndDataSet } from "../lib/codapPhone";
+import { readableName } from "../transformers/util";
+import { uniqueName } from "../lib/utils/names";
 import {
   colorToRgbString,
   GREEN,
   GREY,
   interpolateColor,
   RED,
-} from "../utils/colors";
+} from "../lib/utils/colors";
 import { uncheckedFlatten } from "./flatten";
 import { uncheckedGroupBy } from "./groupBy";
 
@@ -30,7 +30,7 @@ export async function compare({
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
   dropdown1: kind,
-}: DDTransformerState): Promise<TransformationOutput> {
+}: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1) {
     throw new Error("Please select a data context");
   }
@@ -64,14 +64,21 @@ export async function compare({
   }
 }
 
-function uncheckedNumericCompare(
+export function uncheckedNumericCompare(
   dataset: DataSet,
   attributeName1: string,
   attributeName2: string
 ): DataSet {
-  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
-  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
-
+  const [, attribute1Data] = validateAttribute(
+    dataset.collections,
+    attributeName1,
+    "Invalid first attribute"
+  );
+  const [, attribute2Data] = validateAttribute(
+    dataset.collections,
+    attributeName2,
+    "Invalid second attribute"
+  );
   const collections = dataset.collections.map(cloneCollection);
 
   // Find the index of the collections that contain the attributes
@@ -204,13 +211,21 @@ function uncheckedNumericCompare(
   return { records, collections };
 }
 
-function uncheckedCategoricalCompare(
+export function uncheckedCategoricalCompare(
   dataset: DataSet,
   attributeName1: string,
   attributeName2: string
 ): DataSet {
-  const attribute1Data = getAttributeDataFromDataset(attributeName1, dataset);
-  const attribute2Data = getAttributeDataFromDataset(attributeName2, dataset);
+  const [, attribute1Data] = validateAttribute(
+    dataset.collections,
+    attributeName1,
+    "Invalid first attribute"
+  );
+  const [, attribute2Data] = validateAttribute(
+    dataset.collections,
+    attributeName2,
+    "Invalid second attribute"
+  );
 
   dataset = uncheckedFlatten(dataset);
   const out = uncheckedGroupBy(

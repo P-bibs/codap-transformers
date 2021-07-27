@@ -13,7 +13,7 @@ For more information on the plugin and the available transformers themselves, se
 
 - `src/`
   - `components/`
-    - `info-components/`: "About" info / inline transformers documentation components.
+    - `info-components/`: Components that provide overall plugin info and inline documentation for a transformer.
     - `transformer-template/`: Houses `TransformerTemplate` (and related components), the main component for rendering a transformer's UI given a description of its inputs.
     - `ui-components/`: Generic components for UI elements.
   - `lib/`
@@ -28,6 +28,14 @@ For more information on the plugin and the available transformers themselves, se
 
 ## Running locally with CODAP
 
+After cloning the repository, run
+
+```bash
+npm install
+```
+
+to install dependencies.
+
 To launch the plugin in a local instance of CODAP, start both the plugin and [CODAP](https://github.com/concord-consortium/codap) and navigate in a browser to
 
 ```
@@ -36,23 +44,32 @@ http://localhost:4020/dg?di=http://localhost:3000
 
 ## Available Scripts
 
-In the project directory, you can run:
+In the project directory, the following commans are available:
 
-#### `npm start`
+```bash
+# Runs the app in the development mode. See above section for opening the plugin inside CODAP.
+npm start
+```
 
-Runs the app in the development mode. See above section for opening the plugin inside CODAP.
+```bash
+# Launches the test runner.
+npm test
+```
 
-#### `npm test`
+```bash
+# Formats all ts/tsx files.
+npm run format
+```
 
-Launches the test runner.
+```bash
+# Runs the linter.
+npm run lint
+```
 
-#### `npm run format`
-
-Formats all ts/tsx files.
-
-#### `npm run lint`
-
-Runs the linter.
+```bash
+# Creates a production build
+npm run build
+```
 
 # Authors
 

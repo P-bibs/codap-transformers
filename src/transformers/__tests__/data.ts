@@ -1,4 +1,4 @@
-import { CodapAttribute, Collection } from "../../utils/codapPhone/types";
+import { CodapAttribute, Collection } from "../../lib/codapPhone/types";
 import { DataSet } from "../types";
 import { cloneCollection, shallowCopy } from "../util";
 

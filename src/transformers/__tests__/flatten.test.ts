@@ -4,6 +4,7 @@ import {
   DATASET_A,
   DATASET_B,
   FULLY_FEATURED_DATASET,
+  EMPTY_RECORDS,
   DATASET_WITH_META,
 } from "./data";
 
@@ -35,12 +36,27 @@ describe("flatten", () => {
   });
 
   test("flatten of empty dataset with one collection", () => {
-    expect(
-      uncheckedFlatten({
-        collections: [{ name: "Cases", labels: {} }],
-        records: [],
-      })
-    );
+    const emptyDataset = {
+      collections: [{ name: "Cases", attrs: [] }],
+      records: [],
+    };
+    expect(uncheckedFlatten(emptyDataset)).toEqual(emptyDataset);
+  });
+
+  test("flatten of empty dataset with attributes", () => {
+    expect(uncheckedFlatten(EMPTY_RECORDS)).toEqual({
+      collections: [
+        makeCollection("Collection A + Collection B + Collection C", [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+        ]),
+      ],
+      records: [],
+    });
   });
 
   test("flatten should not erase attribute metadata", () => {

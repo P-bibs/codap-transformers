@@ -15,25 +15,24 @@ For more information on the plugin and the available transformers themselves, se
   - `components/`
     - `info-components/`: "About" info / inline transformers documentation components.
     - `transformer-template/`: Houses `TransformerTemplate` (and related components), the main component for rendering a transformer's UI given a description of its inputs.
-    - `ui-components/`: Generic components for UI elements. 
+    - `ui-components/`: Generic components for UI elements.
   - `lib/`
     - `codapPhone/`: A wrapper around [iframe-phone](https://github.com/concord-consortium/iframe-phone) for communicating with CODAP.
     - `utils/`: Small, widely-used utility functions.
   - `transformers/`: Core implementations of the actual transformers. Each has an external implementation (responsible for consuming UI inputs and checking them) and an inner, unchecked implementation which performs the actual transformer's functionality.
-  - `transformerStore/`: Keeps track of which transformers were used to produce which datasets, and uses this info to propagate updates through transformers. 
-  - `views/`: The two main views of the plugin: 
-    - The `REPLView` is the main UI through which you can choose a transformer, select its inputs, and create saved transformers. 
+  - `transformerStore/`: Keeps track of which transformers were used to produce which datasets, and uses this info to propagate updates through transformers.
+  - `views/`: The two main views of the plugin:
+    - The `REPLView` is the main UI through which you can choose a transformer, select its inputs, and create saved transformers.
     - The `SavedDefinitionView` is what you see for a saved transformer (including name, purpose statement, inputs, editing UI).
   - `transformerList.ts`: A list of all transformers and their corresponding data, including group, inputs, underlying implementation function, and documentation info.
 
 ## Running locally with CODAP
 
 To launch the plugin in a local instance of CODAP, start both the plugin and [CODAP](https://github.com/concord-consortium/codap) and navigate in a browser to
+
 ```
 http://localhost:4020/dg?di=http://localhost:3000
 ```
-
-## 
 
 ## Available Scripts
 

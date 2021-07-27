@@ -914,7 +914,7 @@ const transformerList: TransformerList = {
               title: "Select all but the following attributes",
             },
           ],
-          defaultValue: "Mode",
+          defaultValue: "Choose a mode",
         },
         attributeSet1: {
           title: "Attributes",

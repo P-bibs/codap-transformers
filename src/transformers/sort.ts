@@ -80,6 +80,7 @@ export async function sort({
     await uncheckedSort(dataset, expression, outputType, sortDirection),
     `Sort(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, sorted by the value of the key formula: \`${expression}\`.`,
+    undefined,
   ];
 }
 

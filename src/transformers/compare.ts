@@ -54,12 +54,15 @@ export async function compare({
       ),
       `Compare(${contextName}, ...)`,
       `A categorical comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
+      undefined,
     ];
   } else {
     return [
       await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
       `Compare(${contextName}, ...)`,
       `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
+      // TODO: this should not include a MVR
+      undefined,
     ];
   }
 }

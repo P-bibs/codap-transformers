@@ -52,6 +52,7 @@ export async function groupBy({
         "attribute",
         attributes
       )} ${attributeNames}.`,
+    undefined,
   ];
 }
 

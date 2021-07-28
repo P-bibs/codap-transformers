@@ -22,7 +22,7 @@ import {
   TypeSelector,
   ExpressionEditor,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, createMVRDisplay } from "./util";
 import {
   DatasetCreatorTransformerName,
   BaseTransformerName,
@@ -307,7 +307,20 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     };
 
     try {
-      const [result, name, description] = await doTransform();
+      const [result, name, description, mvr] = await doTransform();
+
+      if (mvr !== undefined && mvr.missingValues.length > 0) {
+        if (
+          !confirm(
+            `Missing values were encountered in this computation. Proceed anyway?`
+          )
+        ) {
+          return;
+        }
+        await createMVRDisplay(mvr, `Missing Value Report for ${name}`);
+      }
+
+      console.log("MISSING VALUE REPORT: ", mvr);
 
       const inputs: string[] = [];
       for (const i of ["1", "2"]) {

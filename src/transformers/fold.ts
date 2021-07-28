@@ -62,6 +62,8 @@ function makeFoldWrapper(
       ),
       `${label.replace(/\s+/, "")}(${ctxtName}, ...)`,
       datasetDescription,
+      // TODO: needs MVR
+      undefined,
     ];
   };
 }
@@ -176,6 +178,8 @@ export async function genericFold({
     `A reduce of the ${ctxtName} dataset, with an attribute ${resultColumnName} ` +
       `whose values are determined by the formula \`${expression}\`. ` +
       `The accumulator is named ${accumulatorName} and its initial value is \`${base}\`.`,
+    // TODO: needs MVR
+    undefined,
   ];
 }
 
@@ -351,6 +355,8 @@ export async function differenceFrom({
     `A copy of ${ctxtName} with a new column whose values are the difference between ` +
       `the value of ${inputAttributeName} in the current case and the value of ${inputAttributeName} ` +
       `in the case above. The first case subtracts ${startingValue} from itself.`,
+    // TODO: needs MVR
+    undefined,
   ];
 }
 

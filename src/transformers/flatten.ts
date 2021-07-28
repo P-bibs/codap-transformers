@@ -22,6 +22,7 @@ export async function flatten({
     await uncheckedFlatten(dataset),
     `Flatten(${ctxtName})`,
     `A copy of ${ctxtName} in which all collections have been flattened into one collection.`,
+    undefined,
   ];
 }
 

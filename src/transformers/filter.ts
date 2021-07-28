@@ -26,6 +26,8 @@ export async function filter({
     await uncheckedFilter(dataset, predicate),
     `Filter(${ctxtName}, ...)`,
     `A copy of ${ctxtName} that only includes the cases for which the predicate \`${predicate}\` is true.`,
+    // TODO: MVR? requires analysis of formula
+    undefined,
   ];
 }
 

@@ -43,6 +43,7 @@ export async function count({
       "attribute",
       attributes
     )} ${attributeNames} that appear in ${ctxtName}.`,
+    undefined,
   ];
 }
 

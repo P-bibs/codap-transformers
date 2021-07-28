@@ -45,6 +45,7 @@ export async function buildColumn({
     `BuildColumn(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new attribute (${attributeName}) added to ` +
       `the ${collectionName} collection, whose value is determined by the formula \`${expression}\`.`,
+    undefined,
   ];
 }
 

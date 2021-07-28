@@ -3,7 +3,13 @@ import {
   CodapAttribute,
   DataContext,
 } from "../lib/codapPhone/types";
-import { Boundary, CodapLanguageType, DataSet, SingleValue } from "./types";
+import {
+  Boundary,
+  CodapLanguageType,
+  DataSet,
+  MissingValueReport,
+  SingleValue,
+} from "./types";
 import { prettyPrintCase } from "../lib/utils/prettyPrint";
 
 /**
@@ -511,12 +517,31 @@ export const cloneAttribute = shallowCopy;
 export function extractAttributeAsNumeric(
   dataset: DataSet,
   attribute: string
-): number[] {
+): [number[], MissingValueReport] {
   const numericValues = [];
+  const mvr: MissingValueReport = {
+    missingValues: [],
+  };
 
-  for (const record of dataset.records) {
+  // When we lookup which collection/attribute a missing value occurs in,
+  // cache it because all subsequent missing values will be in the same place
+  let cachedLocInfo: [Collection, CodapAttribute] | undefined;
+
+  for (let i = 0; i < dataset.records.length; i++) {
+    const record = dataset.records[i];
+
     // Ignore missing values
     if (isMissing(record[attribute])) {
+      if (cachedLocInfo === undefined) {
+        cachedLocInfo = validateAttribute(dataset.collections, attribute);
+      }
+      const [coll, attr] = cachedLocInfo;
+      // TODO: use names or titles here?
+      mvr.missingValues.push({
+        collection: coll.name,
+        attribute: attr.name,
+        itemIndex: i + 1,
+      });
       continue;
     }
     const value = parseFloat(String(record[attribute]));
@@ -528,7 +553,7 @@ export function extractAttributeAsNumeric(
     numericValues.push(value);
   }
 
-  return numericValues;
+  return [numericValues, mvr];
 }
 
 function changeDatasetMutability(dataset: DataSet, mutable: boolean): DataSet {

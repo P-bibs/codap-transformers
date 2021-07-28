@@ -57,6 +57,7 @@ export async function pivotLonger({
         attributes
       )} under a new attribute (${namesTo}), and the values previously ` +
       `under ${attributeNames} moved under a new attribute (${valuesTo}).`,
+    undefined,
   ];
 }
 
@@ -172,6 +173,7 @@ export async function pivotWider({
     `PivotWider(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
       `into new attributes, which get their values from the attribute ${valuesFrom}.`,
+    undefined,
   ];
 }
 

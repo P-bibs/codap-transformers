@@ -36,6 +36,8 @@ export async function sumProduct({
     `SumProduct(${ctxtName}, [${attributes.join(", ")}])`,
     `The sum across all cases in ${ctxtName} of the product ` +
       `of the ${pluralSuffix("attribute", attributes)} ${attributeNames}.`,
+    // TODO: needs MVR
+    undefined,
   ];
 }
 

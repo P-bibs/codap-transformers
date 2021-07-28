@@ -28,6 +28,8 @@ export async function standardDeviation({
     uncheckedStandardDeviation(dataset, attribute),
     `StandardDeviation(${ctxtName}, ${attribute})`,
     `The standard deviation of the ${attribute} attribute in the ${ctxtName} dataset.`,
+    // TODO: needs MVR
+    undefined,
   ];
 }
 
@@ -54,7 +56,7 @@ export function uncheckedStandardDeviation(
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute
-  const values = extractAttributeAsNumeric(dataset, attribute);
+  const [values] = extractAttributeAsNumeric(dataset, attribute);
 
   if (values.length === 0) {
     throw new Error(`Cannot find standard deviation of no numeric values`);

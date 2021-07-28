@@ -30,9 +30,29 @@ export type Boundary = {
 };
 
 /**
- * SingeValue represents the output of a single-value transformer (e.g. median).
+ * SingleValue represents the output of a single-value transformer (e.g. median).
  */
 export type SingleValue = number | number[];
+
+/**
+ * Locates a missing value within a dataset.
+ */
+export type MissingValueLocation = {
+  collection: string;
+  attribute: string;
+  itemIndex: number;
+};
+
+/**
+ * A missing value report details what missing values were involved
+ * in a transformer's computation. The `extraInfo` field contains extra
+ * information about how missing values are dealt with by this particular
+ * transformer.
+ */
+export type MissingValueReport = {
+  missingValues: MissingValueLocation[];
+  extraInfo?: string;
+};
 
 /**
  * The format for output for most transformations contains three parts:
@@ -40,8 +60,18 @@ export type SingleValue = number | number[];
  *  2) output context name (string)
  *  3) output context description] (string)
  */
-export type DataSetTransformationOutput = [DataSet, string, string];
-export type SingleValueTransformationOutput = [SingleValue, string, string];
+export type DataSetTransformationOutput = [
+  DataSet,
+  string,
+  string,
+  MissingValueReport | undefined
+];
+export type SingleValueTransformationOutput = [
+  SingleValue,
+  string,
+  string,
+  MissingValueReport | undefined
+];
 
 export type TransformationOutput =
   | DataSetTransformationOutput

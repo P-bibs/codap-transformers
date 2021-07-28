@@ -49,6 +49,7 @@ export async function join({
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
       `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
       `containing ${inputAttribute1} in ${ctxtName1}.`,
+    undefined,
   ];
 }
 

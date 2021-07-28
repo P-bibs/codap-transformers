@@ -26,6 +26,8 @@ export async function median({
     uncheckedMedian(dataset, attribute),
     `Median(${ctxtName}, ${attribute})`,
     `The median value of the ${attribute} attribute in the ${ctxtName} dataset.`,
+    // TODO: needs MVR
+    undefined,
   ];
 }
 
@@ -39,7 +41,7 @@ export function uncheckedMedian(dataset: DataSet, attribute: string): number {
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute
-  const values = extractAttributeAsNumeric(dataset, attribute);
+  const [values] = extractAttributeAsNumeric(dataset, attribute);
 
   if (values.length === 0) {
     throw new Error(`Cannot find median of no numeric values`);

@@ -35,6 +35,7 @@ export async function combineCases({
     await uncheckedCombineCases(dataset1, dataset2),
     `CombinedCases(${ctxtName1}, ${ctxtName2})`,
     `A copy of ${ctxtName1}, containing all of the cases from both ${ctxtName1} and ${ctxtName2}.`,
+    undefined,
   ];
 }
 

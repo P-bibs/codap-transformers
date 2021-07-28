@@ -396,6 +396,7 @@ export interface DataContext {
   description?: string;
   collections: Collection[];
   metadata?: ContextMetadata;
+  preventReorg?: boolean;
 }
 
 export interface ReturnedDataContext extends Omit<DataContext, "collections"> {

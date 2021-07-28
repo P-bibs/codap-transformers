@@ -132,6 +132,7 @@ export function cloneDataSet(dataset: DataSet): DataSet {
   return {
     collections: dataset.collections.map((coll) => cloneCollection(coll)),
     records: dataset.records.map((rec) => shallowCopy(rec)),
+    editable: dataset.editable,
   };
 }
 

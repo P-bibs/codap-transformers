@@ -22,7 +22,10 @@ import {
  * @param dataset The dataset to check.
  * @returns true if all attributes are editable, false otherwise.
  */
-function allAttributesAreEditable(dataset: DataSet): boolean {
+function isEditable(dataset: DataSet): boolean {
+  if (dataset.editable !== true) {
+    return false;
+  }
   for (const coll of dataset.collections) {
     for (const attr of coll.attrs || []) {
       if (!attr.editable) {
@@ -41,8 +44,10 @@ function allAttributesAreEditable(dataset: DataSet): boolean {
  * @param dataset A dataset to ignore the editability of.
  * @returns A copy of the input with all attribute editability made undefined.
  */
-function ignoreAttributeEditability(dataset: DataSet): DataSet {
+function ignoreEditability(dataset: DataSet): DataSet {
   const copy = cloneDataSet(dataset);
+
+  copy.editable = undefined;
 
   copy.collections.forEach((coll) => {
     coll.attrs?.forEach((attr) => (attr.editable = undefined));
@@ -54,115 +59,98 @@ function ignoreAttributeEditability(dataset: DataSet): DataSet {
 describe("editable copy produces an exact copy of the input (barring attribute editability)", () => {
   test("uneditable dataset", () => {
     expect(
-      ignoreAttributeEditability(
-        uncheckedEditableCopy(DATASET_WITH_UNEDITABLE_ATTRS)
-      )
-    ).toEqual(ignoreAttributeEditability(DATASET_WITH_UNEDITABLE_ATTRS));
+      ignoreEditability(uncheckedEditableCopy(DATASET_WITH_UNEDITABLE_ATTRS))
+    ).toEqual(ignoreEditability(DATASET_WITH_UNEDITABLE_ATTRS));
   });
   test("dataset A", () => {
-    expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(DATASET_A))
-    ).toEqual(ignoreAttributeEditability(DATASET_A));
+    expect(ignoreEditability(uncheckedEditableCopy(DATASET_A))).toEqual(
+      ignoreEditability(DATASET_A)
+    );
   });
   test("dataset B", () => {
-    expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(DATASET_B))
-    ).toEqual(ignoreAttributeEditability(DATASET_B));
+    expect(ignoreEditability(uncheckedEditableCopy(DATASET_B))).toEqual(
+      ignoreEditability(DATASET_B)
+    );
   });
   test("grades wider", () => {
     expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(GRADES_DATASET_WIDER))
-    ).toEqual(ignoreAttributeEditability(GRADES_DATASET_WIDER));
+      ignoreEditability(uncheckedEditableCopy(GRADES_DATASET_WIDER))
+    ).toEqual(ignoreEditability(GRADES_DATASET_WIDER));
   });
   test("grades longer", () => {
     expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(GRADES_DATASET_LONGER))
-    ).toEqual(ignoreAttributeEditability(GRADES_DATASET_LONGER));
+      ignoreEditability(uncheckedEditableCopy(GRADES_DATASET_LONGER))
+    ).toEqual(ignoreEditability(GRADES_DATASET_LONGER));
   });
   test("dataset with meta", () => {
-    expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(DATASET_WITH_META))
-    ).toEqual(ignoreAttributeEditability(DATASET_WITH_META));
+    expect(ignoreEditability(uncheckedEditableCopy(DATASET_WITH_META))).toEqual(
+      ignoreEditability(DATASET_WITH_META)
+    );
   });
   test("dataset with empty records", () => {
-    expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(EMPTY_RECORDS))
-    ).toEqual(ignoreAttributeEditability(EMPTY_RECORDS));
+    expect(ignoreEditability(uncheckedEditableCopy(EMPTY_RECORDS))).toEqual(
+      ignoreEditability(EMPTY_RECORDS)
+    );
   });
   test("census dataset", () => {
-    expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(CENSUS_DATASET))
-    ).toEqual(ignoreAttributeEditability(CENSUS_DATASET));
+    expect(ignoreEditability(uncheckedEditableCopy(CENSUS_DATASET))).toEqual(
+      ignoreEditability(CENSUS_DATASET)
+    );
   });
   test("fully-featured dataset", () => {
     expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(FULLY_FEATURED_DATASET))
-    ).toEqual(ignoreAttributeEditability(FULLY_FEATURED_DATASET));
+      ignoreEditability(uncheckedEditableCopy(FULLY_FEATURED_DATASET))
+    ).toEqual(ignoreEditability(FULLY_FEATURED_DATASET));
   });
   test("types dataset", () => {
-    expect(
-      ignoreAttributeEditability(uncheckedEditableCopy(TYPES_DATASET))
-    ).toEqual(ignoreAttributeEditability(TYPES_DATASET));
+    expect(ignoreEditability(uncheckedEditableCopy(TYPES_DATASET))).toEqual(
+      ignoreEditability(TYPES_DATASET)
+    );
   });
 });
 
 describe("output of editable copy can be edited", () => {
   test("uneditable dataset", () => {
     expect(
-      allAttributesAreEditable(
-        uncheckedEditableCopy(DATASET_WITH_UNEDITABLE_ATTRS)
-      )
+      isEditable(uncheckedEditableCopy(DATASET_WITH_UNEDITABLE_ATTRS))
     ).toBe(true);
   });
   test("dataset A", () => {
-    expect(allAttributesAreEditable(uncheckedEditableCopy(DATASET_A))).toBe(
-      true
-    );
+    expect(isEditable(uncheckedEditableCopy(DATASET_A))).toBe(true);
   });
   test("dataset B", () => {
-    expect(allAttributesAreEditable(uncheckedEditableCopy(DATASET_B))).toBe(
-      true
-    );
+    expect(isEditable(uncheckedEditableCopy(DATASET_B))).toBe(true);
   });
   test("grades wider", () => {
-    expect(
-      allAttributesAreEditable(uncheckedEditableCopy(GRADES_DATASET_WIDER))
-    ).toBe(true);
+    expect(isEditable(uncheckedEditableCopy(GRADES_DATASET_WIDER))).toBe(true);
   });
   test("grades longer", () => {
-    expect(
-      allAttributesAreEditable(uncheckedEditableCopy(GRADES_DATASET_LONGER))
-    ).toBe(true);
+    expect(isEditable(uncheckedEditableCopy(GRADES_DATASET_LONGER))).toBe(true);
   });
   test("dataset with meta", () => {
-    expect(
-      allAttributesAreEditable(uncheckedEditableCopy(DATASET_WITH_META))
-    ).toBe(true);
+    expect(isEditable(uncheckedEditableCopy(DATASET_WITH_META))).toBe(true);
   });
   test("dataset with empty records", () => {
-    expect(allAttributesAreEditable(uncheckedEditableCopy(EMPTY_RECORDS))).toBe(
-      true
-    );
+    expect(isEditable(uncheckedEditableCopy(EMPTY_RECORDS))).toBe(true);
   });
   test("census dataset", () => {
-    expect(
-      allAttributesAreEditable(uncheckedEditableCopy(CENSUS_DATASET))
-    ).toBe(true);
+    expect(isEditable(uncheckedEditableCopy(CENSUS_DATASET))).toBe(true);
   });
   test("fully-featured dataset", () => {
-    expect(
-      allAttributesAreEditable(uncheckedEditableCopy(FULLY_FEATURED_DATASET))
-    ).toBe(true);
-  });
-  test("types dataset", () => {
-    expect(allAttributesAreEditable(uncheckedEditableCopy(TYPES_DATASET))).toBe(
+    expect(isEditable(uncheckedEditableCopy(FULLY_FEATURED_DATASET))).toBe(
       true
     );
+  });
+  test("types dataset", () => {
+    expect(isEditable(uncheckedEditableCopy(TYPES_DATASET))).toBe(true);
   });
 });
 
 describe("editable copy", () => {
   it("does nothing to fully empty dataset", () => {
-    expect(uncheckedEditableCopy(EMPTY_DATASET)).toEqual(EMPTY_DATASET);
+    expect(uncheckedEditableCopy(EMPTY_DATASET)).toEqual({
+      ...EMPTY_DATASET,
+      editable: true,
+    });
   });
 });

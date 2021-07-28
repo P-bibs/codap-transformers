@@ -1,4 +1,8 @@
-import { DataSet, MissingValueReport } from "../../transformers/types";
+import {
+  DataSet,
+  MissingValueReport,
+  MISSING_VALUE_SCARE_SYMBOL,
+} from "../../transformers/types";
 import { createTableWithDataSet, createText } from "../../lib/codapPhone";
 
 /**
@@ -82,7 +86,7 @@ export async function createMVRDisplay(
   // .map((loc) => missingValueLocToString(loc))
   // .join("\n");
 
-  const reportContent = mvr.extraInfo || "";
+  const reportContent = `${MISSING_VALUE_SCARE_SYMBOL}\n${mvr.extraInfo || ""}`;
   // [
   //   mvr.extraInfo ? `${mvr.extraInfo}\n` : "",
   //   "Missing Values:",

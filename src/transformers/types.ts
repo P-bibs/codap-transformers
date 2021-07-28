@@ -64,6 +64,11 @@ export const EMPTY_MVR: MissingValueReport = {
 };
 
 /**
+ * Symbol used to add an ominous nature to computations over missing values. (dragon)
+ */
+export const MISSING_VALUE_SCARE_SYMBOL = "\u{1F409}";
+
+/**
  * The format for output for most transformations contains three parts:
  *  1) dataset or numeric value (DataSet | number)
  *  2) output context name (string)

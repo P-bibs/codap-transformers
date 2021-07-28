@@ -13,6 +13,7 @@ import {
   TransformationOutput,
   FullOverrideSaveState,
   MissingValueReport,
+  MISSING_VALUE_SCARE_SYMBOL,
 } from "../../transformers/types";
 import {
   Select,
@@ -297,7 +298,16 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     attributes2: useAttributes(state["context2"]),
   };
 
-  async function generateMVR(mvr: MissingValueReport, outputName: string) {
+  /**
+   * Generates a missing value report if the given report is non-empty.
+   *
+   * @param mvr The missing value report
+   * @param outputName Name of the transformer's output
+   */
+  async function generateMVR(
+    mvr: MissingValueReport,
+    outputName: string
+  ): Promise<void> {
     if (mvr.missingValues.length > 0) {
       if (
         !confirm(
@@ -324,6 +334,12 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     try {
       const [result, name, description, mvr] = await doTransform();
 
+      // Add scare symbol to output if MVR is non-empty
+      const markedName =
+        mvr.missingValues.length > 0
+          ? `${name} ${MISSING_VALUE_SCARE_SYMBOL}`
+          : name;
+
       const inputContexts: string[] = [];
       for (const i of ["1", "2"]) {
         const contextKey = ("context" + i) as "context1" | "context2";
@@ -336,7 +352,10 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
       // Determine whether the transformerFunction returns a textbox or a table
       if (typeof result === "number" || Array.isArray(result)) {
         // This is the case where the transformer returns a single value
-        const textName = await createText(name, displaySingleValue(result));
+        const textName = await createText(
+          markedName,
+          displaySingleValue(result)
+        );
 
         activeTransformationsDispatch({
           type: ActiveTransformationActionTypes.ADD,
@@ -356,7 +375,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         const immutableDataset = makeDatasetImmutable(result);
         const newContextName = await applyNewDataSet(
           immutableDataset,
-          name,
+          markedName,
           description
         );
 

@@ -1,7 +1,12 @@
-import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  CodapLanguageType,
+  DataSet,
+  EMPTY_MVR,
+  TransformationOutput,
+} from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone/index";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { reportTypeErrorsForRecords, cloneCollection } from "./util";
 
 /**
@@ -32,7 +37,7 @@ export async function buildColumn({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   return [
     await uncheckedBuildColumn(
@@ -45,7 +50,7 @@ export async function buildColumn({
     `BuildColumn(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new attribute (${attributeName}) added to ` +
       `the ${collectionName} collection, whose value is determined by the formula \`${expression}\`.`,
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

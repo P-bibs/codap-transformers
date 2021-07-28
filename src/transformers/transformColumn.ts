@@ -1,7 +1,12 @@
-import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  CodapLanguageType,
+  DataSet,
+  EMPTY_MVR,
+  TransformationOutput,
+} from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import {
   reportTypeErrorsForRecords,
   cloneCollection,
@@ -34,7 +39,7 @@ export async function transformColumn({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   return [
     await uncheckedTransformColumn(
       dataset,
@@ -45,7 +50,7 @@ export async function transformColumn({
     `TransformColumn(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, with the ${attributeName} attribute's values ` +
       `determined by the formula \`${expression}\`.`,
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

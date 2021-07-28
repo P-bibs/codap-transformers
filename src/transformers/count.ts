@@ -1,4 +1,4 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../lib/codapPhone/types";
 import {
   listAsString,
@@ -10,7 +10,7 @@ import {
 import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 
 /**
  * Count consumes a dataset and list of attribute names and produces a new
@@ -33,7 +33,7 @@ export async function count({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
   return [
@@ -43,7 +43,7 @@ export async function count({
       "attribute",
       attributes
     )} ${attributeNames} that appear in ${ctxtName}.`,
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

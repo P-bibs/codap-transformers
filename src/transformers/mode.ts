@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
@@ -20,28 +20,33 @@ export async function mode({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   return [
-    uncheckedMode(dataset, attribute),
+    uncheckedMode(context.name, dataset, attribute),
     `Mode(${ctxtName}, ${attribute})`,
     `The mode value of the ${attribute} attribute in the ${ctxtName} dataset.`,
     // TODO: needs MVR
-    undefined,
+    EMPTY_MVR,
   ];
 }
 
 /**
  * Finds the mode of a given attribute's values.
  *
+ * @param contextName - Name of data context associated with input dataset
  * @param dataset - The input DataSet
  * @param attribute - The column to find the mode of.
  */
-export function uncheckedMode(dataset: DataSet, attribute: string): number[] {
+export function uncheckedMode(
+  contextName: string,
+  dataset: DataSet,
+  attribute: string
+): number[] {
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute
-  const [values] = extractAttributeAsNumeric(dataset, attribute);
+  const [values] = extractAttributeAsNumeric(contextName, dataset, attribute);
 
   if (values.length === 0) {
     throw new Error(`Cannot find mode of no numeric values`);

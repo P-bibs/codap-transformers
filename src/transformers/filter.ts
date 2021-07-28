@@ -1,8 +1,8 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -20,14 +20,14 @@ export async function filter({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   return [
     await uncheckedFilter(dataset, predicate),
     `Filter(${ctxtName}, ...)`,
     `A copy of ${ctxtName} that only includes the cases for which the predicate \`${predicate}\` is true.`,
     // TODO: MVR? requires analysis of formula
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

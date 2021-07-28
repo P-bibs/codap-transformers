@@ -1,8 +1,8 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import {
   shallowCopy,
   cloneCollection,
@@ -40,8 +40,8 @@ export async function join({
     inputDataContext2
   );
 
-  const ctxtName1 = readableName(context1);
-  const ctxtName2 = readableName(context2);
+  const ctxtName1 = tryTitle(context1);
+  const ctxtName2 = tryTitle(context2);
 
   return [
     await uncheckedJoin(dataset1, inputAttribute1, dataset2, inputAttribute2),
@@ -49,7 +49,7 @@ export async function join({
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
       `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
       `containing ${inputAttribute1} in ${ctxtName1}.`,
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

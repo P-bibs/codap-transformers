@@ -14,7 +14,7 @@ import {
   TransformerTemplateProps,
   TransformerTemplateState,
 } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { applyNewDataSet } from "../components/transformer-template/util";
 import { ActionTypes } from "../transformerStore/types";
 
@@ -70,7 +70,7 @@ async function doTransform(
   const partitioned = partition(dataset, attributeName);
 
   // assign names to each partitioned dataset
-  const readableContext = readableName(context);
+  const readableContext = tryTitle(context);
 
   // return both the datasets and their names
   return partitioned.map((pd) => [
@@ -125,7 +125,7 @@ export const partitionOverride = async (
   const outputContexts: string[] = [];
 
   const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
-  const inputDataCtxtName = readableName(inputContext);
+  const inputDataCtxtName = tryTitle(inputContext);
 
   for (const [partitioned, name] of transformed) {
     const newContextName = await applyNewDataSet(
@@ -197,7 +197,7 @@ async function partitionUpdateInner({
   const transformed = await doTransform(inputDataCtxt, attributeName);
 
   const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
-  const inputDataCtxtName = readableName(inputContext);
+  const inputDataCtxtName = tryTitle(inputContext);
 
   if (
     !confirmOutput(

@@ -1,4 +1,4 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import {
   allAttrNames,
   cloneCollection,
@@ -7,7 +7,7 @@ import {
 } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { uniqueName } from "../lib/utils/names";
 import {
   colorToRgbString,
@@ -43,7 +43,7 @@ export async function compare({
 
   const { context, dataset } = await getContextAndDataSet(inputDataContext1);
 
-  const contextName = readableName(context);
+  const contextName = tryTitle(context);
 
   if (kind === "categorical") {
     return [
@@ -54,7 +54,7 @@ export async function compare({
       ),
       `Compare(${contextName}, ...)`,
       `A categorical comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
-      undefined,
+      EMPTY_MVR,
     ];
   } else {
     return [
@@ -62,7 +62,7 @@ export async function compare({
       `Compare(${contextName}, ...)`,
       `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
       // TODO: this should not include a MVR
-      undefined,
+      EMPTY_MVR,
     ];
   }
 }

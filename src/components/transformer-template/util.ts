@@ -1,8 +1,4 @@
-import {
-  DataSet,
-  MissingValueLocation,
-  MissingValueReport,
-} from "../../transformers/types";
+import { DataSet, MissingValueReport } from "../../transformers/types";
 import { createTableWithDataSet, createText } from "../../lib/codapPhone";
 
 /**
@@ -28,35 +24,79 @@ export async function applyNewDataSet(
  * @param loc The location to convert
  * @returns A string describing the location
  */
-function missingValueLocToString(loc: MissingValueLocation): string {
-  return `${loc.itemIndex}, "${loc.attribute}", "${loc.collection}"`;
-}
+// function missingValueLocToString(loc: MissingValueLocation): string {
+//   return `${loc.itemIndex}, "${loc.attribute}", "${loc.collection}"`;
+// }
 
 /**
  * Creates a CODAP element that displays the given missing value report
  * with a given name (ensured unique).
  *
  * @param mvr The missing value report to display
- * @param name Base name of the report
- * @returns The actual (unique) name of the generated component.
+ * @param outputName Name of component produced by this transformer.
+ * @returns [contextName, textName], where contextName is the name of the
+ * context created for storing missing value info, and textName is the name
+ * of the report textbox.
  */
 export async function createMVRDisplay(
   mvr: MissingValueReport,
-  name: string
-): Promise<string> {
-  const locs = mvr.missingValues
-    .map((loc) => missingValueLocToString(loc))
-    .join("\n");
+  outputName: string
+): Promise<[string, string]> {
+  // Construct a dataset containing the missing value info
+  const missingValuesDataset: DataSet = {
+    collections: [
+      {
+        name: "Missing Values",
+        attrs: [
+          {
+            name: "Item Number",
+          },
+          {
+            name: "Attribute",
+          },
+          {
+            name: "Collection",
+          },
+          {
+            name: "Dataset",
+          },
+        ],
+      },
+    ],
+    records: mvr.missingValues.map(
+      ({ itemIndex, attribute, collection, context }) => ({
+        "Item Number": itemIndex,
+        Attribute: attribute,
+        Collection: collection,
+        Dataset: context,
+      })
+    ),
+  };
 
-  const reportContent = [
-    mvr.extraInfo ? `${mvr.extraInfo}\n` : "",
-    "Missing Values:",
-    "Item, Attribute, Collection",
-    locs,
-  ]
-    .filter((s) => s !== "")
-    .join("\n");
+  const [context] = await createTableWithDataSet(
+    missingValuesDataset,
+    `Missing Values (${outputName})`
+  );
 
-  // TODO: should this be a table?
-  return await createText(name, reportContent);
+  // const locs = mvr.missingValues
+  // .map((loc) => missingValueLocToString(loc))
+  // .join("\n");
+
+  const reportContent = mvr.extraInfo || "";
+  // [
+  //   mvr.extraInfo ? `${mvr.extraInfo}\n` : "",
+  //   "Missing Values:",
+  //   "Item, Attribute, Collection",
+  //   locs,
+  // ]
+  //   .filter((s) => s !== "")
+  //   .join("\n");
+
+  const textName = await createText(
+    `Missing Value Report for ${outputName}`,
+    reportContent
+  );
+
+  // Return names of generated components
+  return [context.name, textName];
 }

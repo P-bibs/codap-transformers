@@ -1,8 +1,8 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { uniqueName } from "../lib/utils/names";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import {
   eraseFormulas,
   codapValueToString,
@@ -41,7 +41,7 @@ export async function pivotLonger({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
   return [
@@ -57,7 +57,7 @@ export async function pivotLonger({
         attributes
       )} under a new attribute (${namesTo}), and the values previously ` +
       `under ${attributeNames} moved under a new attribute (${valuesTo}).`,
-    undefined,
+    EMPTY_MVR,
   ];
 }
 
@@ -167,13 +167,13 @@ export async function pivotWider({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   return [
     await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
     `PivotWider(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
       `into new attributes, which get their values from the attribute ${valuesFrom}.`,
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

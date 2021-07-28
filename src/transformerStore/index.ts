@@ -1,6 +1,6 @@
 import React, { useReducer, useEffect } from "react";
 import { default as transformerList } from "../transformerList";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import {
   getDataContext,
   notifyInteractiveFrameIsDirty,
@@ -92,9 +92,7 @@ export function useActiveTransformations(
             const context = await getDataContext(
               (description as DatasetCreatorDescription).output
             );
-            setErrMsg(
-              `Error updating "${readableName(context)}": ${e.message}`
-            );
+            setErrMsg(`Error updating "${tryTitle(context)}": ${e.message}`);
           } else {
             setErrMsg(e.message);
           }

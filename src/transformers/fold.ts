@@ -1,4 +1,4 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import {
   insertColumnInLastCollection,
   insertInRow,
@@ -9,7 +9,7 @@ import {
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { parenthesizeName, readableName } from "../transformers/util";
+import { parenthesizeName, tryTitle } from "../transformers/util";
 
 type FoldFunction = (
   dataset: DataSet,
@@ -44,7 +44,7 @@ function makeFoldWrapper(
       allAttrNames(dataset)
     );
 
-    const ctxtName = readableName(context);
+    const ctxtName = tryTitle(context);
 
     // Generate a description of the fold by calling the custom maker, or using a default.
     const [attributeDescription, datasetDescription] = makeDescriptions(
@@ -63,7 +63,7 @@ function makeFoldWrapper(
       `${label.replace(/\s+/, "")}(${ctxtName}, ...)`,
       datasetDescription,
       // TODO: needs MVR
-      undefined,
+      EMPTY_MVR,
     ];
   };
 }
@@ -162,8 +162,8 @@ export async function genericFold({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
 
-  const resultDescription = `A reduce of the ${readableName(context)} dataset.`;
-  const ctxtName = readableName(context);
+  const resultDescription = `A reduce of the ${tryTitle(context)} dataset.`;
+  const ctxtName = tryTitle(context);
 
   return [
     await uncheckedGenericFold(
@@ -179,7 +179,7 @@ export async function genericFold({
       `whose values are determined by the formula \`${expression}\`. ` +
       `The accumulator is named ${accumulatorName} and its initial value is \`${base}\`.`,
     // TODO: needs MVR
-    undefined,
+    EMPTY_MVR,
   ];
 }
 
@@ -337,7 +337,7 @@ export async function differenceFrom({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const resultAttributeName = uniqueName(
     `Difference From of ${inputAttributeName}`,
     allAttrNames(dataset)
@@ -356,7 +356,7 @@ export async function differenceFrom({
       `the value of ${inputAttributeName} in the current case and the value of ${inputAttributeName} ` +
       `in the case above. The first case subtracts ${startingValue} from itself.`,
     // TODO: needs MVR
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

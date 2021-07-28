@@ -1,8 +1,13 @@
-import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  CodapLanguageType,
+  DataSet,
+  EMPTY_MVR,
+  TransformationOutput,
+} from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString, reportTypeErrorsForRecords } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
@@ -75,12 +80,12 @@ export async function sort({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   return [
     await uncheckedSort(dataset, expression, outputType, sortDirection),
     `Sort(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, sorted by the value of the key formula: \`${expression}\`.`,
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

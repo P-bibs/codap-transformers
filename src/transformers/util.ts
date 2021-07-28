@@ -1,8 +1,4 @@
-import {
-  Collection,
-  CodapAttribute,
-  DataContext,
-} from "../lib/codapPhone/types";
+import { Collection, CodapAttribute } from "../lib/codapPhone/types";
 import {
   Boundary,
   CodapLanguageType,
@@ -16,10 +12,10 @@ import { prettyPrintCase } from "../lib/utils/prettyPrint";
  * Returns the context's title, if any, or falls back to its name.
  *
  * @param context the data context to produce a readable name for
- * @returns readable name of the context
+ * @returns the context's title, or its name
  */
-export function readableName(context: DataContext): string {
-  return context.title ? context.title : context.name;
+export function tryTitle(obj: { title?: string; name: string }): string {
+  return obj.title ? obj.title : obj.name;
 }
 
 /**
@@ -510,11 +506,13 @@ export const cloneAttribute = shallowCopy;
  * non-numeric. NOTE: This does not validate the given attribute--if the
  * attribute isn't defined for any cases, this will return an empty list.
  *
+ * @param contextTitle Title of the input data context this dataset is from (for MVR).
  * @param dataset The dataset to extract from.
  * @param attribute The attribute containing numeric values.
  * @returns A list of the attributes values parsed to numbers.
  */
 export function extractAttributeAsNumeric(
+  contextTitle: string,
   dataset: DataSet,
   attribute: string
 ): [number[], MissingValueReport] {
@@ -536,10 +534,10 @@ export function extractAttributeAsNumeric(
         cachedLocInfo = validateAttribute(dataset.collections, attribute);
       }
       const [coll, attr] = cachedLocInfo;
-      // TODO: use names or titles here?
       mvr.missingValues.push({
-        collection: coll.name,
-        attribute: attr.name,
+        context: contextTitle,
+        collection: tryTitle(coll),
+        attribute: tryTitle(attr),
         itemIndex: i + 1,
       });
       continue;

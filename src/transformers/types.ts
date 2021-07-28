@@ -35,9 +35,11 @@ export type Boundary = {
 export type SingleValue = number | number[];
 
 /**
- * Locates a missing value within a dataset.
+ * Locates a missing value within a dataset. The given string values should be
+ * user-recognizable titles, instead of names.
  */
 export type MissingValueLocation = {
+  context: string;
   collection: string;
   attribute: string;
   itemIndex: number;
@@ -55,22 +57,30 @@ export type MissingValueReport = {
 };
 
 /**
+ * The empty missing value report.
+ */
+export const EMPTY_MVR: MissingValueReport = {
+  missingValues: [],
+};
+
+/**
  * The format for output for most transformations contains three parts:
  *  1) dataset or numeric value (DataSet | number)
  *  2) output context name (string)
  *  3) output context description] (string)
+ *  4) missing value report
  */
 export type DataSetTransformationOutput = [
   DataSet,
   string,
   string,
-  MissingValueReport | undefined
+  MissingValueReport
 ];
 export type SingleValueTransformationOutput = [
   SingleValue,
   string,
   string,
-  MissingValueReport | undefined
+  MissingValueReport
 ];
 
 export type TransformationOutput =

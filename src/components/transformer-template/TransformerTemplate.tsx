@@ -5,12 +5,14 @@ import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
   deleteDataContext,
+  getDataContext,
 } from "../../lib/codapPhone";
 import { useAttributes } from "../../lib/utils/hooks";
 import {
   CodapLanguageType,
   TransformationOutput,
   FullOverrideSaveState,
+  MissingValueReport,
 } from "../../transformers/types";
 import {
   Select,
@@ -38,7 +40,7 @@ import {
   SafeActiveTransformationsDispatch,
   ActionTypes as ActiveTransformationActionTypes,
 } from "../../transformerStore/types";
-import { displaySingleValue } from "../../transformers/util";
+import { displaySingleValue, tryTitle } from "../../transformers/util";
 import { makeDatasetImmutable } from "../../transformers/util";
 import "./styles/TransformerTemplate.css";
 import DefinitionCreator from "./DefinitionCreator";
@@ -295,6 +297,19 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     attributes2: useAttributes(state["context2"]),
   };
 
+  async function generateMVR(mvr: MissingValueReport, outputName: string) {
+    if (mvr.missingValues.length > 0) {
+      if (
+        !confirm(
+          `Missing values were encountered in this computation. Proceed anyway?`
+        )
+      ) {
+        return;
+      }
+      await createMVRDisplay(mvr, outputName);
+    }
+  }
+
   const transform = async () => {
     setErrMsg(null);
 
@@ -309,25 +324,12 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     try {
       const [result, name, description, mvr] = await doTransform();
 
-      if (mvr !== undefined && mvr.missingValues.length > 0) {
-        if (
-          !confirm(
-            `Missing values were encountered in this computation. Proceed anyway?`
-          )
-        ) {
-          return;
-        }
-        await createMVRDisplay(mvr, `Missing Value Report for ${name}`);
-      }
-
-      console.log("MISSING VALUE REPORT: ", mvr);
-
-      const inputs: string[] = [];
+      const inputContexts: string[] = [];
       for (const i of ["1", "2"]) {
         const contextKey = ("context" + i) as "context1" | "context2";
         const contextName = state[contextKey];
         if (order.includes(contextKey) && contextName !== null) {
-          inputs.push(contextName);
+          inputContexts.push(contextName);
         }
       }
 
@@ -339,7 +341,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         activeTransformationsDispatch({
           type: ActiveTransformationActionTypes.ADD,
           newTransformation: {
-            inputs,
+            inputs: inputContexts,
             extraDependencies: [],
             outputType: TransformationOutputType.TEXT,
             output: textName,
@@ -347,6 +349,8 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             state,
           },
         });
+
+        generateMVR(mvr, textName);
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
         const immutableDataset = makeDatasetImmutable(result);
@@ -366,7 +370,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         activeTransformationsDispatch({
           type: ActiveTransformationActionTypes.ADD,
           newTransformation: {
-            inputs,
+            inputs: inputContexts,
             extraDependencies: [newContextName],
             outputType: TransformationOutputType.CONTEXT,
             output: newContextName,
@@ -374,6 +378,10 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             state,
           },
         });
+
+        const ctxt = await getDataContext(newContextName);
+        const outputName = tryTitle(ctxt);
+        generateMVR(mvr, outputName);
       }
     } catch (e) {
       setErrMsg(e.message);

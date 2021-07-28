@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import {
   codapValueToString,
   isMissing,
@@ -28,7 +28,7 @@ export async function sumProduct({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
   return [
@@ -37,7 +37,7 @@ export async function sumProduct({
     `The sum across all cases in ${ctxtName} of the product ` +
       `of the ${pluralSuffix("attribute", attributes)} ${attributeNames}.`,
     // TODO: needs MVR
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

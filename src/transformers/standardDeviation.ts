@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
@@ -22,14 +22,14 @@ export async function standardDeviation({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   return [
-    uncheckedStandardDeviation(dataset, attribute),
+    uncheckedStandardDeviation(context.name, dataset, attribute),
     `StandardDeviation(${ctxtName}, ${attribute})`,
     `The standard deviation of the ${attribute} attribute in the ${ctxtName} dataset.`,
     // TODO: needs MVR
-    undefined,
+    EMPTY_MVR,
   ];
 }
 
@@ -46,17 +46,19 @@ function mean(vs: number[]): number {
 /**
  * Finds the standard deviation of a given attribute's values.
  *
+ * @param contextName - Name of data context associated with input dataset
  * @param dataset - The input DataSet
  * @param attribute - The column to find the standard deviation of.
  */
 export function uncheckedStandardDeviation(
+  contextName: string,
   dataset: DataSet,
   attribute: string
 ): number {
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute
-  const [values] = extractAttributeAsNumeric(dataset, attribute);
+  const [values] = extractAttributeAsNumeric(contextName, dataset, attribute);
 
   if (values.length === 0) {
     throw new Error(`Cannot find standard deviation of no numeric values`);

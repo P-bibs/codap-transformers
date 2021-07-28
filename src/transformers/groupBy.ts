@@ -1,6 +1,6 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../lib/codapPhone/types";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import {
@@ -38,7 +38,7 @@ export async function groupBy({
     `Grouped by ${attributeNames}`,
     allCollectionNames(dataset)
   );
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attrNames = attributes.map((name) => ({
     attrName: name,
     groupedName: `${name} Group`,
@@ -52,7 +52,7 @@ export async function groupBy({
         "attribute",
         attributes
       )} ${attributeNames}.`,
-    undefined,
+    EMPTY_MVR,
   ];
 }
 

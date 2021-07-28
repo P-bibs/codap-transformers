@@ -802,8 +802,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "How to Filter",
-          inputTypes: ["row"],
-          outputTypes: ["boolean"],
+          inputTypes: "row",
+          outputTypes: "boolean",
           inputTypeDisabled: true,
           outputTypeDisabled: true,
         },
@@ -834,7 +834,7 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Formula for Transformed Values",
-          inputTypes: ["row"],
+          inputTypes: "row",
           outputTypes: ["any", "string", "number", "boolean", "boundary"],
           inputTypeDisabled: true,
         },
@@ -871,7 +871,7 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Formula for Attribute Values",
-          inputTypes: ["row"],
+          inputTypes: "row",
           outputTypes: ["any", "string", "number", "boolean", "boundary"],
           inputTypeDisabled: true,
         },
@@ -949,7 +949,7 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Key expression",
-          inputTypes: ["row"],
+          inputTypes: "row",
           outputTypes: ["any", "string", "number", "boolean", "boundary"],
           inputTypeDisabled: true,
         },

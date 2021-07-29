@@ -1,5 +1,6 @@
 import { CodapAttribute } from "../../utils/codapPhone/types";
 import { uncheckedCount } from "../count";
+import { DataSet } from "../types";
 import { eraseFormulas } from "../util";
 import {
   DATASET_A,
@@ -14,8 +15,17 @@ import {
   makeSimpleBoundary,
 } from "./data";
 
+export function uncheckedCountWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  attributes: string[]
+): DataSet {
+  const [output] = uncheckedCount(contextTitle, dataset, attributes);
+  return output;
+}
+
 test("count single attribute", () => {
-  expect(uncheckedCount(DATASET_A, ["B"])).toEqual({
+  expect(uncheckedCountWrapper("Dataset A", DATASET_A, ["B"])).toEqual({
     collections: [
       {
         name: "Count (B)",
@@ -39,7 +49,9 @@ test("count single attribute", () => {
     ),
   });
 
-  expect(uncheckedCount(CENSUS_DATASET, ["State"])).toEqual({
+  expect(
+    uncheckedCountWrapper("Census Dataset", CENSUS_DATASET, ["State"])
+  ).toEqual({
     collections: [
       {
         name: "Count (State)",
@@ -68,7 +80,7 @@ test("count single attribute", () => {
 });
 
 test("count multiple attributes", () => {
-  expect(uncheckedCount(DATASET_A, ["A", "B"])).toEqual({
+  expect(uncheckedCountWrapper("Dataset A", DATASET_A, ["A", "B"])).toEqual({
     collections: [
       {
         name: "Count (A, B)",
@@ -99,7 +111,11 @@ test("count multiple attributes", () => {
 });
 
 test("works with boundaries", () => {
-  expect(uncheckedCount(FULLY_FEATURED_DATASET, ["Attribute_3"])).toEqual({
+  expect(
+    uncheckedCountWrapper("Fully-featured Dataset", FULLY_FEATURED_DATASET, [
+      "Attribute_3",
+    ])
+  ).toEqual({
     collections: [
       {
         name: "Count (Attribute_3)",
@@ -124,20 +140,28 @@ test("works with boundaries", () => {
 
 test("errors on invalid attribute", () => {
   const invalidAttributeErr = /Invalid attribute/;
-  expect(() => uncheckedCount(DATASET_B, ["Nonexistent"])).toThrowError(
-    invalidAttributeErr
-  );
-  expect(() => uncheckedCount(EMPTY_DATASET, ["Anything"])).toThrowError(
-    invalidAttributeErr
-  );
   expect(() =>
-    uncheckedCount(CENSUS_DATASET, ["Sex", "Age", "Bad attribute"])
+    uncheckedCountWrapper("Dataset B", DATASET_B, ["Nonexistent"])
+  ).toThrowError(invalidAttributeErr);
+  expect(() =>
+    uncheckedCountWrapper("Empty Dataset", EMPTY_DATASET, ["Anything"])
+  ).toThrowError(invalidAttributeErr);
+  expect(() =>
+    uncheckedCountWrapper("Census Dataset", CENSUS_DATASET, [
+      "Sex",
+      "Age",
+      "Bad attribute",
+    ])
   ).toThrowError(invalidAttributeErr);
 });
 
 test("preserves metadata and erases formulas", () => {
   expect(
-    uncheckedCount(DATASET_WITH_META, ["A", "B", "C"]).collections
+    uncheckedCountWrapper("Dataset with Metadata", DATASET_WITH_META, [
+      "A",
+      "B",
+      "C",
+    ]).collections
   ).toEqual([
     {
       name: "Count (A, B, C)",
@@ -154,7 +178,8 @@ test("preserves metadata and erases formulas", () => {
 });
 
 test("generated 'Count' attribute has unique name", () => {
-  const { collections } = uncheckedCount(
+  const { collections } = uncheckedCountWrapper(
+    "Dataset",
     {
       // Specifically use "Count" as an attribute name
       collections: [makeCollection("Collection", ["Count"])],

@@ -14,6 +14,7 @@ import {
   validateAttribute,
 } from "./util";
 import { uniqueName } from "../lib/utils/names";
+import { t } from "../strings";
 
 /**
  * Groups a dataset by the indicated attributes, by removing them from
@@ -26,10 +27,10 @@ export async function groupBy({
   attributeSet1: attributes,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (attributes.length === 0) {
-    throw new Error("Please choose at least one attribute to group by");
+    throw new Error(t("errors:groupBy.noAttribute"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -110,7 +111,9 @@ export function uncheckedGroupBy(
     }
 
     // attribute was not found in any collection
-    throw new Error(`Invalid attribute name: ${attrName}`);
+    throw new Error(
+      t("errors:validation.invalidAttribute", { name: attrName })
+    );
   }
 
   // remove any collections with no attributes after the group,

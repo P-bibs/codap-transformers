@@ -2,6 +2,7 @@ import { TransformerTemplateState } from "../components/transformer-template/Tra
 import { readableName } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
+import { t } from "../strings";
 
 /**
  * Flatten produces an identical dataset with all hierarchical relationships
@@ -12,7 +13,7 @@ export async function flatten({
   context1: contextName,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);

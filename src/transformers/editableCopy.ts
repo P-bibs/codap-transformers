@@ -8,6 +8,7 @@ import { readableName } from "../transformers/util";
 import { makeDatasetMutable } from "../transformers/util";
 import { uncheckedCopy } from "./copy";
 import { DataSet } from "./types";
+import { t } from "../strings";
 
 export async function editableCopyOverride(
   { setErrMsg }: TransformerTemplateProps,
@@ -16,7 +17,7 @@ export async function editableCopyOverride(
   setErrMsg(null);
 
   if (inputDataCtxt === null) {
-    setErrMsg("Please choose a valid dataset to transform");
+    setErrMsg(t("errors:validation.noDataSet"));
     return;
   }
 

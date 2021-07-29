@@ -11,6 +11,7 @@ import {
   eraseFormulas,
   validateAttribute,
 } from "./util";
+import { t } from "../strings";
 
 /**
  * Joins two datasets together, using the baseDataset as a starting point
@@ -30,7 +31,7 @@ export async function join({
     !inputAttribute1 ||
     !inputAttribute2
   ) {
-    throw new Error("Please choose two datasets and two attributes");
+    throw new Error(t("errors:join.noDataSetOrAttribute"));
   }
 
   const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
@@ -73,7 +74,7 @@ export function uncheckedJoin(
   const [joiningCollection] = validateAttribute(
     joiningDataset.collections,
     joiningAttr,
-    `Invalid joining attribute: ${joiningAttr}`
+    t("errors:join.invalidJoiningAttribute", { name: joiningAttr })
   );
 
   const addedAttrs = joiningCollection.attrs?.map(cloneAttribute) || [];
@@ -83,7 +84,7 @@ export function uncheckedJoin(
   const [baseCollection] = validateAttribute(
     collections,
     baseAttr,
-    `Invalid base attribute: ${baseAttr}`
+    t("errors:join.invalidBaseAttribute", { name: baseAttr })
   );
 
   // list of attributes whose names cannot be duplicated by the added attrs

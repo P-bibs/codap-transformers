@@ -3,6 +3,7 @@ import { readableName } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
+import { t } from "../strings";
 
 /**
  * Finds the mode of a given attribute's values.
@@ -12,11 +13,11 @@ export async function mode({
   attribute1: attribute,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
 
   if (attribute === null) {
-    throw new Error("Please choose an attribute to find the mode of.");
+    throw new Error(t("errors:mode.noAttribute"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -42,7 +43,7 @@ export function uncheckedMode(dataset: DataSet, attribute: string): number[] {
   const values = extractAttributeAsNumeric(dataset, attribute);
 
   if (values.length === 0) {
-    throw new Error(`Cannot find mode of no numeric values`);
+    throw new Error(t("errors:mode.noValues"));
   }
 
   // Determine the frequency of each value

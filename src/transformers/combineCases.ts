@@ -4,6 +4,7 @@ import { TransformerTemplateState } from "../components/transformer-template/Tra
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformers/util";
 import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
+import { t } from "../strings";
 
 /**
  * Stack combines a top and bottom table which have matching attributes
@@ -19,7 +20,7 @@ export async function combineCases({
   context2: inputDataContext2,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1 || !inputDataContext2) {
-    throw new Error("Please choose two datasets to combine.");
+    throw new Error(t("errors:combineCases.noDataSet"));
   }
 
   const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
@@ -48,9 +49,7 @@ export function uncheckedCombineCases(
   if (
     !setEquality(baseAttrs, combiningAttrs, (name1, name2) => name1 === name2)
   ) {
-    throw new Error(
-      `Base and combining datasets must have the same attribute names`
-    );
+    throw new Error(t("errors:combineCases.differentAttributes"));
   }
 
   // add combining records

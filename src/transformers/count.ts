@@ -11,6 +11,7 @@ import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { readableName } from "../transformers/util";
+import { t } from "../strings";
 
 /**
  * Count consumes a dataset and list of attribute names and produces a new
@@ -26,10 +27,10 @@ export async function count({
   attributeSet1: attributes,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (attributes.length === 0) {
-    throw new Error("Please choose at least one attribute to count");
+    throw new Error(t("errors:count.noAttribute"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);

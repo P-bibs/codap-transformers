@@ -49,6 +49,12 @@ const errors = {
     duplicateAccumulatorName:
       "Duplicate accumulator name: there is already a column called {{ accumulatorName }}.",
   },
+  differenceFrom: {
+    noAttribute: "Please choose an attribute to take the difference from",
+    noStartingValue: "Please provide a starting value for the difference.",
+    nonNumericStartingValue:
+      "Expected numeric starting value, instead got {{ value }}",
+  },
   buildColumn: {
     noCollection: "Please select a collection to add to",
     noAttribute: "Please enter a non-empty name for the new attribute",

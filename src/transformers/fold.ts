@@ -182,7 +182,7 @@ async function uncheckedGenericFold(
   for (const row of dataset.records) {
     const environment = { ...row };
     if (Object.prototype.hasOwnProperty.call(row, accumulatorName)) {
-      throw new Error(t("duplicateAccumulatorName"));
+      throw new Error(t("errors:fold.duplicateAccumulatorName"));
     }
 
     environment[accumulatorName] = acc;
@@ -301,17 +301,19 @@ export async function differenceFrom({
   textInput2: startingValue,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (inputAttributeName === null) {
-    throw new Error("Please choose an attribute to take the difference from");
+    throw new Error(t("errors:differenceFrom.noAttribute"));
   }
   if (startingValue.trim() === "") {
-    throw new Error("Please provide a starting value for the difference.");
+    throw new Error(t("errors:differenceFrom.noStartingValue"));
   }
   if (isNaN(Number(startingValue))) {
     throw new Error(
-      `Expected numeric starting value, instead got ${startingValue}`
+      t("errors:differenceFrom.nonNumericStartingValue", {
+        value: startingValue,
+      })
     );
   }
 

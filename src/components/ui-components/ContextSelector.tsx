@@ -20,6 +20,13 @@ export default function ContextSelector({
     }
   }, [value, dataContexts, onChange]);
 
+  // If there is only one available context, select it
+  useEffect(() => {
+    if (value === null && dataContexts.length === 1) {
+      onChange(dataContexts[0].name);
+    }
+  }, [value, dataContexts, onChange]);
+
   function onSelectChange(e: ChangeEvent<HTMLSelectElement>) {
     onChange(e.target.value);
   }

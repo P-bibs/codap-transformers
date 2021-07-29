@@ -8,6 +8,7 @@ import { PartitionSaveState } from "./partition";
 export type DataSet = {
   collections: Collection[];
   records: Record<string, unknown>[];
+  editable?: boolean;
 };
 
 export type CodapLanguageType =

@@ -531,6 +531,14 @@ export function extractAttributeAsNumeric(
   return numericValues;
 }
 
+/**
+ * Sets the dataset's mutability by setting all the attributes' `editable`
+ * property as well as the DataSet's `editable` property to the given value.
+ *
+ * @param dataset The dataset to produce a copy of with determined editability
+ * @param mutable Whether or not the copied dataset should be mutable.
+ * @returns A copy of the input that is either mutable or immutable.
+ */
 function changeDatasetMutability(dataset: DataSet, mutable: boolean): DataSet {
   const newCollections = dataset.collections.map(cloneCollection);
   for (const c of newCollections) {
@@ -539,6 +547,7 @@ function changeDatasetMutability(dataset: DataSet, mutable: boolean): DataSet {
     }
   }
   return {
+    editable: mutable,
     collections: newCollections,
     records: dataset.records,
   };

@@ -32,11 +32,4 @@
 .CodeMirror pre.CodeMirror-placeholder {
   color: #808080;
   font-family: Montserrat;
-  /* This ensures that the placeholder text doesn't appear on top of other popups */
-  z-index: unset !important;
-}
-
-.CodeMirror pre.CodeMirror-line {
-  /* This ensures that the formula doesn't appear on top of other popups */
-  z-index: unset !important;
 }

@@ -67,9 +67,9 @@ interface DropdownInit extends ComponentInit {
 }
 interface ExpressionInit extends ComponentInit {}
 interface TypeContractInit extends ComponentInit {
-  inputTypes: string[];
+  inputTypes: string[] | string;
   inputTypeDisabled?: boolean;
-  outputTypes: string[];
+  outputTypes: string[] | string;
   outputTypeDisabled?: boolean;
 }
 export type TransformerTemplateInit = {

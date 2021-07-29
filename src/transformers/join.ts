@@ -1,8 +1,8 @@
-import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { tryTitle } from "../transformers/util";
+import { addToMVR, isMissing, tryTitle } from "../transformers/util";
 import {
   shallowCopy,
   cloneCollection,
@@ -43,13 +43,26 @@ export async function join({
   const ctxtName1 = tryTitle(context1);
   const ctxtName2 = tryTitle(context2);
 
+  const [joined, mvr] = uncheckedJoin(
+    ctxtName1,
+    dataset1,
+    inputAttribute1,
+    dataset2,
+    inputAttribute2
+  );
+
+  mvr.extraInfo =
+    `${mvr.missingValues.length} missing values were encountered in the base ` +
+    `attribute. The copied attributes from the joining dataset were left missing ` +
+    `for such rows with missing values.`;
+
   return [
-    await uncheckedJoin(dataset1, inputAttribute1, dataset2, inputAttribute2),
+    joined,
     `Join(${ctxtName1}, ${ctxtName2}, ...)`,
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
       `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
       `containing ${inputAttribute1} in ${ctxtName1}.`,
-    EMPTY_MVR,
+    mvr,
   ];
 }
 
@@ -59,17 +72,19 @@ export async function join({
  * value for baseAttr matches the value for joiningAttr of a case in the
  * joiningDataset.
  *
+ * @param baseContextTitle Context title of base dataset
  * @param baseDataset dataset to which cases from joiningDataset will be added
  * @param baseAttr attribute to join on from the baseDataset
  * @param joiningDataset dataset to take cases from and add to baseDataset
  * @param joiningAttr attribute to join on from joiningDataset
  */
 export function uncheckedJoin(
+  baseContextTitle: string,
   baseDataset: DataSet,
   baseAttr: string,
   joiningDataset: DataSet,
   joiningAttr: string
-): DataSet {
+): [DataSet, MissingValueReport] {
   // find collection containing joining attribute in joining dataset
   const [joiningCollection] = validateAttribute(
     joiningDataset.collections,
@@ -108,15 +123,27 @@ export function uncheckedJoin(
   // add the attrs from the joining collection into the collection being joined into
   baseCollection.attrs = (baseCollection.attrs || []).concat(addedAttrs);
 
+  const mvr: MissingValueReport = {
+    missingValues: [],
+  };
+
   // start with a copy of the base dataset's records
   const records = baseDataset.records.map(shallowCopy);
 
   // copy into the joined table the first matching record from
   // joiningDataset for each record from baseDataset.
-  for (const record of records) {
-    const matchingRecord = joiningDataset.records.find(
+  for (const [i, record] of records.entries()) {
+    let matchingRecord = joiningDataset.records.find(
       (rec) => rec[joiningAttr] === record[baseAttr]
     );
+
+    if (isMissing(record[baseAttr])) {
+      addToMVR(mvr, baseDataset, baseContextTitle, baseAttr, i);
+
+      // Do not match missing values in the base attribute with missing values
+      // in the joining attribute.
+      matchingRecord = undefined;
+    }
 
     for (const attrName of addedAttrOriginalNames) {
       const unique = attrToUnique[attrName];
@@ -128,8 +155,11 @@ export function uncheckedJoin(
     }
   }
 
-  return {
-    collections,
-    records,
-  };
+  return [
+    {
+      collections,
+      records,
+    },
+    mvr,
+  ];
 }

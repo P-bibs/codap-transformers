@@ -1,10 +1,17 @@
-import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
+import {
+  DataSet,
+  EMPTY_MVR,
+  MissingValueReport,
+  TransformationOutput,
+} from "./types";
 import {
   insertColumnInLastCollection,
   insertInRow,
   codapValueToString,
   allAttrNames,
   validateAttribute,
+  isMissing,
+  addToMVR,
 } from "./util";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { uniqueName } from "../lib/utils/names";
@@ -12,11 +19,12 @@ import { TransformerTemplateState } from "../components/transformer-template/Tra
 import { parenthesizeName, tryTitle } from "../transformers/util";
 
 type FoldFunction = (
+  contextTitle: string,
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,
   resultColumnDescription: string
-) => DataSet;
+) => [DataSet, MissingValueReport];
 
 function makeFoldWrapper(
   label: string,
@@ -44,53 +52,59 @@ function makeFoldWrapper(
       allAttrNames(dataset)
     );
 
-    const ctxtName = tryTitle(context);
+    const contextTitle = tryTitle(context);
 
     // Generate a description of the fold by calling the custom maker, or using a default.
     const [attributeDescription, datasetDescription] = makeDescriptions(
       label,
       inputAttributeName,
-      ctxtName
+      contextTitle
+    );
+
+    const [folded, mvr] = innerFoldFunction(
+      contextTitle,
+      dataset,
+      inputAttributeName,
+      resultAttributeName,
+      attributeDescription
     );
 
     return [
-      innerFoldFunction(
-        dataset,
-        inputAttributeName,
-        resultAttributeName,
-        attributeDescription
-      ),
-      `${label.replace(/\s+/, "")}(${ctxtName}, ...)`,
+      folded,
+      `${label.replace(/\s+/, "")}(${contextTitle}, ...)`,
       datasetDescription,
-      // TODO: needs MVR
-      EMPTY_MVR,
+      mvr,
     ];
   };
 }
 
-const WHITESPACE_REGEX = /^\s*$/;
 function makeNumFold<T>(
   foldName: string,
   base: T,
   f: (acc: T, input: number) => [newAcc: T, result: number]
 ) {
   return (
+    contextTitle: string,
     dataset: DataSet,
     inputColumnName: string,
     resultColumnName: string,
     resultColumnDescription: string
-  ): DataSet => {
+  ): [DataSet, MissingValueReport] => {
     validateAttribute(dataset.collections, inputColumnName);
 
     resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
 
     let acc = base;
 
-    const resultRecords = dataset.records.map((row) => {
+    const mvr: MissingValueReport = {
+      missingValues: [],
+    };
+
+    const resultRecords = dataset.records.map((row, i) => {
       const rowValue = row[inputColumnName];
 
-      // Test for whitespace, since Number(whitespace) gives 0
-      if (typeof rowValue === "string" && WHITESPACE_REGEX.test(rowValue)) {
+      if (isMissing(rowValue)) {
+        addToMVR(mvr, dataset, contextTitle, inputColumnName, i);
         return insertInRow(row, resultColumnName, "");
       }
 
@@ -114,10 +128,18 @@ function makeNumFold<T>(
       description: resultColumnDescription,
     });
 
-    return {
-      collections: newCollections,
-      records: resultRecords,
-    };
+    mvr.extraInfo =
+      `${mvr.missingValues.length} missing values were encountered in the "${inputColumnName}" ` +
+      `attribute while taking this ${foldName}. For such rows the output was left missing ` +
+      `and continued at the next non-missing row.`;
+
+    return [
+      {
+        collections: newCollections,
+        records: resultRecords,
+      },
+      mvr,
+    ];
   };
 }
 
@@ -147,7 +169,7 @@ export async function genericFold({
   const { context, dataset } = await getContextAndDataSet(contextName);
 
   const resultDescription = `A reduce of the ${tryTitle(context)} dataset.`;
-  const ctxtName = tryTitle(context);
+  const contextTitle = tryTitle(context);
 
   return [
     await uncheckedGenericFold(
@@ -158,8 +180,8 @@ export async function genericFold({
       accumulatorName,
       resultDescription
     ),
-    `Reduce(${ctxtName}, ...)`,
-    `A reduce of the ${ctxtName} dataset, with an attribute ${resultColumnName} ` +
+    `Reduce(${contextTitle}, ...)`,
+    `A reduce of the ${contextTitle} dataset, with an attribute ${resultColumnName} ` +
       `whose values are determined by the formula \`${expression}\`. ` +
       `The accumulator is named ${accumulatorName} and its initial value is \`${base}\`.`,
     // TODO: needs MVR
@@ -320,36 +342,39 @@ export async function differenceFrom({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = tryTitle(context);
+  const contextTitle = tryTitle(context);
   const resultAttributeName = uniqueName(
     `Difference From of ${inputAttributeName}`,
     allAttrNames(dataset)
   );
 
+  const [diffFrom, mvr] = uncheckedDifferenceFrom(
+    contextTitle,
+    dataset,
+    inputAttributeName,
+    resultAttributeName,
+    `The difference of each case with the case above it (from the ${inputAttributeName} attribute in the ${contextTitle} dataset). ${startingValue} is subtracted from the first case.`,
+    Number(startingValue)
+  );
+
   return [
-    await uncheckedDifferenceFrom(
-      dataset,
-      inputAttributeName,
-      resultAttributeName,
-      `The difference of each case with the case above it (from the ${inputAttributeName} attribute in the ${ctxtName} dataset). ${startingValue} is subtracted from the first case.`,
-      Number(startingValue)
-    ),
-    `DifferenceFrom(${ctxtName}, ...)`,
-    `A copy of ${ctxtName} with a new column whose values are the difference between ` +
+    diffFrom,
+    `DifferenceFrom(${contextTitle}, ...)`,
+    `A copy of ${contextTitle} with a new column whose values are the difference between ` +
       `the value of ${inputAttributeName} in the current case and the value of ${inputAttributeName} ` +
       `in the case above. The first case subtracts ${startingValue} from itself.`,
-    // TODO: needs MVR
-    EMPTY_MVR,
+    mvr,
   ];
 }
 
 export function uncheckedDifferenceFrom(
+  contextTitle: string,
   dataset: DataSet,
   inputColumnName: string,
   resultColumnName: string,
   resultColumnDescription: string,
   startingValue = 0
-): DataSet {
+): [DataSet, MissingValueReport] {
   validateAttribute(dataset.collections, inputColumnName);
 
   // Construct a fold that computes the difference of each case with
@@ -367,6 +392,7 @@ export function uncheckedDifferenceFrom(
   );
 
   return differenceFromFold(
+    contextTitle,
     dataset,
     inputColumnName,
     resultColumnName,

@@ -70,6 +70,7 @@ export function uncheckedSumProduct(
   }
 
   const mvr: MissingValueReport = {
+    kind: "input",
     missingValues: [],
   };
 

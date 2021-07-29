@@ -124,6 +124,7 @@ export function uncheckedJoin(
   baseCollection.attrs = (baseCollection.attrs || []).concat(addedAttrs);
 
   const mvr: MissingValueReport = {
+    kind: "input",
     missingValues: [],
   };
 

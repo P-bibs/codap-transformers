@@ -1,9 +1,4 @@
-import {
-  DataSet,
-  EMPTY_MVR,
-  MissingValueReport,
-  TransformationOutput,
-} from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import {
   insertColumnInLastCollection,
   insertInRow,
@@ -97,6 +92,7 @@ function makeNumFold<T>(
     let acc = base;
 
     const mvr: MissingValueReport = {
+      kind: "input",
       missingValues: [],
     };
 
@@ -171,21 +167,24 @@ export async function genericFold({
   const resultDescription = `A reduce of the ${tryTitle(context)} dataset.`;
   const contextTitle = tryTitle(context);
 
+  const [reduced, mvr] = await uncheckedGenericFold(
+    dataset,
+    base,
+    expression,
+    resultColumnName,
+    accumulatorName,
+    resultDescription
+  );
+
+  mvr.extraInfo = `The reduce formula evaluated to a missing value for ${mvr.missingValues.length} rows.`;
+
   return [
-    await uncheckedGenericFold(
-      dataset,
-      base,
-      expression,
-      resultColumnName,
-      accumulatorName,
-      resultDescription
-    ),
+    reduced,
     `Reduce(${contextTitle}, ...)`,
     `A reduce of the ${contextTitle} dataset, with an attribute ${resultColumnName} ` +
       `whose values are determined by the formula \`${expression}\`. ` +
       `The accumulator is named ${accumulatorName} and its initial value is \`${base}\`.`,
-    // TODO: needs MVR
-    EMPTY_MVR,
+    mvr,
   ];
 }
 
@@ -197,13 +196,18 @@ async function uncheckedGenericFold(
   accumulatorName: string,
   resultColumnDescription = "",
   evalFormula = evalExpression
-): Promise<DataSet> {
+): Promise<[DataSet, MissingValueReport]> {
   resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
 
   let acc = (await evalFormula(base, [{}]))[0];
   const resultRecords = [];
 
-  for (const row of dataset.records) {
+  const mvr: MissingValueReport = {
+    kind: "formula",
+    missingValues: [],
+  };
+
+  for (const [i, row] of dataset.records.entries()) {
     const environment = { ...row };
     if (Object.prototype.hasOwnProperty.call(row, accumulatorName)) {
       throw new Error(
@@ -214,6 +218,11 @@ async function uncheckedGenericFold(
     environment[accumulatorName] = acc;
     acc = (await evalFormula(expression, [environment]))[0];
     resultRecords.push(insertInRow(row, resultColumnName, acc));
+
+    // Note any rows for which the formula evaluates to missing
+    if (isMissing(acc)) {
+      mvr.missingValues.push(i + 1);
+    }
   }
 
   const newCollections = insertColumnInLastCollection(dataset.collections, {
@@ -221,10 +230,13 @@ async function uncheckedGenericFold(
     description: resultColumnDescription,
   });
 
-  return {
-    collections: newCollections,
-    records: resultRecords,
-  };
+  return [
+    {
+      collections: newCollections,
+      records: resultRecords,
+    },
+    mvr,
+  ];
 }
 
 export const uncheckedRunningSum = makeNumFold(

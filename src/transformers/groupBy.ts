@@ -149,6 +149,7 @@ export function uncheckedGroupBy(
   };
 
   const mvr: MissingValueReport = {
+    kind: "input",
     missingValues: [],
   };
 

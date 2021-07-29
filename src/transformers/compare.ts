@@ -165,6 +165,7 @@ export function uncheckedNumericCompare(
   const records = dataset.records;
 
   const mvr: MissingValueReport = {
+    kind: "input",
     missingValues: [],
   };
 

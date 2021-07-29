@@ -51,16 +51,27 @@ export type MissingValueLocation = {
  * in a transformer's computation. The `extraInfo` field contains extra
  * information about how missing values are dealt with by this particular
  * transformer.
+ *
+ * If a MVR is of kind "formula", then the locations of missing values
+ * are recorded as row numbers for which the formula evaluated to missing.
  */
-export type MissingValueReport = {
-  missingValues: MissingValueLocation[];
-  extraInfo?: string;
-};
+export type MissingValueReport =
+  | {
+      kind: "input";
+      missingValues: MissingValueLocation[];
+      extraInfo?: string;
+    }
+  | {
+      kind: "formula";
+      missingValues: number[];
+      extraInfo?: string;
+    };
 
 /**
  * The empty missing value report.
  */
 export const EMPTY_MVR: MissingValueReport = {
+  kind: "input",
   missingValues: [],
 };
 

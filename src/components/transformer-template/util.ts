@@ -47,38 +47,61 @@ export async function createMVRDisplay(
   outputName: string
 ): Promise<[string, string]> {
   // Construct a dataset containing the missing value info
-  const missingValuesDataset: DataSet = {
-    collections: [
-      {
-        name: "Missing Values",
-        attrs: [
-          {
-            name: "Row Number",
-            description:
-              "Indicates which row, in a flattened version of the dataset, " +
-              "contains this missing value.",
-          },
-          {
-            name: "Attribute",
-          },
-          {
-            name: "Collection",
-          },
-          {
-            name: "Dataset",
-          },
-        ],
-      },
-    ],
-    records: mvr.missingValues.map(
-      ({ itemIndex, attribute, collection, context }) => ({
-        "Row Number": itemIndex,
-        Attribute: attribute,
-        Collection: collection,
-        Dataset: context,
-      })
-    ),
-  };
+  let missingValuesDataset: DataSet;
+
+  if (mvr.kind === "input") {
+    missingValuesDataset = {
+      collections: [
+        {
+          name: "Missing Values",
+          attrs: [
+            {
+              name: "Row Number",
+              description:
+                "Indicates which rows, in a flattened version of the input dataset, " +
+                "contain this missing value.",
+            },
+            {
+              name: "Attribute",
+            },
+            {
+              name: "Collection",
+            },
+            {
+              name: "Dataset",
+            },
+          ],
+        },
+      ],
+      records: mvr.missingValues.map(
+        ({ itemIndex, attribute, collection, context }) => ({
+          "Row Number": itemIndex,
+          Attribute: attribute,
+          Collection: collection,
+          Dataset: context,
+        })
+      ),
+    };
+  } else {
+    missingValuesDataset = {
+      collections: [
+        {
+          name: "Missing Values",
+          attrs: [
+            {
+              name: "Row Number",
+              description:
+                "Indicates the rows, in a flattened version of the input dataset, " +
+                "for which the formula evaluated to a missing value.",
+            },
+          ],
+        },
+      ],
+      records: mvr.missingValues.map((row) => ({
+        "Row Number": row,
+      })),
+    };
+  }
 
   const [context] = await createTableWithDataSet(
     missingValuesDataset,

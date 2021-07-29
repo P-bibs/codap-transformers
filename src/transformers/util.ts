@@ -518,6 +518,7 @@ export function extractAttributeAsNumeric(
 ): [number[], MissingValueReport] {
   const numericValues = [];
   const mvr: MissingValueReport = {
+    kind: "input",
     missingValues: [],
   };
 
@@ -626,7 +627,7 @@ export function displaySingleValue(value: SingleValue): string {
 }
 
 /**
- * Adds an entry into an MVR for a given location.
+ * Adds an entry into an (input) MVR for a given location.
  *
  * @param mvr The MVR to add to
  * @param dataset Dataset in which the missing value occurs
@@ -641,11 +642,13 @@ export function addToMVR(
   attributeName: string,
   rowIndex: number
 ): void {
-  const [coll, attr] = validateAttribute(dataset.collections, attributeName);
-  mvr.missingValues.push({
-    context: contextTitle,
-    collection: tryTitle(coll),
-    attribute: tryTitle(attr),
-    itemIndex: rowIndex + 1,
-  });
+  if (mvr.kind === "input") {
+    const [coll, attr] = validateAttribute(dataset.collections, attributeName);
+    mvr.missingValues.push({
+      context: contextTitle,
+      collection: tryTitle(coll),
+      attribute: tryTitle(attr),
+      itemIndex: rowIndex + 1,
+    });
+  }
 }

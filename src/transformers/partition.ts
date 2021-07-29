@@ -308,6 +308,7 @@ export function partition(
   const partitioned: Record<string, [unknown, Record<string, unknown>[]]> = {};
 
   const mvr: MissingValueReport = {
+    kind: "input",
     missingValues: [],
   };
 

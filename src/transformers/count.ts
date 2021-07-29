@@ -96,6 +96,7 @@ export function uncheckedCount(
   ];
 
   const mvr: MissingValueReport = {
+    kind: "input",
     missingValues: [],
   };
 

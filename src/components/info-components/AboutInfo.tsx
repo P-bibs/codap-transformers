@@ -54,7 +54,7 @@ function AboutInfo(): ReactElement {
           <h3>Authors</h3>
           <p>
             This plugin is brought to you by Paul Biberstein, Thomas Castleman,
-            and Jason Chen of the{" "}
+            and Jason Chen of{" "}
             <a
               href="https://cs.brown.edu/research/plt/"
               target="_blank"

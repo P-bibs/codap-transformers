@@ -590,6 +590,7 @@ async function createDataContext({
   title,
   collections,
   metadata,
+  preventReorg,
 }: DataContext): Promise<CodapIdentifyingInfo> {
   return new Promise<CodapIdentifyingInfo>((resolve, reject) =>
     phone.call(
@@ -601,6 +602,7 @@ async function createDataContext({
           title: title !== undefined ? title : name,
           collections,
           metadata,
+          preventReorg,
         },
       },
       (response) => {
@@ -651,6 +653,7 @@ export async function createContextWithDataSet(
     title,
     metadata,
     collections: dataset.collections,
+    preventReorg: !dataset.editable,
   });
 
   await insertDataItems(newDatasetDescription.name, dataset.records);

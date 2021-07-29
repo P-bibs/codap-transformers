@@ -17,4 +17,7 @@
 
 .transformer-select {
     flex-grow: 1;
+
+    /* Prevent expression editor text from appearing on top of the dropdown */
+    z-index: 99;
 }

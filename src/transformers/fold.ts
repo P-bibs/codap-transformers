@@ -68,20 +68,11 @@ function makeFoldWrapper(
   };
 }
 
-// Which value to put in the fold column if the current row contains a missing
-// value. UseLast uses the value in the previous row. LeaveBlank leaves the
-// cell blank.
-enum MissingBehavior {
-  UseLast,
-  LeaveBlank,
-}
-
 const WHITESPACE_REGEX = /^\s*$/;
 function makeNumFold<T>(
   foldName: string,
   base: T,
-  f: (acc: T, input: number) => [newAcc: T, result: number],
-  missingBehavior: MissingBehavior = MissingBehavior.UseLast
+  f: (acc: T, input: number) => [newAcc: T, result: number]
 ) {
   return (
     dataset: DataSet,
@@ -93,27 +84,20 @@ function makeNumFold<T>(
 
     resultColumnName = uniqueName(resultColumnName, allAttrNames(dataset));
 
-    // Default acc is base, default result is "" (when first value is missing,
-    // the result field is blank)
     let acc = base;
-    let result: string | number = "";
 
     const resultRecords = dataset.records.map((row) => {
       const rowValue = row[inputColumnName];
 
       // Test for whitespace, since Number(whitespace) gives 0
       if (typeof rowValue === "string" && WHITESPACE_REGEX.test(rowValue)) {
-        switch (missingBehavior) {
-          case MissingBehavior.UseLast:
-            return insertInRow(row, resultColumnName, result);
-          case MissingBehavior.LeaveBlank:
-            return insertInRow(row, resultColumnName, "");
-        }
+        return insertInRow(row, resultColumnName, "");
       }
 
       const numValue = Number(rowValue);
       if (!isNaN(numValue)) {
-        [acc, result] = f(acc, numValue);
+        const [newAcc, result] = f(acc, numValue);
+        acc = newAcc;
         return insertInRow(row, resultColumnName, result);
       } else {
         throw new Error(
@@ -268,8 +252,7 @@ export const uncheckedDifference = makeNumFold<{ numAbove: number | null }>(
     } else {
       return [{ numAbove: input }, input - acc.numAbove];
     }
-  },
-  MissingBehavior.LeaveBlank
+  }
 );
 
 function defaultDescriptions(
@@ -380,8 +363,7 @@ export function uncheckedDifferenceFrom(
       } else {
         return [{ numAbove: input }, input - acc.numAbove];
       }
-    },
-    MissingBehavior.LeaveBlank
+    }
   );
 
   return differenceFromFold(

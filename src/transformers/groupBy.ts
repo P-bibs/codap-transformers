@@ -1,6 +1,6 @@
-import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../lib/codapPhone/types";
-import { tryTitle } from "../transformers/util";
+import { addToMVR, isMissing, tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import {
@@ -44,15 +44,24 @@ export async function groupBy({
     groupedName: `${name} Group`,
   }));
 
+  const [grouped, mvr] = uncheckedGroupBy(
+    ctxtName,
+    dataset,
+    attrNames,
+    parentName
+  );
+
+  mvr.extraInfo = `${mvr.missingValues.length} missing values were encountered in the grouped attributes.`;
+
   return [
-    await uncheckedGroupBy(dataset, attrNames, parentName),
+    grouped,
     `GroupBy(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new parent collection added ` +
       `which contains a copy of the ${pluralSuffix(
         "attribute",
         attributes
       )} ${attributeNames}.`,
-    EMPTY_MVR,
+    mvr,
   ];
 }
 
@@ -69,10 +78,11 @@ export async function groupBy({
  * @returns the grouped dataset
  */
 export function uncheckedGroupBy(
+  contextTitle: string,
   dataset: DataSet,
   attrNames: { attrName: string; groupedName: string }[],
   newParentName: string
-): DataSet {
+): [DataSet, MissingValueReport] {
   for (const { attrName } of attrNames) {
     validateAttribute(dataset.collections, attrName);
   }
@@ -138,16 +148,28 @@ export function uncheckedGroupBy(
     attrs: groupedAttrs,
   };
 
+  const mvr: MissingValueReport = {
+    missingValues: [],
+  };
+
   const records = dataset.records.map(shallowCopy);
-  for (const record of records) {
+  for (const [i, record] of records.entries()) {
     for (const { attrName } of attrNames) {
+      // Record missing values from grouped attributes in MVR.
+      if (isMissing(record[attrName])) {
+        addToMVR(mvr, dataset, contextTitle, attrName, i);
+      }
+
       // make copy of record data from original attr into grouped attr
       record[attrToGroupedName[attrName]] = record[attrName];
     }
   }
 
-  return {
-    collections: [collection].concat(collections),
-    records,
-  };
+  return [
+    {
+      collections: [collection].concat(collections),
+      records,
+    },
+    mvr,
+  ];
 }

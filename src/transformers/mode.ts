@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
@@ -22,12 +22,18 @@ export async function mode({
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
 
+  const [modes, mvr] = uncheckedMode(context.name, dataset, attribute);
+
+  mvr.extraInfo =
+    `${mvr.missingValues.length} missing values were encountered ` +
+    `while computing the mode, and were ignored. The mode values you see are the modes ` +
+    `of the non-missing values.`;
+
   return [
-    uncheckedMode(context.name, dataset, attribute),
+    modes,
     `Mode(${ctxtName}, ${attribute})`,
     `The mode value of the ${attribute} attribute in the ${ctxtName} dataset.`,
-    // TODO: needs MVR
-    EMPTY_MVR,
+    mvr,
   ];
 }
 
@@ -42,11 +48,15 @@ export function uncheckedMode(
   contextName: string,
   dataset: DataSet,
   attribute: string
-): number[] {
+): [number[], MissingValueReport] {
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute
-  const [values] = extractAttributeAsNumeric(contextName, dataset, attribute);
+  const [values, mvr] = extractAttributeAsNumeric(
+    contextName,
+    dataset,
+    attribute
+  );
 
   if (values.length === 0) {
     throw new Error(`Cannot find mode of no numeric values`);
@@ -76,8 +86,10 @@ export function uncheckedMode(
     undefined
   ) as number;
 
-  // Return all values which have the max frequency
-  return Object.keys(valueToFrequency)
+  // All values which have the max frequency
+  const modes = Object.keys(valueToFrequency)
     .map((v) => Number(v))
     .filter((v) => valueToFrequency[v] === maxFrequency);
+
+  return [modes, mvr];
 }

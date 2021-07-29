@@ -615,3 +615,28 @@ export function displaySingleValue(value: SingleValue): string {
     return `[${value.join(", ")}]`;
   }
 }
+
+/**
+ * Adds an entry into an MVR for a given location.
+ *
+ * @param mvr The MVR to add to
+ * @param dataset Dataset in which the missing value occurs
+ * @param contextTitle Context title of associated context
+ * @param attributeName Attribute name in which missing value occurs
+ * @param rowIndex Index of row in which missing value occurs (0-indexed)
+ */
+export function addToMVR(
+  mvr: MissingValueReport,
+  dataset: DataSet,
+  contextTitle: string,
+  attributeName: string,
+  rowIndex: number
+): void {
+  const [coll, attr] = validateAttribute(dataset.collections, attributeName);
+  mvr.missingValues.push({
+    context: contextTitle,
+    collection: tryTitle(coll),
+    attribute: tryTitle(attr),
+    itemIndex: rowIndex + 1,
+  });
+}

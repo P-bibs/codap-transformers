@@ -1,8 +1,10 @@
-import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import {
+  addToMVR,
   allAttrNames,
   cloneCollection,
   codapValueToString,
+  isMissing,
   validateAttribute,
 } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
@@ -43,35 +45,55 @@ export async function compare({
 
   const { context, dataset } = await getContextAndDataSet(inputDataContext1);
 
-  const contextName = tryTitle(context);
+  const contextTitle = tryTitle(context);
 
   if (kind === "categorical") {
+    const [categorical, mvr] = uncheckedCategoricalCompare(
+      contextTitle,
+      dataset,
+      inputAttribute1,
+      inputAttribute2
+    );
+
+    // Override the MVR extraInfo from group by
+    mvr.extraInfo =
+      `${mvr.missingValues.length} missing values were encountered in the compared ` +
+      `attributes.`;
+
     return [
-      await uncheckedCategoricalCompare(
-        dataset,
-        inputAttribute1,
-        inputAttribute2
-      ),
-      `Compare(${contextName}, ...)`,
-      `A categorical comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
-      EMPTY_MVR,
+      categorical,
+      `Compare(${contextTitle}, ...)`,
+      `A categorical comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextTitle})`,
+      mvr,
     ];
   } else {
+    const [numeric, mvr] = uncheckedNumericCompare(
+      contextTitle,
+      dataset,
+      inputAttribute1,
+      inputAttribute2
+    );
+
+    mvr.extraInfo =
+      `${mvr.missingValues.length} missing values were encountered in the compared ` +
+      `attributes. Rows with missing values were ignored in the comparison and left ` +
+      `with a missing difference value.`;
+
     return [
-      await uncheckedNumericCompare(dataset, inputAttribute1, inputAttribute2),
-      `Compare(${contextName}, ...)`,
-      `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextName})`,
-      // TODO: this should not include a MVR
-      EMPTY_MVR,
+      numeric,
+      `Compare(${contextTitle}, ...)`,
+      `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextTitle})`,
+      mvr,
     ];
   }
 }
 
 export function uncheckedNumericCompare(
+  contextTitle: string,
   dataset: DataSet,
   attributeName1: string,
   attributeName2: string
-): DataSet {
+): [DataSet, MissingValueReport] {
   const [, attribute1Data] = validateAttribute(
     dataset.collections,
     attributeName1,
@@ -142,6 +164,10 @@ export function uncheckedNumericCompare(
 
   const records = dataset.records;
 
+  const mvr: MissingValueReport = {
+    missingValues: [],
+  };
+
   // Start by looping through all records and finding those that
   // can be numerically compared successfully
   const validIndicesAndValues: Record<number, [number, number]> = {};
@@ -160,15 +186,17 @@ export function uncheckedNumericCompare(
       throw new Error(`Expected number, instead got ${codapValueToString(v2)}`);
     }
 
-    // If either is null/undefined/empty string, skip and continue
-    if (
-      v1 === null ||
-      v2 === null ||
-      v1 === undefined ||
-      v2 === undefined ||
-      v1 === "" ||
-      v2 === ""
-    ) {
+    // skip missing values but add them to the MVR
+    let missing = false;
+    if (isMissing(v1)) {
+      addToMVR(mvr, dataset, contextTitle, attribute1Data.name, i);
+      missing = true;
+    }
+    if (isMissing(v2)) {
+      addToMVR(mvr, dataset, contextTitle, attribute2Data.name, i);
+      missing = true;
+    }
+    if (missing) {
       continue;
     }
 
@@ -211,14 +239,15 @@ export function uncheckedNumericCompare(
     }
   }
 
-  return { records, collections };
+  return [{ records, collections }, mvr];
 }
 
 export function uncheckedCategoricalCompare(
+  contextTitle: string,
   dataset: DataSet,
   attributeName1: string,
   attributeName2: string
-): DataSet {
+): [DataSet, MissingValueReport] {
   const [, attribute1Data] = validateAttribute(
     dataset.collections,
     attributeName1,
@@ -231,7 +260,8 @@ export function uncheckedCategoricalCompare(
   );
 
   dataset = uncheckedFlatten(dataset);
-  const out = uncheckedGroupBy(
+  const [out, mvr] = uncheckedGroupBy(
+    contextTitle,
     dataset,
     [
       {
@@ -245,5 +275,5 @@ export function uncheckedCategoricalCompare(
     ],
     "Comparison"
   );
-  return out;
+  return [out, mvr];
 }

@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
@@ -22,12 +22,18 @@ export async function median({
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
 
+  const [medianValue, mvr] = uncheckedMedian(context.name, dataset, attribute);
+
+  mvr.extraInfo =
+    `${mvr.missingValues.length} missing values were encountered ` +
+    `while computing the median, and were ignored. The median you see is the median ` +
+    `of the non-missing values.`;
+
   return [
-    uncheckedMedian(context.name, dataset, attribute),
+    medianValue,
     `Median(${ctxtName}, ${attribute})`,
     `The median value of the ${attribute} attribute in the ${ctxtName} dataset.`,
-    // TODO: needs MVR
-    EMPTY_MVR,
+    mvr,
   ];
 }
 
@@ -42,11 +48,15 @@ export function uncheckedMedian(
   contextName: string,
   dataset: DataSet,
   attribute: string
-): number {
+): [number, MissingValueReport] {
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute
-  const [values] = extractAttributeAsNumeric(contextName, dataset, attribute);
+  const [values, mvr] = extractAttributeAsNumeric(
+    contextName,
+    dataset,
+    attribute
+  );
 
   if (values.length === 0) {
     throw new Error(`Cannot find median of no numeric values`);
@@ -60,9 +70,9 @@ export function uncheckedMedian(
     const middleLeft = middleRight - 1;
 
     // Median is average of middle elements
-    return (values[middleLeft] + values[middleRight]) / 2;
+    return [(values[middleLeft] + values[middleRight]) / 2, mvr];
   } else {
     // Median is the middle element
-    return values[Math.floor(values.length / 2)];
+    return [values[Math.floor(values.length / 2)], mvr];
   }
 }

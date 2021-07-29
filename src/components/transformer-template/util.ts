@@ -53,7 +53,10 @@ export async function createMVRDisplay(
         name: "Missing Values",
         attrs: [
           {
-            name: "Item Number",
+            name: "Row Number",
+            description:
+              "Indicates which row, in a flattened version of the dataset, " +
+              "contains this missing value.",
           },
           {
             name: "Attribute",
@@ -69,7 +72,7 @@ export async function createMVRDisplay(
     ],
     records: mvr.missingValues.map(
       ({ itemIndex, attribute, collection, context }) => ({
-        "Item Number": itemIndex,
+        "Row Number": itemIndex,
         Attribute: attribute,
         Collection: collection,
         Dataset: context,
@@ -98,7 +101,10 @@ export async function createMVRDisplay(
 
   const textName = await createText(
     `Missing Value Report for ${outputName}`,
-    reportContent
+    reportContent,
+    1,
+    300,
+    150
   );
 
   // Return names of generated components

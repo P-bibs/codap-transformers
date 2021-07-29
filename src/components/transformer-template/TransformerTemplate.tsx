@@ -12,7 +12,6 @@ import {
   CodapLanguageType,
   TransformationOutput,
   FullOverrideSaveState,
-  MissingValueReport,
   MISSING_VALUE_SCARE_SYMBOL,
 } from "../../transformers/types";
 import {
@@ -298,28 +297,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     attributes2: useAttributes(state["context2"]),
   };
 
-  /**
-   * Generates a missing value report if the given report is non-empty.
-   *
-   * @param mvr The missing value report
-   * @param outputName Name of the transformer's output
-   */
-  async function generateMVR(
-    mvr: MissingValueReport,
-    outputName: string
-  ): Promise<void> {
-    if (mvr.missingValues.length > 0) {
-      if (
-        !confirm(
-          `Missing values were encountered in this computation. Proceed anyway?`
-        )
-      ) {
-        return;
-      }
-      await createMVRDisplay(mvr, outputName);
-    }
-  }
-
   const transform = async () => {
     setErrMsg(null);
 
@@ -333,6 +310,16 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
 
     try {
       const [result, name, description, mvr] = await doTransform();
+
+      // Ensure user wants to go through with computation if MVR non-empty
+      if (
+        mvr.missingValues.length > 0 &&
+        !confirm(
+          `Missing values were encountered in this computation. Proceed anyway?`
+        )
+      ) {
+        return;
+      }
 
       // Add scare symbol to output if MVR is non-empty
       const markedName =
@@ -369,7 +356,9 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
           },
         });
 
-        generateMVR(mvr, textName);
+        if (mvr.missingValues.length > 0) {
+          await createMVRDisplay(mvr, textName);
+        }
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
         const immutableDataset = makeDatasetImmutable(result);
@@ -398,9 +387,11 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
           },
         });
 
-        const ctxt = await getDataContext(newContextName);
-        const outputName = tryTitle(ctxt);
-        generateMVR(mvr, outputName);
+        if (mvr.missingValues.length > 0) {
+          const ctxt = await getDataContext(newContextName);
+          const outputName = tryTitle(ctxt);
+          await createMVRDisplay(mvr, outputName);
+        }
       }
     } catch (e) {
       setErrMsg(e.message);

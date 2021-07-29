@@ -54,7 +54,7 @@ function makeFoldWrapper(
     );
 
     return [
-      await innerFoldFunction(
+      innerFoldFunction(
         dataset,
         inputAttributeName,
         resultAttributeName,

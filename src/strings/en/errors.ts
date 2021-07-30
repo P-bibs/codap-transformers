@@ -16,24 +16,20 @@ const errors = {
   },
   median: {
     noAttribute: "Please choose an attribute to find the median of.",
-    noValues: "Cannot find median of no numeric values",
+    noValues: "Cannot find median of no values",
   },
   mode: {
     noAttribute: "Please choose an attribute to find the mode of.",
-    noValues: "Cannot find mode of no numeric values",
+    noValues: "Cannot find mode of no values",
   },
   mean: {
     noAttribute: "Please choose an attribute to take the mean of.",
-
-    // FIXME: "no numeric values" is confusing. I think the point is that there
-    // are zero values, so mentioning "numeric" might make the user think that
-    // the issue is with types.
-    noValues: "Cannot find mean of no numeric values.",
+    noValues: "Cannot find mean of no values.",
   },
   standardDeviation: {
     noAttribute:
       "Please choose an attribute to find the standard deviation of.",
-    noValues: "Cannot find standard deviation of no numeric values",
+    noValues: "Cannot find standard deviation of no values",
   },
   compare: {
     noAttribute: "Please select two attributes",

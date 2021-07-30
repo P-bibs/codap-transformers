@@ -47,14 +47,14 @@ function AboutInfo(): ReactElement {
           <h3>Getting Started</h3>
           <p>
             To get started with the Transformers plugin, check out the various
-            transformers in the “Transformer Type” dropdown. To learn more about
-            a specific transformer, click the “i” icon next to the dropdown.
+            transformers in the “Transformer” dropdown. To learn more about a
+            specific transformer, click the “i” icon next to the dropdown.
           </p>
 
           <h3>Authors</h3>
           <p>
             This plugin is brought to you by Paul Biberstein, Thomas Castleman,
-            and Jason Chen of the{" "}
+            and Jason Chen of{" "}
             <a
               href="https://cs.brown.edu/research/plt/"
               target="_blank"

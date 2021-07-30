@@ -1,4 +1,4 @@
-import { isBoundary, isBoundaryMap } from "../../transformers/util";
+import { codapValueToString } from "../../transformers/util";
 
 export function prettyPrintCase(record: Record<string, unknown>): string {
   const keyValuePairs = [];
@@ -6,19 +6,7 @@ export function prettyPrintCase(record: Record<string, unknown>): string {
   for (const key in record) {
     const value = record[key];
 
-    if (value === null) {
-      keyValuePairs.push(`${key}: <missing>`);
-    } else if (typeof value === "object") {
-      if (isBoundary(value)) {
-        keyValuePairs.push(`${key}: <boundary>`);
-      } else if (isBoundaryMap(value)) {
-        keyValuePairs.push(`${key}: <boundary map>`);
-      } else {
-        keyValuePairs.push(`${key}: <unknown object>`);
-      }
-    } else {
-      keyValuePairs.push(`${key}: ${value}`);
-    }
+    keyValuePairs.push(`${key}: ${codapValueToString(value)}`);
   }
 
   return "[" + keyValuePairs.join(", ") + "]";

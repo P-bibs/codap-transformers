@@ -2,12 +2,8 @@ import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { readableName } from "../transformers/util";
-import {
-  reportTypeErrorsForRecords,
-  cloneCollection,
-  shallowCopy,
-  validateAttribute,
-} from "./util";
+import { cloneCollection, shallowCopy, validateAttribute } from "./util";
+import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
 
 /**
  * Produces a dataset with the indicated attribute's values transformed
@@ -65,7 +61,7 @@ export async function uncheckedTransformColumn(
   const exprValues = await evalFormula(expression, records);
 
   // Check for type errors (might throw error and abort transformer)
-  reportTypeErrorsForRecords(records, exprValues, outputType);
+  await reportTypeErrorsForRecords(records, exprValues, outputType);
 
   exprValues.forEach((value, i) => {
     records[i][attributeName] = value;

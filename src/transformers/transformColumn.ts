@@ -61,7 +61,12 @@ export async function uncheckedTransformColumn(
   const exprValues = await evalFormula(expression, records);
 
   // Check for type errors (might throw error and abort transformer)
-  await reportTypeErrorsForRecords(records, exprValues, outputType);
+  await reportTypeErrorsForRecords(
+    records,
+    exprValues,
+    outputType,
+    evalFormula
+  );
 
   exprValues.forEach((value, i) => {
     records[i][attributeName] = value;

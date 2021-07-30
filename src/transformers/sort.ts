@@ -95,7 +95,7 @@ export async function uncheckedSort(
   const keyValues = await evalFormula(keyExpr, records);
 
   // Check for type errors (might throw error and abort transformer)
-  await reportTypeErrorsForRecords(records, keyValues, outputType);
+  await reportTypeErrorsForRecords(records, keyValues, outputType, evalFormula);
 
   const sorted = records
     .map((record, i) => {

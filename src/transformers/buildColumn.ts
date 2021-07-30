@@ -91,7 +91,12 @@ export async function uncheckedBuildColumn(
   const colValues = await evalFormula(expression, dataset.records);
 
   // Check for type errors (might throw error and abort transformer)
-  await reportTypeErrorsForRecords(dataset.records, colValues, outputType);
+  await reportTypeErrorsForRecords(
+    dataset.records,
+    colValues,
+    outputType,
+    evalFormula
+  );
 
   // add values for new attribute to all records
   const records = dataset.records.map((record, i) => {

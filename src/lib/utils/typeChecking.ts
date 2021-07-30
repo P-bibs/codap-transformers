@@ -1,5 +1,4 @@
 import { CodapLanguageType } from "../../transformers/types";
-import { evalExpression } from "../codapPhone";
 import { prettyPrintCase } from "./prettyPrint";
 
 /**
@@ -19,9 +18,13 @@ enum CodapTypePredicateFunctions {
 export async function reportTypeErrorsForRecords(
   records: Record<string, unknown>[],
   values: unknown[],
-  type: CodapLanguageType
+  type: CodapLanguageType,
+  evalFormula: (
+    expr: string,
+    records: Record<string, unknown>[]
+  ) => Promise<unknown[]>
 ): Promise<void> {
-  const errorIndices = await findTypeErrors(values, type);
+  const errorIndices = await findTypeErrors(values, type, evalFormula);
   if (errorIndices.length !== 0) {
     throw new Error(
       `Formula did not evaluate to ${type} for case ${prettyPrintCase(
@@ -38,22 +41,42 @@ export async function reportTypeErrorsForRecords(
  * @returns indices that doesn't match the type, or empty list if all
  * values match
  */
-async function findTypeErrors(
+export async function findTypeErrors(
   values: unknown[],
-  type: CodapLanguageType
+  type: CodapLanguageType,
+  evalFormula: (
+    expr: string,
+    records: Record<string, unknown>[]
+  ) => Promise<unknown[]>
 ): Promise<number[]> {
   switch (type) {
     case "any":
       // All values are allowed for any, so we can return immediately
       return [];
     case "number":
-      return checkTypeOfValues(CodapTypePredicateFunctions.Number, values);
+      return checkTypeOfValues(
+        CodapTypePredicateFunctions.Number,
+        values,
+        evalFormula
+      );
     case "string":
-      return checkTypeOfValues(CodapTypePredicateFunctions.String, values);
+      return checkTypeOfValues(
+        CodapTypePredicateFunctions.String,
+        values,
+        evalFormula
+      );
     case "boolean":
-      return checkTypeOfValues(CodapTypePredicateFunctions.Boolean, values);
+      return checkTypeOfValues(
+        CodapTypePredicateFunctions.Boolean,
+        values,
+        evalFormula
+      );
     case "boundary":
-      return checkTypeOfValues(CodapTypePredicateFunctions.Boundary, values);
+      return checkTypeOfValues(
+        CodapTypePredicateFunctions.Boundary,
+        values,
+        evalFormula
+      );
   }
 }
 
@@ -63,12 +86,16 @@ async function findTypeErrors(
  */
 export async function checkTypeOfValues(
   predicate: CodapTypePredicateFunctions,
-  values: unknown[]
+  values: unknown[],
+  evalFormula: (
+    expr: string,
+    records: Record<string, unknown>[]
+  ) => Promise<unknown[]>
 ): Promise<number[]> {
   const expr = `${predicate}(attr)`;
   const records = values.map((value) => ({ attr: value }));
-  const results = await evalExpression(expr, records);
-
+  const results = await evalFormula(expr, records);
+  console.error(results);
   const failingIndices = results
     .filter((result) => result !== true)
     .map((_result, i) => i);

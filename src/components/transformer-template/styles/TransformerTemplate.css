@@ -19,7 +19,8 @@
   content: " ";
   display: inline-block;
   position: absolute;
-  left: 50%;
+  /* Subtract half the elements width to truly center */
+  left: calc(50% - 5px);
   width: 10px;
   height: 10px;
   margin: 1px;

@@ -1,6 +1,5 @@
 import { uncheckedSort } from "../sort";
 import {
-  CENSUS_DATASET,
   cloneDataSet,
   DATASET_A,
   DATASET_B,

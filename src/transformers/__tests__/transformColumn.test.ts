@@ -8,7 +8,6 @@ import {
   DATASET_WITH_META,
   EMPTY_DATASET,
   jsEvalExpression,
-  TYPES_DATASET,
 } from "./data";
 
 /**

@@ -9,6 +9,7 @@ interface SelectProps<T extends string | number> {
     title: string;
   }[];
   disabled?: boolean;
+  tooltip?: string;
 }
 
 export default function Select<T extends string | number>({
@@ -17,6 +18,7 @@ export default function Select<T extends string | number>({
   defaultValue,
   options,
   disabled,
+  tooltip,
 }: SelectProps<T>): ReactElement {
   const titles = options.map((option) => option.title);
 
@@ -30,6 +32,7 @@ export default function Select<T extends string | number>({
       onChange={onChange}
       value={value || defaultValue}
       disabled={disabled}
+      title={tooltip}
     >
       <option disabled value={defaultValue}>
         {defaultValue}

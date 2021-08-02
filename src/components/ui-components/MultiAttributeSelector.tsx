@@ -69,6 +69,7 @@ export default function MultiAttributeSelector({
             value={selected[i]}
             defaultValue="Select an attribute"
             disabled={disabled}
+            tooltip="An attribute denotes a column within a table."
           />
           {i === selected.length ? null : (
             <button

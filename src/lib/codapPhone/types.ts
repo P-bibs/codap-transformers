@@ -150,6 +150,12 @@ export interface NotifyUndoChangeNoticeRequest {
     | { operation: "undoableActionPerformed"; logMessage?: string };
 }
 
+export interface NotifyComponentRequest {
+  action: CodapActions.Notify;
+  resource: string;
+  values: { request: "select" };
+}
+
 export interface EvalExpressionRequest {
   action: CodapActions.Notify;
   resource: CodapResource.FormulaEngine;
@@ -277,6 +283,7 @@ export type CodapPhone = {
     cb: (r: GetFunctionInfoResponse) => void
   ): void;
   call(r: NotifyUndoChangeNoticeRequest, cb: (r: CodapResponse) => void): void;
+  call(r: NotifyComponentRequest, cb: (r: CodapResponse) => void): void;
   call(r: CodapRequest[], cb: (r: CodapResponse[]) => void): void;
 };
 
@@ -577,6 +584,7 @@ export interface Guide extends CodapComponent {
 export type InteractiveFrame = {
   name: string;
   title: string;
+  id: number;
   version: string;
   dimensions: {
     width: number;

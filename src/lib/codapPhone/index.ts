@@ -316,6 +316,31 @@ export function notifyInteractiveFrameIsDirty(): Promise<void> {
   );
 }
 
+/**
+ * Sends a request to select (bring to front) the plugin's interactive frame
+ */
+export async function notifyInteractiveFrameWithSelect(): Promise<void> {
+  const id = (await getInteractiveFrame()).id;
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: resourceFromComponent(`${id}`),
+        values: {
+          request: "select",
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to notify component to select."));
+        }
+      }
+    )
+  );
+}
+
 export function getAllComponents(): Promise<ComponentListResponse["values"]> {
   return new Promise((resolve, reject) =>
     phone.call(

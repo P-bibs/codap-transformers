@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useReducer } from "react";
 import { useState } from "react";
 import "./styles/Views.css";
 import ErrorDisplay from "../components/ui-components/Error";
@@ -7,6 +7,7 @@ import { TextArea, TextInput } from "../components/ui-components";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
+  notifyInteractiveFrameWithSelect,
   updateInteractiveFrame,
 } from "../lib/codapPhone";
 import { useEffect } from "react";
@@ -31,7 +32,15 @@ function SavedDefinitionView({
 }: {
   transformer: SavedTransformer;
 }): ReactElement {
-  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [errMsg, setErrMsg] = useReducer(
+    (oldState: string | null, newState: string | null): string | null => {
+      if (newState) {
+        notifyInteractiveFrameWithSelect();
+      }
+      return newState;
+    },
+    null
+  );
   const [editable, setEditable] = useState<boolean>(false);
   const [savedTransformer, setSavedTransformer] = useState(urlTransformer);
   const [saveErr, setSaveErr] = useState<string | null>(null);

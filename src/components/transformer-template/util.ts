@@ -23,16 +23,6 @@ export async function applyNewDataSet(
 }
 
 /**
- * Converts a location identifying a missing value into a string.
- *
- * @param loc The location to convert
- * @returns A string describing the location
- */
-// function missingValueLocToString(loc: MissingValueLocation): string {
-//   return `${loc.itemIndex}, "${loc.attribute}", "${loc.collection}"`;
-// }
-
-/**
  * Creates a CODAP element that displays the given missing value report
  * with a given name (ensured unique).
  *
@@ -105,22 +95,10 @@ export async function createMVRDisplay(
 
   const [context] = await createTableWithDataSet(
     missingValuesDataset,
-    `Missing Values (${outputName})`
+    `Missing Value Table for ${outputName}`
   );
 
-  // const locs = mvr.missingValues
-  // .map((loc) => missingValueLocToString(loc))
-  // .join("\n");
-
   const reportContent = `${MISSING_VALUE_SCARE_SYMBOL}\n${mvr.extraInfo || ""}`;
-  // [
-  //   mvr.extraInfo ? `${mvr.extraInfo}\n` : "",
-  //   "Missing Values:",
-  //   "Item, Attribute, Collection",
-  //   locs,
-  // ]
-  //   .filter((s) => s !== "")
-  //   .join("\n");
 
   const textName = await createText(
     `Missing Value Report for ${outputName}`,

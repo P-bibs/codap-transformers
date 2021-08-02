@@ -11,6 +11,7 @@ import transformerList, {
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
+  notifyInteractiveFrameWithSelect,
 } from "../lib/codapPhone";
 import {
   addInteractiveStateRequestListener,
@@ -24,6 +25,7 @@ import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 import Select, { ValueType, ActionMeta } from "react-select";
 import TransformerInfo from "../components/info-components/TransformerInfo";
+import { useReducer } from "react";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -65,7 +67,15 @@ function REPLView(): ReactElement {
   const [transformType, setTransformType] =
     useState<BaseTransformerName | null>(null);
 
-  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [errMsg, setErrMsg] = useReducer(
+    (oldState: string | null, newState: string | null): string | null => {
+      if (newState) {
+        notifyInteractiveFrameWithSelect();
+      }
+      return newState;
+    },
+    null
+  );
 
   // activeTransformations (first element of tuple) can be used to draw a diagram
   const [, activeTransformationsDispatch, wrappedDispatch] =

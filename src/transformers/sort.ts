@@ -1,8 +1,9 @@
 import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
-import { codapValueToString, reportTypeErrorsForRecords } from "./util";
+import { codapValueToString } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { readableName } from "../transformers/util";
+import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
@@ -94,7 +95,7 @@ export async function uncheckedSort(
   const keyValues = await evalFormula(keyExpr, records);
 
   // Check for type errors (might throw error and abort transformer)
-  reportTypeErrorsForRecords(records, keyValues, outputType);
+  await reportTypeErrorsForRecords(records, keyValues, outputType, evalFormula);
 
   const sorted = records
     .map((record, i) => {

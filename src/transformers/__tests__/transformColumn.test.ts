@@ -8,7 +8,6 @@ import {
   DATASET_WITH_META,
   EMPTY_DATASET,
   jsEvalExpression,
-  TYPES_DATASET,
 } from "./data";
 
 /**
@@ -41,7 +40,7 @@ test("simple transform to constant", async () => {
       DATASET_A,
       "B",
       "10",
-      "number",
+      "any",
       jsEvalExpression
     )
   ).toEqual(transformedA);
@@ -57,7 +56,7 @@ test("transform with formula dependent on transformed attribute", async () => {
       DATASET_B,
       "Birth_Year",
       "Birth_Year + 1",
-      "number",
+      "any",
       jsEvalExpression
     )
   ).toEqual(transformedB);
@@ -75,7 +74,7 @@ test("transform with formula dependent on other attribute", async () => {
       CENSUS_DATASET,
       "sample",
       "Age > 30",
-      "boolean",
+      "any",
       jsEvalExpression
     )
   ).toEqual(transformedCensus);
@@ -118,37 +117,6 @@ test("errors on invalid attribute", async () => {
     );
   } catch (e) {
     expect(e.message).toMatch(invalidAttributeErr);
-  }
-});
-
-test("errors when formula values violate type contract", async () => {
-  const typeContractErr = /did not evaluate to/;
-  expect.assertions(2);
-
-  try {
-    // Current_Year + 1 is not a boolean
-    await uncheckedTransformColumn(
-      DATASET_B,
-      "Name",
-      "Current_Year + 1",
-      "boolean",
-      jsEvalExpression
-    );
-  } catch (e) {
-    expect(e.message).toMatch(typeContractErr);
-  }
-
-  try {
-    // Boundaries do not evaluate to strings
-    await uncheckedTransformColumn(
-      TYPES_DATASET,
-      "Number",
-      "Boundary",
-      "string",
-      jsEvalExpression
-    );
-  } catch (e) {
-    expect(e.message).toMatch(typeContractErr);
   }
 });
 

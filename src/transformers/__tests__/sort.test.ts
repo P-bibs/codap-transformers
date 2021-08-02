@@ -1,6 +1,5 @@
 import { uncheckedSort } from "../sort";
 import {
-  CENSUS_DATASET,
   cloneDataSet,
   DATASET_A,
   DATASET_B,
@@ -33,7 +32,7 @@ test("sorts numbers", async () => {
   );
 
   expect(
-    await uncheckedSort(DATASET_A, "A", "number", "ascending", jsEvalExpression)
+    await uncheckedSort(DATASET_A, "A", "any", "ascending", jsEvalExpression)
   ).toEqual(sortedByAAscending);
 
   // descending order
@@ -43,13 +42,7 @@ test("sorts numbers", async () => {
   );
 
   expect(
-    await uncheckedSort(
-      DATASET_A,
-      "A",
-      "number",
-      "descending",
-      jsEvalExpression
-    )
+    await uncheckedSort(DATASET_A, "A", "any", "descending", jsEvalExpression)
   ).toEqual(sortedByADescending);
 });
 
@@ -67,13 +60,7 @@ test("sorts booleans", async () => {
     ]
   );
   expect(
-    await uncheckedSort(
-      DATASET_A,
-      "B",
-      "boolean",
-      "descending",
-      jsEvalExpression
-    )
+    await uncheckedSort(DATASET_A, "B", "any", "descending", jsEvalExpression)
   ).toEqual(sortedByBDescending);
 
   // ascending is true before false
@@ -89,13 +76,7 @@ test("sorts booleans", async () => {
     ]
   );
   expect(
-    await uncheckedSort(
-      DATASET_A,
-      "B",
-      "boolean",
-      "ascending",
-      jsEvalExpression
-    )
+    await uncheckedSort(DATASET_A, "B", "any", "ascending", jsEvalExpression)
   ).toEqual(sortedByBAscending);
 });
 
@@ -116,13 +97,7 @@ test("sorts strings", async () => {
   );
 
   expect(
-    await uncheckedSort(
-      DATASET_B,
-      "Name",
-      "string",
-      "ascending",
-      jsEvalExpression
-    )
+    await uncheckedSort(DATASET_B, "Name", "any", "ascending", jsEvalExpression)
   ).toEqual(sortedByNameAscending);
 
   const sortedByNameDescending = cloneDataSet(DATASET_B);
@@ -134,7 +109,7 @@ test("sorts strings", async () => {
     await uncheckedSort(
       DATASET_B,
       "Name",
-      "string",
+      "any",
       "descending",
       jsEvalExpression
     )
@@ -164,7 +139,7 @@ test("sorts objects", async () => {
     await uncheckedSort(
       withObjects,
       "Boundaries",
-      "boundary",
+      "any",
       "ascending",
       jsEvalExpression
     )
@@ -178,7 +153,7 @@ test("sorts objects", async () => {
     await uncheckedSort(
       withObjects,
       "Boundaries",
-      "boundary",
+      "any",
       "descending",
       jsEvalExpression
     )
@@ -189,7 +164,7 @@ test("sorts objects", async () => {
     await uncheckedSort(
       TYPES_DATASET,
       "Boundary",
-      "boundary",
+      "any",
       "ascending",
       jsEvalExpression
     )
@@ -198,40 +173,11 @@ test("sorts objects", async () => {
     await uncheckedSort(
       TYPES_DATASET,
       "Boundary",
-      "boundary",
+      "any",
       "descending",
       jsEvalExpression
     )
   ).toEqual(TYPES_DATASET);
-});
-
-test("errors on type error with key expression and type contract", async () => {
-  expect.assertions(2);
-  try {
-    // Year is a numeric, not boundary, attribute
-    await uncheckedSort(
-      CENSUS_DATASET,
-      "Year",
-      "boundary",
-      "ascending",
-      jsEvalExpression
-    );
-  } catch (e) {
-    expect(e.message).toMatch(/did not evaluate to boundary/);
-  }
-
-  try {
-    // Name is string, not boolean
-    await uncheckedSort(
-      DATASET_B,
-      "Name",
-      "boolean",
-      "descending",
-      jsEvalExpression
-    );
-  } catch (e) {
-    expect(e.message).toMatch(/did not evaluate to boolean/);
-  }
 });
 
 test("errors when key expression evaluates to multiple types", async () => {
@@ -278,13 +224,7 @@ test("sort is stable", async () => {
   };
 
   expect(
-    await uncheckedSort(
-      dataset,
-      "Number",
-      "number",
-      "ascending",
-      jsEvalExpression
-    )
+    await uncheckedSort(dataset, "Number", "any", "ascending", jsEvalExpression)
   ).toEqual({
     collections: dataset.collections,
     records: makeRecords(

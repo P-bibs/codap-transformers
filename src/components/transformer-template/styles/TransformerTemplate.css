@@ -2,8 +2,38 @@
 #applyTransformer {
   margin-top: 10px;
   background-color: #daeef1;
+  position: relative;
+
 }
 
 #applyTransformer:hover {
   background-color: #edf6f8;
+}
+
+#applyTransformer.loading {
+  background-color: rgb(171, 181, 184);
+  cursor: not-allowed;
+}
+
+#applyTransformer.loading:after {
+  content: " ";
+  display: inline-block;
+  position: absolute;
+  /* Subtract half the elements width to truly center */
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 10px;
+  margin: 1px;
+  border-radius: 50%;
+  border: 3px solid rgb(62, 65, 66);
+  border-color: rgb(62, 65, 66) transparent rgb(62, 65, 66) transparent;
+  animation: full-rotation 1.2s linear infinite;
+}
+@keyframes full-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

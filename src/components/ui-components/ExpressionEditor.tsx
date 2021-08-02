@@ -100,29 +100,53 @@ export default function ExpressionEditor({
       const cursor = cm.getCursor();
       const { start, end, word } = getCurrentWord(cm);
       const wordLower = word.toLowerCase();
+      const fromPos = CodeMirror.Pos(cursor.line, start);
+      const toPos = CodeMirror.Pos(cursor.line, end);
 
       // Don't complete if word is empty string
       const completionList =
         word === ""
           ? []
-          : attributeNames.filter((w) => isLowerCasePrefix(w, wordLower));
+          : attributeNames
+              .filter((w) => isLowerCasePrefix(w, wordLower))
+
+              // When completing words with spaces, include backticks
+              .map((w) => {
+                if (w.includes(" ")) {
+                  return {
+                    displayText: w,
+                    text: `\`${w}\``,
+                  };
+                } else {
+                  return w;
+                }
+              });
 
       // Complete function names
       const functionNames = await getFunctionNames();
-      const functionCompletionList = (
+      const functionCompletionList =
         word === ""
           ? []
-          : functionNames.filter((w) => isLowerCasePrefix(w, wordLower))
-      )
-        // Add parens
-        // TODO: Eventually add hint function so we can place cursor inside
-        // the parens when replacing
-        .map((s) => s + "()");
+          : functionNames
+              .filter((w) => isLowerCasePrefix(w, wordLower))
+              // Add parens
+              .map((w) => w + "()")
+              .map((w) => ({
+                text: w,
+                displayText: w,
+                hint: () => {
+                  cm.replaceRange(w, fromPos, toPos);
+                  const newCursor = cm.getCursor();
+                  cm.setCursor(
+                    CodeMirror.Pos(newCursor.line, newCursor.ch - 1)
+                  );
+                },
+              }));
 
       return {
         list: completionList.concat(functionCompletionList),
-        from: CodeMirror.Pos(cursor.line, start),
-        to: CodeMirror.Pos(cursor.line, end),
+        from: fromPos,
+        to: toPos,
       };
     },
     [attributeNames]

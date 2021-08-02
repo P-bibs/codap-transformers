@@ -2,7 +2,6 @@ import { evalExpression } from "../../lib/codapPhone";
 import { SortDirection, uncheckedSort } from "../sort";
 import { CodapLanguageType, DataSet } from "../types";
 import {
-  CENSUS_DATASET,
   cloneDataSet,
   DATASET_A,
   DATASET_B,
@@ -58,7 +57,7 @@ test("sorts numbers", async () => {
     await uncheckedSortWrapper(
       DATASET_A,
       "A",
-      "number",
+      "any",
       "ascending",
       jsEvalExpression
     )
@@ -74,7 +73,7 @@ test("sorts numbers", async () => {
     await uncheckedSortWrapper(
       DATASET_A,
       "A",
-      "number",
+      "any",
       "descending",
       jsEvalExpression
     )
@@ -98,7 +97,7 @@ test("sorts booleans", async () => {
     await uncheckedSortWrapper(
       DATASET_A,
       "B",
-      "boolean",
+      "any",
       "descending",
       jsEvalExpression
     )
@@ -120,7 +119,7 @@ test("sorts booleans", async () => {
     await uncheckedSortWrapper(
       DATASET_A,
       "B",
-      "boolean",
+      "any",
       "ascending",
       jsEvalExpression
     )
@@ -147,7 +146,7 @@ test("sorts strings", async () => {
     await uncheckedSortWrapper(
       DATASET_B,
       "Name",
-      "string",
+      "any",
       "ascending",
       jsEvalExpression
     )
@@ -162,7 +161,7 @@ test("sorts strings", async () => {
     await uncheckedSortWrapper(
       DATASET_B,
       "Name",
-      "string",
+      "any",
       "descending",
       jsEvalExpression
     )
@@ -192,7 +191,7 @@ test("sorts objects", async () => {
     await uncheckedSortWrapper(
       withObjects,
       "Boundaries",
-      "boundary",
+      "any",
       "ascending",
       jsEvalExpression
     )
@@ -206,7 +205,7 @@ test("sorts objects", async () => {
     await uncheckedSortWrapper(
       withObjects,
       "Boundaries",
-      "boundary",
+      "any",
       "descending",
       jsEvalExpression
     )
@@ -217,7 +216,7 @@ test("sorts objects", async () => {
     await uncheckedSortWrapper(
       TYPES_DATASET,
       "Boundary",
-      "boundary",
+      "any",
       "ascending",
       jsEvalExpression
     )
@@ -226,40 +225,11 @@ test("sorts objects", async () => {
     await uncheckedSortWrapper(
       TYPES_DATASET,
       "Boundary",
-      "boundary",
+      "any",
       "descending",
       jsEvalExpression
     )
   ).toEqual(TYPES_DATASET);
-});
-
-test("errors on type error with key expression and type contract", async () => {
-  expect.assertions(2);
-  try {
-    // Year is a numeric, not boundary, attribute
-    await uncheckedSortWrapper(
-      CENSUS_DATASET,
-      "Year",
-      "boundary",
-      "ascending",
-      jsEvalExpression
-    );
-  } catch (e) {
-    expect(e.message).toMatch(/did not evaluate to boundary/);
-  }
-
-  try {
-    // Name is string, not boolean
-    await uncheckedSortWrapper(
-      DATASET_B,
-      "Name",
-      "boolean",
-      "descending",
-      jsEvalExpression
-    );
-  } catch (e) {
-    expect(e.message).toMatch(/did not evaluate to boolean/);
-  }
 });
 
 test("errors when key expression evaluates to multiple types", async () => {
@@ -309,7 +279,7 @@ test("sort is stable", async () => {
     await uncheckedSortWrapper(
       dataset,
       "Number",
-      "number",
+      "any",
       "ascending",
       jsEvalExpression
     )

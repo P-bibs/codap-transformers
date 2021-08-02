@@ -5,13 +5,10 @@ import {
   TransformationOutput,
 } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
-import {
-  codapValueToString,
-  isMissing,
-  reportTypeErrorsForRecords,
-} from "./util";
-import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { codapValueToString, isMissing } from "./util";
 import { tryTitle } from "../transformers/util";
+import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
+import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
@@ -126,7 +123,7 @@ export async function uncheckedSort(
   });
 
   // Check for type errors (might throw error and abort transformer)
-  reportTypeErrorsForRecords(records, keyValues, outputType);
+  await reportTypeErrorsForRecords(records, keyValues, outputType, evalFormula);
 
   const sorted = records
     .map((record, i) => {

@@ -46,7 +46,7 @@ export async function uncheckedFilter(
       throw new Error(
         `Expected predicate to evaluate to true/false, but it evaluated to ${codapValueToString(
           value
-        )} at case ${i + 1}`
+        )} for case ${i + 1}`
       );
     }
 

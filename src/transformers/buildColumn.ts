@@ -7,7 +7,8 @@ import {
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone/index";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { isMissing, tryTitle } from "../transformers/util";
-import { reportTypeErrorsForRecords, cloneCollection } from "./util";
+import { cloneCollection } from "./util";
+import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
 
 /**
  * Builds a dataset with a new attribute added to one of the collections,
@@ -100,7 +101,12 @@ export async function uncheckedBuildColumn(
   const colValues = await evalFormula(expression, dataset.records);
 
   // Check for type errors (might throw error and abort transformer)
-  reportTypeErrorsForRecords(dataset.records, colValues, outputType);
+  await reportTypeErrorsForRecords(
+    dataset.records,
+    colValues,
+    outputType,
+    evalFormula
+  );
 
   const mvr: MissingValueReport = {
     kind: "formula",

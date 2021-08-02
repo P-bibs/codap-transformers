@@ -1,5 +1,5 @@
 import { CodapAttribute, Collection } from "../../lib/codapPhone/types";
-import { DataSet } from "../types";
+import { Boundary, DataSet } from "../types";
 import { cloneCollection, shallowCopy } from "../util";
 
 /**
@@ -51,7 +51,7 @@ export function makeRecords(
  * object (if false the same boundary will be returned each time)
  * @returns a boundary object
  */
-export function makeSimpleBoundary(randomize: boolean) {
+export function makeSimpleBoundary(randomize: boolean): Boundary {
   /**
    * Makes a latitude/longitude pair between -90 and 90
    */

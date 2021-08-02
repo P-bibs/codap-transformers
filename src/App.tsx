@@ -52,7 +52,7 @@ export const App = (): ReactElement => {
       </p>
     );
   } else if (status === "loading") {
-    return <p className="loading">Connecting to CODAP...</p>;
+    return <p className="codap-connection-loading">Connecting to CODAP...</p>;
   } else {
     return pluginContent;
   }

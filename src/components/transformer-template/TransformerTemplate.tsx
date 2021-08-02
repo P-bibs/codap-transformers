@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import React, { useReducer, ReactElement, useEffect } from "react";
+import React, { useReducer, ReactElement, useEffect, useState } from "react";
 import {
   createText,
   getInteractiveFrame,
@@ -239,6 +239,8 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     setErrMsg,
     activeTransformationsDispatch,
   } = props;
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [state, setState] = useReducer(
     (
@@ -541,11 +543,19 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
       <div>
         <button
           id="applyTransformer"
-          onClick={
+          disabled={loading}
+          className={loading ? "loading" : ""}
+          onClick={() => {
+            // disable the button while the transformer is running
+            if (loading) return;
+
+            setLoading(true);
             transformerFunction.kind === "fullOverride"
-              ? () => transformerFunction.createFunc(props, state)
-              : transform
-          }
+              ? transformerFunction
+                  .createFunc(props, state)
+                  .then(() => setLoading(false))
+              : transform().then(() => setLoading(false));
+          }}
         >
           Apply Transformer
         </button>

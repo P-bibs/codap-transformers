@@ -1,5 +1,5 @@
 
-.loading, .initError {
+.codap-connection-loading, .initError {
   font-size: 14px;
   margin: 15px;
 }

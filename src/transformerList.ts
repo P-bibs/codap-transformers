@@ -48,13 +48,13 @@ export type TransformersInteractiveState = {
 };
 
 export type TransformerGroup =
-  | "Structural Transformers"
-  | "Combining Transformers"
-  | "Summarizing Transformers"
-  | "Running Aggregators"
-  | "Aggregators"
-  | "Copy Transformers"
-  | "Others";
+  | "Summarizing"
+  | "Aggregating"
+  | "Basic Building"
+  | "Running Aggregation"
+  | "Copying"
+  | "Restructuring"
+  | "Tidying Data";
 
 /**
  *  All valid values of the `base` field of a saved transformer object
@@ -124,7 +124,7 @@ function docLinkFromHeadingID(headingID: string): string {
 
 const transformerList: TransformerList = {
   Partition: {
-    group: "Structural Transformers",
+    group: "Restructuring",
     componentData: {
       init: {
         context1: {
@@ -153,7 +153,7 @@ const transformerList: TransformerList = {
     },
   },
   Flatten: {
-    group: "Structural Transformers",
+    group: "Restructuring",
     componentData: {
       init: {
         context1: {
@@ -172,7 +172,7 @@ const transformerList: TransformerList = {
     },
   },
   "Group By": {
-    group: "Structural Transformers",
+    group: "Basic Building",
     componentData: {
       init: {
         context1: {
@@ -196,7 +196,7 @@ const transformerList: TransformerList = {
     },
   },
   "Pivot Longer": {
-    group: "Structural Transformers",
+    group: "Tidying Data",
     componentData: {
       init: {
         context1: {
@@ -233,7 +233,7 @@ const transformerList: TransformerList = {
     },
   },
   "Pivot Wider": {
-    group: "Structural Transformers",
+    group: "Tidying Data",
     componentData: {
       init: {
         context1: {
@@ -266,7 +266,7 @@ const transformerList: TransformerList = {
     },
   },
   Join: {
-    group: "Combining Transformers",
+    group: "Restructuring",
     componentData: {
       init: {
         context1: {
@@ -306,7 +306,7 @@ const transformerList: TransformerList = {
     },
   },
   "Combine Cases": {
-    group: "Combining Transformers",
+    group: "Restructuring",
     componentData: {
       init: {
         context1: {
@@ -336,7 +336,7 @@ const transformerList: TransformerList = {
     },
   },
   Count: {
-    group: "Summarizing Transformers",
+    group: "Summarizing",
     componentData: {
       init: {
         context1: {
@@ -363,7 +363,7 @@ const transformerList: TransformerList = {
     },
   },
   Compare: {
-    group: "Summarizing Transformers",
+    group: "Summarizing",
     componentData: {
       init: {
         context1: {
@@ -406,7 +406,7 @@ const transformerList: TransformerList = {
     },
   },
   "Running Sum": {
-    group: "Running Aggregators",
+    group: "Running Aggregation",
     componentData: {
       init: {
         context1: {
@@ -431,7 +431,7 @@ const transformerList: TransformerList = {
     },
   },
   "Running Mean": {
-    group: "Running Aggregators",
+    group: "Running Aggregation",
     componentData: {
       init: {
         context1: {
@@ -457,7 +457,7 @@ const transformerList: TransformerList = {
     },
   },
   "Running Min": {
-    group: "Running Aggregators",
+    group: "Running Aggregation",
     componentData: {
       init: {
         context1: {
@@ -482,7 +482,7 @@ const transformerList: TransformerList = {
     },
   },
   "Running Max": {
-    group: "Running Aggregators",
+    group: "Running Aggregation",
     componentData: {
       init: {
         context1: {
@@ -507,7 +507,7 @@ const transformerList: TransformerList = {
     },
   },
   Difference: {
-    group: "Running Aggregators",
+    group: "Running Aggregation",
     componentData: {
       init: {
         context1: {
@@ -533,7 +533,7 @@ const transformerList: TransformerList = {
     },
   },
   "Difference From": {
-    group: "Running Aggregators",
+    group: "Running Aggregation",
     componentData: {
       init: {
         context1: {
@@ -566,7 +566,7 @@ const transformerList: TransformerList = {
     },
   },
   Reduce: {
-    group: "Running Aggregators",
+    group: "Running Aggregation",
     componentData: {
       init: {
         context1: {
@@ -607,7 +607,7 @@ const transformerList: TransformerList = {
     },
   },
   Mean: {
-    group: "Aggregators",
+    group: "Aggregating",
     componentData: {
       init: {
         context1: {
@@ -630,7 +630,7 @@ const transformerList: TransformerList = {
     },
   },
   Median: {
-    group: "Aggregators",
+    group: "Aggregating",
     componentData: {
       init: {
         context1: {
@@ -655,7 +655,7 @@ const transformerList: TransformerList = {
     },
   },
   Mode: {
-    group: "Aggregators",
+    group: "Aggregating",
     componentData: {
       init: {
         context1: {
@@ -679,7 +679,7 @@ const transformerList: TransformerList = {
     },
   },
   "Standard Deviation": {
-    group: "Aggregators",
+    group: "Aggregating",
     componentData: {
       init: {
         context1: {
@@ -703,7 +703,7 @@ const transformerList: TransformerList = {
     },
   },
   "Sum Product": {
-    group: "Aggregators",
+    group: "Aggregating",
     componentData: {
       init: {
         context1: {
@@ -730,7 +730,7 @@ const transformerList: TransformerList = {
     },
   },
   Copy: {
-    group: "Copy Transformers",
+    group: "Copying",
     componentData: {
       init: {
         context1: {
@@ -749,7 +749,7 @@ const transformerList: TransformerList = {
     },
   },
   "Copy Structure": {
-    group: "Copy Transformers",
+    group: "Copying",
     componentData: {
       init: {
         context1: {
@@ -771,7 +771,7 @@ const transformerList: TransformerList = {
     },
   },
   "Editable Copy": {
-    group: "Copy Transformers",
+    group: "Copying",
     componentData: {
       init: {
         context1: {
@@ -794,7 +794,7 @@ const transformerList: TransformerList = {
     },
   },
   Filter: {
-    group: "Others",
+    group: "Basic Building",
     componentData: {
       init: {
         context1: {
@@ -823,7 +823,7 @@ const transformerList: TransformerList = {
     },
   },
   "Transform Column": {
-    group: "Others",
+    group: "Basic Building",
     componentData: {
       init: {
         context1: {
@@ -857,7 +857,7 @@ const transformerList: TransformerList = {
     },
   },
   "Build Column": {
-    group: "Others",
+    group: "Basic Building",
     componentData: {
       init: {
         context1: {
@@ -896,7 +896,7 @@ const transformerList: TransformerList = {
     },
   },
   "Select Attributes": {
-    group: "Others",
+    group: "Restructuring",
     componentData: {
       init: {
         context1: {
@@ -941,7 +941,7 @@ const transformerList: TransformerList = {
     },
   },
   Sort: {
-    group: "Others",
+    group: "Basic Building",
     componentData: {
       init: {
         context1: {

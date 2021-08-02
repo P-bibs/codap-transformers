@@ -95,7 +95,6 @@ export async function checkTypeOfValues(
   const expr = `${predicate}(attr)`;
   const records = values.map((value) => ({ attr: value }));
   const results = await evalFormula(expr, records);
-  console.error(results);
   const failingIndices = results
     .filter((result) => result !== true)
     .map((_result, i) => i);

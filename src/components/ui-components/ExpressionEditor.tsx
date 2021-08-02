@@ -105,7 +105,20 @@ export default function ExpressionEditor({
       const completionList =
         word === ""
           ? []
-          : attributeNames.filter((w) => isLowerCasePrefix(w, wordLower));
+          : attributeNames
+              .filter((w) => isLowerCasePrefix(w, wordLower))
+
+              // When completing words with spaces, include backticks
+              .map((w) => {
+                if (w.includes(" ")) {
+                  return {
+                    displayText: w,
+                    text: `\`${w}\``,
+                  };
+                } else {
+                  return w;
+                }
+              });
 
       // Complete function names
       const functionNames = await getFunctionNames();

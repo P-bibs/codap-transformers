@@ -53,7 +53,7 @@ test("errors on non-number values", () => {
 });
 
 test("errors when no values or only missing values provided", () => {
-  const noNumericValuesErr = /no numeric values/;
+  const noNumericValuesErr = /no values/;
   // No records at all
   expect(() => uncheckedMean(EMPTY_RECORDS, "E")).toThrowError(
     noNumericValuesErr

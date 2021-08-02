@@ -71,8 +71,8 @@ test("std deviation errors on non-numeric value in input", () => {
   );
 });
 
-test("std deviation errors on no numeric values given", () => {
-  const noNumericValuesErr = /no numeric values/;
+test("std deviation errors on no values given", () => {
+  const noNumericValuesErr = /no values/;
   expect(() => uncheckedStandardDeviation(EMPTY_RECORDS, "A")).toThrowError(
     noNumericValuesErr
   );

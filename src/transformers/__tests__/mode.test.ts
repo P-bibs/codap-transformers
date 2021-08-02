@@ -85,8 +85,8 @@ test("mode errors on non-numeric values", () => {
   );
 });
 
-test("mode errors on no numeric values given", () => {
-  const noNumericValuesErr = /no numeric values/;
+test("mode errors on no values given", () => {
+  const noNumericValuesErr = /no values/;
   expect(() => uncheckedMode(EMPTY_RECORDS, "E")).toThrowError(
     noNumericValuesErr
   );

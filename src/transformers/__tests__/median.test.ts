@@ -91,8 +91,8 @@ test("median ignores missing values", () => {
   expect(uncheckedMedian(DATASET_WITH_MISSING, "C")).toEqual((3 + 4) / 2);
 });
 
-test("median errors on no numeric values given", () => {
-  const noNumericErr = /no numeric values/;
+test("median errors on no values given", () => {
+  const noNumericErr = /no values/;
   expect(() => uncheckedMedian(EMPTY_RECORDS, "E")).toThrowError(noNumericErr);
 
   // Missing values will be ignored so there are effectively no values here

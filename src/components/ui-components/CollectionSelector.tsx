@@ -27,6 +27,7 @@ export default function CollectionSelector({
       value={value}
       defaultValue="Select a collection"
       disabled={disabled}
+      tooltip="A collection is a set of cases with a group of attributes. The name of a collection is shown above the names of its attributes."
     />
   );
 }

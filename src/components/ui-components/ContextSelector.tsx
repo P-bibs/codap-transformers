@@ -40,6 +40,7 @@ export default function ContextSelector({
       }))}
       value={value}
       defaultValue="Select a Dataset"
+      tooltip="A dataset is a table containing collections of data."
     />
   );
 }

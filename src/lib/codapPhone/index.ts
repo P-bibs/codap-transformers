@@ -896,6 +896,24 @@ export async function createText(
   );
 }
 
+// export async function getText(name: string): Promise<CodapIdentifyingInfo> {
+//   return new Promise<CodapIdentifyingInfo>((resolve, reject) =>
+//     phone.call(
+//       {
+//         action: CodapActions.Get,
+//         resource: resourceFromComponent(name),
+//       },
+//       (response) => {
+//         if (response.success) {
+//           resolve(response.values);
+//         } else {
+//           reject(new Error("Failed to delete text"));
+//         }
+//       }
+//     )
+//   );
+// }
+
 export async function updateText(name: string, content: string): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(

@@ -2,6 +2,7 @@ import React, { useReducer, useEffect } from "react";
 import { default as transformerList } from "../transformerList";
 import { readableName } from "../transformers/util";
 import {
+  getComponent,
   getDataContext,
   notifyInteractiveFrameIsDirty,
 } from "../lib/codapPhone";
@@ -73,6 +74,8 @@ export function useActiveTransformations(
       if (activeTransformations[contextName] === undefined) {
         return;
       }
+      // Clear previous errors before performing update
+      setErrMsg(null);
       for (const description of activeTransformations[contextName]) {
         try {
           await updateFromDescription(
@@ -84,12 +87,19 @@ export function useActiveTransformations(
             transformerList[description.transformer].componentData
               .transformerFunction.kind === "datasetCreator"
           ) {
-            const context = await getDataContext(
-              (description as DatasetCreatorDescription).output
-            );
-            setErrMsg(
-              `Error updating "${readableName(context)}": ${e.message}`
-            );
+            const creatorDescription = description as DatasetCreatorDescription;
+            let outputName;
+            if (creatorDescription.outputType === "context") {
+              // Find context's title
+              outputName = readableName(
+                await getDataContext(creatorDescription.output)
+              );
+            } else {
+              // Find text component's title
+              const text = await getComponent(creatorDescription.output);
+              outputName = text.title ? text.title : text.name;
+            }
+            setErrMsg(`Error updating "${outputName}": ${e.message}`);
           } else {
             setErrMsg(e.message);
           }

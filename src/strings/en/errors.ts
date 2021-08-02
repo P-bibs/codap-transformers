@@ -8,6 +8,9 @@ const errors = {
     noOutputColumnName: "Please enter a name for the new attribute",
     noExpression: "Please enter an expression",
   },
+  typeChecking: {
+    typeMismatch: "Formula did not evaluate to {{ type }} for case {{ case }}",
+  },
   count: {
     noAttribute: "Please choose at least one attribute to count",
   },

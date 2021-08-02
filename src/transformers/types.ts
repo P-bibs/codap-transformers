@@ -81,6 +81,14 @@ export const EMPTY_MVR: MissingValueReport = {
 export const MISSING_VALUE_SCARE_SYMBOL = "\u{1F409}";
 
 /**
+ * Warning that is displayed when a transformer computes over missing values.
+ */
+export const MISSING_VALUE_WARNING =
+  `Missing values were encountered in this computation. Proceed anyway? ` +
+  `Proceeding will produce a missing value report, a table of missing values, ` +
+  `and the transformer's output.`;
+
+/**
  * The format for output for most transformations contains three parts:
  *  1) dataset or numeric value (DataSet | number)
  *  2) output context name (string)

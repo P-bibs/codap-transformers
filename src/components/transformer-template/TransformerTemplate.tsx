@@ -13,6 +13,7 @@ import {
   TransformationOutput,
   FullOverrideSaveState,
   MISSING_VALUE_SCARE_SYMBOL,
+  MISSING_VALUE_WARNING,
 } from "../../transformers/types";
 import {
   Select,
@@ -312,12 +313,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
       const [result, name, description, mvr] = await doTransform();
 
       // Ensure user wants to go through with computation if MVR non-empty
-      if (
-        mvr.missingValues.length > 0 &&
-        !confirm(
-          `Missing values were encountered in this computation. Proceed anyway?`
-        )
-      ) {
+      if (mvr.missingValues.length > 0 && !confirm(MISSING_VALUE_WARNING)) {
         return;
       }
 

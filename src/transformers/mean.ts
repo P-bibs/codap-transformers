@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
@@ -20,31 +20,48 @@ export async function mean({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
+
+  const [meanValue, mvr] = uncheckedMean(ctxtName, dataset, attribute);
+
+  mvr.extraInfo =
+    `${mvr.missingValues.length} missing values were encountered ` +
+    `while computing the mean, and were ignored. The mean you see is the mean ` +
+    `of the non-missing values.`;
 
   return [
-    uncheckedMean(dataset, attribute),
+    meanValue,
     `Mean(${ctxtName}, ${attribute})`,
     `The mean value of the ${attribute} attribute in the ${ctxtName} dataset.`,
+    mvr,
   ];
 }
 
 /**
  * Takes the mean of a given column.
  *
+ * @param contextTitle - Title of data context associated with input dataset
  * @param dataset - The input DataSet
  * @param attribute - The column to find the mean of.
  */
-export function uncheckedMean(dataset: DataSet, attribute: string): number {
+export function uncheckedMean(
+  contextTitle: string,
+  dataset: DataSet,
+  attribute: string
+): [number, MissingValueReport] {
   validateAttribute(dataset.collections, attribute);
 
   // Extract the numeric values from the indicated attribute.
-  const values = extractAttributeAsNumeric(dataset, attribute);
+  const [values, mvr] = extractAttributeAsNumeric(
+    contextTitle,
+    dataset,
+    attribute
+  );
 
   if (values.length === 0) {
     throw new Error(`Cannot find mean of no numeric values`);
   }
 
   // Sum them and divide by the number of records.
-  return values.reduce((acc, value) => acc + value, 0) / values.length;
+  return [values.reduce((acc, value) => acc + value, 0) / values.length, mvr];
 }

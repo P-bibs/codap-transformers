@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 
 /**
  * Produces a dataset with an identical structure (collection hierarchy,
@@ -15,12 +15,13 @@ export async function copyStructure({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   return [
     await uncheckedCopyStructure(dataset),
     `CopyStructure(${ctxtName})`,
     `A copy of the collections and attributes of the ${ctxtName} dataset, but with no cases.`,
+    EMPTY_MVR,
   ];
 }
 

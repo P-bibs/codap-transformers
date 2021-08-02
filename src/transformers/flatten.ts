@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 
 /**
  * Flatten produces an identical dataset with all hierarchical relationships
@@ -16,12 +16,13 @@ export async function flatten({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   return [
     await uncheckedFlatten(dataset),
     `Flatten(${ctxtName})`,
     `A copy of ${ctxtName} in which all collections have been flattened into one collection.`,
+    EMPTY_MVR,
   ];
 }
 

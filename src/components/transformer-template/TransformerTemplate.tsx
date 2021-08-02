@@ -5,12 +5,15 @@ import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
   deleteDataContext,
+  getDataContext,
 } from "../../lib/codapPhone";
 import { useAttributes } from "../../lib/utils/hooks";
 import {
   CodapLanguageType,
   TransformationOutput,
   FullOverrideSaveState,
+  MISSING_VALUE_SCARE_SYMBOL,
+  MISSING_VALUE_WARNING,
 } from "../../transformers/types";
 import {
   Select,
@@ -22,7 +25,7 @@ import {
   TypeSelector,
   ExpressionEditor,
 } from "../ui-components";
-import { applyNewDataSet } from "./util";
+import { applyNewDataSet, createMVRDisplay } from "./util";
 import {
   DatasetCreatorTransformerName,
   BaseTransformerName,
@@ -38,7 +41,7 @@ import {
   SafeActiveTransformationsDispatch,
   ActionTypes as ActiveTransformationActionTypes,
 } from "../../transformerStore/types";
-import { displaySingleValue } from "../../transformers/util";
+import { displaySingleValue, tryTitle } from "../../transformers/util";
 import { makeDatasetImmutable } from "../../transformers/util";
 import "./styles/TransformerTemplate.css";
 import DefinitionCreator from "./DefinitionCreator";
@@ -309,26 +312,40 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     };
 
     try {
-      const [result, name, description] = await doTransform();
+      const [result, name, description, mvr] = await doTransform();
 
-      const inputs: string[] = [];
+      // Ensure user wants to go through with computation if MVR non-empty
+      if (mvr.missingValues.length > 0 && !confirm(MISSING_VALUE_WARNING)) {
+        return;
+      }
+
+      // Add scare symbol to output if MVR is non-empty
+      const markedName =
+        mvr.missingValues.length > 0
+          ? `${name} ${MISSING_VALUE_SCARE_SYMBOL}`
+          : name;
+
+      const inputContexts: string[] = [];
       for (const i of ["1", "2"]) {
         const contextKey = ("context" + i) as "context1" | "context2";
         const contextName = state[contextKey];
         if (order.includes(contextKey) && contextName !== null) {
-          inputs.push(contextName);
+          inputContexts.push(contextName);
         }
       }
 
       // Determine whether the transformerFunction returns a textbox or a table
       if (typeof result === "number" || Array.isArray(result)) {
         // This is the case where the transformer returns a single value
-        const textName = await createText(name, displaySingleValue(result));
+        const textName = await createText(
+          markedName,
+          displaySingleValue(result)
+        );
 
         activeTransformationsDispatch({
           type: ActiveTransformationActionTypes.ADD,
           newTransformation: {
-            inputs,
+            inputs: inputContexts,
             extraDependencies: [],
             outputType: TransformationOutputType.TEXT,
             output: textName,
@@ -336,12 +353,16 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             state,
           },
         });
+
+        if (mvr.missingValues.length > 0) {
+          await createMVRDisplay(mvr, textName);
+        }
       } else if (typeof result === "object") {
         // This is the case where the transformation returns a dataset
         const immutableDataset = makeDatasetImmutable(result);
         const newContextName = await applyNewDataSet(
           immutableDataset,
-          name,
+          markedName,
           description
         );
 
@@ -355,7 +376,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         activeTransformationsDispatch({
           type: ActiveTransformationActionTypes.ADD,
           newTransformation: {
-            inputs,
+            inputs: inputContexts,
             extraDependencies: [newContextName],
             outputType: TransformationOutputType.CONTEXT,
             output: newContextName,
@@ -363,6 +384,12 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             state,
           },
         });
+
+        if (mvr.missingValues.length > 0) {
+          const ctxt = await getDataContext(newContextName);
+          const outputName = tryTitle(ctxt);
+          await createMVRDisplay(mvr, outputName);
+        }
       }
     } catch (e) {
       setErrMsg(e.message);

@@ -3,7 +3,6 @@ import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import {
-  codapValueToString,
   isMissing,
   listAsString,
   pluralSuffix,
@@ -95,7 +94,6 @@ export function uncheckedSumProduct(
           throw new Error(
             t("errors:sumProduct.typeMismatchInAttribute", {
               name: attribute,
-              value: codapValueToString(row[attribute]),
             })
           );
         }

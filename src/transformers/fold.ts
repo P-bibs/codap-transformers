@@ -212,7 +212,9 @@ async function uncheckedGenericFold(
   for (const [i, row] of dataset.records.entries()) {
     const environment = { ...row };
     if (Object.prototype.hasOwnProperty.call(row, accumulatorName)) {
-      throw new Error(t("errors:fold.duplicateAccumulatorName"));
+      throw new Error(
+        t("errors:fold.duplicateAccumulatorName", { accumulatorName })
+      );
     }
 
     environment[accumulatorName] = acc;

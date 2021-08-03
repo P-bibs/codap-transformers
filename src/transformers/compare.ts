@@ -98,12 +98,12 @@ export function uncheckedNumericCompare(
   const [, attribute1Data] = validateAttribute(
     dataset.collections,
     attributeName1,
-    t("errors:compare.invalidFirstAttribute")
+    t("errors:compare.invalidFirstAttribute", { name: attributeName1 })
   );
   const [, attribute2Data] = validateAttribute(
     dataset.collections,
     attributeName2,
-    t("errors:compare.invalidSecondAttribute")
+    t("errors:compare.invalidSecondAttribute", { name: attributeName2 })
   );
   const collections = dataset.collections.map(cloneCollection);
 
@@ -264,12 +264,12 @@ export function uncheckedCategoricalCompare(
   const [, attribute1Data] = validateAttribute(
     dataset.collections,
     attributeName1,
-    t("errors:compare.invalidFirstAttribute")
+    t("errors:compare.invalidFirstAttribute", { name: attributeName1 })
   );
   const [, attribute2Data] = validateAttribute(
     dataset.collections,
     attributeName2,
-    t("errors:compare.invalidSecondAttribute")
+    t("errors:compare.invalidSecondAttribute", { name: attributeName2 })
   );
 
   dataset = uncheckedFlatten(dataset);

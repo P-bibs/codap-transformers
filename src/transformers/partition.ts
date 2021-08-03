@@ -235,7 +235,10 @@ async function partitionUpdateInner({
   if (
     !confirmOutput(
       transformed.length,
-      t("errors:partition.confirmUpdateManyDatasets")
+      t("errors:partition.confirmUpdateManyDatasets", {
+        name: inputDataCtxtName,
+        number: transformed.length,
+      })
     )
   ) {
     return {};

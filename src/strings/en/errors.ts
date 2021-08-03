@@ -1,9 +1,12 @@
 const errors = {
   validation: {
-    noDataSet: "Please choose a valid dataset to transform.",
-    invalidAttribute: "Invalid attribute name: {{ name }}",
-    invalidCollection: "Invalid collection name: {{ name }}",
-    duplicateAttribute: "Attribute name already in use: {{ name }}",
+    noDataSet: "Please choose a dataset to transform",
+    invalidAttribute:
+      "Please select a valid attribute: {{ name }} was not found",
+    invalidCollection:
+      "Please select a valid collection: {{ name }} was not found",
+    duplicateAttribute:
+      "Please choose a different attribute name: {{ name }} is already in use",
     typeMismatch: "expected a {{ type }}, instead got {{ value }}",
     noOutputColumnName: "Please enter a name for the new attribute",
     noExpression: "Please enter an expression",
@@ -18,65 +21,71 @@ const errors = {
     noAttribute: "Please choose at least one attribute to group by",
   },
   median: {
-    noAttribute: "Please choose an attribute to find the median of.",
+    noAttribute:
+      "Please choose an attribute for which you would like to find the median",
     noValues: "Cannot find median of no values",
   },
   mode: {
-    noAttribute: "Please choose an attribute to find the mode of.",
+    noAttribute:
+      "Please choose an attribute for which you would like to find the mode",
     noValues: "Cannot find mode of no values",
   },
   mean: {
-    noAttribute: "Please choose an attribute to take the mean of.",
-    noValues: "Cannot find mean of no values.",
+    noAttribute:
+      "Please choose an attribute for which you would like the find the mean",
+    noValues: "Cannot find mean of no values",
   },
   standardDeviation: {
     noAttribute:
-      "Please choose an attribute to find the standard deviation of.",
+      "Please choose an attribute for which you would like to find the standard deviation",
     noValues: "Cannot find standard deviation of no values",
   },
   compare: {
     noAttribute: "Please select two attributes",
     noComparisonType: "Please select a valid comparison type",
-    invalidFirstAttribute: "Invalid first attribute",
-    invalidSecondAttribute: "Invalid second attribute",
-    typeMismatch: "Expected {{ type }}, instead got {{ value }}",
+    invalidFirstAttribute:
+      "Please select a valid first attribute: {{ name }} was not found",
+    invalidSecondAttribute:
+      "Please select a valid second attribute: {{ name }} was not found",
   },
   fold: {
     noAttribute: "Please select an attribute to aggregate",
     noBaseValue: "Please enter a base value",
     noAccumulatorName: "Please enter an accumulator name",
     duplicateAccumulatorName:
-      "Duplicate accumulator name: there is already a column called {{ accumulatorName }}.",
+      "Please enter a different accumulator name: there is already an attribute called {{ accumulatorName }}",
   },
   differenceFrom: {
     noAttribute: "Please choose an attribute to take the difference from",
-    noStartingValue: "Please provide a starting value for the difference.",
+    noStartingValue: "Please provide a starting value for the difference",
     nonNumericStartingValue:
-      "Expected numeric starting value, instead got {{ value }}",
+      "Please provide a  numeric starting value; got {{ value }}",
   },
   buildColumn: {
-    noCollection: "Please select a collection to add to",
-    noAttribute: "Please enter a non-empty name for the new attribute",
-    noExpression: "Please enter a non-empty expression",
-    noOutputType: "Please enter a valid output type",
+    noCollection:
+      "Please select a collection to which the new attribute will be added",
+    noAttribute: "Please enter a name for the new attribute",
+    noExpression: "Please enter an expression",
+    noOutputType: "Please enter an output type",
   },
   combineCases: {
-    noDataSet: "Please choose two datasets to combine.",
-    differentAttributes:
-      "Base and combining datasets must have the same attribute names",
+    noDataSet: "Please choose two datasets to combine",
+    differentAttributes: "Please choose datasets with the same attributes",
   },
   filter: {
-    noExpression: "Please enter a non-empty expression to filter by",
+    noExpression: "Please enter an expression by which to filter",
     nonBooleanResult:
-      "Expected predicate to evaluate to true/false, but it evaluated to {{ value }} for case {{ caseNumber }}",
+      "Please enter an expression that evaluates to a boolean. The one you entered evaluated to {{ value }} for case {{ caseNumber }}",
   },
   join: {
     noDataSetOrAttribute: "Please choose two datasets and two attributes",
-    invalidJoiningAttribute: "Invalid joining attribute: {{ name }}",
-    invalidBaseAttribute: "Invalid base attribute {{ name }}",
+    invalidJoiningAttribute:
+      "Please select a valid joining attribute: {{ name }} was not found",
+    invalidBaseAttribute:
+      "Please select a valid base attribute: {{ name }} was not found",
   },
   partition: {
-    noAttribute: "Please select an attribute to partition by.",
+    noAttribute: "Please select an attribute by which to partition",
     wantToProceed: "Are you sure you want to proceed?",
     confirmZeroDatasets:
       "This partition will create 0 datasets but still go through. Is this what you intend?",
@@ -88,23 +97,21 @@ const errors = {
     errorUpdating: "Error updating partitioned tables",
   },
   pivot: {
-    noAttribute: "Please choose at least one attribute to pivot on",
-    noNameForNamesTo:
-      "Please choose a non-empty name for the Names To attribute",
-    noNameForValuesTo:
-      "Please choose a non-empty name for the Values To attribute",
+    noAttribute: "Please choose at least one attribute by which to pivot",
+    noNameForNamesTo: "Please choose a name for the Names To attribute",
+    noNameForValuesTo: "Please choose a name for the Values To attribute",
     pivotLongerOnlySingleCollection:
       "Pivot longer can only be used on a single-collection dataset",
     pivotWiderOnlySingleCollection:
       "Pivot wider can only be used on a single-collection dataset",
     namesToValuesToSameName:
       "Please choose distinct names for the Names To and Values To attributes",
-    noNamesFrom: "Please choose an attribute to get names from",
-    noValuesFrom: "Please choose an attribute to get values from",
+    noNamesFrom: "Please choose an attribute from which to get names",
+    noValuesFrom: "Please choose an attribute from which to get values",
     cannotUseAsAttributeName:
       "Cannot use {{ value }} (from attribute {{ attributeName }} at case {{ caseNumber }} as an attribute name",
     invalidAttributeForValuesFrom:
-      "Invalid attribute to retrieve values from: {{ name }}",
+      "Please select a valid attribute from which to retrieve values: {{ name }} was not found",
     multipleValuesForSameNamesFrom:
       'Case has multiple {{ valuesFrom }} values ({{ value1 }} and {{ value2 }}) for same "{{ namesFrom }}" ({{ namesFromValue }})',
   },
@@ -114,22 +121,23 @@ const errors = {
   },
   sort: {
     keysOfDifferentTypes:
-      "Sort encountered keys of differing types {{ value1 }} and {{ value2 }}. Keys must have the same type for all cases.",
-    noKeyExpression: "Please enter a non-empty key expression",
-    noSortDirection: "Please select a valid sort direction",
+      "Please provide a key expression that evaluates to the same type for all cases. Got keys of different types {{ value1 }} and {{ value2 }}",
+    noKeyExpression: "Please enter a key expression",
+    noSortDirection: "Please select a sort direction",
   },
   sumProduct: {
     noAttribute:
-      "Please choose at least one attribute to take the sum product of.",
-    noAttributeUnchecked: "Cannot take the sum product of zero attributes.",
+      "Please choose at least one attribute from which to take the sum product",
+    noAttributeUnchecked: "Cannot take the sum product of zero attributes",
     typeMismatchInAttribute:
-      "Expected number in attribute {{ name }}, instead got {{ value }}",
+      "Please select a numeric attribute instead of {{ name }}",
   },
   transformColumn: {
     noAttribute: "Please select an attribute to transform",
-    noExpression: "Please enter a non-empty expression to transform with",
-    noOutputType: "Please enter a valid output type",
-    invalidAttribute: "Invalid attribute to transform: {{ name }}",
+    noExpression: "Please enter an expression with which to transform",
+    noOutputType: "Please enter an output type",
+    invalidAttribute:
+      "Please select a valid attribute to transform: {{ name }} was not found",
   },
 };
 

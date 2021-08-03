@@ -11,12 +11,13 @@ import { DataSet } from "./types";
 
 export async function editableCopyOverride(
   { setErrMsg }: TransformerTemplateProps,
-  { context1: inputDataCtxt }: TransformerTemplateState
+  { context1: inputDataCtxt }: TransformerTemplateState,
+  errorId: number
 ): Promise<void> {
-  setErrMsg(null);
+  setErrMsg(null, errorId);
 
   if (inputDataCtxt === null) {
-    setErrMsg("Please choose a valid dataset to transform");
+    setErrMsg("Please choose a valid dataset to transform", errorId);
     return;
   }
 

@@ -27,6 +27,7 @@ import {
   serializeActiveTransformations,
   updateFromDescription,
 } from "./util";
+import { useErrorSetterId } from "../components/ui-components/Error";
 
 /**
  * useActiveTransformations
@@ -34,12 +35,14 @@ import {
  * A record of active transformations which is used to perform updates.
  */
 export function useActiveTransformations(
-  setErrMsg: (msg: string | null) => void
+  setErrMsg: (msg: string | null, id: number) => void
 ): [
   Record<string, TransformationDescription[]>,
   React.Dispatch<ActiveTransformationsAction>,
   React.Dispatch<SafeActions>
 ] {
+  const errorId = useErrorSetterId();
+
   const [activeTransformations, activeTransformationsDispatch] = useReducer(
     activeTransformationsReducer,
     {}
@@ -87,16 +90,19 @@ export function useActiveTransformations(
             const context = await getDataContext(
               (description as DatasetCreatorDescription).output
             );
-            setErrMsg(`Error updating "${tryTitle(context)}": ${e.message}`);
+            setErrMsg(
+              `Error updating "${tryTitle(context)}": ${e.message}`,
+              errorId
+            );
           } else {
-            setErrMsg(e.message);
+            setErrMsg(e.message, errorId);
           }
         }
       }
     }
     addContextUpdateHook(callback);
     return () => removeContextUpdateHook(callback);
-  }, [activeTransformations, setErrMsg]);
+  }, [activeTransformations, setErrMsg, errorId]);
 
   // Delete transformations for deleted contexts
   useEffect(() => {

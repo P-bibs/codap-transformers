@@ -45,6 +45,7 @@ import { displaySingleValue, tryTitle } from "../../transformers/util";
 import { makeDatasetImmutable } from "../../transformers/util";
 import "./styles/TransformerTemplate.css";
 import DefinitionCreator from "./DefinitionCreator";
+import { useErrorSetterId } from "../ui-components/Error";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -202,7 +203,8 @@ export interface FullOverrideFunction {
   kind: "fullOverride";
   createFunc: (
     props: TransformerTemplateProps,
-    state: TransformerTemplateState
+    state: TransformerTemplateState,
+    errorId: number
   ) => Promise<void>;
   updateFunc: (state: FullOverrideSaveState) => Promise<{
     extraDependencies?: string[];
@@ -214,7 +216,7 @@ export type TransformFunction = DatasetCreatorFunction | FullOverrideFunction;
 
 export type TransformerTemplateProps = {
   transformerFunction: TransformFunction;
-  setErrMsg: (s: string | null) => void;
+  setErrMsg: (s: string | null, id: number) => void;
   errorDisplay: ReactElement;
   base: BaseTransformerName;
   init: TransformerTemplateInit;
@@ -242,6 +244,8 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     setErrMsg,
     activeTransformationsDispatch,
   } = props;
+
+  const errorId = useErrorSetterId();
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -301,7 +305,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   };
 
   const transform = async () => {
-    setErrMsg(null);
+    setErrMsg(null, errorId);
 
     const doTransform: () => Promise<TransformationOutput> = async () => {
       if (transformerFunction.kind !== "datasetCreator") {
@@ -392,7 +396,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         }
       }
     } catch (e) {
-      setErrMsg(e.message);
+      setErrMsg(e.message, errorId);
     }
   };
 
@@ -579,7 +583,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             setLoading(true);
             transformerFunction.kind === "fullOverride"
               ? transformerFunction
-                  .createFunc(props, state)
+                  .createFunc(props, state, errorId)
                   .then(() => setLoading(false))
               : transform().then(() => setLoading(false));
           }}

@@ -106,14 +106,15 @@ export const partitionOverride = async (
   {
     context1: inputDataCtxt,
     attribute1: attributeName,
-  }: TransformerTemplateState
+  }: TransformerTemplateState,
+  errorId: number
 ): Promise<void> => {
   if (inputDataCtxt === null) {
-    setErrMsg("Please choose a valid dataset to transform.");
+    setErrMsg("Please choose a valid dataset to transform.", errorId);
     return;
   }
   if (attributeName === null) {
-    setErrMsg("Please select an attribute to partition by.");
+    setErrMsg("Please select an attribute to partition by.", errorId);
     return;
   }
 
@@ -179,7 +180,8 @@ export const partitionOverride = async (
         {
           context1: inputDataCtxt,
           attribute1: attributeName,
-        } as TransformerTemplateState
+        } as TransformerTemplateState,
+        errorId
       )
   );
 

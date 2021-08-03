@@ -2,7 +2,10 @@ import React, { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import "./styles/Views.css";
 import "./styles/REPLView.css";
-import ErrorDisplay from "../components/ui-components/Error";
+import ErrorDisplay, {
+  useErrorSetterId,
+  useErrorStore,
+} from "../components/ui-components/Error";
 import { SavedTransformer } from "../components/transformer-template/types";
 import transformerList, {
   BaseTransformerName,
@@ -11,7 +14,6 @@ import transformerList, {
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
-  notifyInteractiveFrameWithSelect,
 } from "../lib/codapPhone";
 import {
   addInteractiveStateRequestListener,
@@ -25,7 +27,6 @@ import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 import Select, { ValueType, ActionMeta } from "react-select";
 import TransformerInfo from "../components/info-components/TransformerInfo";
-import { useReducer } from "react";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -67,15 +68,8 @@ function REPLView(): ReactElement {
   const [transformType, setTransformType] =
     useState<BaseTransformerName | null>(null);
 
-  const [errMsg, setErrMsg] = useReducer(
-    (oldState: string | null, newState: string | null): string | null => {
-      if (newState) {
-        notifyInteractiveFrameWithSelect();
-      }
-      return newState;
-    },
-    null
-  );
+  const [errorStore, setErrMsg] = useErrorStore();
+  const errorId = useErrorSetterId();
 
   // activeTransformations (first element of tuple) can be used to draw a diagram
   const [, activeTransformationsDispatch, wrappedDispatch] =
@@ -88,7 +82,7 @@ function REPLView(): ReactElement {
     if (selected !== null) {
       notifyStateIsDirty();
       setTransformType(selected.value);
-      setErrMsg(null);
+      setErrMsg(null, errorId);
     }
   }
 
@@ -171,7 +165,7 @@ function REPLView(): ReactElement {
 
       <TransformerRenderer
         setErrMsg={setErrMsg}
-        errorDisplay={<ErrorDisplay message={errMsg} />}
+        errorDisplay={<ErrorDisplay setErrMsg={setErrMsg} store={errorStore} />}
         transformer={baseTransformers.find(
           ({ name }) => name === transformType
         )}

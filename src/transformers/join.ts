@@ -362,6 +362,9 @@ export function uncheckedFullJoin(
         const unique = attrToUnique[attrName];
         newRecord[unique] = r[attrName];
       }
+      for (const attrName of allAttrNames(baseDataset)) {
+        newRecord[attrName] = "";
+      }
       records.push(newRecord);
     });
 
@@ -435,11 +438,10 @@ function mergeRecords(
   attrToUnique: Record<string, string>
 ) {
   const newRecord = shallowCopy(baseRecord);
-  if (joiningRecord !== undefined) {
-    for (const attrName of originalAttrs) {
-      const unique = attrToUnique[attrName];
-      newRecord[unique] = joiningRecord[attrName];
-    }
+  for (const attrName of originalAttrs) {
+    const unique = attrToUnique[attrName];
+    newRecord[unique] =
+      joiningRecord !== undefined ? joiningRecord[attrName] : "";
   }
   return newRecord;
 }

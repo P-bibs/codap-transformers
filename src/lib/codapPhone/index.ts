@@ -190,9 +190,11 @@ function codapRequestHandler(
     command.resource === CodapInitiatedResource.DocumentChangeNotice &&
     command.values.operation === DocumentChangeOperations.DataContextDeleted
   ) {
-    removeContextUpdateListenersForContext(command.values.deletedContext);
-    removeListenersWithDependency(command.values.deletedContext);
-    callAllContextDeletedHooks(command.values.deletedContext);
+    const deletedContext = command.values.deletedContext;
+    Cache.invalidateContext(deletedContext);
+    removeContextUpdateListenersForContext(deletedContext);
+    removeListenersWithDependency(deletedContext);
+    callAllContextDeletedHooks(deletedContext);
     callback({ success: true });
     return;
   }

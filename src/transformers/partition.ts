@@ -1,4 +1,9 @@
-import { DataSet } from "./types";
+import {
+  DataSet,
+  MissingValueReport,
+  MISSING_VALUE_SCARE_SYMBOL,
+  MISSING_VALUE_WARNING,
+} from "./types";
 import {
   getContextAndDataSet,
   updateContextWithDataSet,
@@ -6,7 +11,9 @@ import {
 } from "../lib/codapPhone";
 import { pushToUndoStack } from "../lib/codapPhone/listeners";
 import {
+  addToMVR,
   codapValueToString,
+  isMissing,
   makeDatasetImmutable,
   validateAttribute,
 } from "./util";
@@ -14,8 +21,11 @@ import {
   TransformerTemplateProps,
   TransformerTemplateState,
 } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
-import { applyNewDataSet } from "../components/transformer-template/util";
+import { tryTitle } from "../transformers/util";
+import {
+  applyNewDataSet,
+  createMVRDisplay,
+} from "../components/transformer-template/util";
 import { ActionTypes } from "../transformerStore/types";
 import { t } from "../strings";
 
@@ -66,20 +76,27 @@ function partitionDatasetDescription(
 async function doTransform(
   inputDataCtxt: string,
   attributeName: string
-): Promise<[PartitionDataset, string][]> {
+): Promise<[[PartitionDataset, string][], MissingValueReport]> {
   const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-  const partitioned = partition(dataset, attributeName);
+  const readableContext = tryTitle(context);
 
-  // assign names to each partitioned dataset
-  const readableContext = readableName(context);
+  const [partitioned, mvr] = partition(readableContext, dataset, attributeName);
+
+  mvr.extraInfo =
+    `${mvr.missingValues.length} missing values were encountered in the partitioned ` +
+    `attribute. One of the output datasets will contain only rows that had missing ` +
+    `values for this attribute.`;
 
   // return both the datasets and their names
-  return partitioned.map((pd) => [
-    { ...pd, dataset: makeDatasetImmutable(pd.dataset) },
-    `Partition(${attributeName} = ${codapValueToString(
-      pd.distinctValue
-    )}, ${readableContext})`,
-  ]);
+  return [
+    partitioned.map((pd) => [
+      { ...pd, dataset: makeDatasetImmutable(pd.dataset) },
+      `Partition(${attributeName} = ${codapValueToString(
+        pd.distinctValue
+      )}, ${readableContext})`,
+    ]),
+    mvr,
+  ];
 }
 
 /**
@@ -101,7 +118,22 @@ export const partitionOverride = async (
     return;
   }
 
-  const transformed = await doTransform(inputDataCtxt, attributeName);
+  let [transformed, mvr] = await doTransform(inputDataCtxt, attributeName);
+
+  // Ensure user wants to go through with computation if MVR non-empty
+  if (mvr.missingValues.length > 0 && !confirm(MISSING_VALUE_WARNING)) {
+    return;
+  }
+
+  transformed = transformed.map(([pd, name]) => {
+    // Add scare symbol to output tables if MVR is non-empty
+    const markedName =
+      mvr.missingValues.length > 0
+        ? `${name} ${MISSING_VALUE_SCARE_SYMBOL}`
+        : name;
+
+    return [pd, markedName];
+  });
 
   if (transformed.length === 0) {
     if (!confirm(t("errors:partition.confirmZeroDatasets"))) {
@@ -122,7 +154,7 @@ export const partitionOverride = async (
   const outputContexts: string[] = [];
 
   const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
-  const inputDataCtxtName = readableName(inputContext);
+  const inputDataCtxtName = tryTitle(inputContext);
 
   for (const [partitioned, name] of transformed) {
     const newContextName = await applyNewDataSet(
@@ -162,6 +194,10 @@ export const partitionOverride = async (
       },
     },
   });
+
+  if (mvr.missingValues.length > 0) {
+    await createMVRDisplay(mvr, inputDataCtxtName);
+  }
 };
 
 export interface PartitionSaveState {
@@ -191,10 +227,10 @@ async function partitionUpdateInner({
   extraDependencies?: string[];
   state?: Partial<PartitionSaveState>;
 }> {
-  const transformed = await doTransform(inputDataCtxt, attributeName);
+  const [transformed] = await doTransform(inputDataCtxt, attributeName);
 
   const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
-  const inputDataCtxtName = readableName(inputContext);
+  const inputDataCtxtName = tryTitle(inputContext);
 
   if (
     !confirmOutput(
@@ -255,16 +291,26 @@ async function partitionUpdateInner({
  * cases with a given distinct value of the indicated attribute.
  */
 export function partition(
+  contextTitle: string,
   dataset: DataSet,
   attribute: string
-): PartitionDataset[] {
+): [PartitionDataset[], MissingValueReport] {
   validateAttribute(dataset.collections, attribute);
 
   // map from distinct values of an attribute to all records sharing that value
   const partitioned: Record<string, [unknown, Record<string, unknown>[]]> = {};
 
+  const mvr: MissingValueReport = {
+    kind: "input",
+    missingValues: [],
+  };
+
   const records = dataset.records;
-  for (const record of records) {
+  for (const [i, record] of records.entries()) {
+    if (isMissing(record[attribute])) {
+      addToMVR(mvr, dataset, contextTitle, attribute, i);
+    }
+
     // Convert CODAP value to string to use as a key.
     // NOTE: If record[attribute] is undefined (missing), this will use "" instead.
     const valueAsStr =
@@ -293,5 +339,5 @@ export function partition(
     });
   }
 
-  return results;
+  return [results, mvr];
 }

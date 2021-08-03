@@ -1,7 +1,12 @@
-import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  CodapLanguageType,
+  DataSet,
+  MissingValueReport,
+  TransformationOutput,
+} from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone/index";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { isMissing, tryTitle } from "../transformers/util";
 import { cloneCollection } from "./util";
 import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
 import { t } from "../strings";
@@ -34,19 +39,24 @@ export async function buildColumn({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
+
+  const [withColumn, mvr] = await uncheckedBuildColumn(
+    dataset,
+    attributeName,
+    collectionName,
+    expression,
+    outputType
+  );
+
+  mvr.extraInfo = `The formula for the new column evaluated to a missing value for ${mvr.missingValues.length} rows.`;
 
   return [
-    await uncheckedBuildColumn(
-      dataset,
-      attributeName,
-      collectionName,
-      expression,
-      outputType
-    ),
+    withColumn,
     `BuildColumn(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new attribute (${attributeName}) added to ` +
       `the ${collectionName} collection, whose value is determined by the formula \`${expression}\`.`,
+    mvr,
   ];
 }
 
@@ -61,7 +71,7 @@ export async function uncheckedBuildColumn(
   expression: string,
   outputType: CodapLanguageType,
   evalFormula = evalExpression
-): Promise<DataSet> {
+): Promise<[DataSet, MissingValueReport]> {
   // find collection to add attribute to
   const collections = dataset.collections.map(cloneCollection);
   const toAdd = collections.find((coll) => coll.name === collectionName);
@@ -103,15 +113,29 @@ export async function uncheckedBuildColumn(
     evalFormula
   );
 
+  const mvr: MissingValueReport = {
+    kind: "formula",
+    missingValues: [],
+  };
+
   // add values for new attribute to all records
   const records = dataset.records.map((record, i) => {
     const recordCopy = { ...record };
     recordCopy[newAttributeName] = colValues[i];
+
+    // If formula evaluated to missing value, record in MVR
+    if (isMissing(recordCopy[newAttributeName])) {
+      mvr.missingValues.push(i + 1);
+    }
+
     return recordCopy;
   });
 
-  return {
-    collections,
-    records,
-  };
+  return [
+    {
+      collections,
+      records,
+    },
+    mvr,
+  ];
 }

@@ -1,5 +1,6 @@
+import { evalExpression } from "../../lib/codapPhone";
 import { uncheckedTransformColumn } from "../transformColumn";
-import { DataSet } from "../types";
+import { CodapLanguageType, DataSet } from "../types";
 import {
   CENSUS_DATASET,
   cloneDataSet,
@@ -30,13 +31,33 @@ function transformAttr(dataset: DataSet, name: string, formula: string): void {
   }
 }
 
+/**
+ * Wrapper around transform column that discards missing value reports.
+ */
+async function uncheckedTransformColumnWrapper(
+  dataset: DataSet,
+  attributeName: string,
+  expression: string,
+  outputType: CodapLanguageType,
+  evalFormula = evalExpression
+): Promise<DataSet> {
+  const [output] = await uncheckedTransformColumn(
+    dataset,
+    attributeName,
+    expression,
+    outputType,
+    evalFormula
+  );
+  return output;
+}
+
 test("simple transform to constant", async () => {
   const transformedA = cloneDataSet(DATASET_A);
   transformAttr(transformedA, "B", "10");
   transformedA.records.forEach((record) => (record["B"] = 10));
 
   expect(
-    await uncheckedTransformColumn(
+    await uncheckedTransformColumnWrapper(
       DATASET_A,
       "B",
       "10",
@@ -52,7 +73,7 @@ test("transform with formula dependent on transformed attribute", async () => {
   transformedB.records.forEach((record) => (record["Birth_Year"] as number)++);
 
   expect(
-    await uncheckedTransformColumn(
+    await uncheckedTransformColumnWrapper(
       DATASET_B,
       "Birth_Year",
       "Birth_Year + 1",
@@ -70,7 +91,7 @@ test("transform with formula dependent on other attribute", async () => {
   );
 
   expect(
-    await uncheckedTransformColumn(
+    await uncheckedTransformColumnWrapper(
       CENSUS_DATASET,
       "sample",
       "Age > 30",
@@ -85,7 +106,7 @@ test("errors on invalid attribute", async () => {
   expect.assertions(3);
 
   try {
-    await uncheckedTransformColumn(
+    await uncheckedTransformColumnWrapper(
       CENSUS_DATASET,
       "Unknown",
       "Year * 2",
@@ -97,7 +118,7 @@ test("errors on invalid attribute", async () => {
   }
 
   try {
-    await uncheckedTransformColumn(
+    await uncheckedTransformColumnWrapper(
       DATASET_A,
       "Z",
       "A + C",
@@ -108,7 +129,7 @@ test("errors on invalid attribute", async () => {
     expect(e.message).toMatch(invalidAttributeErr);
   }
   try {
-    await uncheckedTransformColumn(
+    await uncheckedTransformColumnWrapper(
       EMPTY_DATASET,
       "Anything",
       "0",
@@ -125,7 +146,7 @@ test("metadata (besides formula/description of transformed attr) is copied", asy
   transformAttr(transformedMeta, "C", "true");
 
   expect(
-    await uncheckedTransformColumn(
+    await uncheckedTransformColumnWrapper(
       DATASET_WITH_META,
       "C",
       "true",

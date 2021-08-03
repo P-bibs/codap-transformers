@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import { t } from "../strings";
 
 /**
@@ -15,12 +15,13 @@ export async function copy({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   return [
     await uncheckedCopy(dataset),
     `Copy(${ctxtName})`,
     `A copy of the ${ctxtName} dataset.`,
+    EMPTY_MVR,
   ];
 }
 

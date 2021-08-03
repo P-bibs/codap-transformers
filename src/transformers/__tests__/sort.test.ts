@@ -1,4 +1,6 @@
-import { uncheckedSort } from "../sort";
+import { evalExpression } from "../../lib/codapPhone";
+import { SortDirection, uncheckedSort } from "../sort";
+import { CodapLanguageType, DataSet } from "../types";
 import {
   cloneDataSet,
   DATASET_A,
@@ -12,9 +14,29 @@ import {
   TYPES_DATASET,
 } from "./data";
 
+/**
+ * A wrapper around unchecked sort that discards the missing value report.
+ */
+async function uncheckedSortWrapper(
+  dataset: DataSet,
+  keyExpr: string,
+  outputType: CodapLanguageType,
+  sortDirection: SortDirection,
+  evalFormula = evalExpression
+): Promise<DataSet> {
+  const [output] = await uncheckedSort(
+    dataset,
+    keyExpr,
+    outputType,
+    sortDirection,
+    evalFormula
+  );
+  return output;
+}
+
 test("no change to dataset with no records", async () => {
   expect(
-    await uncheckedSort(
+    await uncheckedSortWrapper(
       EMPTY_RECORDS,
       "A",
       "any",
@@ -32,7 +54,13 @@ test("sorts numbers", async () => {
   );
 
   expect(
-    await uncheckedSort(DATASET_A, "A", "any", "ascending", jsEvalExpression)
+    await uncheckedSortWrapper(
+      DATASET_A,
+      "A",
+      "any",
+      "ascending",
+      jsEvalExpression
+    )
   ).toEqual(sortedByAAscending);
 
   // descending order
@@ -42,7 +70,13 @@ test("sorts numbers", async () => {
   );
 
   expect(
-    await uncheckedSort(DATASET_A, "A", "any", "descending", jsEvalExpression)
+    await uncheckedSortWrapper(
+      DATASET_A,
+      "A",
+      "any",
+      "descending",
+      jsEvalExpression
+    )
   ).toEqual(sortedByADescending);
 });
 
@@ -60,7 +94,13 @@ test("sorts booleans", async () => {
     ]
   );
   expect(
-    await uncheckedSort(DATASET_A, "B", "any", "descending", jsEvalExpression)
+    await uncheckedSortWrapper(
+      DATASET_A,
+      "B",
+      "any",
+      "descending",
+      jsEvalExpression
+    )
   ).toEqual(sortedByBDescending);
 
   // ascending is true before false
@@ -76,7 +116,13 @@ test("sorts booleans", async () => {
     ]
   );
   expect(
-    await uncheckedSort(DATASET_A, "B", "any", "ascending", jsEvalExpression)
+    await uncheckedSortWrapper(
+      DATASET_A,
+      "B",
+      "any",
+      "ascending",
+      jsEvalExpression
+    )
   ).toEqual(sortedByBAscending);
 });
 
@@ -97,7 +143,13 @@ test("sorts strings", async () => {
   );
 
   expect(
-    await uncheckedSort(DATASET_B, "Name", "any", "ascending", jsEvalExpression)
+    await uncheckedSortWrapper(
+      DATASET_B,
+      "Name",
+      "any",
+      "ascending",
+      jsEvalExpression
+    )
   ).toEqual(sortedByNameAscending);
 
   const sortedByNameDescending = cloneDataSet(DATASET_B);
@@ -106,7 +158,7 @@ test("sorts strings", async () => {
   );
 
   expect(
-    await uncheckedSort(
+    await uncheckedSortWrapper(
       DATASET_B,
       "Name",
       "any",
@@ -136,7 +188,7 @@ test("sorts objects", async () => {
     sortStr(JSON.stringify(a["Boundaries"]), JSON.stringify(b["Boundaries"]))
   );
   expect(
-    await uncheckedSort(
+    await uncheckedSortWrapper(
       withObjects,
       "Boundaries",
       "any",
@@ -150,7 +202,7 @@ test("sorts objects", async () => {
     sortStr(JSON.stringify(b["Boundaries"]), JSON.stringify(a["Boundaries"]))
   );
   expect(
-    await uncheckedSort(
+    await uncheckedSortWrapper(
       withObjects,
       "Boundaries",
       "any",
@@ -161,7 +213,7 @@ test("sorts objects", async () => {
 
   // All the boundaries are the same in the TYPES_DATASET
   expect(
-    await uncheckedSort(
+    await uncheckedSortWrapper(
       TYPES_DATASET,
       "Boundary",
       "any",
@@ -170,7 +222,7 @@ test("sorts objects", async () => {
     )
   ).toEqual(TYPES_DATASET);
   expect(
-    await uncheckedSort(
+    await uncheckedSortWrapper(
       TYPES_DATASET,
       "Boundary",
       "any",
@@ -183,7 +235,7 @@ test("sorts objects", async () => {
 test("errors when key expression evaluates to multiple types", async () => {
   expect.assertions(2);
   try {
-    await uncheckedSort(
+    await uncheckedSortWrapper(
       FULLY_FEATURED_DATASET,
       "Attribute_3",
       "any",
@@ -195,7 +247,7 @@ test("errors when key expression evaluates to multiple types", async () => {
   }
 
   try {
-    await uncheckedSort(
+    await uncheckedSortWrapper(
       FULLY_FEATURED_DATASET,
       "Attribute_5",
       "any",
@@ -224,7 +276,13 @@ test("sort is stable", async () => {
   };
 
   expect(
-    await uncheckedSort(dataset, "Number", "any", "ascending", jsEvalExpression)
+    await uncheckedSortWrapper(
+      dataset,
+      "Number",
+      "any",
+      "ascending",
+      jsEvalExpression
+    )
   ).toEqual({
     collections: dataset.collections,
     records: makeRecords(

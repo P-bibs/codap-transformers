@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
 import { t } from "../strings";
 
@@ -21,12 +21,24 @@ export async function standardDeviation({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
+
+  const [stdDev, mvr] = uncheckedStandardDeviation(
+    context.name,
+    dataset,
+    attribute
+  );
+
+  mvr.extraInfo =
+    `${mvr.missingValues.length} missing values were encountered while computing ` +
+    `the standard deviation, and were ignored. The standard deviation you see is ` +
+    `the standard deviation of the non-missing values.`;
 
   return [
-    uncheckedStandardDeviation(dataset, attribute),
+    stdDev,
     `StandardDeviation(${ctxtName}, ${attribute})`,
     `The standard deviation of the ${attribute} attribute in the ${ctxtName} dataset.`,
+    mvr,
   ];
 }
 
@@ -43,17 +55,23 @@ function mean(vs: number[]): number {
 /**
  * Finds the standard deviation of a given attribute's values.
  *
+ * @param contextName - Name of data context associated with input dataset
  * @param dataset - The input DataSet
  * @param attribute - The column to find the standard deviation of.
  */
 export function uncheckedStandardDeviation(
+  contextName: string,
   dataset: DataSet,
   attribute: string
-): number {
+): [number, MissingValueReport] {
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute
-  const values = extractAttributeAsNumeric(dataset, attribute);
+  const [values, mvr] = extractAttributeAsNumeric(
+    contextName,
+    dataset,
+    attribute
+  );
 
   if (values.length === 0) {
     throw new Error(t("errors:standardDeviation.noValues"));
@@ -64,5 +82,5 @@ export function uncheckedStandardDeviation(
   const variance = mean(squaredDeviations);
   const stdDev = Math.sqrt(variance);
 
-  return stdDev;
+  return [stdDev, mvr];
 }

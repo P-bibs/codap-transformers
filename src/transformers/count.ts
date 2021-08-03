@@ -1,4 +1,4 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../lib/codapPhone/types";
 import {
   listAsString,
@@ -6,11 +6,13 @@ import {
   shallowCopy,
   pluralSuffix,
   validateAttribute,
+  isMissing,
+  addToMVR,
 } from "./util";
 import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { t } from "../strings";
 
 /**
@@ -34,23 +36,29 @@ export async function count({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const contextTitle = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
+  const [counted, mvr] = uncheckedCount(contextTitle, dataset, attributes);
+
+  mvr.extraInfo = `${mvr.missingValues.length} missing values were encountered in the counted attributes.`;
+
   return [
-    await uncheckedCount(dataset, attributes),
-    `Count(${ctxtName}, ...)`,
+    counted,
+    `Count(${contextTitle}, ...)`,
     `A summary of the frequency of all tuples of the ${pluralSuffix(
       "attribute",
       attributes
-    )} ${attributeNames} that appear in ${ctxtName}.`,
+    )} ${attributeNames} that appear in ${contextTitle}.`,
+    mvr,
   ];
 }
 
 export function uncheckedCount(
+  contextTitle: string,
   dataset: DataSet,
   attributes: string[]
-): DataSet {
+): [DataSet, MissingValueReport] {
   // validate attribute names
   for (const attrName of attributes) {
     validateAttribute(dataset.collections, attrName);
@@ -88,10 +96,19 @@ export function uncheckedCount(
     },
   ];
 
+  const mvr: MissingValueReport = {
+    kind: "input",
+    missingValues: [],
+  };
+
   // make copy of records containing only the attributes to count
-  const tuples = dataset.records.map((record) => {
+  const tuples = dataset.records.map((record, i) => {
     const copy: Record<string, unknown> = {};
     for (const attrName of attributes) {
+      if (isMissing(record[attrName])) {
+        addToMVR(mvr, dataset, contextTitle, attrName, i);
+      }
+
       copy[attrName] = record[attrName];
     }
     return copy;
@@ -119,8 +136,11 @@ export function uncheckedCount(
   // the distinct, counted tuples become the records of the new dataset
   const records = Object.values(tupleToCount);
 
-  return {
-    collections,
-    records,
-  };
+  return [
+    {
+      collections,
+      records,
+    },
+    mvr,
+  ];
 }

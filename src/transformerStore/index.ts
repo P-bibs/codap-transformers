@@ -13,6 +13,8 @@ import {
   removeContextUpdateHook,
   addContextDeletedHook,
   removeContextDeletedHook,
+  addTextDeletedHook,
+  removeTextDeletedHook,
 } from "../lib/codapPhone/listeners";
 import { InteractiveState } from "../lib/codapPhone/types";
 import {
@@ -115,7 +117,7 @@ export function useActiveTransformations(
     async function callback(deletedContext: string) {
       const cloned = { ...activeTransformations };
       for (const input of Object.keys(cloned)) {
-        // Remove transformations with newly missing inputs
+        // Remove transformations with newly missing inputs / dependencies
         cloned[input] = cloned[input].filter(
           (description) =>
             !(
@@ -131,6 +133,27 @@ export function useActiveTransformations(
     }
     addContextDeletedHook(callback);
     return () => removeContextDeletedHook(callback);
+  }, [activeTransformations]);
+
+  // Delete transformations for deleted text components
+  useEffect(() => {
+    async function callback(deletedText: string) {
+      console.log(`REMOVING DEPENDENCIES OF ${deletedText}`);
+
+      const cloned = { ...activeTransformations };
+      for (const input of Object.keys(cloned)) {
+        // Remove transformations that depend on the deleted text component
+        cloned[input] = cloned[input].filter(
+          (description) => !description.extraDependencies.includes(deletedText)
+        );
+      }
+      activeTransformationsDispatch({
+        type: ActionTypes.SET,
+        newTransformations: cloned,
+      });
+    }
+    addTextDeletedHook(callback);
+    return () => removeTextDeletedHook(callback);
   }, [activeTransformations]);
 
   return [

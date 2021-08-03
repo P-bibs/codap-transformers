@@ -211,3 +211,9 @@ export const [
   removeContextDeletedHook,
   callAllContextDeletedHooks,
 ] = makeContextHook();
+
+export const [
+  addTextDeletedHook,
+  removeTextDeletedHook,
+  callAllTextDeletedHooks,
+] = makeContextHook();

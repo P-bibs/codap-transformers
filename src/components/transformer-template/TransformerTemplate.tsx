@@ -329,7 +329,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
           type: ActiveTransformationActionTypes.ADD,
           newTransformation: {
             inputs,
-            extraDependencies: [],
+            extraDependencies: [textName],
             outputType: TransformationOutputType.TEXT,
             output: textName,
             transformer: base as DatasetCreatorTransformerName,

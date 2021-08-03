@@ -93,7 +93,7 @@ test("median errors on non-numeric, non-missing values", () => {
 });
 
 test("median errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
 
   expect(() =>
     uncheckedMedianWrapper("Census Dataset", CENSUS_DATASET, "Bad Attribute")

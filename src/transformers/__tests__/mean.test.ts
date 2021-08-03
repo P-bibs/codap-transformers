@@ -46,7 +46,7 @@ test("averages larger datasets", () => {
 });
 
 test("errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() =>
     uncheckedMeanWrapper("Dataset A", DATASET_A, "Not Here")
   ).toThrowError(invalidAttributeErr);

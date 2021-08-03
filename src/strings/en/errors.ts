@@ -2,11 +2,11 @@ const errors = {
   validation: {
     noDataSet: "Please choose a dataset to transform",
     invalidAttribute:
-      "Please select a valid attribute: {{ name }} was not found",
+      'Please select a valid attribute: "{{ name }}" was not found',
     invalidCollection:
-      "Please select a valid collection: {{ name }} was not found",
+      'Please select a valid collection: "{{ name }}" was not found',
     duplicateAttribute:
-      "Please choose a different attribute name: {{ name }} is already in use",
+      'Please choose a different attribute name: "{{ name }}" is already in use',
     typeMismatch: "expected a {{ type }}, instead got {{ value }}",
     noOutputColumnName: "Please enter a name for the new attribute",
     noExpression: "Please enter an expression",
@@ -44,16 +44,16 @@ const errors = {
     noAttribute: "Please select two attributes",
     noComparisonType: "Please select a valid comparison type",
     invalidFirstAttribute:
-      "Please select a valid first attribute: {{ name }} was not found",
+      'Please select a valid first attribute: "{{ name }}" was not found',
     invalidSecondAttribute:
-      "Please select a valid second attribute: {{ name }} was not found",
+      'Please select a valid second attribute: "{{ name }}" was not found',
   },
   fold: {
     noAttribute: "Please select an attribute to aggregate",
     noBaseValue: "Please enter a base value",
     noAccumulatorName: "Please enter an accumulator name",
     duplicateAccumulatorName:
-      "Please enter a different accumulator name: there is already an attribute called {{ accumulatorName }}",
+      'Please enter a different accumulator name: there is already an attribute called "{{ accumulatorName }}"',
   },
   differenceFrom: {
     noAttribute: "Please choose an attribute to take the difference from",
@@ -80,9 +80,9 @@ const errors = {
   join: {
     noDataSetOrAttribute: "Please choose two datasets and two attributes",
     invalidJoiningAttribute:
-      "Please select a valid joining attribute: {{ name }} was not found",
+      'Please select a valid joining attribute: "{{ name }}" was not found',
     invalidBaseAttribute:
-      "Please select a valid base attribute: {{ name }} was not found",
+      'Please select a valid base attribute: "{{ name }}" was not found',
   },
   partition: {
     noAttribute: "Please select an attribute by which to partition",
@@ -111,7 +111,7 @@ const errors = {
     cannotUseAsAttributeName:
       "Cannot use {{ value }} (from attribute {{ attributeName }} at case {{ caseNumber }} as an attribute name",
     invalidAttributeForValuesFrom:
-      "Please select a valid attribute from which to retrieve values: {{ name }} was not found",
+      'Please select a valid attribute from which to retrieve values: "{{ name }}" was not found',
     multipleValuesForSameNamesFrom:
       'Case has multiple {{ valuesFrom }} values ({{ value1 }} and {{ value2 }}) for same "{{ namesFrom }}" ({{ namesFromValue }})',
   },
@@ -130,14 +130,14 @@ const errors = {
       "Please choose at least one attribute from which to take the sum product",
     noAttributeUnchecked: "Cannot take the sum product of zero attributes",
     typeMismatchInAttribute:
-      "Please select a numeric attribute instead of {{ name }}",
+      'Please select a numeric attribute instead of "{{ name }}"',
   },
   transformColumn: {
     noAttribute: "Please select an attribute to transform",
     noExpression: "Please enter an expression with which to transform",
     noOutputType: "Please enter an output type",
     invalidAttribute:
-      "Please select a valid attribute to transform: {{ name }} was not found",
+      'Please select a valid attribute to transform: "{{ name }}" was not found',
   },
 };
 

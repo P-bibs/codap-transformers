@@ -91,7 +91,7 @@ test("mode of single value is list containing that value", () => {
 });
 
 test("mode errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() => uncheckedModeWrapper("Dataset A", DATASET_A, "Z")).toThrowError(
     invalidAttributeErr
   );

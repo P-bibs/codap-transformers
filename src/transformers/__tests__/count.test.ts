@@ -139,7 +139,7 @@ test("works with boundaries", () => {
 });
 
 test("errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() =>
     uncheckedCountWrapper("Dataset B", DATASET_B, ["Nonexistent"])
   ).toThrowError(invalidAttributeErr);

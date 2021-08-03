@@ -75,7 +75,7 @@ test("std deviation of single value is 0", () => {
 });
 
 test("std deviation errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() =>
     uncheckedStandardDeviationWrapper(
       "Dataset A",

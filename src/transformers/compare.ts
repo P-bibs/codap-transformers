@@ -184,7 +184,7 @@ export function uncheckedNumericCompare(
     // If either is not a number (and also not empty string), throw an error
     if (isNaN(parsed1) && v1 !== "") {
       throw new Error(
-        t("errors:compare.typeMismatch", {
+        t("errors:validation.typeMismatch", {
           type: "number",
           value: codapValueToString(v1),
         })
@@ -192,7 +192,7 @@ export function uncheckedNumericCompare(
     }
     if (isNaN(parsed2) && v2 !== "") {
       throw new Error(
-        t("errors:compare.typeMismatch", {
+        t("errors:validation.typeMismatch", {
           type: "number",
           value: codapValueToString(v2),
         })

@@ -243,7 +243,7 @@ describe("numeric compare", () => {
         "Missing",
         "String"
       )
-    ).toThrow("Expected number");
+    ).toThrow("expected a number");
   });
 });
 

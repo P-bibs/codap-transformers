@@ -1,7 +1,12 @@
-import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  CodapLanguageType,
+  DataSet,
+  MissingValueReport,
+  TransformationOutput,
+} from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { isMissing, tryTitle } from "../transformers/util";
 import { cloneCollection, shallowCopy, validateAttribute } from "./util";
 import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
 
@@ -30,17 +35,23 @@ export async function transformColumn({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
+
+  const [transformed, mvr] = await uncheckedTransformColumn(
+    dataset,
+    attributeName,
+    expression,
+    outputType
+  );
+
+  mvr.extraInfo = `The formula for the transformed column evaluated to a missing value for ${mvr.missingValues.length} rows.`;
+
   return [
-    await uncheckedTransformColumn(
-      dataset,
-      attributeName,
-      expression,
-      outputType
-    ),
+    transformed,
     `TransformColumn(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, with the ${attributeName} attribute's values ` +
       `determined by the formula \`${expression}\`.`,
+    mvr,
   ];
 }
 
@@ -50,7 +61,7 @@ export async function uncheckedTransformColumn(
   expression: string,
   outputType: CodapLanguageType,
   evalFormula = evalExpression
-): Promise<DataSet> {
+): Promise<[DataSet, MissingValueReport]> {
   validateAttribute(
     dataset.collections,
     attributeName,
@@ -68,7 +79,17 @@ export async function uncheckedTransformColumn(
     evalFormula
   );
 
+  const mvr: MissingValueReport = {
+    kind: "formula",
+    missingValues: [],
+  };
+
   exprValues.forEach((value, i) => {
+    // Note values for which the formula evaluated to missing
+    if (isMissing(value)) {
+      mvr.missingValues.push(i + 1);
+    }
+
     records[i][attributeName] = value;
   });
 
@@ -84,10 +105,11 @@ export async function uncheckedTransformColumn(
     }
   }
 
-  return new Promise((resolve) =>
-    resolve({
+  return [
+    {
       collections,
       records,
-    })
-  );
+    },
+    mvr,
+  ];
 }

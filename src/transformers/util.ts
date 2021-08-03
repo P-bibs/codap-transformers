@@ -1,18 +1,15 @@
-import {
-  Collection,
-  CodapAttribute,
-  DataContext,
-} from "../lib/codapPhone/types";
-import { Boundary, DataSet, SingleValue } from "./types";
+import { Boundary, DataSet, MissingValueReport, SingleValue } from "./types";
+
+import { Collection, CodapAttribute } from "../lib/codapPhone/types";
 
 /**
  * Returns the context's title, if any, or falls back to its name.
  *
  * @param context the data context to produce a readable name for
- * @returns readable name of the context
+ * @returns the context's title, or its name
  */
-export function readableName(context: DataContext): string {
-  return context.title ? context.title : context.name;
+export function tryTitle(obj: { title?: string; name: string }): string {
+  return obj.title ? obj.title : obj.name;
 }
 
 /**
@@ -335,19 +332,41 @@ export const cloneAttribute = shallowCopy;
  * non-numeric. NOTE: This does not validate the given attribute--if the
  * attribute isn't defined for any cases, this will return an empty list.
  *
+ * @param contextTitle Title of the input data context this dataset is from (for MVR).
  * @param dataset The dataset to extract from.
  * @param attribute The attribute containing numeric values.
  * @returns A list of the attributes values parsed to numbers.
  */
 export function extractAttributeAsNumeric(
+  contextTitle: string,
   dataset: DataSet,
   attribute: string
-): number[] {
+): [number[], MissingValueReport] {
   const numericValues = [];
+  const mvr: MissingValueReport = {
+    kind: "input",
+    missingValues: [],
+  };
 
-  for (const record of dataset.records) {
+  // When we lookup which collection/attribute a missing value occurs in,
+  // cache it because all subsequent missing values will be in the same place
+  let cachedLocInfo: [Collection, CodapAttribute] | undefined;
+
+  for (let i = 0; i < dataset.records.length; i++) {
+    const record = dataset.records[i];
+
     // Ignore missing values
     if (isMissing(record[attribute])) {
+      if (cachedLocInfo === undefined) {
+        cachedLocInfo = validateAttribute(dataset.collections, attribute);
+      }
+      const [coll, attr] = cachedLocInfo;
+      mvr.missingValues.push({
+        context: contextTitle,
+        collection: tryTitle(coll),
+        attribute: tryTitle(attr),
+        itemIndex: i + 1,
+      });
       continue;
     }
     const value = parseFloat(String(record[attribute]));
@@ -359,7 +378,7 @@ export function extractAttributeAsNumeric(
     numericValues.push(value);
   }
 
-  return numericValues;
+  return [numericValues, mvr];
 }
 
 /**
@@ -430,5 +449,32 @@ export function displaySingleValue(value: SingleValue): string {
   } else {
     // value is a list of numbers
     return `[${value.join(", ")}]`;
+  }
+}
+
+/**
+ * Adds an entry into an (input) MVR for a given location.
+ *
+ * @param mvr The MVR to add to
+ * @param dataset Dataset in which the missing value occurs
+ * @param contextTitle Context title of associated context
+ * @param attributeName Attribute name in which missing value occurs
+ * @param rowIndex Index of row in which missing value occurs (0-indexed)
+ */
+export function addToMVR(
+  mvr: MissingValueReport,
+  dataset: DataSet,
+  contextTitle: string,
+  attributeName: string,
+  rowIndex: number
+): void {
+  if (mvr.kind === "input") {
+    const [coll, attr] = validateAttribute(dataset.collections, attributeName);
+    mvr.missingValues.push({
+      context: contextTitle,
+      collection: tryTitle(coll),
+      attribute: tryTitle(attr),
+      itemIndex: rowIndex + 1,
+    });
   }
 }

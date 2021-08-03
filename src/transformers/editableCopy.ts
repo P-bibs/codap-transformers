@@ -4,7 +4,7 @@ import {
 } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { applyNewDataSet } from "../components/transformer-template/util";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { makeDatasetMutable } from "../transformers/util";
 import { uncheckedCopy } from "./copy";
 import { DataSet } from "./types";
@@ -21,7 +21,7 @@ export async function editableCopyOverride(
   }
 
   const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   applyNewDataSet(
     uncheckedEditableCopy(dataset),

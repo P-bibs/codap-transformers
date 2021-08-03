@@ -2,6 +2,7 @@ import {
   uncheckedCategoricalCompare,
   uncheckedNumericCompare,
 } from "../compare";
+import { DataSet } from "../types";
 import {
   cloneDataSet,
   DATASET_A,
@@ -12,10 +13,49 @@ import {
   TYPES_DATASET,
 } from "./data";
 
+/**
+ * A wrapper around uncheckedNumericCompare which discards the missing value
+ * report and just returns the output dataset.
+ */
+function uncheckedNumericCompareWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  attributeName1: string,
+  attributeName2: string
+): DataSet {
+  const [output] = uncheckedNumericCompare(
+    contextTitle,
+    dataset,
+    attributeName1,
+    attributeName2
+  );
+  return output;
+}
+
+/**
+ * A wrapper around uncheckedCategoricalCompare which discards the missing value
+ * report and just returns the output.
+ */
+function uncheckedCategoricalCompareWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  attributeName1: string,
+  attributeName2: string
+): DataSet {
+  const [output] = uncheckedCategoricalCompare(
+    contextTitle,
+    dataset,
+    attributeName1,
+    attributeName2
+  );
+  return output;
+}
+
 describe("numeric compare", () => {
   it("errors on bad first attribute", () => {
     expect(() =>
-      uncheckedNumericCompare(
+      uncheckedNumericCompareWrapper(
+        "Dataset A",
         DATASET_A,
         "BadAttributeName",
         "EvenBadderAttributeName"
@@ -25,14 +65,19 @@ describe("numeric compare", () => {
 
   it("errors on bad second attribute", () => {
     expect(() =>
-      uncheckedNumericCompare(DATASET_A, "A", "EvenBadderAttributeName")
+      uncheckedNumericCompareWrapper(
+        "Dataset A",
+        DATASET_A,
+        "A",
+        "EvenBadderAttributeName"
+      )
     ).toThrow("second");
   });
 
   it("errors on first attribute if dataset has no attributes", () => {
-    expect(() => uncheckedNumericCompare(EMPTY_DATASET, "A", "B")).toThrow(
-      "first"
-    );
+    expect(() =>
+      uncheckedNumericCompareWrapper("Empty Dataset", EMPTY_DATASET, "A", "B")
+    ).toThrow("first");
   });
 
   it("creates empty output when provided empty input", () => {
@@ -51,25 +96,40 @@ describe("numeric compare", () => {
       name: "Compare Status",
       type: "categorical",
     });
-    expect(uncheckedNumericCompare(EMPTY_RECORDS, "A", "B")).toEqual(
-      withCompareAttributes
-    );
+    expect(
+      uncheckedNumericCompareWrapper("Empty Records", EMPTY_RECORDS, "A", "B")
+    ).toEqual(withCompareAttributes);
   });
 
   describe("rejects invalid types", () => {
     test("boundaries", () => {
       expect(() =>
-        uncheckedNumericCompare(TYPES_DATASET, "Number", "Boundary")
+        uncheckedNumericCompareWrapper(
+          "Types Dataset",
+          TYPES_DATASET,
+          "Number",
+          "Boundary"
+        )
       ).toThrow("instead got a boundary");
     });
     test("booleans", () => {
       expect(() =>
-        uncheckedNumericCompare(TYPES_DATASET, "Number", "Boolean")
+        uncheckedNumericCompareWrapper(
+          "Types Dataset",
+          TYPES_DATASET,
+          "Number",
+          "Boolean"
+        )
       ).toThrow("instead got true");
     });
     test("strings", () => {
       expect(() =>
-        uncheckedNumericCompare(TYPES_DATASET, "Number", "String")
+        uncheckedNumericCompareWrapper(
+          "Types Dataset",
+          TYPES_DATASET,
+          "Number",
+          "String"
+        )
       ).toThrow('instead got "abc"');
     });
   });
@@ -97,7 +157,12 @@ describe("numeric compare", () => {
       });
 
       expect(
-        uncheckedNumericCompare(TYPES_DATASET, "Number", "Number")
+        uncheckedNumericCompareWrapper(
+          "Types Dataset",
+          TYPES_DATASET,
+          "Number",
+          "Number"
+        )
       ).toEqual(output);
     });
 
@@ -123,7 +188,12 @@ describe("numeric compare", () => {
         record["Compare Status"] = undefined;
       });
       const result = cloneDataSet(
-        uncheckedNumericCompare(TYPES_DATASET, "Number", "NumericString")
+        uncheckedNumericCompareWrapper(
+          "Types Dataset",
+          TYPES_DATASET,
+          "Number",
+          "NumericString"
+        )
       );
       // Don't bother comparing the rbg values
       result.records.forEach((record) => {
@@ -155,14 +225,24 @@ describe("numeric compare", () => {
       });
 
       expect(
-        uncheckedNumericCompare(TYPES_DATASET, "Number", "Missing")
+        uncheckedNumericCompareWrapper(
+          "Types Dataset",
+          TYPES_DATASET,
+          "Number",
+          "Missing"
+        )
       ).toEqual(output);
     });
   });
 
   test("fails if second attribute is non-numeric even if first attribute is missing value", () => {
     expect(() =>
-      uncheckedNumericCompare(TYPES_DATASET, "Missing", "String")
+      uncheckedNumericCompareWrapper(
+        "Types Dataset",
+        TYPES_DATASET,
+        "Missing",
+        "String"
+      )
     ).toThrow("Expected number");
   });
 });
@@ -170,7 +250,8 @@ describe("numeric compare", () => {
 describe("categorical compare", () => {
   it("errors on bad first attribute", () => {
     expect(() =>
-      uncheckedCategoricalCompare(
+      uncheckedCategoricalCompareWrapper(
+        "Dataset A",
         DATASET_A,
         "BadAttributeName",
         "EvenBadderAttributeName"
@@ -180,14 +261,24 @@ describe("categorical compare", () => {
 
   it("errors on bad second attribute", () => {
     expect(() =>
-      uncheckedCategoricalCompare(DATASET_A, "A", "EvenBadderAttributeName")
+      uncheckedCategoricalCompareWrapper(
+        "Dataset A",
+        DATASET_A,
+        "A",
+        "EvenBadderAttributeName"
+      )
     ).toThrow("second");
   });
 
   it("errors on first attribute if dataset has no attributes", () => {
-    expect(() => uncheckedCategoricalCompare(EMPTY_DATASET, "A", "B")).toThrow(
-      "first"
-    );
+    expect(() =>
+      uncheckedCategoricalCompareWrapper(
+        "Empty Dataset",
+        EMPTY_DATASET,
+        "A",
+        "B"
+      )
+    ).toThrow("first");
   });
 
   it("includes missing values in output group", () => {
@@ -220,9 +311,14 @@ describe("categorical compare", () => {
       record["B Category"] = record["B"];
     });
 
-    expect(uncheckedCategoricalCompare(DATASET_WITH_MISSING, "A", "B")).toEqual(
-      output
-    );
+    expect(
+      uncheckedCategoricalCompareWrapper(
+        "Dataset with Missing",
+        DATASET_WITH_MISSING,
+        "A",
+        "B"
+      )
+    ).toEqual(output);
   });
 
   it("works properly on multi-collection input", () => {
@@ -255,6 +351,8 @@ describe("categorical compare", () => {
       record["B Category"] = record["B"];
     });
 
-    expect(uncheckedCategoricalCompare(DATASET_A, "A", "B")).toEqual(output);
+    expect(
+      uncheckedCategoricalCompareWrapper("Dataset A", DATASET_A, "A", "B")
+    ).toEqual(output);
   });
 });

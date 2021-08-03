@@ -1,6 +1,6 @@
 import React, { useReducer, useEffect } from "react";
 import { default as transformerList } from "../transformerList";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import {
   getComponent,
   getDataContext,
@@ -93,13 +93,14 @@ export function useActiveTransformations(
             let outputName;
             if (creatorDescription.outputType === "context") {
               // Find context's title
-              outputName = readableName(
+              outputName = tryTitle(
                 await getDataContext(creatorDescription.output)
               );
             } else {
               // Find text component's title
-              const text = await getComponent(creatorDescription.output);
-              outputName = text.title ? text.title : text.name;
+              outputName = tryTitle(
+                await getComponent(creatorDescription.output)
+              );
             }
             setErrMsg(`Error updating "${outputName}": ${e.message}`);
           } else {
@@ -138,8 +139,6 @@ export function useActiveTransformations(
   // Delete transformations for deleted text components
   useEffect(() => {
     async function callback(deletedText: string) {
-      console.log(`REMOVING DEPENDENCIES OF ${deletedText}`);
-
       const cloned = { ...activeTransformations };
       for (const input of Object.keys(cloned)) {
         // Remove transformations that depend on the deleted text component

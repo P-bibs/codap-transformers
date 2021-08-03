@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
 
 /**
@@ -20,26 +20,43 @@ export async function mode({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
+
+  const [modes, mvr] = uncheckedMode(context.name, dataset, attribute);
+
+  mvr.extraInfo =
+    `${mvr.missingValues.length} missing values were encountered ` +
+    `while computing the mode, and were ignored. The mode values you see are the modes ` +
+    `of the non-missing values.`;
 
   return [
-    uncheckedMode(dataset, attribute),
+    modes,
     `Mode(${ctxtName}, ${attribute})`,
     `The mode value of the ${attribute} attribute in the ${ctxtName} dataset.`,
+    mvr,
   ];
 }
 
 /**
  * Finds the mode of a given attribute's values.
  *
+ * @param contextName - Name of data context associated with input dataset
  * @param dataset - The input DataSet
  * @param attribute - The column to find the mode of.
  */
-export function uncheckedMode(dataset: DataSet, attribute: string): number[] {
+export function uncheckedMode(
+  contextName: string,
+  dataset: DataSet,
+  attribute: string
+): [number[], MissingValueReport] {
   validateAttribute(dataset.collections, attribute);
 
   // Extract numeric values from the indicated attribute
-  const values = extractAttributeAsNumeric(dataset, attribute);
+  const [values, mvr] = extractAttributeAsNumeric(
+    contextName,
+    dataset,
+    attribute
+  );
 
   if (values.length === 0) {
     throw new Error(`Cannot find mode of no numeric values`);
@@ -69,8 +86,10 @@ export function uncheckedMode(dataset: DataSet, attribute: string): number[] {
     undefined
   ) as number;
 
-  // Return all values which have the max frequency
-  return Object.keys(valueToFrequency)
+  // All values which have the max frequency
+  const modes = Object.keys(valueToFrequency)
     .map((v) => Number(v))
     .filter((v) => valueToFrequency[v] === maxFrequency);
+
+  return [modes, mvr];
 }

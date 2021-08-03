@@ -1,4 +1,5 @@
 import { uncheckedGroupBy } from "../groupBy";
+import { DataSet } from "../types";
 import {
   makeCollection,
   DATASET_B,
@@ -6,6 +7,21 @@ import {
   FULLY_FEATURED_DATASET,
   DATASET_WITH_META,
 } from "./data";
+
+function uncheckedGroupByWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  attrNames: { attrName: string; groupedName: string }[],
+  newParentName: string
+): DataSet {
+  const [output] = uncheckedGroupBy(
+    contextTitle,
+    dataset,
+    attrNames,
+    newParentName
+  );
+  return output;
+}
 
 describe("groupBy", () => {
   test("groupBy of dataset with no records", () => {
@@ -23,7 +39,8 @@ describe("groupBy", () => {
       ],
     };
     expect(
-      uncheckedGroupBy(
+      uncheckedGroupByWrapper(
+        "Empty Records",
         EMPTY_RECORDS,
         [{ attrName: "D", groupedName: "Grouped D" }],
         "Parent"
@@ -46,7 +63,8 @@ describe("groupBy", () => {
     };
     const attrB = { name: "B" };
     expect(
-      uncheckedGroupBy(
+      uncheckedGroupByWrapper(
+        "Dataset",
         {
           collections: [{ name: "Cases", attrs: [attrA, attrB] }],
           records: [
@@ -100,7 +118,8 @@ describe("groupBy", () => {
 
   test("Grouping by boundary", () => {
     expect(
-      uncheckedGroupBy(
+      uncheckedGroupByWrapper(
+        "Fully-featured Dataset",
         FULLY_FEATURED_DATASET,
         [{ attrName: "Attribute_3", groupedName: "Attribute_3 Group" }],
         "Parent"
@@ -133,7 +152,8 @@ describe("groupBy", () => {
 
   test("Grouping by nonexistant attribute throws error", () => {
     expect(() =>
-      uncheckedGroupBy(
+      uncheckedGroupByWrapper(
+        "Dataset B",
         DATASET_B,
         [{ attrName: "NOT_EXIST", groupedName: "Grouped" }],
         "Grouped"
@@ -143,7 +163,8 @@ describe("groupBy", () => {
 
   test("Grouping by multiple attributes, one invalid throws error", () => {
     expect(() =>
-      uncheckedGroupBy(
+      uncheckedGroupByWrapper(
+        "Dataset B",
         DATASET_B,
         [
           { attrName: "Name", groupedName: "Name Group" },
@@ -156,7 +177,8 @@ describe("groupBy", () => {
 
   test("Groupby does not erase metadata besides description and formula", () => {
     expect(
-      uncheckedGroupBy(
+      uncheckedGroupByWrapper(
+        "Dataset with Meta",
         DATASET_WITH_META,
         [{ attrName: "A", groupedName: "A Group" }],
         "Grouped Collection Name"

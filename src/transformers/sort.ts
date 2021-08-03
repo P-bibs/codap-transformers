@@ -1,8 +1,13 @@
-import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  CodapLanguageType,
+  DataSet,
+  MissingValueReport,
+  TransformationOutput,
+} from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
-import { codapValueToString } from "./util";
+import { codapValueToString, isMissing } from "./util";
+import { tryTitle } from "../transformers/util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
 import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
 
 export type SortDirection = "ascending" | "descending";
@@ -76,11 +81,22 @@ export async function sort({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
+
+  const [sorted, mvr] = await uncheckedSort(
+    dataset,
+    expression,
+    outputType,
+    sortDirection
+  );
+
+  mvr.extraInfo = `The key expression formula evaluated to a missing value for ${mvr.missingValues.length} rows.`;
+
   return [
-    await uncheckedSort(dataset, expression, outputType, sortDirection),
+    sorted,
     `Sort(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, sorted by the value of the key formula: \`${expression}\`.`,
+    mvr,
   ];
 }
 
@@ -90,9 +106,21 @@ export async function uncheckedSort(
   outputType: CodapLanguageType,
   sortDirection: SortDirection,
   evalFormula = evalExpression
-): Promise<DataSet> {
+): Promise<[DataSet, MissingValueReport]> {
   const records = dataset.records;
   const keyValues = await evalFormula(keyExpr, records);
+
+  const mvr: MissingValueReport = {
+    kind: "formula",
+    missingValues: [],
+  };
+
+  // Note rows for which the key expression evaluated to a missing value
+  keyValues.forEach((value, i) => {
+    if (isMissing(value)) {
+      mvr.missingValues.push(i + 1);
+    }
+  });
 
   // Check for type errors (might throw error and abort transformer)
   await reportTypeErrorsForRecords(records, keyValues, outputType, evalFormula);
@@ -108,10 +136,11 @@ export async function uncheckedSort(
     })
     .map(({ record }) => record);
 
-  return new Promise((resolve) =>
-    resolve({
+  return [
+    {
       collections: dataset.collections,
       records: sorted,
-    })
-  );
+    },
+    mvr,
+  ];
 }

@@ -1,8 +1,8 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { isMissing, tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { uniqueName } from "../lib/utils/names";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import {
   eraseFormulas,
   codapValueToString,
@@ -41,11 +41,11 @@ export async function pivotLonger({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
   return [
-    await uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
+    uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
     `PivotLonger(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the ${pluralSuffix(
       "attribute",
@@ -57,6 +57,7 @@ export async function pivotLonger({
         attributes
       )} under a new attribute (${namesTo}), and the values previously ` +
       `under ${attributeNames} moved under a new attribute (${valuesTo}).`,
+    EMPTY_MVR,
   ];
 }
 
@@ -166,12 +167,13 @@ export async function pivotWider({
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   return [
-    await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
+    uncheckedPivotWider(dataset, namesFrom, valuesFrom),
     `PivotWider(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
       `into new attributes, which get their values from the attribute ${valuesFrom}.`,
+    EMPTY_MVR,
   ];
 }
 
@@ -215,8 +217,15 @@ export function uncheckedPivotWider(
           );
         }
 
-        // NOTE: If rec[namesFrom] is undefined (missing), this returns ""
-        return rec[namesFrom] === undefined ? "" : String(rec[namesFrom]);
+        if (isMissing(rec[namesFrom])) {
+          throw new Error(
+            `Cannot use missing value (from attribute ${namesFrom} at case ${
+              i + 1
+            }) as an attribute name.`
+          );
+        }
+
+        return String(rec[namesFrom]);
       })
     )
   );
@@ -289,19 +298,19 @@ export function uncheckedPivotWider(
 
 /**
  * Determines if the two records are equivalent, ignoring the indicated fields.
+ * NOTE: assumes the records have the same fields to begin with. This should be
+ * true when comparing between records from same data context.
  */
 function equivExcept(
   recA: Record<string, unknown>,
   recB: Record<string, unknown>,
   except: string[]
 ): boolean {
-  // NOTE: assumes the records have the same fields to begin with.
-  // This should be true when comparing between records from same data context.
-  for (const key of Object.keys(recA)) {
-    if (except.includes(key)) {
+  for (const attribute of Object.keys(recA)) {
+    if (except.includes(attribute)) {
       continue;
     }
-    if (recA[key] !== recB[key]) {
+    if (recA[attribute] !== recB[attribute]) {
       return false;
     }
   }

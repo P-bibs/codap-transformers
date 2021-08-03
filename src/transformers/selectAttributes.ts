@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import {
   reparent,
   eraseFormulas,
@@ -28,7 +28,7 @@ export async function selectAttributes({
   const allBut = mode === "selectAllBut";
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
   return [
@@ -37,6 +37,7 @@ export async function selectAttributes({
     `A copy of ${ctxtName} with ${
       allBut ? "all but" : "only"
     } the ${pluralSuffix("attribute", attributes)} ${attributeNames} included.`,
+    EMPTY_MVR,
   ];
 }
 

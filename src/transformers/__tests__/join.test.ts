@@ -1,4 +1,4 @@
-import { uncheckedJoin } from "../join";
+import { uncheckedInnerJoin } from "../join";
 import {
   CENSUS_DATASET,
   DATASET_A,
@@ -20,7 +20,7 @@ function uncheckedJoinWrapper(
   joiningDataset: DataSet,
   joiningAttr: string
 ): DataSet {
-  const [output] = uncheckedJoin(
+  const [output] = uncheckedInnerJoin(
     baseContextTitle,
     baseDataset,
     baseAttr,
@@ -103,12 +103,9 @@ test("join with some cases from base dataset unmatched", () => {
     records: makeRecords(
       ["Name", "Birth_Year", "Current_Year", "Grade", "Name {1}", "State"],
       [
-        ["Jon", 1990, 2021, 88, "", ""],
         ["Sheila", 1995, 2021, 91, "Sheila", "North Carolina"],
         ["Joseph", 2001, 2021, 100, "Joseph", "Washington"],
         ["Eve", 2000, 2021, 93, "Eve", "Arizona"],
-        ["Nick", 1998, 2021, 95, "", ""],
-        ["Paula", 1988, 2021, 81, "", ""],
       ]
     ),
   });
@@ -235,15 +232,15 @@ test("join on larger dataset", () => {
   });
 });
 
-test("*first* matching case in joining dataset is copied", () => {
+test("all matching cases in joining dataset are copied", () => {
   const joining = {
     collections: [makeCollection("cases", ["B", "Extra_Attribute"])],
     records: makeRecords(
       ["B", "Extra_Attribute"],
       [
-        [true, "Extra 1"], // first true case
+        [true, "Extra 1"],
         [true, "Extra 2"],
-        [false, "Extra 3"], // first false case
+        [false, "Extra 3"],
         [true, "Extra 4"],
         [false, "Extra 5"],
         [false, "Extra 6"],
@@ -263,10 +260,23 @@ test("*first* matching case in joining dataset is copied", () => {
       ["A", "B", "C", "B {1}", "Extra_Attribute"],
       [
         [3, true, 2000, true, "Extra 1"],
+        [3, true, 2000, true, "Extra 2"],
+        [3, true, 2000, true, "Extra 4"],
+        [3, true, 2000, true, "Extra 7"],
         [8, true, 2003, true, "Extra 1"],
+        [8, true, 2003, true, "Extra 2"],
+        [8, true, 2003, true, "Extra 4"],
+        [8, true, 2003, true, "Extra 7"],
         [10, false, 1998, false, "Extra 3"],
+        [10, false, 1998, false, "Extra 5"],
+        [10, false, 1998, false, "Extra 6"],
         [4, true, 2010, true, "Extra 1"],
+        [4, true, 2010, true, "Extra 2"],
+        [4, true, 2010, true, "Extra 4"],
+        [4, true, 2010, true, "Extra 7"],
         [10, false, 2014, false, "Extra 3"],
+        [10, false, 2014, false, "Extra 5"],
+        [10, false, 2014, false, "Extra 6"],
       ]
     ),
   });
@@ -330,11 +340,8 @@ test("base and joining attributes can have different names", () => {
     records: makeRecords(
       ["Name", "Birth_Year", "Current_Year", "Grade", "Not_Birth_Year"],
       [
-        ["Jon", 1990, 2021, 88, ""],
-        ["Sheila", 1995, 2021, 91, ""],
         ["Joseph", 2001, 2021, 100, 2001],
         ["Eve", 2000, 2021, 93, 2000],
-        ["Nick", 1998, 2021, 95, ""],
         ["Paula", 1988, 2021, 81, 1988],
       ]
     ),
@@ -362,7 +369,7 @@ test("can join dataset with itself", () => {
   });
 });
 
-test("joining with empty base/joining datasets just copies attributes", () => {
+test("joining with empty base/joining datasets produces empty dataset", () => {
   expect(
     uncheckedJoinWrapper("Dataset B", DATASET_B, "Name", EMPTY_RECORDS, "E")
   ).toEqual({
@@ -376,17 +383,7 @@ test("joining with empty base/joining datasets just copies attributes", () => {
         "F",
       ]),
     ],
-    records: makeRecords(
-      ["Name", "Birth_Year", "Current_Year", "Grade", "E", "F"],
-      [
-        ["Jon", 1990, 2021, 88, "", ""],
-        ["Sheila", 1995, 2021, 91, "", ""],
-        ["Joseph", 2001, 2021, 100, "", ""],
-        ["Eve", 2000, 2021, 93, "", ""],
-        ["Nick", 1998, 2021, 95, "", ""],
-        ["Paula", 1988, 2021, 81, "", ""],
-      ]
-    ),
+    records: [],
   });
 
   expect(

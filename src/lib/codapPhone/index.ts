@@ -31,6 +31,7 @@ import {
   CodapComponent,
   GetComponentResponse,
   ComponentListResponse,
+  DataContextChangeNoticeValue,
 } from "./types";
 import {
   callUpdateListenersForContext,
@@ -44,6 +45,7 @@ import {
   callAllContextUpdateHooks,
   callAllContextDeletedHooks,
   callAllTextDeletedHooks,
+  callAllOutputTitleChangeHooks,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -58,6 +60,7 @@ import {
   collectionsEqual,
   normalizeDataContext,
   parseEvalError,
+  parseNameBetweenBrackets,
 } from "./util";
 import { DataSet } from "../../transformers/types";
 import { CodapEvalError } from "./error";
@@ -139,10 +142,10 @@ const getNewName = (function () {
 /**
  * Catch notifications from CODAP and call appropriate listeners
  */
-function codapRequestHandler(
+async function codapRequestHandler(
   command: CodapInitiatedCommand,
   callback: (r: CodapResponse) => void
-): void {
+): Promise<void> {
   console.group("CODAP");
   console.log(command);
   console.groupEnd();
@@ -220,13 +223,27 @@ function codapRequestHandler(
   ) {
     // Call all text deleted hooks with the deleted text's name
     callAllTextDeletedHooks(command.values.name);
+    callback({ success: true });
+    return;
+  }
+
+  // text component renamed
+  if (
+    command.resource.startsWith(CodapResource.Component) &&
+    "type" in command &&
+    command.type === "DG.TextView"
+  ) {
+    const id = parseNameBetweenBrackets(command.resource);
+    const name = (await getComponent(id)).name;
+
+    // Call all output title change hooks with the text's name
+    callAllOutputTitleChangeHooks(name);
+    callback({ success: true });
+    return;
   }
 
   if (
-    command.resource.startsWith(
-      CodapInitiatedResource.DataContextChangeNotice
-    ) &&
-    Array.isArray(command.values)
+    command.resource.startsWith(CodapInitiatedResource.DataContextChangeNotice)
   ) {
     // FIXME: Using flags here we can process all notifications in the list
     // without needlessly updating for each one, but this doesn't seem like
@@ -235,24 +252,29 @@ function codapRequestHandler(
     let contextListUpdate = false;
 
     // Context name is between the first pair of brackets
-    const contextName = command.resource.slice(
-      command.resource.search("\\[") + 1,
-      command.resource.length - 1
-    );
+    const contextName = parseNameBetweenBrackets(command.resource);
 
-    for (const value of command.values) {
+    // Safe cast because we are dealing with a DataContextChangeNotice
+    for (const value of command.values as DataContextChangeNoticeValue[]) {
       contextUpdate =
         contextUpdate || mutatingOperations.includes(value.operation);
       contextListUpdate =
         contextListUpdate ||
         value.operation === ContextChangeOperation.UpdateContext;
 
+      if (
+        value.operation === ContextChangeOperation.UpdateContext &&
+        value.result.properties.title !== undefined
+      ) {
+        callAllOutputTitleChangeHooks(contextName);
+      }
+
       // Check for case update or deletion and invalidate case cache
       if (
         value.operation === ContextChangeOperation.DeleteCases ||
         value.operation === ContextChangeOperation.UpdateCases
       ) {
-        const caseIDs = value.result?.caseIDs;
+        const caseIDs = value.result.caseIDs;
         if (Array.isArray(caseIDs)) {
           caseIDs.map(Cache.invalidateCase);
         }
@@ -418,20 +440,13 @@ export function updateDataContext(
   values: Partial<DataContext>
 ): Promise<void> {
   return new Promise((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Update,
-        resource: resourceFromContext(context),
-        values: values,
-      },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(new Error("Failed to update context."));
-        }
+    phone.call(Actions.updateDataContext(context, values), (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to update context."));
       }
-    )
+    })
   );
 }
 

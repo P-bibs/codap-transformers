@@ -77,7 +77,7 @@ export type DatasetCreatorTransformerName =
   | "Select Attributes"
   | "Sort"
   | "Transform Attribute"
-  | "Copy"
+  | "Uneditable Copy"
   | "Copy Structure"
   | "Join"
   | "Mean / Average"
@@ -729,7 +729,7 @@ const transformerList: TransformerList = {
       },
     },
   },
-  Copy: {
+  "Uneditable Copy": {
     group: "Copying",
     componentData: {
       init: {
@@ -740,33 +740,11 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: copy },
       info: {
         summary:
-          "Produces a copy of the given dataset, copying all of its collections, \
-          attributes, and cases.",
+          "Produces an uneditable copy of the given dataset, copying all of its \
+          collections, attributes, and cases.",
         consumes: "A dataset to create a copy of.",
         produces: "A copy of the input dataset.",
         docLink: docLinkFromHeadingID("h.uq0pa7ojmqp4"),
-      },
-    },
-  },
-  "Copy Structure": {
-    group: "Copying",
-    componentData: {
-      init: {
-        context1: {
-          title: "Dataset to Copy",
-        },
-      },
-      transformerFunction: { kind: "datasetCreator", func: copyStructure },
-      info: {
-        summary:
-          "Produces a duplicate of the structure of the given dataset, but \
-          without copying any of the cases. The output has the same collections \
-          and attributes as the input, but is empty.",
-        consumes: "A dataset to copy the structure of.",
-        produces:
-          "A dataset with the same collection and attribute structure as \
-        the input, but no cases.",
-        docLink: docLinkFromHeadingID("h.wuazcel945t6"),
       },
     },
   },
@@ -790,6 +768,28 @@ const transformerList: TransformerList = {
         consumes: "A dataset to copy.",
         produces: "An editable copy of the input dataset.",
         docLink: docLinkFromHeadingID("h.k8luwltbuvbd"),
+      },
+    },
+  },
+  "Copy Structure": {
+    group: "Copying",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Copy",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: copyStructure },
+      info: {
+        summary:
+          "Produces a duplicate of the structure of the given dataset, but \
+          without copying any of the cases. The output has the same collections \
+          and attributes as the input, but is empty.",
+        consumes: "A dataset to copy the structure of.",
+        produces:
+          "A dataset with the same collection and attribute structure as \
+        the input, but no cases.",
+        docLink: docLinkFromHeadingID("h.wuazcel945t6"),
       },
     },
   },

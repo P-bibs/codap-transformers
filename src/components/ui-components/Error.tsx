@@ -1,7 +1,6 @@
 import { ArrowLeft, ArrowRight, Close } from "@material-ui/icons";
 import React, { ReactElement, useState } from "react";
 import { useReducer } from "react";
-import { useEffect } from "react";
 import { useMemo } from "react";
 import { notifyInteractiveFrameWithSelect } from "../../lib/codapPhone";
 import "./styles/Error.css";
@@ -19,10 +18,15 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
   const length = Object.keys(store).length;
   const [index, setIndex] = useState(0);
 
+  // Don't display anything if there are no errors
+  if (length === 0) {
+    return <></>;
+  }
+
   // Make sure the index never goes out of range
-  useEffect(() => {
+  if (index < 0 || index >= length) {
     setIndex((index) => Math.max(0, Math.min(length - 1, index)));
-  }, [store, length]);
+  }
 
   // Deletes from store the error that's currently displayed
   const deleteItemAtCurrentIndex = () => {
@@ -31,9 +35,7 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
     setErrMsg(null, id);
   };
 
-  return length === 0 ? (
-    <></>
-  ) : (
+  return (
     <div className="Error">
       <p>
         {/* Only render error if index is valid */}
@@ -93,9 +95,11 @@ export function useErrorStore(): [
       switch (action.type) {
         case "add":
           return { ...oldState, [action.id]: action.error };
-        case "delete":
-          delete oldState[action.id];
-          return oldState;
+        case "delete": {
+          const newState = { ...oldState };
+          delete newState[action.id];
+          return newState;
+        }
       }
     },
     {}

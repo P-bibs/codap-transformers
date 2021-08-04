@@ -332,6 +332,7 @@ export const mutatingOperations = [
   ContextChangeOperation.UpdateCases,
   ContextChangeOperation.CreateCases,
   ContextChangeOperation.DeleteCases,
+  ContextChangeOperation.UpdateContext,
   ContextChangeOperation.MoveCases,
   ContextChangeOperation.CreateAttribute,
   ContextChangeOperation.UpdateAttribute,

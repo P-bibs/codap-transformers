@@ -5,6 +5,10 @@ import { useMemo } from "react";
 import { notifyInteractiveFrameWithSelect } from "../../lib/codapPhone";
 import "./styles/Error.css";
 
+// Messages over this length (in chars) will be cut off. The full message can
+// be read by hitting "read more"
+const ERROR_MESSAGE_CUTOFF_LENGTH = 50;
+
 type ErrorProps = {
   store: Record<number, string>;
   setErrMsg: (err: string | null, id: number) => void;
@@ -16,31 +20,74 @@ type ErrorProps = {
  */
 function Error({ store, setErrMsg }: ErrorProps): ReactElement {
   const length = Object.keys(store).length;
-  const [index, setIndex] = useState(0);
+  const [index, unsafeSetIndex] = useState(0);
+  const [displayFullMessage, setDisplayFullMessage] = useState(false);
 
   // Don't display anything if there are no errors
   if (length === 0) {
     return <></>;
   }
 
-  // Make sure the index never goes out of range
-  if (index < 0 || index >= length) {
-    setIndex((index) => Math.max(0, Math.min(length - 1, index)));
+  /**
+   * A safe wrapper around `unsafeSetIndex` that ensures the index always stays
+   * within valid bounds.
+   * It can accept either a setter function or a raw value.
+   */
+  function setIndex(
+    setterOrValue: number | ((prevIndex: number) => number)
+  ): void {
+    // Show the short error message whenever the index changes
+    setDisplayFullMessage(false);
+
+    if (typeof setterOrValue === "number") {
+      unsafeSetIndex(Math.max(0, Math.min(length - 1, setterOrValue)));
+    } else {
+      unsafeSetIndex((index) =>
+        Math.max(0, Math.min(length - 1, setterOrValue(index)))
+      );
+    }
   }
 
-  // Deletes from store the error that's currently displayed
+  // Make sure the index never goes out of range
+  if (index < 0 || index >= length) {
+    // setIndex takes care of boxing the index to a valid range so we can just
+    // provide the identity function
+    setIndex((index) => index);
+  }
+
+  // Deletes from the store the error that's currently displayed
   const deleteItemAtCurrentIndex = () => {
     const entry = Object.entries(store)[index];
     const id: number = parseFloat(entry[0]);
     setErrMsg(null, id);
   };
 
+  /**
+   * Renders the error message, possibly truncating and including a "read more"
+   * button if necessary
+   */
+  const renderErrorText = () => {
+    const safeIndex = Math.max(0, Math.min(length - 1, index));
+    const message = Object.entries(store)[safeIndex][1];
+    if (displayFullMessage || message.length < ERROR_MESSAGE_CUTOFF_LENGTH) {
+      return <p>{message}</p>;
+    } else {
+      return (
+        <>
+          <p>{`${message.substr(0, ERROR_MESSAGE_CUTOFF_LENGTH)}... `}</p>
+          <p className="read-more" onClick={() => setDisplayFullMessage(true)}>
+            read more
+          </p>
+        </>
+      );
+    }
+  };
+
+  const leftArrowDisabled = index <= 0;
+  const rightArrowDisabled = index >= length - 1;
   return (
     <div className="Error">
-      <p>
-        {/* Only render error if index is valid */}
-        {Object.entries(store)[index] ? Object.entries(store)[index][1] : ""}
-      </p>
+      {renderErrorText()}
       <div className="error-index-display">
         <Close
           style={{ cursor: "pointer" }}
@@ -48,8 +95,10 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
         />
         <div className="error-index-pager">
           <span
-            className={"error-index-arrow" + (index <= 0 ? " disabled" : "")}
-            onClick={() => setIndex(Math.max(0, index - 1))}
+            className={
+              "error-index-arrow" + (leftArrowDisabled ? " disabled" : "")
+            }
+            onClick={() => !leftArrowDisabled && setIndex((index) => index - 1)}
           >
             {<ArrowLeft />}
           </span>
@@ -58,9 +107,11 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
           </span>
           <span
             className={
-              "error-index-arrow" + (index >= length - 1 ? " disabled" : "")
+              "error-index-arrow" + (rightArrowDisabled ? " disabled" : "")
             }
-            onClick={() => setIndex((index) => Math.min(length - 1, index + 1))}
+            onClick={() =>
+              !rightArrowDisabled && setIndex((index) => index + 1)
+            }
           >
             {<ArrowRight />}
           </span>

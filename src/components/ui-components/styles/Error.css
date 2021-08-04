@@ -12,6 +12,14 @@
     color: red;
 }
 
+.Error .read-more {
+    color: grey;
+    cursor: pointer;
+}
+.Error .read-more:hover {
+    text-decoration: underline;
+}
+
 .error-index-display {
     width: 100%;
 

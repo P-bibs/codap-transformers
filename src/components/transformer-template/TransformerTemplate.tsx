@@ -405,7 +405,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
 
   return (
     <>
-      <p>{errorId}</p>
       {order.map((component) => {
         if (component === "context1" || component === "context2") {
           return (

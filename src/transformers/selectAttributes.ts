@@ -24,6 +24,9 @@ export async function selectAttributes({
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
   }
+  if (mode !== "selectOnly" && mode !== "selectAllBut") {
+    throw new Error(t("errors:selectAttributes.noMode"));
+  }
 
   // select all but the given attributes?
   const allBut = mode === "selectAllBut";

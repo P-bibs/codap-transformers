@@ -43,6 +43,7 @@ export default function AttributeSelector({
       value={value}
       defaultValue="Select an attribute"
       disabled={disabled}
+      tooltip="An attribute denotes a column within a table."
     />
   );
 }

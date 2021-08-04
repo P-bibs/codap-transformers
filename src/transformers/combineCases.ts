@@ -1,9 +1,10 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import { setEquality } from "../lib/utils/sets";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { eraseFormulas, allAttrNames, cloneCollection } from "./util";
+import { t } from "../strings";
 
 /**
  * Stack combines a top and bottom table which have matching attributes
@@ -19,7 +20,7 @@ export async function combineCases({
   context2: inputDataContext2,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1 || !inputDataContext2) {
-    throw new Error("Please choose two datasets to combine.");
+    throw new Error(t("errors:combineCases.noDataSet"));
   }
 
   const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
@@ -28,13 +29,14 @@ export async function combineCases({
   const { context: context2, dataset: dataset2 } = await getContextAndDataSet(
     inputDataContext2
   );
-  const ctxtName1 = readableName(context1);
-  const ctxtName2 = readableName(context2);
+  const ctxtName1 = tryTitle(context1);
+  const ctxtName2 = tryTitle(context2);
 
   return [
     await uncheckedCombineCases(dataset1, dataset2),
     `CombinedCases(${ctxtName1}, ${ctxtName2})`,
     `A copy of ${ctxtName1}, containing all of the cases from both ${ctxtName1} and ${ctxtName2}.`,
+    EMPTY_MVR,
   ];
 }
 
@@ -48,9 +50,7 @@ export function uncheckedCombineCases(
   if (
     !setEquality(baseAttrs, combiningAttrs, (name1, name2) => name1 === name2)
   ) {
-    throw new Error(
-      `Base and combining datasets must have the same attribute names`
-    );
+    throw new Error(t("errors:combineCases.differentAttributes"));
   }
 
   // add combining records

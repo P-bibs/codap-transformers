@@ -42,6 +42,7 @@ import {
   clearUndoAndRedoStacks,
   callAllContextUpdateHooks,
   callAllContextDeletedHooks,
+  callAllTextDeletedHooks,
 } from "./listeners";
 import {
   resourceFromContext,
@@ -190,9 +191,11 @@ function codapRequestHandler(
     command.resource === CodapInitiatedResource.DocumentChangeNotice &&
     command.values.operation === DocumentChangeOperations.DataContextDeleted
   ) {
-    removeContextUpdateListenersForContext(command.values.deletedContext);
-    removeListenersWithDependency(command.values.deletedContext);
-    callAllContextDeletedHooks(command.values.deletedContext);
+    const deletedContext = command.values.deletedContext;
+    Cache.invalidateContext(deletedContext);
+    removeContextUpdateListenersForContext(deletedContext);
+    removeListenersWithDependency(deletedContext);
+    callAllContextDeletedHooks(deletedContext);
     callback({ success: true });
     return;
   }
@@ -206,6 +209,16 @@ function codapRequestHandler(
     callAllContextListeners();
     callback({ success: true });
     return;
+  }
+
+  // text component was deleted
+  if (
+    command.resource === CodapResource.Component &&
+    command.values.operation === "delete" &&
+    command.values.type === "DG.TextView"
+  ) {
+    // Call all text deleted hooks with the deleted text's name
+    callAllTextDeletedHooks(command.values.name);
   }
 
   if (
@@ -310,6 +323,31 @@ export function notifyInteractiveFrameIsDirty(): Promise<void> {
           reject(
             new Error("Failed to notify interactive frame that state is dirty.")
           );
+        }
+      }
+    )
+  );
+}
+
+/**
+ * Sends a request to select (bring to front) the plugin's interactive frame
+ */
+export async function notifyInteractiveFrameWithSelect(): Promise<void> {
+  const id = (await getInteractiveFrame()).id;
+  return new Promise<void>((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Notify,
+        resource: resourceFromComponent(`${id}`),
+        values: {
+          request: "select",
+        },
+      },
+      (response) => {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to notify component to select."));
         }
       }
     )
@@ -818,7 +856,10 @@ const TEXT_HEIGHT = 100;
 const TEXT_FONT_SIZE = 2;
 export async function createText(
   name: string,
-  content: string
+  content: string,
+  fontSize?: number,
+  width?: number,
+  height?: number
 ): Promise<string> {
   const textName = await ensureUniqueName(
     name,
@@ -834,13 +875,13 @@ export async function createText(
           type: CodapComponentType.Text,
           name: textName,
           dimensions: {
-            width: TEXT_WIDTH,
-            height: TEXT_HEIGHT,
+            width: width ? width : TEXT_WIDTH,
+            height: height ? height : TEXT_HEIGHT,
           },
           text: {
             object: "value",
             data: {
-              fontSize: TEXT_FONT_SIZE,
+              fontSize: fontSize ? fontSize : TEXT_FONT_SIZE,
             },
             document: {
               children: [

@@ -11,6 +11,24 @@ import {
   TYPES_DATASET,
 } from "./data";
 import { CodapAttribute } from "../../utils/codapPhone/types";
+import { DataSet } from "../types";
+
+function uncheckedJoinWrapper(
+  baseContextTitle: string,
+  baseDataset: DataSet,
+  baseAttr: string,
+  joiningDataset: DataSet,
+  joiningAttr: string
+): DataSet {
+  const [output] = uncheckedJoin(
+    baseContextTitle,
+    baseDataset,
+    baseAttr,
+    joiningDataset,
+    joiningAttr
+  );
+  return output;
+}
 
 test("join with all cases from both datasets matched", () => {
   const joining = {
@@ -28,7 +46,9 @@ test("join with all cases from both datasets matched", () => {
     ),
   };
 
-  expect(uncheckedJoin(DATASET_B, "Name", joining, "Name")).toEqual({
+  expect(
+    uncheckedJoinWrapper("Dataset B", DATASET_B, "Name", joining, "Name")
+  ).toEqual({
     collections: [
       makeCollection("cases", [
         "Name",
@@ -67,7 +87,9 @@ test("join with some cases from base dataset unmatched", () => {
     ),
   };
 
-  expect(uncheckedJoin(DATASET_B, "Name", joining, "Name")).toEqual({
+  expect(
+    uncheckedJoinWrapper("Dataset B", DATASET_B, "Name", joining, "Name")
+  ).toEqual({
     collections: [
       makeCollection("cases", [
         "Name",
@@ -111,7 +133,9 @@ test("join with some cases from joining dataset unmatched", () => {
     ),
   };
 
-  expect(uncheckedJoin(DATASET_B, "Name", joining, "Name")).toEqual({
+  expect(
+    uncheckedJoinWrapper("Dataset B", DATASET_B, "Name", joining, "Name")
+  ).toEqual({
     collections: [
       makeCollection("cases", [
         "Name",
@@ -157,7 +181,15 @@ test("join on larger dataset", () => {
     ),
   };
 
-  expect(uncheckedJoin(CENSUS_DATASET, "State", joining, "State")).toEqual({
+  expect(
+    uncheckedJoinWrapper(
+      "Census Dataset",
+      CENSUS_DATASET,
+      "State",
+      joining,
+      "State"
+    )
+  ).toEqual({
     collections: [
       {
         ...CENSUS_DATASET.collections[0],
@@ -220,7 +252,9 @@ test("*first* matching case in joining dataset is copied", () => {
     ),
   };
 
-  expect(uncheckedJoin(DATASET_A, "B", joining, "B")).toEqual({
+  expect(
+    uncheckedJoinWrapper("Dataset A", DATASET_A, "B", joining, "B")
+  ).toEqual({
     collections: [
       makeCollection("parent", ["A"]),
       makeCollection("child", ["B", "C", "B {1}", "Extra_Attribute"], "parent"),
@@ -257,7 +291,9 @@ test("attributes from joining attr's collection are copied into collection of ba
     records: makeRecords(["A", "B", "C"], [[1, 2, 3]]),
   };
 
-  expect(uncheckedJoin(base, "C", joining, "C").collections).toEqual([
+  expect(
+    uncheckedJoinWrapper("base dataset", base, "C", joining, "C").collections
+  ).toEqual([
     makeCollection("C1", ["A"]),
     makeCollection("C2", ["B"], "C1"),
     // This is the only collection where an attribute is added, and
@@ -274,7 +310,13 @@ test("base and joining attributes can have different names", () => {
   };
 
   expect(
-    uncheckedJoin(DATASET_B, "Birth_Year", joining, "Not_Birth_Year")
+    uncheckedJoinWrapper(
+      "Dataset B",
+      DATASET_B,
+      "Birth_Year",
+      joining,
+      "Not_Birth_Year"
+    )
   ).toEqual({
     collections: [
       makeCollection("cases", [
@@ -300,7 +342,9 @@ test("base and joining attributes can have different names", () => {
 });
 
 test("can join dataset with itself", () => {
-  expect(uncheckedJoin(DATASET_A, "C", DATASET_A, "C")).toEqual({
+  expect(
+    uncheckedJoinWrapper("Dataset A", DATASET_A, "C", DATASET_A, "C")
+  ).toEqual({
     collections: [
       makeCollection("parent", ["A"]),
       makeCollection("child", ["B", "C", "B {1}", "C {1}"], "parent"),
@@ -319,7 +363,9 @@ test("can join dataset with itself", () => {
 });
 
 test("joining with empty base/joining datasets just copies attributes", () => {
-  expect(uncheckedJoin(DATASET_B, "Name", EMPTY_RECORDS, "E")).toEqual({
+  expect(
+    uncheckedJoinWrapper("Dataset B", DATASET_B, "Name", EMPTY_RECORDS, "E")
+  ).toEqual({
     collections: [
       makeCollection("cases", [
         "Name",
@@ -343,7 +389,9 @@ test("joining with empty base/joining datasets just copies attributes", () => {
     ),
   });
 
-  expect(uncheckedJoin(EMPTY_RECORDS, "D", DATASET_A, "A")).toEqual({
+  expect(
+    uncheckedJoinWrapper("Empty Records", EMPTY_RECORDS, "D", DATASET_A, "A")
+  ).toEqual({
     collections: [
       makeCollection("Collection A", ["A", "B", "C"]),
       makeCollection("Collection B", ["D", "A {1}"], "Collection A"),
@@ -365,7 +413,9 @@ test("all attribute metadata except formulas is copied from joining", () => {
       return { ...attr, formula: undefined };
     }) as CodapAttribute[];
 
-  expect(uncheckedJoin(base, "attr", DATASET_WITH_META, "A")).toEqual({
+  expect(
+    uncheckedJoinWrapper("Base Dataset", base, "attr", DATASET_WITH_META, "A")
+  ).toEqual({
     collections: [
       {
         name: "collection",
@@ -383,32 +433,62 @@ test("all attribute metadata except formulas is copied from joining", () => {
 });
 
 test("errors on invalid base attribute", () => {
-  const invalidBaseAttrErr = /Invalid base attribute/;
+  const invalidBaseAttrErr = /was not found/;
   expect(() =>
-    uncheckedJoin(CENSUS_DATASET, "Nonexistent", DATASET_A, "A")
+    uncheckedJoinWrapper(
+      "Census Dataset",
+      CENSUS_DATASET,
+      "Nonexistent",
+      DATASET_A,
+      "A"
+    )
   ).toThrowError(invalidBaseAttrErr);
 
   expect(() =>
-    uncheckedJoin(DATASET_B, "Last Name", DATASET_A, "A")
+    uncheckedJoinWrapper("Dataset B", DATASET_B, "Last Name", DATASET_A, "A")
   ).toThrowError(invalidBaseAttrErr);
 
   expect(() =>
-    uncheckedJoin(EMPTY_DATASET, "Some Attribute", DATASET_A, "A")
+    uncheckedJoinWrapper(
+      "Empty Dataset",
+      EMPTY_DATASET,
+      "Some Attribute",
+      DATASET_A,
+      "A"
+    )
   ).toThrowError(invalidBaseAttrErr);
 });
 
 test("errors on invalid joining attribute", () => {
-  const invalidJoiningAttrErr = /Invalid joining attribute/;
+  const invalidJoiningAttrErr = /was not found/;
   expect(() =>
-    uncheckedJoin(DATASET_B, "Name", CENSUS_DATASET, "Not here")
+    uncheckedJoinWrapper(
+      "Dataset B",
+      DATASET_B,
+      "Name",
+      CENSUS_DATASET,
+      "Not here"
+    )
   ).toThrowError(invalidJoiningAttrErr);
 
   expect(() =>
-    uncheckedJoin(DATASET_A, "C", TYPES_DATASET, "Bad attribute")
+    uncheckedJoinWrapper(
+      "Dataset A",
+      DATASET_A,
+      "C",
+      TYPES_DATASET,
+      "Bad attribute"
+    )
   ).toThrowError(invalidJoiningAttrErr);
 
   expect(() =>
-    uncheckedJoin(DATASET_WITH_META, "A", EMPTY_DATASET, "Any Attribute")
+    uncheckedJoinWrapper(
+      "Dataset with Meta",
+      DATASET_WITH_META,
+      "A",
+      EMPTY_DATASET,
+      "Any Attribute"
+    )
   ).toThrowError(invalidJoiningAttrErr);
 });
 
@@ -425,7 +505,10 @@ test("ensures unique attribute names when copying", () => {
     records: [],
   };
 
-  expect(uncheckedJoin(base, "ghi", joining, "ghi").collections).toEqual([
+  expect(
+    uncheckedJoinWrapper("Base Dataset", base, "ghi", joining, "ghi")
+      .collections
+  ).toEqual([
     makeCollection("parent", ["abc", "def"]),
     makeCollection("child", ["ghi", "abc {1}", "def {1}", "ghi {1}"], "parent"),
   ]);

@@ -1,4 +1,4 @@
-import { partition } from "../partition";
+import { partition, PartitionDataset } from "../partition";
 import { DataSet } from "../types";
 import {
   CENSUS_DATASET,
@@ -12,8 +12,20 @@ import {
   makeRecords,
 } from "./data";
 
+/**
+ * A wrapper around partition that discards the missing value report.
+ */
+function partitionWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  attribute: string
+): PartitionDataset[] {
+  const [output] = partition(contextTitle, dataset, attribute);
+  return output;
+}
+
 test("simple partition on small dataset", () => {
-  expect(new Set(partition(DATASET_A, "B"))).toEqual(
+  expect(new Set(partitionWrapper("Dataset A", DATASET_A, "B"))).toEqual(
     new Set([
       {
         dataset: {
@@ -49,7 +61,9 @@ test("simple partition on small dataset", () => {
 });
 
 test("partition on larger dataset", () => {
-  expect(new Set(partition(CENSUS_DATASET, "State"))).toEqual(
+  expect(
+    new Set(partitionWrapper("Census Dataset", CENSUS_DATASET, "State"))
+  ).toEqual(
     new Set([
       {
         dataset: {
@@ -162,14 +176,14 @@ test("partition on larger dataset", () => {
 });
 
 test("partition on attribute with only one value produces copy of input", () => {
-  expect(partition(DATASET_B, "Current_Year")).toEqual([
+  expect(partitionWrapper("Dataset B", DATASET_B, "Current_Year")).toEqual([
     {
       dataset: DATASET_B,
       distinctValue: 2021,
       distinctValueAsStr: "2021",
     },
   ]);
-  expect(partition(DATASET_A_SUPERSET, "D")).toEqual([
+  expect(partitionWrapper("Dataset A Super", DATASET_A_SUPERSET, "D")).toEqual([
     {
       dataset: DATASET_A_SUPERSET,
       distinctValue: "a",
@@ -179,11 +193,13 @@ test("partition on attribute with only one value produces copy of input", () => 
 });
 
 test("partition on dataset with no records produces no datasets", () => {
-  expect(partition(EMPTY_RECORDS, "E")).toEqual([]);
+  expect(partitionWrapper("Empty Records", EMPTY_RECORDS, "E")).toEqual([]);
 });
 
 test("missing values are treated as their own value", () => {
-  expect(partition(DATASET_WITH_MISSING, "C")).toContainEqual(
+  expect(
+    partitionWrapper("Dataset with Missing", DATASET_WITH_MISSING, "C")
+  ).toContainEqual(
     // This is the output dataset containing all cases for which C was a missing value
     {
       dataset: {
@@ -203,19 +219,19 @@ test("missing values are treated as their own value", () => {
 });
 
 test("errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
-  expect(() => partition(DATASET_A, "Not here")).toThrowError(
-    invalidAttributeErr
-  );
-  expect(() => partition(DATASET_B, "Last Name")).toThrowError(
-    invalidAttributeErr
-  );
-  expect(() => partition(CENSUS_DATASET, "Family Size")).toThrowError(
-    invalidAttributeErr
-  );
-  expect(() => partition(EMPTY_DATASET, "Anything")).toThrowError(
-    invalidAttributeErr
-  );
+  const invalidAttributeErr = /was not found/;
+  expect(() =>
+    partitionWrapper("Dataset A", DATASET_A, "Not here")
+  ).toThrowError(invalidAttributeErr);
+  expect(() =>
+    partitionWrapper("Dataset B", DATASET_B, "Last Name")
+  ).toThrowError(invalidAttributeErr);
+  expect(() =>
+    partitionWrapper("Census Dataset", CENSUS_DATASET, "Family Size")
+  ).toThrowError(invalidAttributeErr);
+  expect(() =>
+    partitionWrapper("Empty Dataset", EMPTY_DATASET, "Anything")
+  ).toThrowError(invalidAttributeErr);
 });
 
 /**
@@ -244,7 +260,7 @@ const cases: [string, DataSet, string][] = [
 
 describe("partitioned datasets have identical collections/attributes to input", () => {
   test.each(cases)("%s", (_, dataset, attribute) => {
-    const partitioned = partition(dataset, attribute);
+    const partitioned = partitionWrapper("Dataset", dataset, attribute);
     expect.assertions(partitioned.length);
 
     for (const out of partitioned) {
@@ -255,7 +271,7 @@ describe("partitioned datasets have identical collections/attributes to input", 
 
 describe("partitioned datasets contain single homogenous value for partitioned attribute", () => {
   test.each(cases)("%s", (_, dataset, attribute) => {
-    const partitioned = partition(dataset, attribute);
+    const partitioned = partitionWrapper("Dataset", dataset, attribute);
     expect.assertions(partitioned.length);
 
     for (const out of partitioned) {

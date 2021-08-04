@@ -4,10 +4,11 @@ import {
 } from "../components/transformer-template/TransformerTemplate";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { applyNewDataSet } from "../components/transformer-template/util";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { makeDatasetMutable } from "../transformers/util";
 import { uncheckedCopy } from "./copy";
 import { DataSet } from "./types";
+import { t } from "../strings";
 
 export async function editableCopyOverride(
   { setErrMsg }: TransformerTemplateProps,
@@ -16,12 +17,12 @@ export async function editableCopyOverride(
   setErrMsg(null);
 
   if (inputDataCtxt === null) {
-    setErrMsg("Please choose a valid dataset to transform");
+    setErrMsg(t("errors:validation.noDataSet"));
     return;
   }
 
   const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
 
   applyNewDataSet(
     uncheckedEditableCopy(dataset),

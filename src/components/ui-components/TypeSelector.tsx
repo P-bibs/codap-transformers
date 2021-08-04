@@ -38,6 +38,7 @@ export default function TypeSelector({
           options={inputTypes.map((s) => ({ value: s, title: s }))}
           onChange={inputTypeOnChange}
           disabled={inputTypeDisabled}
+          tooltip="The expected input type of the formula."
         />
       ) : (
         <span style={{ fontFamily: "monospace" }}>{inputTypes}</span>
@@ -50,6 +51,7 @@ export default function TypeSelector({
           options={outputTypes.map((s) => ({ value: s, title: s }))}
           onChange={outputTypeOnChange}
           disabled={outputTypeDisabled}
+          tooltip="The expected output type of the formula."
         />
       ) : (
         <span style={{ fontFamily: "monospace" }}>{outputTypes}</span>

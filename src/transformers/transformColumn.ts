@@ -1,13 +1,15 @@
-import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  CodapLanguageType,
+  DataSet,
+  MissingValueReport,
+  TransformationOutput,
+} from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
-import {
-  reportTypeErrorsForRecords,
-  cloneCollection,
-  shallowCopy,
-  validateAttribute,
-} from "./util";
+import { isMissing, tryTitle } from "../transformers/util";
+import { cloneCollection, shallowCopy, validateAttribute } from "./util";
+import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
+import { t } from "../strings";
 
 /**
  * Produces a dataset with the indicated attribute's values transformed
@@ -21,30 +23,36 @@ export async function transformColumn({
   typeContract1: { outputType },
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (attributeName === null) {
-    throw new Error("Please select an attribute to transform");
+    throw new Error(t("errors:transformColumn.noAttribute"));
   }
   if (expression.trim() === "") {
-    throw new Error("Please enter a non-empty expression to transform with");
+    throw new Error(t("errors:transformColumn.noExpression"));
   }
   if (outputType === null) {
-    throw new Error("Please enter a valid output type");
+    throw new Error(t("errors:transformColumn.noOutputType"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
+
+  const [transformed, mvr] = await uncheckedTransformColumn(
+    dataset,
+    attributeName,
+    expression,
+    outputType
+  );
+
+  mvr.extraInfo = `The formula for the transformed column evaluated to a missing value for ${mvr.missingValues.length} rows.`;
+
   return [
-    await uncheckedTransformColumn(
-      dataset,
-      attributeName,
-      expression,
-      outputType
-    ),
+    transformed,
     `TransformColumn(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, with the ${attributeName} attribute's values ` +
       `determined by the formula \`${expression}\`.`,
+    mvr,
   ];
 }
 
@@ -54,20 +62,35 @@ export async function uncheckedTransformColumn(
   expression: string,
   outputType: CodapLanguageType,
   evalFormula = evalExpression
-): Promise<DataSet> {
+): Promise<[DataSet, MissingValueReport]> {
   validateAttribute(
     dataset.collections,
     attributeName,
-    `Invalid attribute to transform: ${attributeName}`
+    t("errors:transformColumn.invalidAttribute", { name: attributeName })
   );
 
   const records = dataset.records.map(shallowCopy);
   const exprValues = await evalFormula(expression, records);
 
   // Check for type errors (might throw error and abort transformer)
-  reportTypeErrorsForRecords(records, exprValues, outputType);
+  await reportTypeErrorsForRecords(
+    records,
+    exprValues,
+    outputType,
+    evalFormula
+  );
+
+  const mvr: MissingValueReport = {
+    kind: "formula",
+    missingValues: [],
+  };
 
   exprValues.forEach((value, i) => {
+    // Note values for which the formula evaluated to missing
+    if (isMissing(value)) {
+      mvr.missingValues.push(i + 1);
+    }
+
     records[i][attributeName] = value;
   });
 
@@ -83,10 +106,11 @@ export async function uncheckedTransformColumn(
     }
   }
 
-  return new Promise((resolve) =>
-    resolve({
+  return [
+    {
       collections,
       records,
-    })
-  );
+    },
+    mvr,
+  ];
 }

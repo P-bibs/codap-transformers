@@ -1,12 +1,10 @@
 import React, { useReducer, useEffect } from "react";
 import { default as transformerList } from "../transformerList";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import {
+  getComponent,
   getDataContext,
   notifyInteractiveFrameIsDirty,
-  updateDataContext,
-  getComponent,
-  updateComponent,
 } from "../lib/codapPhone";
 import {
   addInteractiveStateRequestListener,
@@ -15,7 +13,8 @@ import {
   removeContextUpdateHook,
   addContextDeletedHook,
   removeContextDeletedHook,
-  callAllContextListeners,
+  addTextDeletedHook,
+  removeTextDeletedHook,
 } from "../lib/codapPhone/listeners";
 import { InteractiveState } from "../lib/codapPhone/types";
 import {
@@ -25,7 +24,6 @@ import {
   SafeActions,
   SafeActiveTransformationsDispatch,
   TransformationDescription,
-  TransformationOutputType,
 } from "./types";
 import {
   activeTransformationsReducer,
@@ -78,6 +76,8 @@ export function useActiveTransformations(
       if (activeTransformations[contextName] === undefined) {
         return;
       }
+      // Clear previous errors before performing update
+      setErrMsg(null);
       for (const description of activeTransformations[contextName]) {
         try {
           await updateFromDescription(
@@ -89,12 +89,20 @@ export function useActiveTransformations(
             transformerList[description.transformer].componentData
               .transformerFunction.kind === "datasetCreator"
           ) {
-            const context = await getDataContext(
-              (description as DatasetCreatorDescription).output
-            );
-            setErrMsg(
-              `Error updating "${readableName(context)}": ${e.message}`
-            );
+            const creatorDescription = description as DatasetCreatorDescription;
+            let outputName;
+            if (creatorDescription.outputType === "context") {
+              // Find context's title
+              outputName = tryTitle(
+                await getDataContext(creatorDescription.output)
+              );
+            } else {
+              // Find text component's title
+              outputName = tryTitle(
+                await getComponent(creatorDescription.output)
+              );
+            }
+            setErrMsg(`Error updating "${outputName}": ${e.message}`);
           } else {
             setErrMsg(e.message);
           }
@@ -110,68 +118,7 @@ export function useActiveTransformations(
     async function callback(deletedContext: string) {
       const cloned = { ...activeTransformations };
       for (const input of Object.keys(cloned)) {
-        // Partition transformations based on whether or not one of their input
-        // contexts was deleted
-        const transformationsWithNewlyMissingInputs = [];
-        const restOfTransformations = [];
-        for (const description of activeTransformations[input]) {
-          if (
-            description.inputs.includes(deletedContext) ||
-            description.extraDependencies.includes(deletedContext)
-          ) {
-            transformationsWithNewlyMissingInputs.push(description);
-          } else {
-            restOfTransformations.push(description);
-          }
-        }
-
-        // Rename transformations with newly missing inputs to add a [fixed] suffix
-        for (const transformation of transformationsWithNewlyMissingInputs) {
-          if (transformation.transformer === "Partition") {
-            // If the transformer was partition we have to rename each output table
-            for (const outputContext of transformation.state.outputContexts) {
-              // Do not attempt to rename deleted contexts
-              if (outputContext === deletedContext) {
-                continue;
-              }
-              const outputContextData = await getDataContext(outputContext);
-              await updateDataContext(outputContext, {
-                title: `${outputContextData.title} [fixed]`,
-                metadata: {
-                  description: `${outputContextData.metadata?.description}\n\n An input to the transformer that created this dataset has been deleted so this dataset will no longer update.`,
-                },
-              });
-            }
-          } else if (transformation.transformer === "Editable Copy") {
-            // If the transformer was editable copy then we don't have to do anything
-          } else {
-            // Do not add [fixed] to the output if it's already been deleted
-            if (transformation.output === deletedContext) {
-              continue;
-            }
-            if (transformation.outputType === TransformationOutputType.TEXT) {
-              // If this is an SV transformer than update the output text component title
-              const outputData = await getComponent(transformation.output);
-              await updateComponent(transformation.output, {
-                title: `${outputData.title} [fixed]`,
-              });
-            } else if (
-              transformation.outputType === TransformationOutputType.CONTEXT
-            ) {
-              // If this transformer produces a dataset then rename the context
-              const outputData = await getDataContext(transformation.output);
-              await updateDataContext(transformation.output, {
-                title: `${outputData.title} [fixed]`,
-                metadata: {
-                  description: `${outputData.metadata?.description}\n\n An input to the transformer that created this dataset has been deleted so this dataset will no longer update.`,
-                },
-              });
-            }
-          }
-        }
-        callAllContextListeners();
-
-        // Remove transformations with newly missing inputs
+        // Remove transformations with newly missing inputs / dependencies
         cloned[input] = cloned[input].filter(
           (description) =>
             !(
@@ -187,6 +134,25 @@ export function useActiveTransformations(
     }
     addContextDeletedHook(callback);
     return () => removeContextDeletedHook(callback);
+  }, [activeTransformations]);
+
+  // Delete transformations for deleted text components
+  useEffect(() => {
+    async function callback(deletedText: string) {
+      const cloned = { ...activeTransformations };
+      for (const input of Object.keys(cloned)) {
+        // Remove transformations that depend on the deleted text component
+        cloned[input] = cloned[input].filter(
+          (description) => !description.extraDependencies.includes(deletedText)
+        );
+      }
+      activeTransformationsDispatch({
+        type: ActionTypes.SET,
+        newTransformations: cloned,
+      });
+    }
+    addTextDeletedHook(callback);
+    return () => removeTextDeletedHook(callback);
   }, [activeTransformations]);
 
   return [

@@ -6,6 +6,7 @@ import {
   uncheckedDifference,
   uncheckedDifferenceFrom,
 } from "../fold";
+import { DataSet } from "../types";
 import {
   makeCollection,
   makeRecords,
@@ -19,10 +20,31 @@ const SINGLE_COLLECTION_NUMBERS = {
   records: makeRecords(["A"], [[1], [2], [-3], [-5], [10], [15]]),
 };
 
+/**
+ * A wrapper around unchecked running sum that discards the missing value report.
+ */
+function uncheckedRunningSumWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  inputColumnName: string,
+  resultColumnName: string,
+  resultColumnDescription: string
+): DataSet {
+  const [output] = uncheckedRunningSum(
+    contextTitle,
+    dataset,
+    inputColumnName,
+    resultColumnName,
+    resultColumnDescription
+  );
+  return output;
+}
+
 describe("Running sum", () => {
   test("Sums up just numbers", () => {
     expect(
-      uncheckedRunningSum(
+      uncheckedRunningSumWrapper(
+        "Single Collection Numbers",
         SINGLE_COLLECTION_NUMBERS,
         "A",
         "Running Sum of A",
@@ -60,14 +82,21 @@ describe("Running sum", () => {
 
   test("Running sum errors on non-number", () => {
     expect(() =>
-      uncheckedRunningSum(DATASET_B, "Name", "Running Sum of Name", "")
+      uncheckedRunningSumWrapper(
+        "Dataset B",
+        DATASET_B,
+        "Name",
+        "Running Sum of Name",
+        ""
+      )
     ).toThrow(/expected a number/);
   });
 
   test("Puts attribute at the end of the collection", () => {
     const description = "Nonsensical running sum of each person's birth year.";
     expect(
-      uncheckedRunningSum(
+      uncheckedRunningSumWrapper(
+        "Dataset B",
         DATASET_B,
         "Birth_Year",
         "Running Sum of Birth_Year",
@@ -109,7 +138,13 @@ describe("Running sum", () => {
 
   test("Running sum of table with no records", () => {
     expect(
-      uncheckedRunningSum(EMPTY_RECORDS, "D", "Running Sum of D", "")
+      uncheckedRunningSumWrapper(
+        "Empty Records",
+        EMPTY_RECORDS,
+        "D",
+        "Running Sum of D",
+        ""
+      )
     ).toEqual({
       collections: [
         ...EMPTY_RECORDS.collections.slice(0, 2),
@@ -129,17 +164,26 @@ describe("Running sum", () => {
 
   test("Running sum errors on invalid attribute", () => {
     expect(() =>
-      uncheckedRunningSum(
+      uncheckedRunningSumWrapper(
+        "Dataset B",
         DATASET_B,
         "Nonexistant Attribute",
         "Sum",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Running sum ignores missing values", () => {
-    expect(uncheckedRunningSum(DATASET_WITH_MISSING, "A", "Sum", "")).toEqual({
+    expect(
+      uncheckedRunningSumWrapper(
+        "Dataset with Missing",
+        DATASET_WITH_MISSING,
+        "A",
+        "Sum",
+        ""
+      )
+    ).toEqual({
       collections: [
         {
           ...DATASET_WITH_MISSING.collections[0],
@@ -168,11 +212,32 @@ describe("Running sum", () => {
   });
 });
 
+/**
+ * A wrapper around unchecked running mean that discards the missing value report.
+ */
+function uncheckedRunningMeanWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  inputColumnName: string,
+  resultColumnName: string,
+  resultColumnDescription: string
+): DataSet {
+  const [output] = uncheckedRunningMean(
+    contextTitle,
+    dataset,
+    inputColumnName,
+    resultColumnName,
+    resultColumnDescription
+  );
+  return output;
+}
+
 describe("Running mean", () => {
   test("Single collection just numbers", () => {
     const runningMeanDescription = "Running mean description";
     expect(
-      uncheckedRunningMean(
+      uncheckedRunningMeanWrapper(
+        "Dataset",
         {
           collections: [makeCollection("Cases", ["A"])],
           records: makeRecords(["A"], [[1], [1], [4], [-2], [11]]),
@@ -212,14 +277,21 @@ describe("Running mean", () => {
 
   test("Single collection non-number", () => {
     expect(() =>
-      uncheckedRunningMean(DATASET_B, "Name", "Running Mean of Name", "")
+      uncheckedRunningMeanWrapper(
+        "Dataset B",
+        DATASET_B,
+        "Name",
+        "Running Mean of Name",
+        ""
+      )
     ).toThrow(/expected a number/);
   });
 
   test("Puts attribute at the end of the collection", () => {
     const description = "Running mean of each person's birth year.";
     expect(
-      uncheckedRunningMean(
+      uncheckedRunningMeanWrapper(
+        "Dataset B",
         DATASET_B,
         "Birth_Year",
         "Running Mean of Birth_Year",
@@ -267,7 +339,13 @@ describe("Running mean", () => {
 
   test("Running mean of table with no records", () => {
     expect(
-      uncheckedRunningMean(EMPTY_RECORDS, "D", "D Running Mean", "")
+      uncheckedRunningMeanWrapper(
+        "Empty Records",
+        EMPTY_RECORDS,
+        "D",
+        "D Running Mean",
+        ""
+      )
     ).toEqual({
       collections: [
         ...EMPTY_RECORDS.collections.slice(0, 2),
@@ -287,51 +365,79 @@ describe("Running mean", () => {
 
   test("Running mean errors on invalid attribute", () => {
     expect(() =>
-      uncheckedRunningMean(
+      uncheckedRunningMeanWrapper(
+        "Dataset B",
         DATASET_B,
         "Nonexistant Attribute",
         "Mean",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Running mean ignores missing values", () => {
-    expect(uncheckedRunningMean(DATASET_WITH_MISSING, "A", "Mean", "")).toEqual(
-      {
-        collections: [
-          {
-            ...DATASET_WITH_MISSING.collections[0],
-            attrs: [
-              ...(DATASET_WITH_MISSING.collections[0].attrs || []),
-              {
-                name: "Mean",
-                description: "",
-                type: "numeric",
-              },
-            ],
-          },
-        ],
-        records: makeRecords(
-          ["A", "B", "C", "Mean"],
-          [
-            [6, "", 10, 6],
-            [3, 12, 1, (6 + 3) / 2],
-            ["", "", 4, ""],
-            [10, 2, "", (6 + 3 + 10) / 3],
-            ["", "", "", ""],
-            [5, 2, 3, (6 + 3 + 10 + 5) / 4],
-          ]
-        ),
-      }
-    );
+    expect(
+      uncheckedRunningMeanWrapper(
+        "Dataset with Missing",
+        DATASET_WITH_MISSING,
+        "A",
+        "Mean",
+        ""
+      )
+    ).toEqual({
+      collections: [
+        {
+          ...DATASET_WITH_MISSING.collections[0],
+          attrs: [
+            ...(DATASET_WITH_MISSING.collections[0].attrs || []),
+            {
+              name: "Mean",
+              description: "",
+              type: "numeric",
+            },
+          ],
+        },
+      ],
+      records: makeRecords(
+        ["A", "B", "C", "Mean"],
+        [
+          [6, "", 10, 6],
+          [3, 12, 1, (6 + 3) / 2],
+          ["", "", 4, ""],
+          [10, 2, "", (6 + 3 + 10) / 3],
+          ["", "", "", ""],
+          [5, 2, 3, (6 + 3 + 10 + 5) / 4],
+        ]
+      ),
+    });
   });
 });
+
+/**
+ * A wrapper around unchecked running min that discards the missing value report.
+ */
+function uncheckedRunningMinWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  inputColumnName: string,
+  resultColumnName: string,
+  resultColumnDescription: string
+): DataSet {
+  const [output] = uncheckedRunningMin(
+    contextTitle,
+    dataset,
+    inputColumnName,
+    resultColumnName,
+    resultColumnDescription
+  );
+  return output;
+}
 
 describe("Running min", () => {
   test("Finds minimum of just numbers", () => {
     expect(
-      uncheckedRunningMin(
+      uncheckedRunningMinWrapper(
+        "Single Collection Numbers",
         SINGLE_COLLECTION_NUMBERS,
         "A",
         "Running Min of A",
@@ -369,13 +475,20 @@ describe("Running min", () => {
 
   test("Running min errors on non-number", () => {
     expect(() =>
-      uncheckedRunningMin(DATASET_B, "Name", "Running Min of Name", "")
+      uncheckedRunningMinWrapper(
+        "Dataset B",
+        DATASET_B,
+        "Name",
+        "Running Min of Name",
+        ""
+      )
     ).toThrow(/expected a number/);
   });
 
   test("Finds minimum of positive numbers with missing value", () => {
     expect(
-      uncheckedRunningMin(
+      uncheckedRunningMinWrapper(
+        "Dataset",
         {
           collections: [makeCollection("Cases", ["A"])],
           records: makeRecords(["A"], [[1], [""], [2], [3], [1], [5]]),
@@ -417,7 +530,8 @@ describe("Running min", () => {
 
   test("Finds minimum of numbers with missing value", () => {
     expect(
-      uncheckedRunningMin(
+      uncheckedRunningMinWrapper(
+        "Dataset",
         {
           collections: [makeCollection("Cases", ["A"])],
           records: makeRecords(["A"], [[1], [""], [2], [-3], [""], [5]]),
@@ -460,7 +574,8 @@ describe("Running min", () => {
   test("Puts attribute at the end of the collection", () => {
     const description = "Running min of each person's birth year.";
     expect(
-      uncheckedRunningMin(
+      uncheckedRunningMinWrapper(
+        "Dataset B",
         DATASET_B,
         "Birth_Year",
         "Running Min of Birth_Year",
@@ -502,7 +617,13 @@ describe("Running min", () => {
 
   test("Running min of table with no records", () => {
     expect(
-      uncheckedRunningMin(EMPTY_RECORDS, "D", "Running Min of D", "")
+      uncheckedRunningMinWrapper(
+        "Empty Records",
+        EMPTY_RECORDS,
+        "D",
+        "Running Min of D",
+        ""
+      )
     ).toEqual({
       collections: [
         ...EMPTY_RECORDS.collections.slice(0, 2),
@@ -522,20 +643,42 @@ describe("Running min", () => {
 
   test("Running min errors on invalid attribute", () => {
     expect(() =>
-      uncheckedRunningMin(
+      uncheckedRunningMinWrapper(
+        "Dataset B",
         DATASET_B,
         "Nonexistant Attribute",
         "Min",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 });
+
+/**
+ * A wrapper around unchecked running max that discards the missing value report.
+ */
+function uncheckedRunningMaxWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  inputColumnName: string,
+  resultColumnName: string,
+  resultColumnDescription: string
+): DataSet {
+  const [output] = uncheckedRunningMax(
+    contextTitle,
+    dataset,
+    inputColumnName,
+    resultColumnName,
+    resultColumnDescription
+  );
+  return output;
+}
 
 describe("Running max", () => {
   test("Finds maximum of just numbers", () => {
     expect(
-      uncheckedRunningMax(
+      uncheckedRunningMaxWrapper(
+        "Single Collection Numbers",
         SINGLE_COLLECTION_NUMBERS,
         "A",
         "Running Max of A",
@@ -574,13 +717,20 @@ describe("Running max", () => {
 
   test("Running max errors on non-number", () => {
     expect(() =>
-      uncheckedRunningMax(DATASET_B, "Name", "Running max of Name", "")
+      uncheckedRunningMaxWrapper(
+        "Dataset B",
+        DATASET_B,
+        "Name",
+        "Running max of Name",
+        ""
+      )
     ).toThrow(/expected a number/);
   });
 
   test("Finds maximum of negative numbers with missing value", () => {
     expect(
-      uncheckedRunningMax(
+      uncheckedRunningMaxWrapper(
+        "Dataset",
         {
           collections: [makeCollection("Cases", ["A"])],
           records: makeRecords(["A"], [[-1], [""], [-3], [-5], [-2], [-1]]),
@@ -622,7 +772,8 @@ describe("Running max", () => {
 
   test("Finds maximum of numbers with missing value", () => {
     expect(
-      uncheckedRunningMax(
+      uncheckedRunningMaxWrapper(
+        "Dataset",
         {
           collections: [makeCollection("Cases", ["A"])],
           records: makeRecords(["A"], [[1], [""], [2], [-3], [""], [5]]),
@@ -665,7 +816,8 @@ describe("Running max", () => {
   test("Puts attribute at the end of the collection", () => {
     const description = "Running max of each person's birth year.";
     expect(
-      uncheckedRunningMax(
+      uncheckedRunningMaxWrapper(
+        "Dataset B",
         DATASET_B,
         "Birth_Year",
         "Running Max of Birth_Year",
@@ -707,7 +859,13 @@ describe("Running max", () => {
 
   test("Running max of table with no records", () => {
     expect(
-      uncheckedRunningMax(EMPTY_RECORDS, "D", "Running Max of D", "")
+      uncheckedRunningMaxWrapper(
+        "Empty Records",
+        EMPTY_RECORDS,
+        "D",
+        "Running Max of D",
+        ""
+      )
     ).toEqual({
       collections: [
         ...EMPTY_RECORDS.collections.slice(0, 2),
@@ -727,20 +885,47 @@ describe("Running max", () => {
 
   test("Running max errors on invalid attribute", () => {
     expect(() =>
-      uncheckedRunningMax(
+      uncheckedRunningMaxWrapper(
+        "Dataset B",
         DATASET_B,
         "Nonexistant Attribute",
         "Max",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 });
+
+/**
+ * A wrapper around unchecked difference that discards the missing value report.
+ */
+function uncheckedDifferenceWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  inputColumnName: string,
+  resultColumnName: string,
+  resultColumnDescription: string
+): DataSet {
+  const [output] = uncheckedDifference(
+    contextTitle,
+    dataset,
+    inputColumnName,
+    resultColumnName,
+    resultColumnDescription
+  );
+  return output;
+}
 
 describe("Difference", () => {
   test("Difference of just numbers", () => {
     expect(
-      uncheckedDifference(SINGLE_COLLECTION_NUMBERS, "A", "Difference of A", "")
+      uncheckedDifferenceWrapper(
+        "Single Collection Numbers",
+        SINGLE_COLLECTION_NUMBERS,
+        "A",
+        "Difference of A",
+        ""
+      )
     ).toEqual({
       collections: [
         {
@@ -773,14 +958,21 @@ describe("Difference", () => {
 
   test("Difference errors on non-number", () => {
     expect(() =>
-      uncheckedDifference(DATASET_B, "Name", "Difference of Name", "")
+      uncheckedDifferenceWrapper(
+        "Dataset B",
+        DATASET_B,
+        "Name",
+        "Difference of Name",
+        ""
+      )
     ).toThrow(/expected a number/);
   });
 
   test("Puts attribute at the end of the collection", () => {
     const description = "Difference of each person's birth year.";
     expect(
-      uncheckedDifference(
+      uncheckedDifferenceWrapper(
+        "Dataset B",
         DATASET_B,
         "Birth_Year",
         "Difference of Birth_Year",
@@ -822,7 +1014,13 @@ describe("Difference", () => {
 
   test("Difference of table with no records", () => {
     expect(
-      uncheckedDifference(EMPTY_RECORDS, "D", "Difference of D", "")
+      uncheckedDifferenceWrapper(
+        "Empty Records",
+        EMPTY_RECORDS,
+        "D",
+        "Difference of D",
+        ""
+      )
     ).toEqual({
       collections: [
         ...EMPTY_RECORDS.collections.slice(0, 2),
@@ -842,18 +1040,25 @@ describe("Difference", () => {
 
   test("Difference errors on invalid attribute", () => {
     expect(() =>
-      uncheckedDifference(
+      uncheckedDifferenceWrapper(
+        "Dataset B",
         DATASET_B,
         "Nonexistant Attribute",
         "Difference",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Difference ignores missing values", () => {
     expect(
-      uncheckedDifference(DATASET_WITH_MISSING, "A", "Difference", "")
+      uncheckedDifferenceWrapper(
+        "Dataset with Missing",
+        DATASET_WITH_MISSING,
+        "A",
+        "Difference",
+        ""
+      )
     ).toEqual({
       collections: [
         {
@@ -883,10 +1088,33 @@ describe("Difference", () => {
   });
 });
 
+/**
+ * A wrapper around unchecked difference from that discards the missing value report.
+ */
+function uncheckedDifferenceFromWrapper(
+  contextTitle: string,
+  dataset: DataSet,
+  inputColumnName: string,
+  resultColumnName: string,
+  resultColumnDescription: string,
+  startingValue?: number
+): DataSet {
+  const [output] = uncheckedDifferenceFrom(
+    contextTitle,
+    dataset,
+    inputColumnName,
+    resultColumnName,
+    resultColumnDescription,
+    startingValue
+  );
+  return output;
+}
+
 describe("Difference from", () => {
   test("Difference from of just numbers", () => {
     expect(
-      uncheckedDifferenceFrom(
+      uncheckedDifferenceFromWrapper(
+        "Single Collection Numbers",
         SINGLE_COLLECTION_NUMBERS,
         "A",
         "Difference of A",
@@ -925,14 +1153,22 @@ describe("Difference from", () => {
 
   test("Difference errors on non-number", () => {
     expect(() =>
-      uncheckedDifferenceFrom(DATASET_B, "Name", "Difference of Name", "", 100)
+      uncheckedDifferenceFromWrapper(
+        "Dataset B",
+        DATASET_B,
+        "Name",
+        "Difference of Name",
+        "",
+        100
+      )
     ).toThrow(/expected a number/);
   });
 
   test("Puts attribute at the end of the collection", () => {
     const description = "Difference of each person's birth year.";
     expect(
-      uncheckedDifferenceFrom(
+      uncheckedDifferenceFromWrapper(
+        "Dataset B",
         DATASET_B,
         "Birth_Year",
         "Difference of Birth_Year",
@@ -975,7 +1211,14 @@ describe("Difference from", () => {
 
   test("Difference of table with no records", () => {
     expect(
-      uncheckedDifferenceFrom(EMPTY_RECORDS, "D", "Difference of D", "", 100)
+      uncheckedDifferenceFromWrapper(
+        "Empty Records",
+        EMPTY_RECORDS,
+        "D",
+        "Difference of D",
+        "",
+        100
+      )
     ).toEqual({
       collections: [
         ...EMPTY_RECORDS.collections.slice(0, 2),
@@ -995,19 +1238,27 @@ describe("Difference from", () => {
 
   test("Difference errors on invalid attribute", () => {
     expect(() =>
-      uncheckedDifferenceFrom(
+      uncheckedDifferenceFromWrapper(
+        "Dataset B",
         DATASET_B,
         "Nonexistant Attribute",
         "Difference",
         "Will error",
         -10
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Difference ignores missing values", () => {
     expect(
-      uncheckedDifferenceFrom(DATASET_WITH_MISSING, "A", "Difference", "", 10)
+      uncheckedDifferenceFromWrapper(
+        "Dataset with Missing",
+        DATASET_WITH_MISSING,
+        "A",
+        "Difference",
+        "",
+        10
+      )
     ).toEqual({
       collections: [
         {

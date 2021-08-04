@@ -1,8 +1,15 @@
-import { CodapLanguageType, DataSet, TransformationOutput } from "./types";
+import {
+  CodapLanguageType,
+  DataSet,
+  MissingValueReport,
+  TransformationOutput,
+} from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
-import { codapValueToString, reportTypeErrorsForRecords } from "./util";
+import { codapValueToString, isMissing } from "./util";
+import { tryTitle } from "../transformers/util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
+import { t } from "../strings";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
@@ -46,11 +53,10 @@ function compareFn(a: unknown, b: unknown): number {
     return objectCompareFn(a, b);
   } else {
     throw new Error(
-      `Sort encountered keys of differing types (${codapValueToString(
-        a
-      )} and ${codapValueToString(
-        b
-      )}). Keys must have the same type for all cases.`
+      t("errors:sort.keysOfDifferentTypes", {
+        value1: codapValueToString(a),
+        value2: codapValueToString(b),
+      })
     );
   }
 }
@@ -65,21 +71,32 @@ export async function sort({
   typeContract1: { outputType },
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (expression.trim() === "") {
-    throw new Error("Please enter a non-empty key expression");
+    throw new Error(t("errors:sort.noKeyExpression"));
   }
   if (!isSortDirection(sortDirection)) {
-    throw new Error("Please select a valid sort direction");
+    throw new Error(t("errors:sort.noSortDirection"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
+
+  const [sorted, mvr] = await uncheckedSort(
+    dataset,
+    expression,
+    outputType,
+    sortDirection
+  );
+
+  mvr.extraInfo = `The key expression formula evaluated to a missing value for ${mvr.missingValues.length} rows.`;
+
   return [
-    await uncheckedSort(dataset, expression, outputType, sortDirection),
+    sorted,
     `Sort(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, sorted by the value of the key formula: \`${expression}\`.`,
+    mvr,
   ];
 }
 
@@ -89,12 +106,24 @@ export async function uncheckedSort(
   outputType: CodapLanguageType,
   sortDirection: SortDirection,
   evalFormula = evalExpression
-): Promise<DataSet> {
+): Promise<[DataSet, MissingValueReport]> {
   const records = dataset.records;
   const keyValues = await evalFormula(keyExpr, records);
 
+  const mvr: MissingValueReport = {
+    kind: "formula",
+    missingValues: [],
+  };
+
+  // Note rows for which the key expression evaluated to a missing value
+  keyValues.forEach((value, i) => {
+    if (isMissing(value)) {
+      mvr.missingValues.push(i + 1);
+    }
+  });
+
   // Check for type errors (might throw error and abort transformer)
-  reportTypeErrorsForRecords(records, keyValues, outputType);
+  await reportTypeErrorsForRecords(records, keyValues, outputType, evalFormula);
 
   const sorted = records
     .map((record, i) => {
@@ -107,10 +136,11 @@ export async function uncheckedSort(
     })
     .map(({ record }) => record);
 
-  return new Promise((resolve) =>
-    resolve({
+  return [
+    {
       collections: dataset.collections,
       records: sorted,
-    })
-  );
+    },
+    mvr,
+  ];
 }

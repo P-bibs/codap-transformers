@@ -1,7 +1,7 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import {
   reparent,
   eraseFormulas,
@@ -10,6 +10,7 @@ import {
   listAsString,
   validateAttribute,
 } from "./util";
+import { t } from "../strings";
 
 /**
  * Constructs a dataset with only the indicated attributes from the
@@ -21,14 +22,14 @@ export async function selectAttributes({
   dropdown1: mode,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
 
   // select all but the given attributes?
   const allBut = mode === "selectAllBut";
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
   return [
@@ -37,6 +38,7 @@ export async function selectAttributes({
     `A copy of ${ctxtName} with ${
       allBut ? "all but" : "only"
     } the ${pluralSuffix("attribute", attributes)} ${attributeNames} included.`,
+    EMPTY_MVR,
   ];
 }
 
@@ -63,9 +65,7 @@ export function uncheckedSelectAttributes(
   const selectedAttrs = attrsToSelect(dataset, attributes, allBut);
 
   if (selectedAttrs.length === 0) {
-    throw new Error(
-      `Transformed dataset must contain at least one attribute (0 selected)`
-    );
+    throw new Error(t("errors:selectAttributes.noSelectedAttributes"));
   }
 
   // copy records, but only the selected attributes

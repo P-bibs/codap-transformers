@@ -1,8 +1,8 @@
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { readableName } from "../transformers/util";
+import { isMissing, tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { uniqueName } from "../lib/utils/names";
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
 import {
   eraseFormulas,
   codapValueToString,
@@ -11,6 +11,7 @@ import {
   plural,
   validateAttribute,
 } from "./util";
+import { t } from "../strings";
 
 /**
  * Turns selected attribute names into values of a new attribute, reorganizing
@@ -24,28 +25,24 @@ export async function pivotLonger({
   textInput2: valuesTo,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (attributes.length === 0) {
-    throw new Error("Please choose at least one attribute to pivot on");
+    throw new Error(t("errors:pivot.noAttribute"));
   }
   if (namesTo.trim() === "") {
-    throw new Error(
-      "Please choose a non-empty name for the Names To attribute"
-    );
+    throw new Error(t("errors:pivot.noNameForNamesTo"));
   }
   if (valuesTo.trim() === "") {
-    throw new Error(
-      "Please choose a non-empty name for the Values To attribute"
-    );
+    throw new Error(t("errors:pivot.noNameForValuesTo"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
   return [
-    await uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
+    uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
     `PivotLonger(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the ${pluralSuffix(
       "attribute",
@@ -57,6 +54,7 @@ export async function pivotLonger({
         attributes
       )} under a new attribute (${namesTo}), and the values previously ` +
       `under ${attributeNames} moved under a new attribute (${valuesTo}).`,
+    EMPTY_MVR,
   ];
 }
 
@@ -83,14 +81,10 @@ export function uncheckedPivotLonger(
   }
 
   if (dataset.collections.length !== 1) {
-    throw new Error(
-      `Pivot longer can only be used on a single-collection dataset`
-    );
+    throw new Error(t("errors:pivot.pivotLongerOnlySingleCollection"));
   }
   if (namesTo === valuesTo) {
-    throw new Error(
-      `Please choose distinct names for the Names To and Values To attributes`
-    );
+    throw new Error(t("errors:pivot.namesToValuesToSameName"));
   }
 
   // remove pivoting attributes
@@ -156,22 +150,23 @@ export async function pivotWider({
   attribute2: valuesFrom,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (namesFrom === null) {
-    throw new Error("Please choose an attribute to get names from");
+    throw new Error(t("errors:pivot.noNamesFrom"));
   }
   if (valuesFrom === null) {
-    throw new Error("Please choose an attribute to get values from");
+    throw new Error(t("errors:pivot.noValuesFrom"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   return [
-    await uncheckedPivotWider(dataset, namesFrom, valuesFrom),
+    uncheckedPivotWider(dataset, namesFrom, valuesFrom),
     `PivotWider(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
       `into new attributes, which get their values from the attribute ${valuesFrom}.`,
+    EMPTY_MVR,
   ];
 }
 
@@ -194,9 +189,7 @@ export function uncheckedPivotWider(
   validateAttribute(dataset.collections, valuesFrom);
 
   if (dataset.collections.length !== 1) {
-    throw new Error(
-      `Pivot wider can only be used on a single-collection dataset`
-    );
+    throw new Error(t("errors:pivot.pivotWiderOnlySingleCollection"));
   }
 
   const collection = { ...dataset.collections[0] };
@@ -207,16 +200,23 @@ export function uncheckedPivotWider(
       dataset.records.map((rec, i) => {
         if (typeof rec[namesFrom] === "object") {
           throw new Error(
-            `Cannot use ${codapValueToString(
-              rec[namesFrom]
-            )} (from attribute ${namesFrom} at case ${
-              i + 1
-            }) as an attribute name`
+            t("errors:pivot.cannotUseAsAttributeName", {
+              value: codapValueToString(rec[namesFrom]),
+              attributeName: namesFrom,
+              caseNumber: i + 1,
+            })
           );
         }
 
-        // NOTE: If rec[namesFrom] is undefined (missing), this returns ""
-        return rec[namesFrom] === undefined ? "" : String(rec[namesFrom]);
+        if (isMissing(rec[namesFrom])) {
+          throw new Error(
+            `Cannot use missing value (from attribute ${namesFrom} at case ${
+              i + 1
+            }) as an attribute name.`
+          );
+        }
+
+        return String(rec[namesFrom]);
       })
     )
   );
@@ -225,7 +225,7 @@ export function uncheckedPivotWider(
   const [, valuesFromAttr] = validateAttribute(
     [collection],
     valuesFrom,
-    `Invalid attribute to retrieve values from: ${valuesFrom}`
+    t("errors:pivot.invalidAttributeForValuesFrom", { name: valuesFrom })
   );
 
   // remove namesFrom/valuesFrom attributes from collection
@@ -269,11 +269,13 @@ export function uncheckedPivotWider(
 
     if (collapsed[record[namesFrom] as string] !== undefined) {
       throw new Error(
-        `Case has multiple ${valuesFrom} values (${codapValueToString(
-          collapsed[record[namesFrom] as string]
-        )} and ${codapValueToString(
-          record[valuesFrom]
-        )}) for same ${namesFrom} (${codapValueToString(record[namesFrom])})`
+        t("errors:pivot.multipleValuesForSameNamesFrom", {
+          valuesFrom,
+          value1: codapValueToString(collapsed[record[namesFrom] as string]),
+          value2: codapValueToString(record[valuesFrom]),
+          namesFrom,
+          namesFromValue: codapValueToString(record[namesFrom]),
+        })
       );
     }
 
@@ -289,19 +291,19 @@ export function uncheckedPivotWider(
 
 /**
  * Determines if the two records are equivalent, ignoring the indicated fields.
+ * NOTE: assumes the records have the same fields to begin with. This should be
+ * true when comparing between records from same data context.
  */
 function equivExcept(
   recA: Record<string, unknown>,
   recB: Record<string, unknown>,
   except: string[]
 ): boolean {
-  // NOTE: assumes the records have the same fields to begin with.
-  // This should be true when comparing between records from same data context.
-  for (const key of Object.keys(recA)) {
-    if (except.includes(key)) {
+  for (const attribute of Object.keys(recA)) {
+    if (except.includes(attribute)) {
       continue;
     }
-    if (recA[key] !== recB[key]) {
+    if (recA[attribute] !== recB[attribute]) {
       return false;
     }
   }

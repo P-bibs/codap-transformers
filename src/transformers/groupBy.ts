@@ -1,6 +1,6 @@
-import { DataSet, TransformationOutput } from "./types";
+import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { CodapAttribute, Collection } from "../lib/codapPhone/types";
-import { readableName } from "../transformers/util";
+import { addToMVR, isMissing, tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import {
@@ -14,6 +14,7 @@ import {
   validateAttribute,
 } from "./util";
 import { uniqueName } from "../lib/utils/names";
+import { t } from "../strings";
 
 /**
  * Groups a dataset by the indicated attributes, by removing them from
@@ -26,10 +27,10 @@ export async function groupBy({
   attributeSet1: attributes,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (attributes.length === 0) {
-    throw new Error("Please choose at least one attribute to group by");
+    throw new Error(t("errors:groupBy.noAttribute"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -38,20 +39,30 @@ export async function groupBy({
     `Grouped by ${attributeNames}`,
     allCollectionNames(dataset)
   );
-  const ctxtName = readableName(context);
+  const ctxtName = tryTitle(context);
   const attrNames = attributes.map((name) => ({
     attrName: name,
     groupedName: `${name} Group`,
   }));
 
+  const [grouped, mvr] = uncheckedGroupBy(
+    ctxtName,
+    dataset,
+    attrNames,
+    parentName
+  );
+
+  mvr.extraInfo = `${mvr.missingValues.length} missing values were encountered in the grouped attributes.`;
+
   return [
-    await uncheckedGroupBy(dataset, attrNames, parentName),
+    grouped,
     `GroupBy(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new parent collection added ` +
       `which contains a copy of the ${pluralSuffix(
         "attribute",
         attributes
       )} ${attributeNames}.`,
+    mvr,
   ];
 }
 
@@ -68,10 +79,11 @@ export async function groupBy({
  * @returns the grouped dataset
  */
 export function uncheckedGroupBy(
+  contextTitle: string,
   dataset: DataSet,
   attrNames: { attrName: string; groupedName: string }[],
   newParentName: string
-): DataSet {
+): [DataSet, MissingValueReport] {
   for (const { attrName } of attrNames) {
     validateAttribute(dataset.collections, attrName);
   }
@@ -110,7 +122,9 @@ export function uncheckedGroupBy(
     }
 
     // attribute was not found in any collection
-    throw new Error(`Invalid attribute name: ${attrName}`);
+    throw new Error(
+      t("errors:validation.invalidAttribute", { name: attrName })
+    );
   }
 
   // remove any collections with no attributes after the group,
@@ -137,16 +151,29 @@ export function uncheckedGroupBy(
     attrs: groupedAttrs,
   };
 
+  const mvr: MissingValueReport = {
+    kind: "input",
+    missingValues: [],
+  };
+
   const records = dataset.records.map(shallowCopy);
-  for (const record of records) {
+  for (const [i, record] of records.entries()) {
     for (const { attrName } of attrNames) {
+      // Record missing values from grouped attributes in MVR.
+      if (isMissing(record[attrName])) {
+        addToMVR(mvr, dataset, contextTitle, attrName, i);
+      }
+
       // make copy of record data from original attr into grouped attr
       record[attrToGroupedName[attrName]] = record[attrName];
     }
   }
 
-  return {
-    collections: [collection].concat(collections),
-    records,
-  };
+  return [
+    {
+      collections: [collection].concat(collections),
+      records,
+    },
+    mvr,
+  ];
 }

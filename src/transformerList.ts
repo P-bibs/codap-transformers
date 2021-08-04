@@ -12,7 +12,7 @@ import { selectAttributes } from "./transformers/selectAttributes";
 import { count } from "./transformers/count";
 import { sort } from "./transformers/sort";
 import { pivotLonger, pivotWider } from "./transformers/pivot";
-import { join } from "./transformers/join";
+import { innerJoin, outerJoin } from "./transformers/join";
 import { copy } from "./transformers/copy";
 import { copyStructure } from "./transformers/copyStructure";
 import { combineCases } from "./transformers/combineCases";
@@ -79,7 +79,8 @@ export type DatasetCreatorTransformerName =
   | "Transform Column"
   | "Copy"
   | "Copy Structure"
-  | "Join"
+  | "Inner Join"
+  | "Outer Join"
   | "Mean"
   | "Median"
   | "Mode"
@@ -265,7 +266,7 @@ const transformerList: TransformerList = {
       },
     },
   },
-  Join: {
+  "Inner Join": {
     group: "Combining Transformers",
     componentData: {
       init: {
@@ -282,25 +283,77 @@ const transformerList: TransformerList = {
           title: "Joining Attribute",
         },
       },
-      transformerFunction: { kind: "datasetCreator", func: join },
+      transformerFunction: { kind: "datasetCreator", func: innerJoin },
       info: {
         summary:
-          "Combines two datasets into a new one, based on values that are shared \
-          between the datasets. The output is a copy of the base dataset, but the \
-          collection containing the base attribute also contains copies of the \
-          attributes from the collection containing the joining attribute in the \
-          joining dataset.\n\
-          The copied attributes hold values from the first case in the joining \
-          dataset whose value for the joining attribute matched the value of the \
-          base attribute (or are missing if there is no such case).",
+          "Combines two datasets into a new one via an inner join, based on \
+          values that are shared between the datasets. The output is a copy of \
+          the base dataset, but the collection containing the base attribute \
+          also contains copies of the attributes from the collection containing \
+          the joining attribute in the joining dataset.\n\
+          The combined dataset contains only the cases where the base attribute \
+          and the joining attribute match. If there are multiple cases that \
+          match with a single case, that case will be duplicated.",
         consumes:
           "Two datasets to join (one base and one joining), and an attribute \
           from each whose shared values will determine which cases are joined to \
           each other.",
         produces:
+          "A single, new dataset containing cases from the base dataset and \
+          those from the joining dataset where the base and joining \
+          attributes match.",
+        docLink: docLinkFromHeadingID("h.vdg3eipys2m2"),
+      },
+    },
+  },
+  "Outer Join": {
+    group: "Combining Transformers",
+    componentData: {
+      init: {
+        context1: {
+          title: "Base Dataset",
+        },
+        context2: {
+          title: "Joining Dataset",
+        },
+        attribute1: {
+          title: "Base Attribute",
+        },
+        attribute2: {
+          title: "Joining Attribute",
+        },
+        dropdown1: {
+          title: "Join Type",
+          defaultValue: "Select a join type",
+          options: [
+            { value: "left", title: "Left Outer Join" },
+            { value: "full", title: "Full Outer Join" },
+          ],
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: outerJoin },
+      info: {
+        summary:
+          "Combines two datasets into a new one via a left or full outer join. \
+          The output is a copy of the base dataset, but the collection \
+          containing the base attribute also contains copies of the \
+          attributes from the collection containing the joining attribute in the \
+          joining dataset.\n\
+          In the case of a left join, the combined dataset contains all cases \
+          from the base dataset as well as cases from the joining dataset where \
+          the base and joining attributes match. If a full outer join is \
+          performed instead, all cases from the joining dataset without \
+          matches will also be included in the result. If there are multiple \
+          cases that match with a single case, that case will be duplicated.",
+        consumes:
+          "Two datasets to join (one base and one joining), and an attribute \
+          attribute from each whose shared values will determine which cases are \
+          joined to each other.",
+        produces:
           "A single, new dataset containing all collections/attributes from the \
           base dataset, as well as some cases copied in from the joining dataset \
-          where the joining and base attributes matched.",
+          where the joining and base attributes matched. In the case of a full \
+          outer join, all cases from the joining dataset will be included.",
         docLink: docLinkFromHeadingID("h.vdg3eipys2m2"),
       },
     },

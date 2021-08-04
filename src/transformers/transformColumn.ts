@@ -9,6 +9,7 @@ import { TransformerTemplateState } from "../components/transformer-template/Tra
 import { isMissing, tryTitle } from "../transformers/util";
 import { cloneCollection, shallowCopy, validateAttribute } from "./util";
 import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
+import { t } from "../strings";
 
 /**
  * Produces a dataset with the indicated attribute's values transformed
@@ -22,16 +23,16 @@ export async function transformColumn({
   typeContract1: { outputType },
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (attributeName === null) {
-    throw new Error("Please select an attribute to transform");
+    throw new Error(t("errors:transformColumn.noAttribute"));
   }
   if (expression.trim() === "") {
-    throw new Error("Please enter a non-empty expression to transform with");
+    throw new Error(t("errors:transformColumn.noExpression"));
   }
   if (outputType === null) {
-    throw new Error("Please enter a valid output type");
+    throw new Error(t("errors:transformColumn.noOutputType"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -65,7 +66,7 @@ export async function uncheckedTransformColumn(
   validateAttribute(
     dataset.collections,
     attributeName,
-    `Invalid attribute to transform: ${attributeName}`
+    t("errors:transformColumn.invalidAttribute", { name: attributeName })
   );
 
   const records = dataset.records.map(shallowCopy);

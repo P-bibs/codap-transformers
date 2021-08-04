@@ -243,7 +243,7 @@ test("errors when key expression evaluates to multiple types", async () => {
       jsEvalExpression
     );
   } catch (e) {
-    expect(e.message).toMatch(/keys of differing types/);
+    expect(e.message).toMatch(/evaluates to the same type/);
   }
 
   try {
@@ -255,7 +255,7 @@ test("errors when key expression evaluates to multiple types", async () => {
       jsEvalExpression
     );
   } catch (e) {
-    expect(e.message).toMatch(/keys of differing types/);
+    expect(e.message).toMatch(/evaluates to the same type/);
   }
 });
 

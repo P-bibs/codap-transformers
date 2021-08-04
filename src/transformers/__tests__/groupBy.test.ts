@@ -158,7 +158,7 @@ describe("groupBy", () => {
         [{ attrName: "NOT_EXIST", groupedName: "Grouped" }],
         "Grouped"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Grouping by multiple attributes, one invalid throws error", () => {
@@ -172,7 +172,7 @@ describe("groupBy", () => {
         ],
         "Grouped"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Groupby does not erase metadata besides description and formula", () => {

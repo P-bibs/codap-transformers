@@ -62,7 +62,7 @@ test("errors on no attributes given", () => {
 });
 
 test("errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() =>
     uncheckedSumProductWrapper("Census Dataset", CENSUS_DATASET, [
       "Age",
@@ -75,7 +75,7 @@ test("errors on invalid attribute", () => {
 });
 
 test("errors on non-number values", () => {
-  const nonNumberErr = /Expected number/;
+  const nonNumberErr = /Please /;
   expect(() =>
     uncheckedSumProductWrapper("Dataset A", DATASET_A, ["A", "B"])
   ).toThrowError(nonNumberErr);

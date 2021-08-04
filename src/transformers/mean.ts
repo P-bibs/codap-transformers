@@ -3,6 +3,7 @@ import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
+import { t } from "../strings";
 
 /**
  * Takes the mean of a given column.
@@ -12,11 +13,11 @@ export async function mean({
   attribute1: attribute,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
 
   if (attribute === null) {
-    throw new Error("Please choose an attribute to take the mean of.");
+    throw new Error(t("errors:mean.noAttribute"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -59,7 +60,7 @@ export function uncheckedMean(
   );
 
   if (values.length === 0) {
-    throw new Error(`Cannot find mean of no numeric values`);
+    throw new Error(t("errors:mean.noValues"));
   }
 
   // Sum them and divide by the number of records.

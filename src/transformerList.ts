@@ -5,7 +5,7 @@ import {
 } from "./components/transformer-template/TransformerTemplate";
 import { TransformationDescription } from "./transformerStore/types";
 import { filter } from "./transformers/filter";
-import { buildColumn } from "./transformers/buildColumn";
+import { buildAttribute } from "./transformers/buildAttribute";
 import { flatten } from "./transformers/flatten";
 import { groupBy } from "./transformers/groupBy";
 import { selectAttributes } from "./transformers/selectAttributes";
@@ -32,7 +32,7 @@ import { mode } from "./transformers/mode";
 import { standardDeviation } from "./transformers/standardDeviation";
 import { partitionOverride, partitionUpdate } from "./transformers/partition";
 import { editableCopyOverride } from "./transformers/editableCopy";
-import { transformColumn } from "./transformers/transformColumn";
+import { transformAttribute } from "./transformers/transformAttribute";
 import { compare } from "./transformers/compare";
 
 export type TransformersInteractiveState = {
@@ -60,7 +60,7 @@ export type TransformerGroup =
  *  All valid values of the `base` field of a saved transformer object
  */
 export type DatasetCreatorTransformerName =
-  | "Build Column"
+  | "Build Attribute"
   | "Compare"
   | "Count"
   | "Filter"
@@ -76,7 +76,7 @@ export type DatasetCreatorTransformerName =
   | "Pivot Wider"
   | "Select Attributes"
   | "Sort"
-  | "Transform Column"
+  | "Transform Attribute"
   | "Copy"
   | "Copy Structure"
   | "Join"
@@ -822,12 +822,12 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Transform Column": {
+  "Transform Attribute": {
     group: "Basic Building",
     componentData: {
       init: {
         context1: {
-          title: "Dataset to Transform Column Of",
+          title: "Dataset to Transform Attribute Of",
         },
         attribute1: {
           title: "Attribute to Transform",
@@ -840,7 +840,7 @@ const transformerList: TransformerList = {
         },
         expression1: { title: "" },
       },
-      transformerFunction: { kind: "datasetCreator", func: transformColumn },
+      transformerFunction: { kind: "datasetCreator", func: transformAttribute },
       info: {
         summary:
           "Takes an input dataset and produces a copy of it with the values of \
@@ -856,7 +856,7 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Build Column": {
+  "Build Attribute": {
     group: "Basic Building",
     componentData: {
       init: {
@@ -877,7 +877,7 @@ const transformerList: TransformerList = {
         },
         expression1: { title: "" },
       },
-      transformerFunction: { kind: "datasetCreator", func: buildColumn },
+      transformerFunction: { kind: "datasetCreator", func: buildAttribute },
       info: {
         summary:
           "Makes a new copy of a  dataset, and adds a new attribute to one of the \

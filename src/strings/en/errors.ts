@@ -61,7 +61,7 @@ const errors = {
     nonNumericStartingValue:
       "Please provide a  numeric starting value; got {{ value }}",
   },
-  buildColumn: {
+  buildAttribute: {
     noCollection:
       "Please select a collection to which the new attribute will be added",
     noAttribute: "Please enter a name for the new attribute",
@@ -132,7 +132,7 @@ const errors = {
     typeMismatchInAttribute:
       'Please select a numeric attribute instead of "{{ name }}"',
   },
-  transformColumn: {
+  transformAttribute: {
     noAttribute: "Please select an attribute to transform",
     noExpression: "Please enter an expression with which to transform",
     noOutputType: "Please enter an output type",

@@ -300,7 +300,7 @@ const transformerList: TransformerList = {
           each other.",
         produces:
           "A single, new dataset containing cases from the base dataset and \
-          those from from the joining dataset where the base and joining \
+          those from the joining dataset where the base and joining \
           attributes match.",
         docLink: docLinkFromHeadingID("h.vdg3eipys2m2"),
       },
@@ -341,10 +341,10 @@ const transformerList: TransformerList = {
           joining dataset.\n\
           In the case of a left join, the combined dataset contains all cases \
           from the base dataset as well as cases from the joining dataset where \
-          the base and joining  attributes match. If a full outer join is \
-          performed instead, all cases  from the joining dataset without \
-          matches will also be included in the  result. If there are multiple \
-          cases that match with a single  case, that case will be duplicated.",
+          the base and joining attributes match. If a full outer join is \
+          performed instead, all cases from the joining dataset without \
+          matches will also be included in the result. If there are multiple \
+          cases that match with a single case, that case will be duplicated.",
         consumes:
           "Two datasets to join (one base and one joining), and an attribute \
           attribute from each whose shared values will determine which cases are \

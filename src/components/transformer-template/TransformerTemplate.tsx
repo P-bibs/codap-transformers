@@ -245,7 +245,8 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     activeTransformationsDispatch,
   } = props;
 
-  const errorId = useErrorSetterId();
+  // Refresh the errorId when the transformer changes
+  const errorId = useErrorSetterId([init]);
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -355,6 +356,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             output: textName,
             transformer: base as DatasetCreatorTransformerName,
             state,
+            errorId,
           },
         });
 
@@ -386,6 +388,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             output: newContextName,
             transformer: base as DatasetCreatorTransformerName,
             state,
+            errorId,
           },
         });
 
@@ -402,6 +405,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
 
   return (
     <>
+      <p>{errorId}</p>
       {order.map((component) => {
         if (component === "context1" || component === "context2") {
           return (

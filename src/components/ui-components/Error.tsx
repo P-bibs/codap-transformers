@@ -182,8 +182,9 @@ export function useErrorStore(): [
 /**
  * A hook to generate a new unique id and keep it stable across renders
  */
-export function useErrorSetterId(): number {
-  return useMemo(() => genErrorSetterId(), []);
+export function useErrorSetterId(deps?: unknown[]): number {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => genErrorSetterId(), deps || []);
 }
 
 const genErrorSetterId = (() => {

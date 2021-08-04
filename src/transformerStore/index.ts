@@ -41,8 +41,6 @@ export function useActiveTransformations(
   React.Dispatch<ActiveTransformationsAction>,
   React.Dispatch<SafeActions>
 ] {
-  const errorId = useErrorSetterId();
-
   const [activeTransformations, activeTransformationsDispatch] = useReducer(
     activeTransformationsReducer,
     {}
@@ -92,17 +90,17 @@ export function useActiveTransformations(
             );
             setErrMsg(
               `Error updating "${tryTitle(context)}": ${e.message}`,
-              errorId
+              description.errorId
             );
           } else {
-            setErrMsg(e.message, errorId);
+            setErrMsg(e.message, description.errorId);
           }
         }
       }
     }
     addContextUpdateHook(callback);
     return () => removeContextUpdateHook(callback);
-  }, [activeTransformations, setErrMsg, errorId]);
+  }, [activeTransformations, setErrMsg]);
 
   // Delete transformations for deleted contexts
   useEffect(() => {

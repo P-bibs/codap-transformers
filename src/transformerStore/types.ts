@@ -10,6 +10,7 @@ export enum TransformationOutputType {
 export interface BaseTransformationDescription {
   inputs: string[];
   extraDependencies: string[];
+  errorId: number;
 }
 
 export interface DatasetCreatorDescription

@@ -381,11 +381,10 @@ export type CodapInitiatedCommand =
     }
   | {
       action: CodapActions.Notify;
+
+      // Actually dataContextChangeNotice[contextName]
       resource: CodapInitiatedResource.DataContextChangeNotice;
-      values: {
-        operation: ContextChangeOperation;
-        result?: Record<string, unknown>;
-      }[];
+      values: DataContextChangeNoticeValue[];
     }
   | {
       action: CodapActions.Notify;
@@ -397,7 +396,101 @@ export type CodapInitiatedCommand =
         name: string;
         title: string;
       };
+    }
+  | TextViewTitleChangeNotification;
+
+export type DataContextChangeNoticeValue =
+  | {
+      operation: ContextChangeOperation.UpdateCases;
+      result: { success: boolean; caseIDs: number[]; cases: ReturnedCase[] };
+    }
+  | {
+      operation: ContextChangeOperation.CreateCases;
+      result: {
+        success: boolean;
+        caseID: number;
+        caseIDs: number[];
+        itemID: number;
+        itemIDs: number[];
+      };
+    }
+  | {
+      operation: ContextChangeOperation.DeleteCases;
+      result: {
+        success: boolean;
+        cases?: ReturnedCase[];
+        caseIDs?: number[];
+      };
+    }
+  | {
+      operation: ContextChangeOperation.SelectCases;
+      result: {
+        success: boolean;
+        cases: ReturnedCase[];
+        extend: boolean;
+      };
+    }
+  | {
+      operation: ContextChangeOperation.UpdateContext;
+      result: {
+        success: boolean;
+        properties: Partial<DataContext>;
+      };
+    }
+  | {
+      operation: ContextChangeOperation.MoveCases;
+      result: {
+        success: boolean;
+
+        // For some reason this is always empty
+        caseIDs: number[];
+      };
+    }
+  | {
+      operation:
+        | ContextChangeOperation.CreateAttribute
+        | ContextChangeOperation.UpdateAttribute
+        | ContextChangeOperation.MoveAttribute;
+      result: {
+        success: boolean;
+        attrs: CodapAttribute[];
+        attrIDs: number[];
+      };
+    }
+  | {
+      operation:
+        | ContextChangeOperation.DeleteAttribute
+        | ContextChangeOperation.HideAttribute
+        | ContextChangeOperation.UnhideAttribute;
+      result: { success: boolean; attrIDs: number[] };
+    }
+  | {
+      operation: ContextChangeOperation.UpdateCollection;
+      result: { success: boolean; properties: Partial<Collection> };
+    }
+  | {
+      operation: ContextChangeOperation.CreateCollection;
+      result: { success: boolean; collection: number };
+    }
+  | {
+      operation:
+        | ContextChangeOperation.DeleteCollection
+        | ContextChangeOperation.DependentCases;
+      result: { success: boolean };
     };
+
+export interface TextViewTitleChangeNotification {
+  action: CodapActions.Notify;
+
+  // Actually dataContextChangeNotice[contextName]
+  resource: CodapResource.Component;
+  type: "DG.TextView";
+  values: {
+    operation: "titleChange";
+    from: string;
+    to: string;
+  };
+}
 
 // The `metadata` property of data contexts is undocumented but described here:
 // https://codap.concord.org/forums/topic/accessing-dataset-description-through-plugin-api/

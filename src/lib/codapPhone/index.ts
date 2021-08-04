@@ -5,6 +5,7 @@ import {
   CodapActions,
   CodapResponse,
   CodapRequest,
+  UpdateTextRequest,
   GetContextResponse,
   GetCasesResponse,
   GetCaseResponse,
@@ -723,7 +724,8 @@ export function insertDataItems(
 
 export async function updateContextWithDataSet(
   contextName: string,
-  dataset: DataSet
+  dataset: DataSet,
+  title?: string
 ): Promise<void> {
   const context = await getDataContext(contextName);
   const requests = [];
@@ -764,6 +766,10 @@ export async function updateContextWithDataSet(
   }
 
   requests.push(Actions.insertDataItems(contextName, dataset.records));
+
+  if (title !== undefined) {
+    requests.push(Actions.updateDataContext(contextName, { title }));
+  }
 
   const responses = await callMultiple(requests);
   for (const response of responses) {
@@ -913,44 +919,49 @@ export async function createText(
   );
 }
 
-export async function updateText(name: string, content: string): Promise<void> {
-  return new Promise<void>((resolve, reject) =>
-    phone.call(
-      {
-        action: CodapActions.Update,
-        resource: resourceFromComponent(name),
-        values: {
-          text: {
-            object: "value",
-            data: {
-              fontSize: TEXT_FONT_SIZE,
-            },
-            document: {
+export async function updateText(
+  name: string,
+  content: string,
+  title?: string
+): Promise<void> {
+  const request: UpdateTextRequest = {
+    action: CodapActions.Update,
+    resource: resourceFromComponent(name),
+    values: {
+      text: {
+        object: "value",
+        data: {
+          fontSize: TEXT_FONT_SIZE,
+        },
+        document: {
+          children: [
+            {
+              type: "paragraph",
               children: [
                 {
-                  type: "paragraph",
-                  children: [
-                    {
-                      text: content,
-                    },
-                  ],
+                  text: content,
                 },
               ],
-              objTypes: {
-                paragraph: "block",
-              },
             },
+          ],
+          objTypes: {
+            paragraph: "block",
           },
         },
       },
-      (response) => {
-        if (response.success) {
-          resolve();
-        } else {
-          reject(new Error("Failed to update text"));
-        }
+    },
+  };
+  if (title !== undefined) {
+    request.values.title = title;
+  }
+  return new Promise<void>((resolve, reject) =>
+    phone.call(request, (response) => {
+      if (response.success) {
+        resolve();
+      } else {
+        reject(new Error("Failed to update text"));
       }
-    )
+    })
   );
 }
 

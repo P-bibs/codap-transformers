@@ -66,7 +66,7 @@ export type DatasetCreatorTransformerName =
   | "Filter"
   | "Flatten"
   | "Running Sum"
-  | "Running Mean"
+  | "Running Mean / Average"
   | "Running Min"
   | "Running Max"
   | "Difference"
@@ -80,7 +80,7 @@ export type DatasetCreatorTransformerName =
   | "Copy"
   | "Copy Structure"
   | "Join"
-  | "Mean"
+  | "Mean / Average"
   | "Median"
   | "Mode"
   | "Standard Deviation"
@@ -430,7 +430,7 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Running Mean": {
+  "Running Mean / Average": {
     group: "Running Aggregation",
     componentData: {
       init: {
@@ -606,7 +606,7 @@ const transformerList: TransformerList = {
       },
     },
   },
-  Mean: {
+  "Mean / Average": {
     group: "Aggregating",
     componentData: {
       init: {

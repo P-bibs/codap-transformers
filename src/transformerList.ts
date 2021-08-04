@@ -12,7 +12,7 @@ import { selectAttributes } from "./transformers/selectAttributes";
 import { count } from "./transformers/count";
 import { sort } from "./transformers/sort";
 import { pivotLonger, pivotWider } from "./transformers/pivot";
-import { join, outerJoin } from "./transformers/join";
+import { innerJoin, outerJoin } from "./transformers/join";
 import { copy } from "./transformers/copy";
 import { copyStructure } from "./transformers/copyStructure";
 import { combineCases } from "./transformers/combineCases";
@@ -79,7 +79,7 @@ export type DatasetCreatorTransformerName =
   | "Transform Column"
   | "Copy"
   | "Copy Structure"
-  | "Join"
+  | "Inner Join"
   | "Outer Join"
   | "Mean"
   | "Median"
@@ -266,7 +266,7 @@ const transformerList: TransformerList = {
       },
     },
   },
-  Join: {
+  "Inner Join": {
     group: "Combining Transformers",
     componentData: {
       init: {
@@ -283,7 +283,7 @@ const transformerList: TransformerList = {
           title: "Joining Attribute",
         },
       },
-      transformerFunction: { kind: "datasetCreator", func: join },
+      transformerFunction: { kind: "datasetCreator", func: innerJoin },
       info: {
         summary:
           "Combines two datasets into a new one via an inner join, based on \

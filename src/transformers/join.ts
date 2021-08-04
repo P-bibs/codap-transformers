@@ -20,7 +20,7 @@ import { t } from "../strings";
  * but cases where the values do not match will not be in the result. If there
  * are multiple matches, each will become its own case in the result.
  */
-export async function join({
+export async function innerJoin({
   context1: inputDataContext1,
   context2: inputDataContext2,
   attribute1: inputAttribute1,

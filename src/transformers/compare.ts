@@ -20,6 +20,7 @@ import {
 } from "../lib/utils/colors";
 import { uncheckedFlatten } from "./flatten";
 import { uncheckedGroupBy } from "./groupBy";
+import { t } from "../strings";
 
 const COMPARE_STATUS_COLUMN_BASE = "Compare Status";
 const COMPARE_VALUE_COLUMN_BASE = "Difference";
@@ -34,13 +35,13 @@ export async function compare({
   dropdown1: kind,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1) {
-    throw new Error("Please select a data context");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (!(inputAttribute1 && inputAttribute2)) {
-    throw new Error("Please select two attributes");
+    throw new Error(t("errors:compare.noAttribute"));
   }
   if (!(kind === "categorical" || kind === "numeric")) {
-    throw new Error("Please select a valid comparison type");
+    throw new Error(t("errors:compare.noComparisonType"));
   }
 
   const { context, dataset } = await getContextAndDataSet(inputDataContext1);
@@ -97,12 +98,12 @@ export function uncheckedNumericCompare(
   const [, attribute1Data] = validateAttribute(
     dataset.collections,
     attributeName1,
-    "Invalid first attribute"
+    t("errors:compare.invalidFirstAttribute", { name: attributeName1 })
   );
   const [, attribute2Data] = validateAttribute(
     dataset.collections,
     attributeName2,
-    "Invalid second attribute"
+    t("errors:compare.invalidSecondAttribute", { name: attributeName2 })
   );
   const collections = dataset.collections.map(cloneCollection);
 
@@ -118,6 +119,7 @@ export function uncheckedNumericCompare(
       undefined
   );
 
+  // FIXME: Is this check not necessary because of validateAttribute?
   // Make sure both attributes were found
   if (attribute1CollectionIndex === -1) {
     throw new Error("First attribute not found in dataset");
@@ -181,10 +183,20 @@ export function uncheckedNumericCompare(
 
     // If either is not a number (and also not empty string), throw an error
     if (isNaN(parsed1) && v1 !== "") {
-      throw new Error(`Expected number, instead got ${codapValueToString(v1)}`);
+      throw new Error(
+        t("errors:validation.typeMismatch", {
+          type: "number",
+          value: codapValueToString(v1),
+        })
+      );
     }
     if (isNaN(parsed2) && v2 !== "") {
-      throw new Error(`Expected number, instead got ${codapValueToString(v2)}`);
+      throw new Error(
+        t("errors:validation.typeMismatch", {
+          type: "number",
+          value: codapValueToString(v2),
+        })
+      );
     }
 
     // skip missing values but add them to the MVR
@@ -252,12 +264,12 @@ export function uncheckedCategoricalCompare(
   const [, attribute1Data] = validateAttribute(
     dataset.collections,
     attributeName1,
-    "Invalid first attribute"
+    t("errors:compare.invalidFirstAttribute", { name: attributeName1 })
   );
   const [, attribute2Data] = validateAttribute(
     dataset.collections,
     attributeName2,
-    "Invalid second attribute"
+    t("errors:compare.invalidSecondAttribute", { name: attributeName2 })
   );
 
   dataset = uncheckedFlatten(dataset);

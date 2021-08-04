@@ -12,6 +12,7 @@ import {
   eraseFormulas,
   validateAttribute,
 } from "./util";
+import { t } from "../strings";
 
 /**
  * Performs an inner join on two datasets: cases where baseAttr and joiningAttr
@@ -31,7 +32,7 @@ export async function join({
     !inputAttribute1 ||
     !inputAttribute2
   ) {
-    throw new Error("Please choose two datasets and two attributes");
+    throw new Error(t("errors:join.noDataSetOrAttribute"));
   }
 
   const { context: context1, dataset: dataset1 } = await getContextAndDataSet(
@@ -59,7 +60,7 @@ export async function join({
 
   return [
     joined,
-    `Join(${ctxtName1}, ${ctxtName2}, ...)`,
+    `InnerJoin(${ctxtName1}, ${ctxtName2}, ...)`,
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
       `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
       `containing ${inputAttribute1} in ${ctxtName1}.`,
@@ -178,7 +179,7 @@ export async function outerJoin({
   const ctxtName1 = tryTitle(context1);
   const ctxtName2 = tryTitle(context2);
 
-  const name = `Join(${ctxtName1}, ${ctxtName2}, ...)`;
+  const name = `OuterJoin(${ctxtName1}, ${ctxtName2}, ...)`;
   const description =
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
     `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
@@ -392,7 +393,7 @@ function joinAttributes(
   const [joiningCollection] = validateAttribute(
     joiningDataset.collections,
     joiningAttr,
-    `Invalid joining attribute: ${joiningAttr}`
+    t("errors:join.invalidJoiningAttribute", { name: joiningAttr })
   );
 
   const collections = baseDataset.collections.map(cloneCollection);
@@ -401,7 +402,7 @@ function joinAttributes(
   const [baseCollection] = validateAttribute(
     collections,
     baseAttr,
-    `Invalid base attribute: ${baseAttr}`
+    t("errors:join.invalidBaseAttribute", { name: baseAttr })
   );
 
   const addedAttrs = joiningCollection.attrs?.map(cloneAttribute) || [];

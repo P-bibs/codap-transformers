@@ -119,7 +119,7 @@ test("all attribute metadata is copied", async () => {
 });
 
 test("errors when predicate evaluates to non-boolean", async () => {
-  const nonBooleanErr = /Expected predicate to evaluate to true\/false/;
+  const nonBooleanErr = /evaluates to a boolean/;
   expect.assertions(5);
 
   try {

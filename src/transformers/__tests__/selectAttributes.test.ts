@@ -141,7 +141,7 @@ test("all non-formula metadata is preserved in selected attributes", () => {
 });
 
 test("errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() =>
     uncheckedSelectAttributes(
       CENSUS_DATASET,

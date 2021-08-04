@@ -14,19 +14,19 @@ import {
 
 test("throws error combining datasets with non-shared attributes", () => {
   expect(() => uncheckedCombineCases(DATASET_A, DATASET_B)).toThrowError(
-    /must have the same attribute names/
+    /same attributes/
   );
 });
 
 test("throws error combining datasets with subset of attributes", () => {
   expect(() => uncheckedCombineCases(DATASET_A, DATASET_A_SUBSET)).toThrowError(
-    /must have the same attribute names/
+    /same attributes/
   );
 });
 test("throws error combining datasets with superset of attributes", () => {
   expect(() =>
     uncheckedCombineCases(DATASET_A, DATASET_A_SUPERSET)
-  ).toThrowError(/must have the same attribute names/);
+  ).toThrowError(/same attributes/);
 });
 
 test("combining a dataset with itself works", () => {

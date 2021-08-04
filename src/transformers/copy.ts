@@ -2,6 +2,7 @@ import { TransformerTemplateState } from "../components/transformer-template/Tra
 import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, EMPTY_MVR, TransformationOutput } from "./types";
+import { t } from "../strings";
 
 /**
  * Produces a dataset identical to the original.
@@ -10,7 +11,7 @@ export async function copy({
   context1: contextName,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);

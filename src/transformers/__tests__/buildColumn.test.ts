@@ -41,7 +41,7 @@ test("throws error when non-existent collection given", () => {
     "not here",
     "C + 1",
     "number"
-  ).catch((e) => expect(e.message).toMatch(/Invalid collection/));
+  ).catch((e) => expect(e.message).toMatch(/was not found/));
 });
 
 test("throws error when new attribute collides with existing", () => {
@@ -52,7 +52,7 @@ test("throws error when new attribute collides with existing", () => {
     "child",
     "C + 1",
     "number"
-  ).catch((e) => expect(e.message).toMatch(/name already in use/));
+  ).catch((e) => expect(e.message).toMatch(/already in use/));
 });
 
 test("throws error when expression uses unbound values", async () => {

@@ -9,6 +9,7 @@ import { codapValueToString, isMissing } from "./util";
 import { tryTitle } from "../transformers/util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
+import { t } from "../strings";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
@@ -52,11 +53,10 @@ function compareFn(a: unknown, b: unknown): number {
     return objectCompareFn(a, b);
   } else {
     throw new Error(
-      `Sort encountered keys of differing types (${codapValueToString(
-        a
-      )} and ${codapValueToString(
-        b
-      )}). Keys must have the same type for all cases.`
+      t("errors:sort.keysOfDifferentTypes", {
+        value1: codapValueToString(a),
+        value2: codapValueToString(b),
+      })
     );
   }
 }
@@ -71,13 +71,13 @@ export async function sort({
   typeContract1: { outputType },
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (expression.trim() === "") {
-    throw new Error("Please enter a non-empty key expression");
+    throw new Error(t("errors:sort.noKeyExpression"));
   }
   if (!isSortDirection(sortDirection)) {
-    throw new Error("Please select a valid sort direction");
+    throw new Error(t("errors:sort.noSortDirection"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);

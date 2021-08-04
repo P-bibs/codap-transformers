@@ -1,5 +1,6 @@
 import { CodapLanguageType } from "../../transformers/types";
 import { prettyPrintCase } from "./prettyPrint";
+import { t } from "../../strings";
 
 /**
  * Enum representing all type checking predicates in CODAP
@@ -27,9 +28,10 @@ export async function reportTypeErrorsForRecords(
   const errorIndices = await findTypeErrors(values, type, evalFormula);
   if (errorIndices.length !== 0) {
     throw new Error(
-      `Formula did not evaluate to ${type} for case ${prettyPrintCase(
-        records[errorIndices[0]]
-      )}`
+      t("errors:typeChecking.typeMismatch", {
+        type,
+        case: prettyPrintCase(records[errorIndices[0]]),
+      })
     );
   }
 }

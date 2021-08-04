@@ -825,7 +825,7 @@ test("all attribute metadata except formulas is copied from joining", () => {
 });
 
 test("errors on invalid base attribute", () => {
-  const invalidBaseAttrErr = /Invalid base attribute/;
+  const invalidBaseAttrErr = /was not found/;
 
   function expectThrow(joinFunc: typeof uncheckedJoinWrapper) {
     expect(() =>
@@ -843,7 +843,7 @@ test("errors on invalid base attribute", () => {
 });
 
 test("errors on invalid joining attribute", () => {
-  const invalidJoiningAttrErr = /Invalid joining attribute/;
+  const invalidJoiningAttrErr = /was not found/;
 
   function expectThrow(joinFunc: typeof uncheckedJoinWrapper) {
     expect(() =>

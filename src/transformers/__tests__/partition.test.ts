@@ -219,7 +219,7 @@ test("missing values are treated as their own value", () => {
 });
 
 test("errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() =>
     partitionWrapper("Dataset A", DATASET_A, "Not here")
   ).toThrowError(invalidAttributeErr);

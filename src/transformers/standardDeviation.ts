@@ -3,6 +3,7 @@ import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import { extractAttributeAsNumeric, validateAttribute } from "./util";
+import { t } from "../strings";
 
 /**
  * Finds the standard deviation of a given attribute's values.
@@ -12,13 +13,11 @@ export async function standardDeviation({
   attribute1: attribute,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
 
   if (attribute === null) {
-    throw new Error(
-      "Please choose an attribute to find the standard deviation of."
-    );
+    throw new Error(t("errors:standardDeviation.noAttribute"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -75,7 +74,7 @@ export function uncheckedStandardDeviation(
   );
 
   if (values.length === 0) {
-    throw new Error(`Cannot find standard deviation of no numeric values`);
+    throw new Error(t("errors:standardDeviation.noValues"));
   }
 
   const populationMean = mean(values);

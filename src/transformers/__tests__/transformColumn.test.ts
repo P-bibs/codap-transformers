@@ -102,7 +102,7 @@ test("transform with formula dependent on other attribute", async () => {
 });
 
 test("errors on invalid attribute", async () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect.assertions(3);
 
   try {

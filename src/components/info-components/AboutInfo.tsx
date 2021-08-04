@@ -8,7 +8,15 @@ function AboutInfo(): ReactElement {
   return (
     <Popover
       button={
-        <IconButton style={{ padding: "0" }} size="medium">
+        <IconButton
+          style={{
+            padding: "0",
+            position: "fixed",
+            bottom: "15px",
+            right: "15px",
+          }}
+          size="medium"
+        >
           <HelpIcon htmlColor="var(--blue-green)" fontSize="inherit" />
         </IconButton>
       }

@@ -175,7 +175,7 @@ function SavedDefinitionView({
       </button>
       <ErrorDisplay
         setErrMsg={(err, _id) => setSaveErr(err)}
-        store={saveErr === null ? {} : { 0: saveErr }}
+        store={saveErr === null ? [] : [[0, saveErr]]}
       />
     </div>
   );

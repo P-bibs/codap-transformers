@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, Close } from "@material-ui/icons";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useCallback, useState } from "react";
+import { useEffect } from "react";
 import { useReducer } from "react";
 import { useMemo } from "react";
 import { notifyInteractiveFrameWithSelect } from "../../lib/codapPhone";
@@ -10,42 +11,52 @@ import "./styles/Error.css";
 const ERROR_MESSAGE_CUTOFF_LENGTH = 50;
 
 type ErrorProps = {
-  store: Record<number, string>;
+  store: ErrorStore;
   setErrMsg: (err: string | null, id: number) => void;
 };
+type ErrorStore = [number, string][];
 
 /**
  * Error represents a set of error messages to be shown to the user
  * within the plugin.
  */
 function Error({ store, setErrMsg }: ErrorProps): ReactElement {
-  const length = Object.keys(store).length;
+  const length = store.length;
   const [index, unsafeSetIndex] = useState(0);
   const [displayFullMessage, setDisplayFullMessage] = useState(false);
-
-  // Don't display anything if there are no errors
-  if (length === 0) {
-    return <></>;
-  }
 
   /**
    * A safe wrapper around `unsafeSetIndex` that ensures the index always stays
    * within valid bounds.
    * It can accept either a setter function or a raw value.
    */
-  function setIndex(
-    setterOrValue: number | ((prevIndex: number) => number)
-  ): void {
-    // Show the short error message whenever the index changes
-    setDisplayFullMessage(false);
+  const setIndex = useCallback(
+    (setterOrValue: number | ((prevIndex: number) => number)): void => {
+      // Show the short error message whenever the index changes
+      setDisplayFullMessage(false);
 
-    if (typeof setterOrValue === "number") {
-      unsafeSetIndex(Math.max(0, Math.min(length - 1, setterOrValue)));
-    } else {
-      unsafeSetIndex((index) =>
-        Math.max(0, Math.min(length - 1, setterOrValue(index)))
-      );
+      if (typeof setterOrValue === "number") {
+        unsafeSetIndex(Math.max(0, Math.min(length - 1, setterOrValue)));
+      } else {
+        unsafeSetIndex((index) =>
+          Math.max(0, Math.min(length - 1, setterOrValue(index)))
+        );
+      }
+    },
+    [length]
+  );
+
+  // If the store gets a new error then we should show that error (it will be
+  // the last element therefore we set index to length - 1)
+  useEffect(() => {
+    if (store.length > 0) {
+      unsafeSetIndex(length - 1);
     }
+  }, [store, length, setIndex]);
+
+  // Don't display anything if there are no errors
+  if (length === 0) {
+    return <></>;
   }
 
   // Make sure the index never goes out of range
@@ -57,8 +68,7 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
 
   // Deletes from the store the error that's currently displayed
   const deleteItemAtCurrentIndex = () => {
-    const entry = Object.entries(store)[index];
-    const id: number = parseFloat(entry[0]);
+    const [id] = store[index];
     setErrMsg(null, id);
   };
 
@@ -68,7 +78,8 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
    */
   const renderErrorText = () => {
     const safeIndex = Math.max(0, Math.min(length - 1, index));
-    const message = Object.entries(store)[safeIndex][1];
+    const [, message] = store[safeIndex];
+
     if (displayFullMessage || message.length < ERROR_MESSAGE_CUTOFF_LENGTH) {
       return <p>{message}</p>;
     } else {
@@ -132,28 +143,26 @@ type ErrorStoreActions =
  * setter that allows adding to and deleting from that object
  */
 export function useErrorStore(): [
-  Record<number, string>,
+  ErrorStore,
   (error: string | null, id: number) => void
 ] {
   // The store is a plane piece of state that uses a reducer to make it easier
   // to add and delete items in the object. The `setStore` function is never exposed to the
   // user of the hook. They get the wrapped version below instead.
   const [store, setStore] = useReducer(
-    (
-      oldState: Record<number, string>,
-      action: ErrorStoreActions
-    ): Record<number, string> => {
+    (oldState: ErrorStore, action: ErrorStoreActions): ErrorStore => {
       switch (action.type) {
         case "add":
-          return { ...oldState, [action.id]: action.error };
+          // Remove old error with this id (if present) and add new one
+          return oldState
+            .filter(([key]) => key !== action.id)
+            .concat([[action.id, action.error]]);
         case "delete": {
-          const newState = { ...oldState };
-          delete newState[action.id];
-          return newState;
+          return oldState.filter(([key]) => key !== action.id);
         }
       }
     },
-    {}
+    []
   );
 
   // We return a wrapped setter that takes an id and ties the error message to that id

@@ -68,7 +68,7 @@ interface DropdownInit extends ComponentInit {
     value: string;
   }[];
 }
-interface ExpressionPromptInit extends ComponentInit {
+interface PromptInit extends ComponentInit {
   prompt: string;
 }
 interface ExpressionInit extends ComponentInit {}
@@ -91,8 +91,8 @@ export type TransformerTemplateInit = {
   textInput2?: TextInputInit;
   dropdown1?: DropdownInit;
   dropdown2?: DropdownInit;
-  expressionPrompt1?: ExpressionPromptInit;
-  expressionPrompt2?: ExpressionPromptInit;
+  prompt1?: PromptInit;
+  prompt2?: PromptInit;
   expression1?: ExpressionInit;
   expression2?: ExpressionInit;
   typeContract1?: TypeContractInit;
@@ -551,10 +551,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
           ) : (
             `${component} used but undefined`
           );
-        } else if (
-          component === "expressionPrompt1" ||
-          component === "expressionPrompt2"
-        ) {
+        } else if (component === "prompt1" || component === "prompt2") {
           return (
             <div className="input-group">
               <span>{init[component]?.prompt}</span>

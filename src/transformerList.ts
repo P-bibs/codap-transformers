@@ -807,7 +807,7 @@ const transformerList: TransformerList = {
           inputTypeDisabled: true,
           outputTypeDisabled: true,
         },
-        expressionPrompt1: {
+        prompt1: {
           title: "",
           prompt: "Keep all rows that satisfy:",
         },

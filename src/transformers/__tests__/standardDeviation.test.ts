@@ -75,7 +75,7 @@ test("std deviation of single value is 0", () => {
 });
 
 test("std deviation errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() =>
     uncheckedStandardDeviationWrapper(
       "Dataset A",
@@ -120,8 +120,8 @@ test("std deviation errors on non-numeric value in input", () => {
   ).toThrowError(nonNumericErr);
 });
 
-test("std deviation errors on no numeric values given", () => {
-  const noNumericValuesErr = /no numeric values/;
+test("std deviation errors on no values given", () => {
+  const noNumericValuesErr = /no values/;
   expect(() =>
     uncheckedStandardDeviationWrapper("Empty Records", EMPTY_RECORDS, "A")
   ).toThrowError(noNumericValuesErr);

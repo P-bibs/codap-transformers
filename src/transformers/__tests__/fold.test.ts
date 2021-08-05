@@ -171,7 +171,7 @@ describe("Running sum", () => {
         "Sum",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Running sum ignores missing values", () => {
@@ -372,7 +372,7 @@ describe("Running mean", () => {
         "Mean",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Running mean ignores missing values", () => {
@@ -650,7 +650,7 @@ describe("Running min", () => {
         "Min",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 });
 
@@ -892,7 +892,7 @@ describe("Running max", () => {
         "Max",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 });
 
@@ -1047,7 +1047,7 @@ describe("Difference", () => {
         "Difference",
         "Will error"
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Difference ignores missing values", () => {
@@ -1246,7 +1246,7 @@ describe("Difference from", () => {
         "Will error",
         -10
       )
-    ).toThrow(/Invalid attribute name/);
+    ).toThrow(/was not found/);
   });
 
   test("Difference ignores missing values", () => {

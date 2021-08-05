@@ -3,6 +3,7 @@ import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString } from "./util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { tryTitle } from "../transformers/util";
+import { t } from "../strings";
 
 /**
  * Filter produces a dataset with certain records excluded
@@ -13,10 +14,10 @@ export async function filter({
   expression1: predicate,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (predicate.trim() === "") {
-    throw new Error("Please enter a non-empty expression to filter by");
+    throw new Error(t("errors:filter.noExpression"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -44,9 +45,10 @@ export async function uncheckedFilter(
   predValues.forEach((value, i) => {
     if (value !== true && value !== false) {
       throw new Error(
-        `Expected predicate to evaluate to true/false, but it evaluated to ${codapValueToString(
-          value
-        )} for case ${i + 1}`
+        t("errors:filter.nonBooleanResult", {
+          value: codapValueToString(value),
+          caseNumber: i + 1,
+        })
       );
     }
 

@@ -1,6 +1,6 @@
-import { Boundary, DataSet, MissingValueReport, SingleValue } from "./types";
-
 import { Collection, CodapAttribute } from "../lib/codapPhone/types";
+import { Boundary, DataSet, MissingValueReport, SingleValue } from "./types";
+import { t } from "../strings";
 
 /**
  * Returns the context's title, if any, or falls back to its name.
@@ -433,7 +433,9 @@ export function validateAttribute(
     }
   }
 
-  throw new Error(errorMsg || `Invalid attribute name: ${attributeName}`);
+  throw new Error(
+    errorMsg || t("errors:validation.invalidAttribute", { name: attributeName })
+  );
 }
 
 /**

@@ -12,6 +12,7 @@ import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { uniqueName } from "../lib/utils/names";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
 import { parenthesizeName, tryTitle } from "../transformers/util";
+import { t } from "../strings";
 
 type FoldFunction = (
   contextTitle: string,
@@ -35,10 +36,10 @@ function makeFoldWrapper(
     attribute1: inputAttributeName,
   }: TransformerTemplateState): Promise<TransformationOutput> => {
     if (contextName === null) {
-      throw new Error("Please choose a valid dataset to transform.");
+      throw new Error(t("errors:validation.noDataSet"));
     }
     if (inputAttributeName === null) {
-      throw new Error("Please select an attribute to aggregate");
+      throw new Error(t("errors:fold.noAttribute"));
     }
 
     const { context, dataset } = await getContextAndDataSet(contextName);
@@ -111,9 +112,10 @@ function makeNumFold<T>(
         return insertInRow(row, resultColumnName, result);
       } else {
         throw new Error(
-          `${foldName} expected a number, instead got ${codapValueToString(
-            row[inputColumnName]
-          )}`
+          `${foldName} ${t("errors:validation.typeMismatch", {
+            type: "number",
+            value: codapValueToString(row[inputColumnName]),
+          })}`
         );
       }
     });
@@ -147,19 +149,19 @@ export async function genericFold({
   expression2: expression,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (resultColumnName.trim() === "") {
-    throw new Error("Please enter a name for the new attribute");
+    throw new Error(t("errors:validation.noOutputColumnName"));
   }
   if (expression.trim() === "") {
-    throw new Error("Please enter an expression");
+    throw new Error(t("errors:validation.noExpression"));
   }
   if (base.trim() === "") {
-    throw new Error("Please enter a base value");
+    throw new Error(t("errors:fold.noBaseValue"));
   }
   if (accumulatorName.trim() === "") {
-    throw new Error("Please enter an accumulator name");
+    throw new Error(t("errors:fold.noAccumulatorName"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -211,7 +213,7 @@ async function uncheckedGenericFold(
     const environment = { ...row };
     if (Object.prototype.hasOwnProperty.call(row, accumulatorName)) {
       throw new Error(
-        `Duplicate accumulator name: there is already a column called ${accumulatorName}.`
+        t("errors:fold.duplicateAccumulatorName", { accumulatorName })
       );
     }
 
@@ -339,17 +341,19 @@ export async function differenceFrom({
   textInput2: startingValue,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
   if (inputAttributeName === null) {
-    throw new Error("Please choose an attribute to take the difference from");
+    throw new Error(t("errors:differenceFrom.noAttribute"));
   }
   if (startingValue.trim() === "") {
-    throw new Error("Please provide a starting value for the difference.");
+    throw new Error(t("errors:differenceFrom.noStartingValue"));
   }
   if (isNaN(Number(startingValue))) {
     throw new Error(
-      `Expected numeric starting value, instead got ${startingValue}`
+      t("errors:differenceFrom.nonNumericStartingValue", {
+        value: startingValue,
+      })
     );
   }
 

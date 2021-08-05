@@ -386,6 +386,17 @@ export type CodapInitiatedCommand =
         operation: ContextChangeOperation;
         result?: Record<string, unknown>;
       }[];
+    }
+  | {
+      action: CodapActions.Notify;
+      resource: CodapResource.Component;
+      values: {
+        operation: "delete";
+        type: "DG.TextView";
+        id: number;
+        name: string;
+        title: string;
+      };
     };
 
 // The `metadata` property of data contexts is undocumented but described here:

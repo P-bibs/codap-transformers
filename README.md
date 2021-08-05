@@ -19,6 +19,7 @@ For more information on the plugin and the available transformers themselves, se
   - `lib/`
     - `codapPhone/`: A wrapper around [iframe-phone](https://github.com/concord-consortium/iframe-phone) for communicating with CODAP.
     - `utils/`: Small, widely-used utility functions.
+  - `strings/`: Isolated strings (currently error messages only) for internationalization.
   - `transformers/`: Core implementations of the actual transformers. Each has an external implementation (responsible for consuming UI inputs and checking them) and an inner, unchecked implementation which performs the actual transformer's functionality.
   - `transformerStore/`: Keeps track of which transformers were used to produce which datasets, and uses this info to propagate updates through transformers.
   - `views/`: The two main views of the plugin:

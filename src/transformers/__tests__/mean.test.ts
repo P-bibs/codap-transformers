@@ -46,7 +46,7 @@ test("averages larger datasets", () => {
 });
 
 test("errors on invalid attribute", () => {
-  const invalidAttributeErr = /Invalid attribute/;
+  const invalidAttributeErr = /was not found/;
   expect(() =>
     uncheckedMeanWrapper("Dataset A", DATASET_A, "Not Here")
   ).toThrowError(invalidAttributeErr);
@@ -72,7 +72,7 @@ test("errors on non-number values", () => {
 });
 
 test("errors when no values or only missing values provided", () => {
-  const noNumericValuesErr = /no numeric values/;
+  const noNumericValuesErr = /no values/;
   // No records at all
   expect(() =>
     uncheckedMeanWrapper("Empty Records", EMPTY_RECORDS, "E")

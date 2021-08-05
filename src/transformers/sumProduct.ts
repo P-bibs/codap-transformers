@@ -3,12 +3,12 @@ import { tryTitle } from "../transformers/util";
 import { getContextAndDataSet } from "../lib/codapPhone";
 import { DataSet, MissingValueReport, TransformationOutput } from "./types";
 import {
-  codapValueToString,
   isMissing,
   listAsString,
   pluralSuffix,
   validateAttribute,
 } from "./util";
+import { t } from "../strings";
 
 /**
  * Takes the sum product of the given attributes' values.
@@ -18,13 +18,11 @@ export async function sumProduct({
   attributeSet1: attributes,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
-    throw new Error("Please choose a valid dataset to transform.");
+    throw new Error(t("errors:validation.noDataSet"));
   }
 
   if (attributes.length === 0) {
-    throw new Error(
-      "Please choose at least one attribute to take the sum product of."
-    );
+    throw new Error(t("errors:sumProduct.noAttribute"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
@@ -62,7 +60,7 @@ export function uncheckedSumProduct(
   attributes: string[]
 ): [number, MissingValueReport] {
   if (attributes.length === 0) {
-    throw new Error("Cannot take the sum product of zero attributes.");
+    throw new Error(t("errors:sumProduct.noAttributeUnchecked"));
   }
 
   for (const attr of attributes) {
@@ -94,9 +92,9 @@ export function uncheckedSumProduct(
         const value = parseFloat(String(row[attribute]));
         if (isNaN(value)) {
           throw new Error(
-            `Expected number in attribute ${attribute}, instead got ${codapValueToString(
-              row[attribute]
-            )}`
+            t("errors:sumProduct.typeMismatchInAttribute", {
+              name: attribute,
+            })
           );
         }
         return product * value;

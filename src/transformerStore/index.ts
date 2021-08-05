@@ -2,6 +2,7 @@ import React, { useReducer, useEffect } from "react";
 import { default as transformerList } from "../transformerList";
 import { tryTitle } from "../transformers/util";
 import {
+  getComponent,
   getDataContext,
   notifyInteractiveFrameIsDirty,
 } from "../lib/codapPhone";
@@ -12,6 +13,8 @@ import {
   removeContextUpdateHook,
   addContextDeletedHook,
   removeContextDeletedHook,
+  addTextDeletedHook,
+  removeTextDeletedHook,
 } from "../lib/codapPhone/listeners";
 import { InteractiveState } from "../lib/codapPhone/types";
 import {
@@ -73,6 +76,7 @@ export function useActiveTransformations(
       if (activeTransformations[contextName] === undefined) {
         return;
       }
+
       for (const description of activeTransformations[contextName]) {
         try {
           setErrMsg(null, description.errorId);
@@ -85,11 +89,21 @@ export function useActiveTransformations(
             transformerList[description.transformer].componentData
               .transformerFunction.kind === "datasetCreator"
           ) {
-            const context = await getDataContext(
-              (description as DatasetCreatorDescription).output
-            );
+            const creatorDescription = description as DatasetCreatorDescription;
+            let outputName;
+            if (creatorDescription.outputType === "context") {
+              // Find context's title
+              outputName = tryTitle(
+                await getDataContext(creatorDescription.output)
+              );
+            } else {
+              // Find text component's title
+              outputName = tryTitle(
+                await getComponent(creatorDescription.output)
+              );
+            }
             setErrMsg(
-              `Error updating "${tryTitle(context)}": ${e.message}`,
+              `Error updating "${outputName}": ${e.message}`,
               description.errorId
             );
           } else {
@@ -107,7 +121,7 @@ export function useActiveTransformations(
     async function callback(deletedContext: string) {
       const cloned = { ...activeTransformations };
       for (const input of Object.keys(cloned)) {
-        // Remove transformations with newly missing inputs
+        // Remove transformations with newly missing inputs / dependencies
         cloned[input] = cloned[input].filter(
           (description) =>
             !(
@@ -123,6 +137,25 @@ export function useActiveTransformations(
     }
     addContextDeletedHook(callback);
     return () => removeContextDeletedHook(callback);
+  }, [activeTransformations]);
+
+  // Delete transformations for deleted text components
+  useEffect(() => {
+    async function callback(deletedText: string) {
+      const cloned = { ...activeTransformations };
+      for (const input of Object.keys(cloned)) {
+        // Remove transformations that depend on the deleted text component
+        cloned[input] = cloned[input].filter(
+          (description) => !description.extraDependencies.includes(deletedText)
+        );
+      }
+      activeTransformationsDispatch({
+        type: ActionTypes.SET,
+        newTransformations: cloned,
+      });
+    }
+    addTextDeletedHook(callback);
+    return () => removeTextDeletedHook(callback);
   }, [activeTransformations]);
 
   return [

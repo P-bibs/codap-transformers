@@ -292,7 +292,9 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   useEffect(() => {
     if (saveData === undefined) {
       setState(DEFAULT_STATE);
+      setErrMsg(null, errorId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [init, saveData]);
 
   // The order here is guaranteed to be stable since ES2015 as long as we don't

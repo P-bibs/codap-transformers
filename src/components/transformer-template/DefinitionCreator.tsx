@@ -54,8 +54,10 @@ export default function DefinitionCreator({
     const savedTransformer = { name, description, content };
     const encoded = encodeURIComponent(JSON.stringify(savedTransformer));
 
-    const currentOrigin = new URL(window.location.toString()).origin;
-    createDataInteractive(name, `${currentOrigin}?transform=${encoded}`);
+    const savedUrl = new URL(window.location.toString());
+    savedUrl.searchParams.append("transform", encoded);
+
+    createDataInteractive(name, savedUrl.toString());
 
     // clear save inputs after successful save
     setCurrentName("");

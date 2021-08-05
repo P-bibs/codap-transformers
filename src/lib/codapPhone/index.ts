@@ -919,10 +919,6 @@ export async function updateText(name: string, content: string): Promise<void> {
         action: CodapActions.Update,
         resource: resourceFromComponent(name),
         values: {
-          dimensions: {
-            width: TEXT_WIDTH,
-            height: TEXT_HEIGHT,
-          },
           text: {
             object: "value",
             data: {

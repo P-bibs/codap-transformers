@@ -105,12 +105,7 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
   const rightArrowDisabled = index >= length - 1;
   return (
     <div className="Error">
-      {renderErrorText()}
       <div className="error-index-display">
-        <Close
-          style={{ cursor: "pointer" }}
-          onClick={deleteItemAtCurrentIndex}
-        />
         <div className="error-index-pager">
           <span
             className={
@@ -134,7 +129,11 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
             {<ArrowRight />}
           </span>
         </div>
+        <div className="close-error">
+          <Close onClick={deleteItemAtCurrentIndex} />
+        </div>
       </div>
+      {renderErrorText()}
     </div>
   );
 }

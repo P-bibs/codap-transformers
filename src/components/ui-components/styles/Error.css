@@ -28,6 +28,14 @@
     justify-content: space-between;
 }
 
+.close-error {
+    color: grey;
+    cursor: pointer;
+}
+.close-error:hover {
+    opacity: 50%;
+}
+
 .error-index-pager {
 
     display: flex;

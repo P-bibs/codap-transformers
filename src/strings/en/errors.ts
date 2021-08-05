@@ -118,6 +118,7 @@ const errors = {
   selectAttributes: {
     noSelectedAttributes:
       "Transformed dataset must contain at least one attribute (0 selected)",
+    noMode: "Please select a mode",
   },
   sort: {
     keysOfDifferentTypes:

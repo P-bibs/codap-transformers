@@ -262,7 +262,8 @@ function codapRequestHandler(
       // give enough information.
       if (
         value.operation === ContextChangeOperation.MoveAttribute ||
-        value.operation === ContextChangeOperation.DeleteAttribute
+        value.operation === ContextChangeOperation.DeleteAttribute ||
+        value.operation === ContextChangeOperation.UpdateAttribute
       ) {
         Cache.invalidateCasesInContext(contextName);
       }

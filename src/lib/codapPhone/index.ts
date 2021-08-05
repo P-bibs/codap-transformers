@@ -766,6 +766,13 @@ export async function updateContextWithDataSet(
   requests.push(Actions.insertDataItems(contextName, dataset.records));
 
   const responses = await callMultiple(requests);
+
+  if (responses === undefined) {
+    throw new Error(
+      `Received no response from CODAP when updating ${contextName}`
+    );
+  }
+
   for (const response of responses) {
     if (!response.success) {
       throw new Error(`Failed to update ${contextName}`);

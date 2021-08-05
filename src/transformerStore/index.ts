@@ -37,7 +37,7 @@ import {
  * A record of active transformations which is used to perform updates.
  */
 export function useActiveTransformations(
-  setErrMsg: (msg: string | null) => void
+  setErrMsg: (msg: string | null, id: number) => void
 ): [
   Record<string, TransformationDescription[]>,
   React.Dispatch<ActiveTransformationsAction>,
@@ -76,10 +76,10 @@ export function useActiveTransformations(
       if (activeTransformations[contextName] === undefined) {
         return;
       }
-      // Clear previous errors before performing update
-      setErrMsg(null);
+
       for (const description of activeTransformations[contextName]) {
         try {
+          setErrMsg(null, description.errorId);
           await updateFromDescription(
             description,
             activeTransformationsDispatch
@@ -102,9 +102,12 @@ export function useActiveTransformations(
                 await getComponent(creatorDescription.output)
               );
             }
-            setErrMsg(`Error updating "${outputName}": ${e.message}`);
+            setErrMsg(
+              `Error updating "${outputName}": ${e.message}`,
+              description.errorId
+            );
           } else {
-            setErrMsg(e.message);
+            setErrMsg(e.message, description.errorId);
           }
         }
       }

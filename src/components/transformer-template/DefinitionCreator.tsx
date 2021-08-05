@@ -161,7 +161,10 @@ export default function DefinitionCreator({
           >
             Save
           </button>
-          <ErrorDisplay message={saveErr} />
+          <ErrorDisplay
+            setErrMsg={(err, _id) => setSaveErr(err)}
+            store={saveErr === null ? [] : [[0, saveErr]]}
+          />
         </div>
       </div>
     </div>

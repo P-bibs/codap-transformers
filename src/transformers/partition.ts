@@ -107,14 +107,15 @@ export const partitionOverride = async (
   {
     context1: inputDataCtxt,
     attribute1: attributeName,
-  }: TransformerTemplateState
+  }: TransformerTemplateState,
+  errorId: number
 ): Promise<void> => {
   if (inputDataCtxt === null) {
-    setErrMsg(t("errors:validation.noDataSet"));
+    setErrMsg(t("errors:validation.noDataSet"), errorId);
     return;
   }
   if (attributeName === null) {
-    setErrMsg(t("errors:partition.noAttribute"));
+    setErrMsg(t("errors:partition.noAttribute"), errorId);
     return;
   }
 
@@ -176,7 +177,8 @@ export const partitionOverride = async (
         {
           context1: inputDataCtxt,
           attribute1: attributeName,
-        } as TransformerTemplateState
+        } as TransformerTemplateState,
+        errorId
       )
   );
 
@@ -192,6 +194,7 @@ export const partitionOverride = async (
         outputContexts,
         valueToContext,
       },
+      errorId,
     },
   });
 

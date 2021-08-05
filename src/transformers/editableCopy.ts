@@ -12,12 +12,13 @@ import { t } from "../strings";
 
 export async function editableCopyOverride(
   { setErrMsg }: TransformerTemplateProps,
-  { context1: inputDataCtxt }: TransformerTemplateState
+  { context1: inputDataCtxt }: TransformerTemplateState,
+  errorId: number
 ): Promise<void> {
-  setErrMsg(null);
+  setErrMsg(null, errorId);
 
   if (inputDataCtxt === null) {
-    setErrMsg(t("errors:validation.noDataSet"));
+    setErrMsg(t("errors:validation.noDataSet"), errorId);
     return;
   }
 

@@ -7,7 +7,7 @@ import { SafeActiveTransformationsDispatch } from "../../transformerStore/types"
 interface TransformerRendererProps {
   transformer?: SavedTransformer;
   editable: boolean;
-  setErrMsg: (s: string | null) => void;
+  setErrMsg: (s: string | null, id: number) => void;
   errorDisplay: ReactElement;
   activeTransformationsDispatch: SafeActiveTransformationsDispatch;
 }

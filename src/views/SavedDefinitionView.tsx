@@ -1,13 +1,15 @@
-import React, { ReactElement, useReducer } from "react";
+import React, { ReactElement } from "react";
 import { useState } from "react";
 import "./styles/Views.css";
-import ErrorDisplay from "../components/ui-components/Error";
+import ErrorDisplay, {
+  useErrorSetterId,
+  useErrorStore,
+} from "../components/ui-components/Error";
 import { SavedTransformer } from "../components/transformer-template/types";
 import { TextArea, TextInput } from "../components/ui-components";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
-  notifyInteractiveFrameWithSelect,
   updateInteractiveFrame,
 } from "../lib/codapPhone";
 import { useEffect } from "react";
@@ -32,15 +34,9 @@ function SavedDefinitionView({
 }: {
   transformer: SavedTransformer;
 }): ReactElement {
-  const [errMsg, setErrMsg] = useReducer(
-    (oldState: string | null, newState: string | null): string | null => {
-      if (newState) {
-        notifyInteractiveFrameWithSelect();
-      }
-      return newState;
-    },
-    null
-  );
+  const [errorStore, setErrMsg] = useErrorStore();
+  const errorId = useErrorSetterId();
+
   const [editable, setEditable] = useState<boolean>(false);
   const [savedTransformer, setSavedTransformer] = useState(urlTransformer);
   const [saveErr, setSaveErr] = useState<string | null>(null);
@@ -143,7 +139,7 @@ function SavedDefinitionView({
       )}
       <TransformerRenderer
         setErrMsg={setErrMsg}
-        errorDisplay={<ErrorDisplay message={errMsg} />}
+        errorDisplay={<ErrorDisplay setErrMsg={setErrMsg} store={errorStore} />}
         transformer={savedTransformer}
         editable={editable}
         activeTransformationsDispatch={wrappedDispatch}
@@ -152,7 +148,7 @@ function SavedDefinitionView({
         id="edit-button"
         onClick={() => {
           // clear the transformer application error message
-          setErrMsg(null);
+          setErrMsg(null, errorId);
 
           // if going to non-editable (saving) and name is blank
           if (editable && savedTransformer.name.trim() === "") {
@@ -177,7 +173,10 @@ function SavedDefinitionView({
       >
         {editable ? "Save" : "Edit"}
       </button>
-      <ErrorDisplay message={saveErr} />
+      <ErrorDisplay
+        setErrMsg={(err, _id) => setSaveErr(err)}
+        store={saveErr === null ? [] : [[0, saveErr]]}
+      />
     </div>
   );
 }

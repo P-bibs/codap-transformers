@@ -210,23 +210,29 @@ export interface PartitionSaveState {
   valueToContext: Record<string, string>;
 }
 
-export async function partitionUpdate(state: PartitionSaveState): Promise<{
+export async function partitionUpdate(
+  state: PartitionSaveState,
+  editedOutputs: Set<string>
+): Promise<{
   extraDependencies?: string[];
   state?: Partial<PartitionSaveState>;
 }> {
   try {
-    return await partitionUpdateInner(state);
+    return await partitionUpdateInner(state, editedOutputs);
   } catch (e) {
     throw new Error(`${t("errors:partition.errorUpdating")}: ${e.message}`);
   }
 }
 
-async function partitionUpdateInner({
-  inputDataCtxt,
-  attributeName,
-  outputContexts,
-  valueToContext,
-}: PartitionSaveState): Promise<{
+async function partitionUpdateInner(
+  {
+    inputDataCtxt,
+    attributeName,
+    outputContexts,
+    valueToContext,
+  }: PartitionSaveState,
+  editedOutputs: Set<string>
+): Promise<{
   extraDependencies?: string[];
   state?: Partial<PartitionSaveState>;
 }> {
@@ -268,8 +274,15 @@ async function partitionUpdateInner({
       newValueToContext[partitioned.distinctValueAsStr] = newName;
       outputContexts.push(newName);
     } else {
+      // If output title manually edited, don't update its title
+      const updateTitle = !editedOutputs.has(contextName);
+
       // apply an update to a previous dataset
-      updateContextWithDataSet(contextName, partitioned.dataset);
+      updateContextWithDataSet(
+        contextName,
+        partitioned.dataset,
+        updateTitle ? name : undefined
+      );
 
       // copy over existing context name into new valueToContext mapping
       newValueToContext[partitioned.distinctValueAsStr] = contextName;

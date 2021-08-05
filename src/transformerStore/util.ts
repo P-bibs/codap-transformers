@@ -56,7 +56,6 @@ export async function updateFromDescription(
   if (transformFunc.kind === "datasetCreator") {
     description = description as DatasetCreatorDescription;
     if (description.outputType === TransformationOutputType.CONTEXT) {
-      console.log("Edited outputs: " + [...editedOutputs]);
       await updateContextFromDatasetCreator(
         description.state,
         description.output,
@@ -81,7 +80,7 @@ export async function updateFromDescription(
     }
   } else if (transformFunc.kind === "fullOverride") {
     description = description as FullOverrideDescription;
-    await updateFromFullOverride(description, dispatch);
+    await updateFromFullOverride(description, dispatch, editedOutputs);
   }
 }
 
@@ -110,7 +109,6 @@ async function updateTextFromDatasetCreator(
   ) => Promise<SingleValueTransformationOutput>,
   updateTitle: boolean
 ): Promise<void> {
-  console.log("updateTitle is " + updateTitle);
   const [result, newTitle] = await transformFunc(state);
   await updateText(
     outputName,
@@ -121,12 +119,13 @@ async function updateTextFromDatasetCreator(
 
 async function updateFromFullOverride(
   description: FullOverrideDescription,
-  dispatch: React.Dispatch<ActiveTransformationsAction>
+  dispatch: React.Dispatch<ActiveTransformationsAction>,
+  editedOutputs: Set<string>
 ) {
   const newState = await (
     transformerList[description.transformer].componentData
       .transformerFunction as FullOverrideFunction
-  ).updateFunc(description.state);
+  ).updateFunc(description.state, editedOutputs);
   dispatch({
     type: ActionTypes.EDIT,
     transformation: description,

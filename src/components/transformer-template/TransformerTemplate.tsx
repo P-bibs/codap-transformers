@@ -211,7 +211,10 @@ export interface FullOverrideFunction {
     state: TransformerTemplateState,
     errorId: number
   ) => Promise<void>;
-  updateFunc: (state: FullOverrideSaveState) => Promise<{
+  updateFunc: (
+    state: FullOverrideSaveState,
+    editedOutputs: Set<string>
+  ) => Promise<{
     extraDependencies?: string[];
     state?: Partial<FullOverrideSaveState>;
   }>;

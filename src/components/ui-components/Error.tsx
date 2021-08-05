@@ -54,6 +54,13 @@ function Error({ store, setErrMsg }: ErrorProps): ReactElement {
     }
   }, [store, length, setIndex]);
 
+  // "show less" if all error messages are cleared
+  useEffect(() => {
+    if (length === 0) {
+      setDisplayFullMessage(false);
+    }
+  }, [length]);
+
   // Don't display anything if there are no errors
   if (length === 0) {
     return <></>;

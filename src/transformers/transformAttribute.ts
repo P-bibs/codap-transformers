@@ -6,7 +6,7 @@ import {
 } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { isMissing, tryTitle } from "../transformers/util";
+import { isMissing, tryTitle } from "./util";
 import { cloneCollection, shallowCopy, validateAttribute } from "./util";
 import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
 import { t } from "../strings";
@@ -16,7 +16,7 @@ import { t } from "../strings";
  * to be the result of evaluating the given expression in the context
  * of each case.
  */
-export async function transformColumn({
+export async function transformAttribute({
   context1: contextName,
   attribute1: attributeName,
   expression1: expression,
@@ -26,19 +26,19 @@ export async function transformColumn({
     throw new Error(t("errors:validation.noDataSet"));
   }
   if (attributeName === null) {
-    throw new Error(t("errors:transformColumn.noAttribute"));
+    throw new Error(t("errors:transformAttribute.noAttribute"));
   }
   if (expression.trim() === "") {
-    throw new Error(t("errors:transformColumn.noExpression"));
+    throw new Error(t("errors:transformAttribute.noExpression"));
   }
   if (outputType === null) {
-    throw new Error(t("errors:transformColumn.noOutputType"));
+    throw new Error(t("errors:transformAttribute.noOutputType"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
 
-  const [transformed, mvr] = await uncheckedTransformColumn(
+  const [transformed, mvr] = await uncheckedTransformAttribute(
     dataset,
     attributeName,
     expression,
@@ -49,14 +49,14 @@ export async function transformColumn({
 
   return [
     transformed,
-    `TransformColumn(${ctxtName}, ...)`,
+    `TransformAttribute(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, with the ${attributeName} attribute's values ` +
       `determined by the formula \`${expression}\`.`,
     mvr,
   ];
 }
 
-export async function uncheckedTransformColumn(
+export async function uncheckedTransformAttribute(
   dataset: DataSet,
   attributeName: string,
   expression: string,
@@ -66,7 +66,7 @@ export async function uncheckedTransformColumn(
   validateAttribute(
     dataset.collections,
     attributeName,
-    t("errors:transformColumn.invalidAttribute", { name: attributeName })
+    t("errors:transformAttribute.invalidAttribute", { name: attributeName })
   );
 
   const records = dataset.records.map(shallowCopy);

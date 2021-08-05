@@ -19,8 +19,8 @@ export async function copy({
 
   return [
     await uncheckedCopy(dataset),
-    `Copy(${ctxtName})`,
-    `A copy of the ${ctxtName} dataset.`,
+    `UneditableCopy(${ctxtName})`,
+    `An uneditable copy of the ${ctxtName} dataset.`,
     EMPTY_MVR,
   ];
 }

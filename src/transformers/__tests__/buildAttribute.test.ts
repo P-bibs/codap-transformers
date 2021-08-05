@@ -1,5 +1,5 @@
 import { evalExpression } from "../../lib/codapPhone";
-import { uncheckedBuildColumn } from "../buildColumn";
+import { uncheckedBuildAttribute } from "../buildAttribute";
 import { CodapLanguageType, DataSet } from "../types";
 import {
   CENSUS_DATASET,
@@ -11,10 +11,10 @@ import {
 } from "./data";
 
 /**
- * Wrapper around uncheckedBuildColumn which extracts just the dataset
+ * Wrapper around uncheckedBuildAttribute which extracts just the dataset
  * output and ignores the missing value report.
  */
-async function uncheckedBuildColumnWrapper(
+async function uncheckedBuildAttributeWrapper(
   dataset: DataSet,
   newAttributeName: string,
   collectionName: string,
@@ -22,7 +22,7 @@ async function uncheckedBuildColumnWrapper(
   outputType: CodapLanguageType,
   evalFormula = evalExpression
 ): Promise<DataSet> {
-  const [output] = await uncheckedBuildColumn(
+  const [output] = await uncheckedBuildAttribute(
     dataset,
     newAttributeName,
     collectionName,
@@ -35,7 +35,7 @@ async function uncheckedBuildColumnWrapper(
 
 test("throws error when non-existent collection given", () => {
   expect.assertions(1);
-  return uncheckedBuildColumnWrapper(
+  return uncheckedBuildAttributeWrapper(
     DATASET_A,
     "New Col",
     "not here",
@@ -46,7 +46,7 @@ test("throws error when non-existent collection given", () => {
 
 test("throws error when new attribute collides with existing", () => {
   expect.assertions(1);
-  return uncheckedBuildColumnWrapper(
+  return uncheckedBuildAttributeWrapper(
     DATASET_A,
     "A",
     "child",
@@ -57,7 +57,7 @@ test("throws error when new attribute collides with existing", () => {
 
 test("throws error when expression uses unbound values", async () => {
   try {
-    await uncheckedBuildColumnWrapper(
+    await uncheckedBuildAttributeWrapper(
       DATASET_A,
       "E",
       "child",
@@ -73,7 +73,7 @@ test("throws error when expression uses unbound values", async () => {
 test("using attribute name as formula creates clone of attribute", async () => {
   expect(
     (
-      await uncheckedBuildColumnWrapper(
+      await uncheckedBuildAttributeWrapper(
         DATASET_A,
         "D",
         "child",
@@ -85,7 +85,7 @@ test("using attribute name as formula creates clone of attribute", async () => {
   ).toEqual(DATASET_A.records.map((row) => row.C));
 });
 
-test("build column does nothing to dataset with no records", async () => {
+test("build attribute does nothing to dataset with no records", async () => {
   const COLLECTION_A_OUTPUT = cloneDataSet(EMPTY_RECORDS);
   COLLECTION_A_OUTPUT.collections[0].attrs?.push({
     description:
@@ -93,7 +93,7 @@ test("build column does nothing to dataset with no records", async () => {
     name: "G",
   });
   expect(
-    await uncheckedBuildColumnWrapper(
+    await uncheckedBuildAttributeWrapper(
       EMPTY_RECORDS,
       "G",
       "Collection A",
@@ -110,7 +110,7 @@ test("build column does nothing to dataset with no records", async () => {
     name: "G",
   });
   expect(
-    await uncheckedBuildColumnWrapper(
+    await uncheckedBuildAttributeWrapper(
       EMPTY_RECORDS,
       "G",
       "Collection B",
@@ -127,7 +127,7 @@ test("build column does nothing to dataset with no records", async () => {
     name: "G",
   });
   expect(
-    await uncheckedBuildColumnWrapper(
+    await uncheckedBuildAttributeWrapper(
       EMPTY_RECORDS,
       "G",
       "Collection C",
@@ -150,7 +150,7 @@ test("using attribute name as formula creates clone of attribute", async () => {
   );
 
   expect(
-    await uncheckedBuildColumnWrapper(
+    await uncheckedBuildAttributeWrapper(
       CENSUS_DATASET,
       "BirthYear",
       "people",
@@ -169,7 +169,7 @@ test("all attribute metadata is copied", async () => {
     name: "D",
   });
   expect(
-    await uncheckedBuildColumnWrapper(
+    await uncheckedBuildAttributeWrapper(
       DATASET_WITH_META,
       "D",
       "Collection",

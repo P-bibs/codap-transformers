@@ -15,7 +15,7 @@ import { t } from "../strings";
  * Builds a dataset with a new attribute added to one of the collections,
  * whose case values are computed by evaluating the given expression.
  */
-export async function buildColumn({
+export async function buildAttribute({
   context1: contextName,
   collection1: collectionName,
   textInput1: attributeName,
@@ -26,22 +26,22 @@ export async function buildColumn({
     throw new Error(t("errors:validation.noDataSet"));
   }
   if (collectionName === null) {
-    throw new Error(t("errors:buildColumn.noCollection"));
+    throw new Error(t("errors:buildAttribute.noCollection"));
   }
   if (attributeName.trim() === "") {
-    throw new Error(t("errors:buildColumn.noAttribute"));
+    throw new Error(t("errors:buildAttribute.noAttribute"));
   }
   if (expression.trim() === "") {
-    throw new Error(t("errors:buildColumn.noExpression"));
+    throw new Error(t("errors:buildAttribute.noExpression"));
   }
   if (outputType === null) {
-    throw new Error(t("errors:buildColumn.noOutputType"));
+    throw new Error(t("errors:buildAttribute.noOutputType"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
 
-  const [withColumn, mvr] = await uncheckedBuildColumn(
+  const [withColumn, mvr] = await uncheckedBuildAttribute(
     dataset,
     attributeName,
     collectionName,
@@ -53,7 +53,7 @@ export async function buildColumn({
 
   return [
     withColumn,
-    `BuildColumn(${ctxtName}, ...)`,
+    `BuildAttribute(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new attribute (${attributeName}) added to ` +
       `the ${collectionName} collection, whose value is determined by the formula \`${expression}\`.`,
     mvr,
@@ -64,7 +64,7 @@ export async function buildColumn({
  * Builds a dataset with a new attribute added to one of the collections,
  * whose case values are computed by evaluating the given expression.
  */
-export async function uncheckedBuildColumn(
+export async function uncheckedBuildAttribute(
   dataset: DataSet,
   newAttributeName: string,
   collectionName: string,

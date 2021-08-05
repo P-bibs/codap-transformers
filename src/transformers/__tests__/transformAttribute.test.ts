@@ -1,5 +1,5 @@
 import { evalExpression } from "../../lib/codapPhone";
-import { uncheckedTransformColumn } from "../transformColumn";
+import { uncheckedTransformAttribute } from "../transformAttribute";
 import { CodapLanguageType, DataSet } from "../types";
 import {
   CENSUS_DATASET,
@@ -12,7 +12,7 @@ import {
 } from "./data";
 
 /**
- * Applies the same changes that transform column does to the indicated
+ * Applies the same changes that transform attribute does to the indicated
  * attribute in the given dataset.
  *
  * @param dataset Dataset to update
@@ -32,16 +32,16 @@ function transformAttr(dataset: DataSet, name: string, formula: string): void {
 }
 
 /**
- * Wrapper around transform column that discards missing value reports.
+ * Wrapper around transform attribute that discards missing value reports.
  */
-async function uncheckedTransformColumnWrapper(
+async function uncheckedTransformAttributeWrapper(
   dataset: DataSet,
   attributeName: string,
   expression: string,
   outputType: CodapLanguageType,
   evalFormula = evalExpression
 ): Promise<DataSet> {
-  const [output] = await uncheckedTransformColumn(
+  const [output] = await uncheckedTransformAttribute(
     dataset,
     attributeName,
     expression,
@@ -57,7 +57,7 @@ test("simple transform to constant", async () => {
   transformedA.records.forEach((record) => (record["B"] = 10));
 
   expect(
-    await uncheckedTransformColumnWrapper(
+    await uncheckedTransformAttributeWrapper(
       DATASET_A,
       "B",
       "10",
@@ -73,7 +73,7 @@ test("transform with formula dependent on transformed attribute", async () => {
   transformedB.records.forEach((record) => (record["Birth_Year"] as number)++);
 
   expect(
-    await uncheckedTransformColumnWrapper(
+    await uncheckedTransformAttributeWrapper(
       DATASET_B,
       "Birth_Year",
       "Birth_Year + 1",
@@ -91,7 +91,7 @@ test("transform with formula dependent on other attribute", async () => {
   );
 
   expect(
-    await uncheckedTransformColumnWrapper(
+    await uncheckedTransformAttributeWrapper(
       CENSUS_DATASET,
       "sample",
       "Age > 30",
@@ -106,7 +106,7 @@ test("errors on invalid attribute", async () => {
   expect.assertions(3);
 
   try {
-    await uncheckedTransformColumnWrapper(
+    await uncheckedTransformAttributeWrapper(
       CENSUS_DATASET,
       "Unknown",
       "Year * 2",
@@ -118,7 +118,7 @@ test("errors on invalid attribute", async () => {
   }
 
   try {
-    await uncheckedTransformColumnWrapper(
+    await uncheckedTransformAttributeWrapper(
       DATASET_A,
       "Z",
       "A + C",
@@ -129,7 +129,7 @@ test("errors on invalid attribute", async () => {
     expect(e.message).toMatch(invalidAttributeErr);
   }
   try {
-    await uncheckedTransformColumnWrapper(
+    await uncheckedTransformAttributeWrapper(
       EMPTY_DATASET,
       "Anything",
       "0",
@@ -146,7 +146,7 @@ test("metadata (besides formula/description of transformed attr) is copied", asy
   transformAttr(transformedMeta, "C", "true");
 
   expect(
-    await uncheckedTransformColumnWrapper(
+    await uncheckedTransformAttributeWrapper(
       DATASET_WITH_META,
       "C",
       "true",

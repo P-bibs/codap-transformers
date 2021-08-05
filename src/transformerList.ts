@@ -48,7 +48,7 @@ export type TransformersInteractiveState = {
 };
 
 export type TransformerGroup =
-  | "Building"
+  | "Constructing"
   | "Measuring the Center"
   | "Aggregating"
   | "Summarizing"
@@ -125,7 +125,7 @@ function docLinkFromHeadingID(headingID: string): string {
 
 const transformerList: TransformerList = {
   "Build Attribute": {
-    group: "Building",
+    group: "Constructing",
     componentData: {
       init: {
         context1: {
@@ -164,7 +164,7 @@ const transformerList: TransformerList = {
     },
   },
   "Transform Attribute": {
-    group: "Building",
+    group: "Constructing",
     componentData: {
       init: {
         context1: {
@@ -198,7 +198,7 @@ const transformerList: TransformerList = {
     },
   },
   Filter: {
-    group: "Building",
+    group: "Constructing",
     componentData: {
       init: {
         context1: {
@@ -231,7 +231,7 @@ const transformerList: TransformerList = {
     },
   },
   "Group By": {
-    group: "Building",
+    group: "Constructing",
     componentData: {
       init: {
         context1: {
@@ -255,7 +255,7 @@ const transformerList: TransformerList = {
     },
   },
   Sort: {
-    group: "Building",
+    group: "Constructing",
     componentData: {
       init: {
         context1: {

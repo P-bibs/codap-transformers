@@ -8,7 +8,7 @@ import "./styles/Error.css";
 
 // Messages over this length (in chars) will be cut off. The full message can
 // be read by hitting "read more"
-const ERROR_MESSAGE_CUTOFF_LENGTH = 50;
+const ERROR_MESSAGE_CUTOFF_LENGTH = 100;
 
 type ErrorProps = {
   store: ErrorStore;
@@ -187,7 +187,7 @@ export function useErrorSetterId(deps?: unknown[]): number {
   return useMemo(() => genErrorSetterId(), deps || []);
 }
 
-const genErrorSetterId = (() => {
+export const genErrorSetterId = (() => {
   let id = 0;
   return () => id++;
 })();

@@ -27,7 +27,6 @@ import {
   serializeActiveTransformations,
   updateFromDescription,
 } from "./util";
-import { useErrorSetterId } from "../components/ui-components/Error";
 
 /**
  * useActiveTransformations

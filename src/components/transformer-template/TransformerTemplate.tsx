@@ -45,7 +45,7 @@ import { displaySingleValue, tryTitle } from "../../transformers/util";
 import { makeDatasetImmutable } from "../../transformers/util";
 import "./styles/TransformerTemplate.css";
 import DefinitionCreator from "./DefinitionCreator";
-import { useErrorSetterId } from "../ui-components/Error";
+import { genErrorSetterId, useErrorSetterId } from "../ui-components/Error";
 
 // These types represent the configuration required for different UI elements
 interface ComponentInit {
@@ -246,7 +246,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   } = props;
 
   // Refresh the errorId when the transformer changes
-  const errorId = useErrorSetterId([init]);
+  const errorId = useErrorSetterId();
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -356,7 +356,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             output: textName,
             transformer: base as DatasetCreatorTransformerName,
             state,
-            errorId,
+            errorId: genErrorSetterId(),
           },
         });
 
@@ -388,7 +388,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             output: newContextName,
             transformer: base as DatasetCreatorTransformerName,
             state,
-            errorId,
+            errorId: genErrorSetterId(),
           },
         });
 

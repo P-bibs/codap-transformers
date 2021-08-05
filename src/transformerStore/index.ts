@@ -75,11 +75,11 @@ export function useActiveTransformations(
       }
       for (const description of activeTransformations[contextName]) {
         try {
+          setErrMsg(null, description.errorId);
           await updateFromDescription(
             description,
             activeTransformationsDispatch
           );
-          setErrMsg(null, description.errorId);
         } catch (e) {
           if (
             transformerList[description.transformer].componentData

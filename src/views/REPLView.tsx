@@ -21,7 +21,10 @@ import {
 } from "../lib/codapPhone/listeners";
 import { InteractiveState } from "../lib/codapPhone/types";
 import AboutInfo from "../components/info-components/AboutInfo";
-import { useActiveTransformations } from "../transformerStore";
+import {
+  useActiveTransformations,
+  useEditedOutputs,
+} from "../transformerStore";
 import { ActionTypes } from "../transformerStore/types";
 import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
@@ -71,9 +74,11 @@ function REPLView(): ReactElement {
   const [errorStore, setErrMsg] = useErrorStore();
   const errorId = useErrorSetterId();
 
+  const [editedOutputs, addEditedOutput, setEditedOutputs] = useEditedOutputs();
+
   // activeTransformations (first element of tuple) can be used to draw a diagram
   const [, activeTransformationsDispatch, wrappedDispatch] =
-    useActiveTransformations(setErrMsg);
+    useActiveTransformations(setErrMsg, editedOutputs, addEditedOutput);
 
   function transformerChangeHandler(
     selected: ValueType<{ value: BaseTransformerName; label: string }, false>,
@@ -104,9 +109,12 @@ function REPLView(): ReactElement {
           ),
         });
       }
+      if (savedState.editedOutputs !== undefined) {
+        setEditedOutputs(new Set(savedState.editedOutputs));
+      }
     }
     fetchSavedState();
-  }, [activeTransformationsDispatch]);
+  }, [activeTransformationsDispatch, setEditedOutputs]);
 
   // Register a listener to generate the plugins state
   useEffect(() => {

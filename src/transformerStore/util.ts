@@ -48,19 +48,24 @@ export function deserializeActiveTransformations(
 
 export async function updateFromDescription(
   description: TransformationDescription,
-  dispatch: React.Dispatch<ActiveTransformationsAction>
+  dispatch: React.Dispatch<ActiveTransformationsAction>,
+  editedOutputs: Set<string>
 ): Promise<void> {
   const transformFunc =
     transformerList[description.transformer].componentData.transformerFunction;
   if (transformFunc.kind === "datasetCreator") {
     description = description as DatasetCreatorDescription;
     if (description.outputType === TransformationOutputType.CONTEXT) {
+      console.log("Edited outputs: " + [...editedOutputs]);
       await updateContextFromDatasetCreator(
         description.state,
         description.output,
         transformFunc.func as (
           state: TransformerTemplateState
-        ) => Promise<DataSetTransformationOutput>
+        ) => Promise<DataSetTransformationOutput>,
+
+        // If the output title has not been edited by the user, flow title name
+        !editedOutputs.has(description.output)
       );
     } else if (description.outputType === TransformationOutputType.TEXT) {
       await updateTextFromDatasetCreator(
@@ -68,7 +73,10 @@ export async function updateFromDescription(
         description.output,
         transformFunc.func as (
           state: TransformerTemplateState
-        ) => Promise<SingleValueTransformationOutput>
+        ) => Promise<SingleValueTransformationOutput>,
+
+        // If the output title has not been edited by the user, flow title name
+        !editedOutputs.has(description.output)
       );
     }
   } else if (transformFunc.kind === "fullOverride") {
@@ -82,11 +90,16 @@ async function updateContextFromDatasetCreator(
   outputName: string,
   transformFunc: (
     state: TransformerTemplateState
-  ) => Promise<DataSetTransformationOutput>
+  ) => Promise<DataSetTransformationOutput>,
+  updateTitle: boolean
 ): Promise<void> {
-  const [transformed] = await transformFunc(state);
+  const [transformed, newTitle] = await transformFunc(state);
   const immutableTransformed = makeDatasetImmutable(transformed);
-  await updateContextWithDataSet(outputName, immutableTransformed);
+  await updateContextWithDataSet(
+    outputName,
+    immutableTransformed,
+    updateTitle ? newTitle : undefined
+  );
 }
 
 async function updateTextFromDatasetCreator(
@@ -94,10 +107,16 @@ async function updateTextFromDatasetCreator(
   outputName: string,
   transformFunc: (
     state: TransformerTemplateState
-  ) => Promise<SingleValueTransformationOutput>
+  ) => Promise<SingleValueTransformationOutput>,
+  updateTitle: boolean
 ): Promise<void> {
-  const [result] = await transformFunc(state);
-  await updateText(outputName, displaySingleValue(result));
+  console.log("updateTitle is " + updateTitle);
+  const [result, newTitle] = await transformFunc(state);
+  await updateText(
+    outputName,
+    displaySingleValue(result),
+    updateTitle ? newTitle : undefined
+  );
 }
 
 async function updateFromFullOverride(
@@ -189,4 +208,16 @@ function deleteTransformation(
     cloned[input] = cloned[input].filter((d) => d !== toDelete);
   }
   return cloned;
+}
+
+export function findTransformation(
+  activeTranformations: ActiveTransformations,
+  predicate: (t: TransformationDescription) => boolean
+): TransformationDescription | undefined {
+  for (const input of Object.keys(activeTranformations)) {
+    const result = activeTranformations[input].find(predicate);
+    if (result !== undefined) {
+      return result;
+    }
+  }
 }

@@ -199,7 +199,7 @@ const titleFromComponent = (
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
-interface DatasetCreatorFunction {
+export interface DatasetCreatorFunction {
   kind: "datasetCreator";
   func: (state: TransformerTemplateState) => Promise<TransformationOutput>;
 }

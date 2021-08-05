@@ -226,7 +226,7 @@ const transformerList: TransformerList = {
           "A dataset to filter and a formula that evaluates to either true or false.",
         produces:
           "A copy of the input dataset that only has the cases for which the formula was true.",
-        docLink: docLinkFromHeadingID("h.ycy2d7rjztiu"),
+        docLink: docLinkFromHeadingID("h.ik25c3sutkcr"),
       },
     },
   },
@@ -757,7 +757,7 @@ const transformerList: TransformerList = {
           "A single, new dataset that has the structure (in terms of how many \
             collections and how they are organized) of the base dataset, but \
             with all the cases of both the base and combining datasets.",
-        docLink: docLinkFromHeadingID("h.ssd5a8j00sm7"),
+        docLink: docLinkFromHeadingID("h.ys7fqtwbd61c"),
       },
     },
   },
@@ -786,7 +786,7 @@ const transformerList: TransformerList = {
           "A dataset containing an attribute with one or more unique values.",
         produces:
           "One new dataset per unique value of the indicated attribute.",
-        docLink: docLinkFromHeadingID("h.j1zfqypxsk9t"),
+        docLink: docLinkFromHeadingID("h.ko2eh5iqlbg2"),
       },
     },
   },
@@ -845,7 +845,7 @@ const transformerList: TransformerList = {
           "A single, new dataset containing cases from the base dataset and \
           those from the joining dataset where the base and joining \
           attributes match.",
-        docLink: docLinkFromHeadingID("TODO:"),
+        docLink: docLinkFromHeadingID("h.vdg3eipys2m2"),
       },
     },
   },
@@ -897,7 +897,7 @@ const transformerList: TransformerList = {
           base dataset, as well as some cases copied in from the joining dataset \
           where the joining and base attributes matched. In the case of a full \
           outer join, all cases from the joining dataset will be included.",
-        docLink: docLinkFromHeadingID("TODO:"),
+        docLink: docLinkFromHeadingID("h.pye10dobwk1n"),
       },
     },
   },

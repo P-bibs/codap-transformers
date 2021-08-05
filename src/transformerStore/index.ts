@@ -79,6 +79,7 @@ export function useActiveTransformations(
             description,
             activeTransformationsDispatch
           );
+          setErrMsg(null, description.errorId);
         } catch (e) {
           if (
             transformerList[description.transformer].componentData

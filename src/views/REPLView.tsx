@@ -12,7 +12,6 @@ import transformerList, {
   TransformerGroup,
 } from "../transformerList";
 import {
-  deleteComponent,
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
 } from "../lib/codapPhone";
@@ -29,6 +28,8 @@ import { TransformerRenderer } from "../components/transformer-template/Transfor
 import Select, { ValueType, ActionMeta } from "react-select";
 import TransformerInfo from "../components/info-components/TransformerInfo";
 import { closePlugin } from "./util";
+import { Cancel } from "@material-ui/icons";
+import { IconButton } from "@material-ui/core";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -147,12 +148,16 @@ function REPLView(): ReactElement {
     <div className="transformer-view">
       <div className="title-row">
         <h3>Transformer</h3>
-        <button
-          style={{ marginLeft: "auto" }}
+        <IconButton
+          style={{
+            padding: "0",
+            marginLeft: "auto",
+          }}
+          size="medium"
           onClick={() => closePlugin(activeTransformations)}
         >
-          Close Plugin
-        </button>
+          <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />
+        </IconButton>
         <AboutInfo />
       </div>
 

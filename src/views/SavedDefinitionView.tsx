@@ -25,6 +25,8 @@ import { ActionTypes } from "../transformerStore/types";
 import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 import { closePlugin } from "./util";
+import { IconButton } from "@material-ui/core";
+import { Cancel } from "@material-ui/icons";
 
 /**
  * SavedDefinitionView wraps a saved transformer in other important info
@@ -121,12 +123,16 @@ function SavedDefinitionView({
             {savedTransformer.name}
             <span id="transformerBase"> ({savedTransformer.content.base})</span>
           </h2>
-          <button
-            style={{ marginLeft: "auto" }}
+          <IconButton
+            style={{
+              padding: "0",
+              marginLeft: "auto",
+            }}
+            size="medium"
             onClick={() => closePlugin(activeTransformations)}
           >
-            Close Plugin
-          </button>
+            <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />
+          </IconButton>
         </div>
       )}
       {editable ? (

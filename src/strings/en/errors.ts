@@ -140,6 +140,119 @@ const errors = {
     invalidAttribute:
       'Please select a valid attribute to transform: "{{ name }}" was not found',
   },
+  codapPhone: {
+    updateInteractiveFrame: {
+      fail: "Failed to update CODAP interactive frame",
+      undefinedResult: "Invalid response while updating interactive frame",
+    },
+    callMultiple: {
+      undefinedResult: "Invalid response while making multiple requests",
+    },
+    getInteractiveFrame: {
+      fail: "Failed to get interactive frame",
+      undefinedResult: "Invalid response while getting interactive frame",
+    },
+    notifyInteractiveFrameIsDirty: {
+      fail: "Failed to notify interactive frame that state is dirty",
+      undefinedResult:
+        "Invalid response while notifying interactive frame that state is dirty",
+    },
+    notifyInteractiveFrameWithSelect: {
+      fail: "Failed to notify component to select",
+      undefinedResult: "Invalid response while selecting the interactive frame",
+    },
+    getAllComponents: {
+      fail: "Failed to get components",
+      undefinedResult: "Invalid response while getting all components",
+    },
+    getComponent: {
+      fail: "Failed to get component",
+      undefinedResult: "Invalid response while getting component",
+    },
+    updateComponent: {
+      fail: "Failed to update component",
+      undefinedResult: "Invalid response while updating component",
+    },
+    updateDataContext: {
+      fail: "Failed to update context",
+      undefinedResult: "Invalid response while updating data context",
+    },
+    getAllDataContexts: {
+      fail: "Failed to get data contexts",
+      undefinedResult: "Invalid response while getting all data contexts",
+    },
+    getAllCollections: {
+      fail: "Failed to get collections",
+      unefinedResult: "Invalid response while getting all collections",
+    },
+    getCaseById: {
+      fail: "Failed to get case in {{ context }} with id {{ id }}",
+      undefinedResult: "Invalid response while getting case by ID",
+    },
+    getDataFromContext: {
+      fail: "Failed to get data items",
+      undefinedResult: "Invalid response while getting data from context",
+    },
+    getDataContext: {
+      fail: "Failed to get context {{ context }}",
+      undefinedResult: "Invalid response while getting data context",
+    },
+    deleteDataContext: {
+      fail: "Failed to delete data context",
+      undefinedResult: "Invalid response while deleting data context",
+    },
+    createDataContext: {
+      fail: "Failed to create data context",
+      undefinedResult: "Invalid response while creating data context",
+    },
+    createDataInteractive: {
+      fail: "Failed to create data interactive",
+      undefinedResult: "Invalid response while creating data interactive",
+    },
+    insertDataItems: {
+      fail: "Failed to create dataset with data",
+      undefinedResult: "Invalid response while inserting data items",
+    },
+    updateContextWithDataSet: {
+      fail: "Failed to update {{ context }}",
+    },
+    createCollections: {
+      fail: "Failed to create collections in {{ context }}",
+      undefinedResult: "Invalid response while creating collections",
+    },
+    deleteCollection: {
+      fail: "Failed to delete collection {{ collection }} in {{ context }}",
+      undefinedResult: "Invalid response while deleting collection",
+    },
+    deleteAllCases: {
+      fail: "Failed to delete all cases",
+      undefinedResult: "Invalid response while deleting all cases",
+    },
+    createTable: {
+      fail: "Failed to create table",
+      undefinedResult: "Invalid response while creating table",
+    },
+    createText: {
+      fail: "Failed to create text",
+      undefinedResult: "Invalid response while creating text",
+    },
+    updateText: {
+      fail: "Failed to update text",
+      undefinedResult: "Invalid response while updating text",
+    },
+    deleteText: {
+      fail: "Failed to delete text",
+      undefinedResult: "Invalid response while deleting text",
+    },
+    ensureUniqueName: {
+      fail: "Failed to fetch list of existing {{ resourceType }}",
+      undefinedResult: "Invalid response while getting resource list",
+    },
+    evalExpression: {
+      fail: "Evaluating `{{ expression }}` failed: {{ error }}",
+      undefinedResult: "Invalid response while evaluating expression",
+    },
+  },
 };
 
 export default errors;

@@ -1335,13 +1335,13 @@ export function evalExpression(
   );
 }
 
-export const getFunctionNames: () => Promise<string[]> = (() => {
+export const getFunctionInfo: () => Promise<FunctionInfo[]> = (() => {
   // Remember result
-  let names: string[] | null = null;
+  let allFunctions: FunctionInfo[] | null = null;
   return () => {
-    return new Promise<string[]>((resolve, reject) => {
-      if (names !== null) {
-        resolve(names);
+    return new Promise<FunctionInfo[]>((resolve, reject) => {
+      if (allFunctions !== null) {
+        resolve(allFunctions);
         return;
       }
       phone.call(
@@ -1352,17 +1352,16 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
         (response: GetFunctionInfoResponse) => {
           if (response) {
             if (response.success) {
-              const allFunctions: FunctionInfo[] = Object.values(
-                response.values
-              ).flatMap(Object.values);
-              names = allFunctions.map((f) => f.name);
-              resolve(names);
+              allFunctions = Object.values(response.values).flatMap(
+                Object.values
+              );
+              resolve(allFunctions);
             } else {
-              reject(new Error(t("errors:codapPhone.getFunctionNames.fail")));
+              reject(new Error(t("errors:codapPhone.getFunctionInfo.fail")));
             }
           } else {
             reject(
-              new Error(t("errors:codapPhone.getFunctionNames.undefinedResult"))
+              new Error(t("errors:codapPhone.getFunctionInfo.undefinedResult"))
             );
           }
         }

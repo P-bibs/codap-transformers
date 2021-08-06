@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback } from "react";
 import { Controlled as CodeMirrorElement } from "react17-codemirror2";
-import { getFunctionNames } from "../../lib/codapPhone";
+import { getFunctionInfo } from "../../lib/codapPhone";
 
 // This is required for defineSimpleMode
 import "codemirror/addon/mode/simple.js";
@@ -88,6 +88,8 @@ function getCurrentWord(cm: CodeMirror.Editor): Word {
   };
 }
 
+const LOOKUP_FUNCTIONS_CATEGORY = "Lookup Functions";
+
 export default function ExpressionEditor({
   value,
   onChange,
@@ -123,11 +125,15 @@ export default function ExpressionEditor({
               });
 
       // Complete function names
-      const functionNames = await getFunctionNames();
+      const functionInfo = await getFunctionInfo();
       const functionCompletionList =
         word === ""
           ? []
-          : functionNames
+          : functionInfo
+              // Do not include lookup functions as they are not available in
+              // our plain formula context
+              .filter((f) => f.category !== LOOKUP_FUNCTIONS_CATEGORY)
+              .map((f) => f.name)
               .filter((w) => isLowerCasePrefix(w, wordLower))
               // Add parens
               .map((w) => w + "()")

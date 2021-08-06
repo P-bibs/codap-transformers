@@ -148,17 +148,18 @@ function REPLView(): ReactElement {
     <div className="transformer-view">
       <div className="title-row">
         <h3>Transformer</h3>
-        <IconButton
-          style={{
-            padding: "0",
-            marginLeft: "auto",
-          }}
-          size="medium"
-          onClick={() => closePlugin(activeTransformations)}
-        >
-          <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />
-        </IconButton>
-        <AboutInfo />
+        <div>
+          <AboutInfo />
+          <IconButton
+            style={{
+              padding: "0",
+            }}
+            size="medium"
+            onClick={() => closePlugin(activeTransformations)}
+          >
+            <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />
+          </IconButton>
+        </div>
       </div>
 
       <div className="select-row">

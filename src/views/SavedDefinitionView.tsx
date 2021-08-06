@@ -24,6 +24,7 @@ import { useActiveTransformations } from "../transformerStore";
 import { ActionTypes } from "../transformerStore/types";
 import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
+import { closePlugin } from "./util";
 
 /**
  * SavedDefinitionView wraps a saved transformer in other important info
@@ -40,8 +41,11 @@ function SavedDefinitionView({
   const [editable, setEditable] = useState<boolean>(false);
   const [savedTransformer, setSavedTransformer] = useState(urlTransformer);
   const [saveErr, setSaveErr] = useState<string | null>(null);
-  const [, activeTransformationsDispatch, wrappedDispatch] =
-    useActiveTransformations(setErrMsg);
+  const [
+    activeTransformations,
+    activeTransformationsDispatch,
+    wrappedDispatch,
+  ] = useActiveTransformations(setErrMsg);
 
   // Load saved state from CODAP memory
   useEffect(() => {
@@ -112,10 +116,18 @@ function SavedDefinitionView({
           onBlur={notifyStateIsDirty}
         />
       ) : (
-        <h2>
-          {savedTransformer.name}
-          <span id="transformerBase"> ({savedTransformer.content.base})</span>
-        </h2>
+        <div className="title-row">
+          <h2>
+            {savedTransformer.name}
+            <span id="transformerBase"> ({savedTransformer.content.base})</span>
+          </h2>
+          <button
+            style={{ marginLeft: "auto" }}
+            onClick={() => closePlugin(activeTransformations)}
+          >
+            Close Plugin
+          </button>
+        </div>
       )}
       {editable ? (
         <>

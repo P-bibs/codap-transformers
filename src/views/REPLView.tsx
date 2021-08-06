@@ -28,6 +28,7 @@ import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 import Select, { ValueType, ActionMeta } from "react-select";
 import TransformerInfo from "../components/info-components/TransformerInfo";
+import { closePlugin } from "./util";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -137,18 +138,6 @@ function REPLView(): ReactElement {
     notifyInteractiveFrameIsDirty();
   }
 
-  async function closePlugin() {
-    if (
-      Object.keys(activeTransformations).length === 0 ||
-      confirm(
-        `Closing the transformers plugin will stop transformed datasets from updating. Are you sure you'd like to proceed?`
-      )
-    ) {
-      const id = (await getInteractiveFrame()).id;
-      deleteComponent(id.toString());
-    }
-  }
-
   // Tutorial info about the current transformer
   const info = transformType
     ? transformerList[transformType].componentData.info
@@ -158,7 +147,10 @@ function REPLView(): ReactElement {
     <div className="transformer-view">
       <div className="title-row">
         <h3>Transformer</h3>
-        <button style={{ marginLeft: "auto" }} onClick={closePlugin}>
+        <button
+          style={{ marginLeft: "auto" }}
+          onClick={() => closePlugin(activeTransformations)}
+        >
           Close Plugin
         </button>
         <AboutInfo />

@@ -12,6 +12,7 @@ import transformerList, {
   TransformerGroup,
 } from "../transformerList";
 import {
+  deleteComponent,
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
 } from "../lib/codapPhone";
@@ -72,8 +73,11 @@ function REPLView(): ReactElement {
   const errorId = useErrorSetterId();
 
   // activeTransformations (first element of tuple) can be used to draw a diagram
-  const [, activeTransformationsDispatch, wrappedDispatch] =
-    useActiveTransformations(setErrMsg);
+  const [
+    activeTransformations,
+    activeTransformationsDispatch,
+    wrappedDispatch,
+  ] = useActiveTransformations(setErrMsg);
 
   function transformerChangeHandler(
     selected: ValueType<{ value: BaseTransformerName; label: string }, false>,
@@ -133,6 +137,18 @@ function REPLView(): ReactElement {
     notifyInteractiveFrameIsDirty();
   }
 
+  async function closePlugin() {
+    if (
+      Object.keys(activeTransformations).length === 0 ||
+      confirm(
+        `Closing the transformers plugin will stop transformed datasets from updating. Are you sure you'd like to proceed?`
+      )
+    ) {
+      const id = (await getInteractiveFrame()).id;
+      deleteComponent(id.toString());
+    }
+  }
+
   // Tutorial info about the current transformer
   const info = transformType
     ? transformerList[transformType].componentData.info
@@ -142,7 +158,9 @@ function REPLView(): ReactElement {
     <div className="transformer-view">
       <div className="title-row">
         <h3>Transformer</h3>
-
+        <button style={{ marginLeft: "auto" }} onClick={closePlugin}>
+          Close Plugin
+        </button>
         <AboutInfo />
       </div>
 

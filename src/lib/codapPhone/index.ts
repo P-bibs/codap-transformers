@@ -454,6 +454,29 @@ export function updateComponent(
     )
   );
 }
+
+export function deleteComponent(component: string): Promise<void> {
+  return new Promise((resolve, reject) =>
+    phone.call(
+      {
+        action: CodapActions.Delete,
+        resource: resourceFromComponent(component),
+      },
+      (response) => {
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to delete component"));
+          }
+        } else {
+          reject(new Error("Invalid response while deleting component"));
+        }
+      }
+    )
+  );
+}
+
 export function updateDataContext(
   context: string,
   values: Partial<DataContext>

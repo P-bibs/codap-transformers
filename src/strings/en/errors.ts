@@ -249,6 +249,7 @@ const errors = {
       undefinedResult: "Invalid response while getting resource list",
     },
     evalExpression: {
+      fail: "Evaluating `{{ expression }}` failed: {{ error }}",
       undefinedResult: "Invalid response while evaluating expression",
     },
   },

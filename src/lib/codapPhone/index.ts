@@ -61,6 +61,7 @@ import {
 import { DataSet } from "../../transformers/types";
 import { CodapEvalError } from "./error";
 import { uniqueName } from "../utils/names";
+import { t } from "../../strings";
 import * as Actions from "./actions";
 import * as Cache from "./cache";
 
@@ -118,11 +119,15 @@ export async function updateInteractiveFrame(
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to update CODAP interactive frame"));
+            reject(
+              new Error(t("errors:codapPhone.updateInteractiveFrame.fail"))
+            );
           }
         } else {
           reject(
-            new Error("Invalid response while updating interactive frame")
+            new Error(
+              t("errors:codapPhone.updateInteractiveFrame.undefinedResult")
+            )
           );
         }
       }
@@ -293,7 +298,7 @@ function callMultiple(requests: CodapRequest[]): Promise<CodapResponse[]> {
       if (responses) {
         resolve(responses);
       } else {
-        reject(new Error("Invalid response while making multiple requests"));
+        reject(new Error(t("errors:codapPhone.callMultiple.undefinedResult")));
       }
     });
   });
@@ -311,10 +316,14 @@ export function getInteractiveFrame(): Promise<InteractiveFrame> {
           if (response.success) {
             resolve(response.values);
           } else {
-            reject(new Error("Failed to get interactive frame"));
+            reject(new Error(t("errors:codapPhone.getInteractiveFrame.fail")));
           }
         } else {
-          reject(new Error("Invalid response while getting interactive frame"));
+          reject(
+            new Error(
+              t("errors:codapPhone.getInteractiveFrame.undefinedResult")
+            )
+          );
         }
       }
     )
@@ -338,14 +347,16 @@ export function notifyInteractiveFrameIsDirty(): Promise<void> {
           } else {
             reject(
               new Error(
-                "Failed to notify interactive frame that state is dirty"
+                t("errors:codapPhone.notifyInteractiveFrameIsDirty.fail")
               )
             );
           }
         } else {
           reject(
             new Error(
-              "Invalid response while notifying interactive frame that state is dirty"
+              t(
+                "errors:codapPhone.notifyInteractiveFrameIsDirty.undefinedResult"
+              )
             )
           );
         }
@@ -373,11 +384,19 @@ export async function notifyInteractiveFrameWithSelect(): Promise<void> {
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to notify component to select"));
+            reject(
+              new Error(
+                t("errors:codapPhone.notifyInteractiveFrameWithSelect.fail")
+              )
+            );
           }
         } else {
           reject(
-            new Error("Invalid response while selecting the interactive frame")
+            new Error(
+              t(
+                "errors:codapPhone.notifyInteractiveFrameWithSelect.undefinedResult"
+              )
+            )
           );
         }
       }
@@ -397,10 +416,12 @@ export function getAllComponents(): Promise<ComponentListResponse["values"]> {
           if (Array.isArray(response.values)) {
             resolve(response.values);
           } else {
-            reject(new Error("Failed to get components"));
+            reject(new Error(t("errors:codapPhone.getAllComponents.fail")));
           }
         } else {
-          reject(new Error("Invalid response while getting all components"));
+          reject(
+            new Error(t("errors:codapPhone.getAllComponents.undefinedResult"))
+          );
         }
       }
     )
@@ -419,10 +440,12 @@ export function getComponent(component: string): Promise<CodapComponent> {
           if (response.success) {
             resolve(response.values);
           } else {
-            reject(new Error("Failed to get component"));
+            reject(new Error(t("errors:codapPhone.getComponent.fail")));
           }
         } else {
-          reject(new Error("Invalid response while getting component"));
+          reject(
+            new Error(t("errors:codapPhone.getComponent.undefinedResult"))
+          );
         }
       }
     )
@@ -445,10 +468,12 @@ export function updateComponent(
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to update component"));
+            reject(new Error(t("errors:codapPhone.updateComponent.fail")));
           }
         } else {
-          reject(new Error("Invalid response while updating component"));
+          reject(
+            new Error(t("errors:codapPhone.updateComponent.undefinedResult"))
+          );
         }
       }
     )
@@ -470,10 +495,12 @@ export function updateDataContext(
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to update context"));
+            reject(new Error(t("errors:codapPhone.updateDataContext.fail")));
           }
         } else {
-          reject(new Error("Invalid response while updating data context"));
+          reject(
+            new Error(t("errors:codapPhone.updateDataContext.undefinedResult"))
+          );
         }
       }
     )
@@ -492,10 +519,12 @@ export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {
           if (Array.isArray(response.values)) {
             resolve(response.values);
           } else {
-            reject(new Error("Failed to get data contexts"));
+            reject(new Error(t("errors:codapPhone.getAllDataContexts.fail")));
           }
         } else {
-          reject(new Error("Invalid response while getting all data contexts"));
+          reject(
+            new Error(t("errors:codapPhone.getAllDataContexts.undefinedResult"))
+          );
         }
       }
     )
@@ -516,10 +545,12 @@ export function getAllCollections(
           if (response.success) {
             resolve(response.values);
           } else {
-            reject(new Error("Failed to get collections"));
+            reject(new Error(t("errors:codapPhone.getAllCollections.fail")));
           }
         } else {
-          reject(new Error("Invalid response while getting all collections"));
+          reject(
+            new Error(t("errors:codapPhone.getAllCollections.undefinedResult"))
+          );
         }
       }
     )
@@ -545,10 +576,14 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
             Cache.setCase(context, id, result);
             resolve(result);
           } else {
-            reject(new Error(`Failed to get case in ${context} with id ${id}`));
+            reject(
+              new Error(
+                t("errors:codapPhone.getCaseById.fail", { context, id })
+              )
+            );
           }
         } else {
-          reject(new Error("Invalid response while getting case by ID"));
+          reject(new Error(t("errors:codapPhone.getCaseById.undefinedResult")));
         }
       }
     );
@@ -615,10 +650,12 @@ export async function getDataFromContext(
             Cache.setRecords(context, records);
             resolve(records);
           } else {
-            reject(new Error("Failed to get data items"));
+            reject(new Error(t("errors:codapPhone.getDataFromContext.fail")));
           }
         } else {
-          reject(new Error("Invalid response while getting data from context"));
+          reject(
+            new Error("errors:codapPhone.getDataFromContext.undefinedResult")
+          );
         }
       }
     )
@@ -662,10 +699,18 @@ export function getDataContext(contextName: string): Promise<DataContext> {
             Cache.setContext(contextName, context);
             resolve(context);
           } else {
-            reject(new Error(`Failed to get context ${contextName}`));
+            reject(
+              new Error(
+                t("errors:codapPhone.getDataContext.fail", {
+                  context: contextName,
+                })
+              )
+            );
           }
         } else {
-          reject(new Error("Invalid response while getting data context"));
+          reject(
+            new Error(t("errors:codapPhone.getDataContext.undefinedResult"))
+          );
         }
       }
     );
@@ -684,10 +729,12 @@ export async function deleteDataContext(contextName: string): Promise<void> {
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to delete data context"));
+            reject(new Error(t("errors:codapPhone.deleteDataContext.fail")));
           }
         } else {
-          reject(new Error("Invalid response while deleting data context"));
+          reject(
+            new Error(t("errors:codapPhone.deleteDataContext.undefinedResult"))
+          );
         }
       }
     )
@@ -719,10 +766,12 @@ async function createDataContext({
           if (response.success) {
             resolve(response.values);
           } else {
-            reject(new Error("Failed to create data context"));
+            reject(new Error(t("errors:codapPhone.createDataContext.fail")));
           }
         } else {
-          reject(new Error("Invalid response while creating data context"));
+          reject(
+            new Error(t("errors:codapPhone.createDataContext.undefinedResult"))
+          );
         }
       }
     )
@@ -749,10 +798,16 @@ export async function createDataInteractive(
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to create data interactive"));
+            reject(
+              new Error(t("errors:codapPhone.createDataInteractive.fail"))
+            );
           }
         } else {
-          reject(new Error("Invalid response while creating data interactive"));
+          reject(
+            new Error(
+              t("errors:codapPhone.createDataInteractive.undefinedResult")
+            )
+          );
         }
       }
     )
@@ -793,10 +848,12 @@ export function insertDataItems(
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to create dataset with data"));
+            reject(new Error(t("errors:codapPhone.insertDataItems.fail")));
           }
         } else {
-          reject(new Error("Invalid response while inserting data items"));
+          reject(
+            new Error(t("errors:codapPhone.insertDataItems.undefinedResult"))
+          );
         }
       }
     )
@@ -851,7 +908,11 @@ export async function updateContextWithDataSet(
 
   for (const response of responses) {
     if (!response.success) {
-      throw new Error(`Failed to update ${contextName}`);
+      throw new Error(
+        t("errors:codapPhone.updateContextWithDataSet", {
+          context: contextName,
+        })
+      );
     }
   }
 }
@@ -866,10 +927,16 @@ export function createCollections(
         if (response.success) {
           resolve();
         } else {
-          reject(new Error(`Failed to create collections in ${context}`));
+          reject(
+            new Error(
+              t("errors:codapPhone.createCollections.fail", { context })
+            )
+          );
         }
       } else {
-        reject(new Error("Invalid response while creating collections"));
+        reject(
+          new Error(t("errors:codapPhone.createCollections.undefinedResult"))
+        );
       }
     })
   );
@@ -886,11 +953,18 @@ export function deleteCollection(
           resolve();
         } else {
           reject(
-            new Error(`Failed to delete collection ${collection} in ${context}`)
+            new Error(
+              t("errors:codapPhone.deleteCollection.fail", {
+                context,
+                collection,
+              })
+            )
           );
         }
       } else {
-        reject(new Error("Invalid response while deleting collection"));
+        reject(
+          new Error(t("errors:codapPhone.deleteCollection.undefinedResult"))
+        );
       }
     })
   );
@@ -906,10 +980,12 @@ export async function deleteAllCases(
         if (response.success) {
           resolve();
         } else {
-          reject(new Error("Failed to delete all cases"));
+          reject(new Error(t("errors:codapPhone.deleteAllCases.fail")));
         }
       } else {
-        reject(new Error("Invalid response while deleting all cases"));
+        reject(
+          new Error(t("errors:codapPhone.deleteAllCases.undefinedResult"))
+        );
       }
     })
   );
@@ -941,10 +1017,10 @@ export async function createTable(
           if (response.success) {
             resolve(response.values);
           } else {
-            reject(new Error("Failed to create table"));
+            reject(new Error(t("errors:codapPhone.createTable.fail")));
           }
         } else {
-          reject(new Error("Invalid response while creating table"));
+          reject(new Error(t("errors:codapPhone.createTable.undefinedResult")));
         }
       }
     )
@@ -1006,10 +1082,10 @@ export async function createText(
           if (response.success) {
             resolve(textName);
           } else {
-            reject(new Error("Failed to create text"));
+            reject(new Error(t("errors:codapPhone.createText.fail")));
           }
         } else {
-          reject(new Error("Invalid response while creating text"));
+          reject(new Error(t("errors:codapPhone.createText.undefinedResult")));
         }
       }
     )
@@ -1051,10 +1127,10 @@ export async function updateText(name: string, content: string): Promise<void> {
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to update text"));
+            reject(new Error(t("errors:codapPhone.updateText.fail")));
           }
         } else {
-          reject(new Error("Invalid response while updating text"));
+          reject(new Error(t("errors:codapPhone.updateText.undefinedResult")));
         }
       }
     )
@@ -1073,10 +1149,10 @@ export async function deleteText(name: string): Promise<void> {
           if (response.success) {
             resolve();
           } else {
-            reject(new Error("Failed to delete text"));
+            reject(new Error(t("errors:codapPhone.deleteText.fail")));
           }
         } else {
-          reject(new Error("Invalid response while deleting text"));
+          reject(new Error(t("errors:codapPhone.deleteText.undefinedResult")));
         }
       }
     )
@@ -1102,11 +1178,15 @@ async function ensureUniqueName(
             resolve(response.values);
           } else {
             reject(
-              new Error(`Failed to fetch list of existing ${resourceType}`)
+              new Error(
+                t("errors:codapPhone.ensureUniqueName.fail", { resourceType })
+              )
             );
           }
         } else {
-          reject(new Error("Invalid response while getting resource list"));
+          reject(
+            new Error(t("errors:codapPhone.ensureUniqueName.undefinedResult"))
+          );
         }
       }
     )
@@ -1187,7 +1267,9 @@ export function evalExpression(
             );
           }
         } else {
-          reject(new Error("Invalid response while evaluating expression"));
+          reject(
+            new Error(t("errors:codapPhone.evalExpression.undefinedResult"))
+          );
         }
       }
     )
@@ -1217,10 +1299,12 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
               names = allFunctions.map((f) => f.name);
               resolve(names);
             } else {
-              reject(new Error("Failed to get function names"));
+              reject(new Error(t("errors:codapPhone.getFunctionNames.fail")));
             }
           } else {
-            reject(new Error("Invalid response while getting function names"));
+            reject(
+              new Error(t("errors:codapPhone.getFunctionNames.undefinedResult"))
+            );
           }
         }
       );
@@ -1245,13 +1329,17 @@ export function notifyUndoableActionPerformed(message: string): Promise<void> {
             resolve();
           } else {
             reject(
-              new Error("Failed notifying about undoable action performed")
+              new Error(
+                t("errors:codapPhone.notifyUndoableActionPerformed.fail")
+              )
             );
           }
         } else {
           reject(
             new Error(
-              "Invalid response while notifying about undoable action performed"
+              t(
+                "errors:codapPhone.notifyUndoableActionPerformed.undefinedResult"
+              )
             )
           );
         }

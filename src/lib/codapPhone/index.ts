@@ -100,6 +100,7 @@ export async function initPhone(title: string, saved: boolean): Promise<void> {
     // Don't update the title if there is save data.
     title: hasState ? undefined : title,
     dimensions,
+    cannotClose: true,
   });
 }
 

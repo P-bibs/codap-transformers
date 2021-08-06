@@ -740,7 +740,8 @@ export function insertDataItems(
 export async function updateContextWithDataSet(
   contextName: string,
   dataset: DataSet,
-  title?: string
+  title?: string,
+  metadata?: ContextMetadata
 ): Promise<void> {
   const context = await getDataContext(contextName);
   const requests = [];
@@ -782,8 +783,15 @@ export async function updateContextWithDataSet(
 
   requests.push(Actions.insertDataItems(contextName, dataset.records));
 
-  if (title !== undefined) {
-    requests.push(Actions.updateDataContext(contextName, { title }));
+  if (title !== undefined || metadata !== undefined) {
+    const toUpdate: Partial<DataContext> = {};
+    if (title !== undefined) {
+      toUpdate.title = title;
+    }
+    if (metadata !== undefined) {
+      toUpdate.metadata = metadata;
+    }
+    requests.push(Actions.updateDataContext(contextName, toUpdate));
   }
 
   const responses = await callMultiple(requests);

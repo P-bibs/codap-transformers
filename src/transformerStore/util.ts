@@ -92,13 +92,15 @@ async function updateContextFromDatasetCreator(
   ) => Promise<DataSetTransformationOutput>,
   updateTitle: boolean
 ): Promise<void> {
-  const [transformed, newTitle] = await transformFunc(state);
+  const [transformed, newTitle, newDescription] = await transformFunc(state);
   const immutableTransformed = makeDatasetImmutable(transformed);
-  await updateContextWithDataSet(
-    outputName,
-    immutableTransformed,
-    updateTitle ? newTitle : undefined
-  );
+  if (updateTitle) {
+    await updateContextWithDataSet(outputName, immutableTransformed, newTitle, {
+      description: newDescription,
+    });
+  } else {
+    await updateContextWithDataSet(outputName, immutableTransformed);
+  }
 }
 
 async function updateTextFromDatasetCreator(

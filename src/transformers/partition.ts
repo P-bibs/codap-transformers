@@ -278,11 +278,17 @@ async function partitionUpdateInner(
       const updateTitle = !editedOutputs.has(contextName);
 
       // apply an update to a previous dataset
-      updateContextWithDataSet(
-        contextName,
-        partitioned.dataset,
-        updateTitle ? name : undefined
-      );
+      if (updateTitle) {
+        updateContextWithDataSet(contextName, partitioned.dataset, name, {
+          description: partitionDatasetDescription(
+            partitioned,
+            inputDataCtxtName,
+            attributeName
+          ),
+        });
+      } else {
+        updateContextWithDataSet(contextName, partitioned.dataset);
+      }
 
       // copy over existing context name into new valueToContext mapping
       newValueToContext[partitioned.distinctValueAsStr] = contextName;

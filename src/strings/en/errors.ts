@@ -252,6 +252,15 @@ const errors = {
       fail: "Evaluating `{{ expression }}` failed: {{ error }}",
       undefinedResult: "Invalid response while evaluating expression",
     },
+    getFunctionInfo: {
+      fail: "Failed to get function info",
+      undefinedResult: "Invalid response while getting function info",
+    },
+    notifyUndoableActionPerformed: {
+      failed: "Failed notifying about undoable action performed",
+      undefinedResult:
+        "Invalid response while notifying about undoable action performed",
+    },
   },
 };
 

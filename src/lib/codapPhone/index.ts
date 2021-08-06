@@ -1333,11 +1333,11 @@ export const getFunctionInfo: () => Promise<FunctionInfo[]> = (() => {
               );
               resolve(allFunctions);
             } else {
-              reject(new Error(t("errors:codapPhone.getFunctionNames.fail")));
+              reject(new Error(t("errors:codapPhone.getFunctionInfo.fail")));
             }
           } else {
             reject(
-              new Error(t("errors:codapPhone.getFunctionNames.undefinedResult"))
+              new Error(t("errors:codapPhone.getFunctionInfo.undefinedResult"))
             );
           }
         }

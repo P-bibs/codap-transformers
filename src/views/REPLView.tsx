@@ -30,6 +30,9 @@ import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
 import Select, { ValueType, ActionMeta } from "react-select";
 import TransformerInfo from "../components/info-components/TransformerInfo";
+import { closePlugin } from "./util";
+import { Cancel } from "@material-ui/icons";
+import { IconButton } from "@material-ui/core";
 
 // These are the base transformer types represented as SavedTransformer
 // objects
@@ -77,8 +80,11 @@ function REPLView(): ReactElement {
   const [editedOutputs, addEditedOutput, setEditedOutputs] = useEditedOutputs();
 
   // activeTransformations (first element of tuple) can be used to draw a diagram
-  const [, activeTransformationsDispatch, wrappedDispatch] =
-    useActiveTransformations(setErrMsg, editedOutputs, addEditedOutput);
+  const [
+    activeTransformations,
+    activeTransformationsDispatch,
+    wrappedDispatch,
+  ] = useActiveTransformations(setErrMsg, editedOutputs, addEditedOutput);
 
   function transformerChangeHandler(
     selected: ValueType<{ value: BaseTransformerName; label: string }, false>,
@@ -150,8 +156,19 @@ function REPLView(): ReactElement {
     <div className="transformer-view">
       <div className="title-row">
         <h3>Transformer</h3>
-
-        <AboutInfo />
+        <div>
+          <AboutInfo />
+          <IconButton
+            style={{
+              padding: "0",
+            }}
+            size="medium"
+            onClick={() => closePlugin(activeTransformations)}
+            title="Close plugin"
+          >
+            <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />
+          </IconButton>
+        </div>
       </div>
 
       <div className="select-row">

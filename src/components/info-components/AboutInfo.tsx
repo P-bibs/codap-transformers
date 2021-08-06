@@ -11,9 +11,7 @@ function AboutInfo(): ReactElement {
         <IconButton
           style={{
             padding: "0",
-            position: "fixed",
-            bottom: "15px",
-            right: "15px",
+            marginLeft: "auto",
           }}
           size="medium"
         >

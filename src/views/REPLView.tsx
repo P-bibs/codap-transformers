@@ -156,6 +156,7 @@ function REPLView(): ReactElement {
             }}
             size="medium"
             onClick={() => closePlugin(activeTransformations)}
+            title="Close plugin"
           >
             <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />
           </IconButton>

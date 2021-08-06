@@ -130,6 +130,7 @@ function SavedDefinitionView({
             }}
             size="medium"
             onClick={() => closePlugin(activeTransformations)}
+            title="Close definition"
           >
             <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />
           </IconButton>

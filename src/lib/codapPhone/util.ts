@@ -246,3 +246,7 @@ export function parseEvalError(message: string): string {
     return message;
   }
 }
+
+export function parseNameBetweenBrackets(text: string): string {
+  return text.slice(text.indexOf("[") + 1, text.indexOf("]"));
+}

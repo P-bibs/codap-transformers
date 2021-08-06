@@ -199,7 +199,7 @@ const titleFromComponent = (
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
-interface DatasetCreatorFunction {
+export interface DatasetCreatorFunction {
   kind: "datasetCreator";
   func: (state: TransformerTemplateState) => Promise<TransformationOutput>;
 }
@@ -211,7 +211,10 @@ export interface FullOverrideFunction {
     state: TransformerTemplateState,
     errorId: number
   ) => Promise<void>;
-  updateFunc: (state: FullOverrideSaveState) => Promise<{
+  updateFunc: (
+    state: FullOverrideSaveState,
+    editedOutputs: Set<string>
+  ) => Promise<{
     extraDependencies?: string[];
     state?: Partial<FullOverrideSaveState>;
   }>;

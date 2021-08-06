@@ -114,12 +114,16 @@ export async function updateInteractiveFrame(
         values,
       },
       (response) => {
-        // NOTE: Ensure the response exists, since if this is run
-        // without being embedded in CODAP, it will come back undefined.
-        if (response && response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to update CODAP interactive frame"));
+          }
         } else {
-          reject(new Error("Failed to update CODAP interactive frame"));
+          reject(
+            new Error("Invalid response while updating interactive frame")
+          );
         }
       }
     )
@@ -284,8 +288,14 @@ function codapRequestHandler(
 }
 
 function callMultiple(requests: CodapRequest[]): Promise<CodapResponse[]> {
-  return new Promise<CodapResponse[]>((resolve) => {
-    phone.call(requests, (responses) => resolve(responses));
+  return new Promise<CodapResponse[]>((resolve, reject) => {
+    phone.call(requests, (responses) => {
+      if (responses) {
+        resolve(responses);
+      } else {
+        reject(new Error("Invalid response while making multiple requests"));
+      }
+    });
   });
 }
 
@@ -297,10 +307,14 @@ export function getInteractiveFrame(): Promise<InteractiveFrame> {
         resource: CodapResource.InteractiveFrame,
       },
       (response) => {
-        if (response && response.success) {
-          resolve(response.values);
+        if (response) {
+          if (response.success) {
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to get interactive frame"));
+          }
         } else {
-          reject(new Error("Failed to get interactive frame."));
+          reject(new Error("Invalid response while getting interactive frame"));
         }
       }
     )
@@ -318,11 +332,21 @@ export function notifyInteractiveFrameIsDirty(): Promise<void> {
         },
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(
+              new Error(
+                "Failed to notify interactive frame that state is dirty"
+              )
+            );
+          }
         } else {
           reject(
-            new Error("Failed to notify interactive frame that state is dirty.")
+            new Error(
+              "Invalid response while notifying interactive frame that state is dirty"
+            )
           );
         }
       }
@@ -345,10 +369,16 @@ export async function notifyInteractiveFrameWithSelect(): Promise<void> {
         },
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to notify component to select"));
+          }
         } else {
-          reject(new Error("Failed to notify component to select."));
+          reject(
+            new Error("Invalid response while selecting the interactive frame")
+          );
         }
       }
     )
@@ -363,10 +393,14 @@ export function getAllComponents(): Promise<ComponentListResponse["values"]> {
         resource: CodapListResource.ComponentList,
       },
       (response: ComponentListResponse) => {
-        if (Array.isArray(response.values)) {
-          resolve(response.values);
+        if (response) {
+          if (Array.isArray(response.values)) {
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to get components"));
+          }
         } else {
-          reject(new Error("Failed to get components."));
+          reject(new Error("Invalid response while getting all components"));
         }
       }
     )
@@ -381,10 +415,14 @@ export function getComponent(component: string): Promise<CodapComponent> {
         resource: resourceFromComponent(component),
       },
       (response: GetComponentResponse) => {
-        if (response.success) {
-          resolve(response.values);
+        if (response) {
+          if (response.success) {
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to get component"));
+          }
         } else {
-          reject(new Error("Failed to get component."));
+          reject(new Error("Invalid response while getting component"));
         }
       }
     )
@@ -403,10 +441,14 @@ export function updateComponent(
         values: values,
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to update component"));
+          }
         } else {
-          reject(new Error("Failed to update component."));
+          reject(new Error("Invalid response while updating component"));
         }
       }
     )
@@ -424,10 +466,14 @@ export function updateDataContext(
         values: values,
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to update context"));
+          }
         } else {
-          reject(new Error("Failed to update context."));
+          reject(new Error("Invalid response while updating data context"));
         }
       }
     )
@@ -442,10 +488,14 @@ export function getAllDataContexts(): Promise<CodapIdentifyingInfo[]> {
         resource: CodapResource.DataContextList,
       },
       (response) => {
-        if (Array.isArray(response.values)) {
-          resolve(response.values);
+        if (response) {
+          if (Array.isArray(response.values)) {
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to get data contexts"));
+          }
         } else {
-          reject(new Error("Failed to get data contexts."));
+          reject(new Error("Invalid response while getting all data contexts"));
         }
       }
     )
@@ -462,10 +512,14 @@ export function getAllCollections(
         resource: collectionListFromContext(context),
       },
       (response: GetDataListResponse) => {
-        if (response.success) {
-          resolve(response.values);
+        if (response) {
+          if (response.success) {
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to get collections"));
+          }
         } else {
-          reject(new Error("Failed to get collections."));
+          reject(new Error("Invalid response while getting all collections"));
         }
       }
     )
@@ -485,12 +539,16 @@ function getCaseById(context: string, id: number): Promise<ReturnedCase> {
         resource: caseById(context, id),
       },
       (response: GetCaseResponse) => {
-        if (response.success) {
-          const result = response.values.case;
-          Cache.setCase(context, id, result);
-          resolve(result);
+        if (response) {
+          if (response.success) {
+            const result = response.values.case;
+            Cache.setCase(context, id, result);
+            resolve(result);
+          } else {
+            reject(new Error(`Failed to get case in ${context} with id ${id}`));
+          }
         } else {
-          reject(new Error(`Failed to get case in ${context} with id ${id}`));
+          reject(new Error("Invalid response while getting case by ID"));
         }
       }
     );
@@ -549,14 +607,18 @@ export async function getDataFromContext(
         resource: allCasesWithSearch(context, childCollection.name),
       },
       async (response: GetCasesResponse) => {
-        if (response.success) {
-          const records = await Promise.all(
-            response.values.map(dataItemFromChildCase)
-          );
-          Cache.setRecords(context, records);
-          resolve(records);
+        if (response) {
+          if (response.success) {
+            const records = await Promise.all(
+              response.values.map(dataItemFromChildCase)
+            );
+            Cache.setRecords(context, records);
+            resolve(records);
+          } else {
+            reject(new Error("Failed to get data items"));
+          }
         } else {
-          reject(new Error("Failed to get data items"));
+          reject(new Error("Invalid response while getting data from context"));
         }
       }
     )
@@ -594,12 +656,16 @@ export function getDataContext(contextName: string): Promise<DataContext> {
         resource: resourceFromContext(contextName),
       },
       (response: GetContextResponse) => {
-        if (response.success) {
-          const context = normalizeDataContext(response.values);
-          Cache.setContext(contextName, context);
-          resolve(context);
+        if (response) {
+          if (response.success) {
+            const context = normalizeDataContext(response.values);
+            Cache.setContext(contextName, context);
+            resolve(context);
+          } else {
+            reject(new Error(`Failed to get context ${contextName}`));
+          }
         } else {
-          reject(new Error(`Failed to get context ${contextName}`));
+          reject(new Error("Invalid response while getting data context"));
         }
       }
     );
@@ -614,10 +680,14 @@ export async function deleteDataContext(contextName: string): Promise<void> {
         resource: resourceFromContext(contextName),
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to delete data context"));
+          }
         } else {
-          reject(new Error("Failed to delete data context"));
+          reject(new Error("Invalid response while deleting data context"));
         }
       }
     )
@@ -645,10 +715,14 @@ async function createDataContext({
         },
       },
       (response) => {
-        if (response.success) {
-          resolve(response.values);
+        if (response) {
+          if (response.success) {
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to create data context"));
+          }
         } else {
-          reject(new Error("Failed to create dataset"));
+          reject(new Error("Invalid response while creating data context"));
         }
       }
     )
@@ -671,10 +745,14 @@ export async function createDataInteractive(
         },
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to create data interactive"));
+          }
         } else {
-          reject(new Error("Failed to create data interactive"));
+          reject(new Error("Invalid response while creating data interactive"));
         }
       }
     )
@@ -711,10 +789,14 @@ export function insertDataItems(
         values: data,
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to create dataset with data"));
+          }
         } else {
-          reject(new Error("Failed to create dataset with data"));
+          reject(new Error("Invalid response while inserting data items"));
         }
       }
     )
@@ -780,10 +862,14 @@ export function createCollections(
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(Actions.createCollections(context, collections), (response) => {
-      if (response.success) {
-        resolve();
+      if (response) {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error(`Failed to create collections in ${context}`));
+        }
       } else {
-        reject(new Error(`Failed to create collections in ${context}`));
+        reject(new Error("Invalid response while creating collections"));
       }
     })
   );
@@ -795,12 +881,16 @@ export function deleteCollection(
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(Actions.deleteCollection(context, collection), (response) => {
-      if (response.success) {
-        resolve();
+      if (response) {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(
+            new Error(`Failed to delete collection ${collection} in ${context}`)
+          );
+        }
       } else {
-        reject(
-          new Error(`Failed to delete collection ${collection} in ${context}`)
-        );
+        reject(new Error("Invalid response while deleting collection"));
       }
     })
   );
@@ -812,10 +902,14 @@ export async function deleteAllCases(
 ): Promise<void> {
   return new Promise<void>((resolve, reject) =>
     phone.call(Actions.deleteAllCases(context, collection), (response) => {
-      if (response.success) {
-        resolve();
+      if (response) {
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error("Failed to delete all cases"));
+        }
       } else {
-        reject(new Error("Failed to delete all cases"));
+        reject(new Error("Invalid response while deleting all cases"));
       }
     })
   );
@@ -843,10 +937,14 @@ export async function createTable(
         },
       },
       (response) => {
-        if (response.success) {
-          resolve(response.values);
+        if (response) {
+          if (response.success) {
+            resolve(response.values);
+          } else {
+            reject(new Error("Failed to create table"));
+          }
         } else {
-          reject(new Error("Failed to create table"));
+          reject(new Error("Invalid response while creating table"));
         }
       }
     )
@@ -904,10 +1002,14 @@ export async function createText(
         },
       },
       (response) => {
-        if (response.success) {
-          resolve(textName);
+        if (response) {
+          if (response.success) {
+            resolve(textName);
+          } else {
+            reject(new Error("Failed to create text"));
+          }
         } else {
-          reject(new Error("Failed to create text"));
+          reject(new Error("Invalid response while creating text"));
         }
       }
     )
@@ -945,10 +1047,14 @@ export async function updateText(name: string, content: string): Promise<void> {
         },
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to update text"));
+          }
         } else {
-          reject(new Error("Failed to update text"));
+          reject(new Error("Invalid response while updating text"));
         }
       }
     )
@@ -963,10 +1069,14 @@ export async function deleteText(name: string): Promise<void> {
         resource: resourceFromComponent(name),
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(new Error("Failed to delete text"));
+          }
         } else {
-          reject(new Error("Failed to delete text"));
+          reject(new Error("Invalid response while deleting text"));
         }
       }
     )
@@ -987,10 +1097,16 @@ async function ensureUniqueName(
         resource: resourceType,
       },
       (response) => {
-        if (response.success) {
-          resolve(response.values);
+        if (response) {
+          if (response.success) {
+            resolve(response.values);
+          } else {
+            reject(
+              new Error(`Failed to fetch list of existing ${resourceType}`)
+            );
+          }
         } else {
-          reject(new Error(`Failed to fetch list of existing ${resourceType}`));
+          reject(new Error("Invalid response while getting resource list"));
         }
       }
     )
@@ -1058,16 +1174,20 @@ export function evalExpression(
         },
       },
       (response) => {
-        if (response.success) {
-          console.group("Eval");
-          console.log(response.values);
-          console.groupEnd();
-          resolve(response.values);
+        if (response) {
+          if (response.success) {
+            console.group("Eval");
+            console.log(response.values);
+            console.groupEnd();
+            resolve(response.values);
+          } else {
+            // In this case, values is an error message
+            reject(
+              new CodapEvalError(expr, parseEvalError(response.values.error))
+            );
+          }
         } else {
-          // In this case, values is an error message
-          reject(
-            new CodapEvalError(expr, parseEvalError(response.values.error))
-          );
+          reject(new Error("Invalid response while evaluating expression"));
         }
       }
     )
@@ -1089,14 +1209,18 @@ export const getFunctionNames: () => Promise<string[]> = (() => {
           resource: CodapResource.FormulaEngine,
         },
         (response: GetFunctionInfoResponse) => {
-          if (response.success) {
-            const allFunctions: FunctionInfo[] = Object.values(
-              response.values
-            ).flatMap(Object.values);
-            names = allFunctions.map((f) => f.name);
-            resolve(names);
+          if (response) {
+            if (response.success) {
+              const allFunctions: FunctionInfo[] = Object.values(
+                response.values
+              ).flatMap(Object.values);
+              names = allFunctions.map((f) => f.name);
+              resolve(names);
+            } else {
+              reject(new Error("Failed to get function names"));
+            }
           } else {
-            reject(new Error("Failed to get function names"));
+            reject(new Error("Invalid response while getting function names"));
           }
         }
       );
@@ -1116,10 +1240,20 @@ export function notifyUndoableActionPerformed(message: string): Promise<void> {
         },
       },
       (response) => {
-        if (response.success) {
-          resolve();
+        if (response) {
+          if (response.success) {
+            resolve();
+          } else {
+            reject(
+              new Error("Failed notifying about undoable action performed")
+            );
+          }
         } else {
-          reject(new Error("Failed notifying about undoable action performed"));
+          reject(
+            new Error(
+              "Invalid response while notifying about undoable action performed"
+            )
+          );
         }
       }
     )

@@ -269,7 +269,7 @@ async function partitionUpdateInner({
       outputContexts.push(newName);
     } else {
       // apply an update to a previous dataset
-      updateContextWithDataSet(contextName, partitioned.dataset);
+      await updateContextWithDataSet(contextName, partitioned.dataset);
 
       // copy over existing context name into new valueToContext mapping
       newValueToContext[partitioned.distinctValueAsStr] = contextName;

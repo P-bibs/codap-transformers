@@ -766,6 +766,7 @@ export async function updateContextWithDataSet(
   requests.push(Actions.insertDataItems(contextName, dataset.records));
 
   const responses = await callMultiple(requests);
+
   for (const response of responses) {
     if (!response.success) {
       throw new Error(`Failed to update ${contextName}`);

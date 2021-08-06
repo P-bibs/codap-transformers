@@ -20,7 +20,10 @@ import {
 } from "../lib/codapPhone/listeners";
 import "../components/transformer-template/styles/DefinitionCreator.css";
 import "./styles/SavedDefinitionView.css";
-import { useActiveTransformations } from "../transformerStore";
+import {
+  useActiveTransformations,
+  useEditedOutputs,
+} from "../transformerStore";
 import { ActionTypes } from "../transformerStore/types";
 import { deserializeActiveTransformations } from "../transformerStore/util";
 import { TransformerRenderer } from "../components/transformer-template/TransformerRenderer";
@@ -40,8 +43,9 @@ function SavedDefinitionView({
   const [editable, setEditable] = useState<boolean>(false);
   const [savedTransformer, setSavedTransformer] = useState(urlTransformer);
   const [saveErr, setSaveErr] = useState<string | null>(null);
+  const [editedOutputs, addEditedOutput, setEditedOutputs] = useEditedOutputs();
   const [, activeTransformationsDispatch, wrappedDispatch] =
-    useActiveTransformations(setErrMsg);
+    useActiveTransformations(setErrMsg, editedOutputs, addEditedOutput);
 
   // Load saved state from CODAP memory
   useEffect(() => {
@@ -65,11 +69,14 @@ function SavedDefinitionView({
           ),
         });
       }
+      if (savedState.editedOutputs !== undefined) {
+        setEditedOutputs(new Set(savedState.editedOutputs));
+      }
     }
     fetchSavedState();
 
     // Identity of dispatch is stable since it came from useReducer
-  }, [activeTransformationsDispatch, savedTransformer]);
+  }, [activeTransformationsDispatch, savedTransformer, setEditedOutputs]);
 
   // Register a listener to generate the plugin's state
   useEffect(() => {

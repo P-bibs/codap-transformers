@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, useCallback } from "react";
 import { default as transformerList } from "../transformerList";
 import { tryTitle } from "../transformers/util";
 import {
@@ -15,6 +15,8 @@ import {
   removeContextDeletedHook,
   addTextDeletedHook,
   removeTextDeletedHook,
+  addOutputTitleChangeHook,
+  removeOutputTitleChangeHook,
 } from "../lib/codapPhone/listeners";
 import { InteractiveState } from "../lib/codapPhone/types";
 import {
@@ -29,6 +31,7 @@ import {
   activeTransformationsReducer,
   serializeActiveTransformations,
   updateFromDescription,
+  findTransformation,
 } from "./util";
 
 /**
@@ -37,7 +40,9 @@ import {
  * A record of active transformations which is used to perform updates.
  */
 export function useActiveTransformations(
-  setErrMsg: (msg: string | null, id: number) => void
+  setErrMsg: (msg: string | null, id: number) => void,
+  editedOutputs: Set<string>,
+  addEditedOutput: (name: string) => void
 ): [
   Record<string, TransformationDescription[]>,
   React.Dispatch<ActiveTransformationsAction>,
@@ -82,7 +87,8 @@ export function useActiveTransformations(
           setErrMsg(null, description.errorId);
           await updateFromDescription(
             description,
-            activeTransformationsDispatch
+            activeTransformationsDispatch,
+            editedOutputs
           );
         } catch (e) {
           if (
@@ -114,7 +120,7 @@ export function useActiveTransformations(
     }
     addContextUpdateHook(callback);
     return () => removeContextUpdateHook(callback);
-  }, [activeTransformations, setErrMsg]);
+  }, [activeTransformations, setErrMsg, editedOutputs]);
 
   // Delete transformations for deleted contexts
   useEffect(() => {
@@ -158,9 +164,54 @@ export function useActiveTransformations(
     return () => removeTextDeletedHook(callback);
   }, [activeTransformations]);
 
+  useEffect(() => {
+    async function callback(outputName: string) {
+      const description = findTransformation(activeTransformations, (t) =>
+        t.extraDependencies.includes(outputName)
+      );
+      if (description === undefined) {
+        return;
+      }
+      addEditedOutput(outputName);
+    }
+    addOutputTitleChangeHook(callback);
+    return () => removeOutputTitleChangeHook(callback);
+  });
+
   return [
     activeTransformations,
     activeTransformationsDispatch,
     wrappedDispatch,
   ];
+}
+
+export function useEditedOutputs(): [
+  Set<string>,
+  (output: string) => void,
+  (outputs: Set<string>) => void
+] {
+  const [editedOutputs, setEditedOutputs] = useState(new Set<string>());
+
+  const addEditedOutput = useCallback(
+    (outputName: string) => {
+      setEditedOutputs(new Set(editedOutputs.add(outputName)));
+      notifyInteractiveFrameIsDirty();
+    },
+    [editedOutputs]
+  );
+
+  useEffect(() => {
+    function saveStateCallback(
+      previousInteractiveState: InteractiveState
+    ): InteractiveState {
+      return {
+        ...previousInteractiveState,
+        editedOutputs: [...editedOutputs],
+      };
+    }
+    addInteractiveStateRequestListener(saveStateCallback);
+    return () => removeInteractiveStateRequestListener(saveStateCallback);
+  }, [editedOutputs]);
+
+  return [editedOutputs, addEditedOutput, setEditedOutputs];
 }

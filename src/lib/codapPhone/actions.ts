@@ -4,12 +4,15 @@ import {
   DeleteRequest,
   CreateCollectionsRequest,
   CreateDataItemsRequest,
+  UpdateContextRequest,
+  DataContext,
 } from "./types";
 import {
   allCases,
   collectionFromContext,
   collectionOfContext,
   itemFromContext,
+  resourceFromContext,
 } from "./resource";
 
 export function deleteAllCases(
@@ -51,5 +54,16 @@ export function insertDataItems(
     action: CodapActions.Create,
     resource: itemFromContext(contextName),
     values: data,
+  };
+}
+
+export function updateDataContext(
+  context: string,
+  values: Partial<DataContext>
+): UpdateContextRequest {
+  return {
+    action: CodapActions.Update,
+    resource: resourceFromContext(context),
+    values: values,
   };
 }

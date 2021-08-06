@@ -45,6 +45,7 @@ export type TransformersInteractiveState = {
     description: string;
   };
   activeTransformations?: TransformationDescription[];
+  editedOutputs?: string[];
 };
 
 export type TransformerGroup =

@@ -40,7 +40,7 @@ test("throws error when non-existent collection given", () => {
     "New Col",
     "not here",
     "C + 1",
-    "number"
+    "Number"
   ).catch((e) => expect(e.message).toMatch(/was not found/));
 });
 
@@ -51,7 +51,7 @@ test("throws error when new attribute collides with existing", () => {
     "A",
     "child",
     "C + 1",
-    "number"
+    "Number"
   ).catch((e) => expect(e.message).toMatch(/already in use/));
 });
 
@@ -62,7 +62,7 @@ test("throws error when expression uses unbound values", async () => {
       "E",
       "child",
       "AttributeNameThatDoesntExist + 1",
-      "any",
+      "Any",
       jsEvalExpression
     );
   } catch (e) {
@@ -78,7 +78,7 @@ test("using attribute name as formula creates clone of attribute", async () => {
         "D",
         "child",
         "C",
-        "any",
+        "Any",
         jsEvalExpression
       )
     ).records.map((row) => row.D)
@@ -98,7 +98,7 @@ test("build attribute does nothing to dataset with no records", async () => {
       "G",
       "Collection A",
       "A + B * F + 1",
-      "any",
+      "Any",
       jsEvalExpression
     )
   ).toEqual(COLLECTION_A_OUTPUT);
@@ -115,7 +115,7 @@ test("build attribute does nothing to dataset with no records", async () => {
       "G",
       "Collection B",
       "A + B * F + 1",
-      "any",
+      "Any",
       jsEvalExpression
     )
   ).toEqual(COLLECTION_B_OUTPUT);
@@ -132,7 +132,7 @@ test("build attribute does nothing to dataset with no records", async () => {
       "G",
       "Collection C",
       "A + B * F + 1",
-      "any",
+      "Any",
       jsEvalExpression
     )
   ).toEqual(COLLECTION_C_OUTPUT);
@@ -155,7 +155,7 @@ test("using attribute name as formula creates clone of attribute", async () => {
       "BirthYear",
       "people",
       "Year - Age",
-      "any",
+      "Any",
       jsEvalExpression
     )
   ).toEqual(CENSUS_DATASET_OUTPUT);
@@ -174,7 +174,7 @@ test("all attribute metadata is copied", async () => {
       "D",
       "Collection",
       '""',
-      "any",
+      "Any",
       jsEvalExpression
     )
   ).toEqual(OUTPUT);

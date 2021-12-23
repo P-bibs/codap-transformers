@@ -52,28 +52,28 @@ export async function findTypeErrors(
   ) => Promise<unknown[]>
 ): Promise<number[]> {
   switch (type) {
-    case "any":
+    case "Any":
       // All values are allowed for any, so we can return immediately
       return [];
-    case "number":
+    case "Number":
       return checkTypeOfValues(
         CodapTypePredicateFunctions.Number,
         values,
         evalFormula
       );
-    case "string":
+    case "String":
       return checkTypeOfValues(
         CodapTypePredicateFunctions.String,
         values,
         evalFormula
       );
-    case "boolean":
+    case "Boolean":
       return checkTypeOfValues(
         CodapTypePredicateFunctions.Boolean,
         values,
         evalFormula
       );
-    case "boundary":
+    case "Boundary":
       return checkTypeOfValues(
         CodapTypePredicateFunctions.Boundary,
         values,

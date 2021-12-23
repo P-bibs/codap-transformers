@@ -124,6 +124,9 @@ function docLinkFromHeadingID(headingID: string): string {
   return `https://docs.google.com/document/d/1NZA9gxtu6jD3M-5SQyx0tvV2N5qYKMgRm1XUwMnLgJU/edit#heading=${headingID}`;
 }
 
+// All possible types, used in user-configurable contracts.
+const allTypes = ["Any", "String", "Number", "Boolean", "Boundary"];
+
 const transformerList: TransformerList = {
   "Build Attribute": {
     group: "Constructing",
@@ -140,8 +143,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Formula for Attribute Values",
-          inputTypes: "row",
-          outputTypes: ["any", "string", "number", "boolean", "boundary"],
+          inputTypes: "Row",
+          outputTypes: allTypes,
           inputTypeDisabled: true,
         },
         expression1: { title: "" },
@@ -176,8 +179,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Formula for Transformed Values",
-          inputTypes: "row",
-          outputTypes: ["any", "string", "number", "boolean", "boundary"],
+          inputTypes: "Row",
+          outputTypes: allTypes,
           inputTypeDisabled: true,
         },
         expression1: { title: "" },
@@ -207,8 +210,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "How to Filter",
-          inputTypes: "row",
-          outputTypes: "boolean",
+          inputTypes: "Row",
+          outputTypes: "Boolean",
           inputTypeDisabled: true,
           outputTypeDisabled: true,
         },
@@ -264,8 +267,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Key expression",
-          inputTypes: "row",
-          outputTypes: ["any", "string", "number", "boolean", "boundary"],
+          inputTypes: "Row",
+          outputTypes: allTypes,
           inputTypeDisabled: true,
         },
         expression1: { title: "" },

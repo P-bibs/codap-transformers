@@ -12,11 +12,11 @@ export type DataSet = {
 };
 
 export type CodapLanguageType =
-  | "string"
-  | "any"
-  | "number"
-  | "boolean"
-  | "boundary";
+  | "Any"
+  | "String"
+  | "Number"
+  | "Boolean"
+  | "Boundary";
 
 /**
  * The properties of a CODAP boundary value that are necessary for

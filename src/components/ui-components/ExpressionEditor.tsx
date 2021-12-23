@@ -170,7 +170,7 @@ export default function ExpressionEditor({
             hint: codapFormulaHints,
           },
           readOnly: disabled,
-          placeholder: "Formula expression",
+          placeholder: "Expression",
         }}
         onInputRead={(editor) => {
           editor.showHint();

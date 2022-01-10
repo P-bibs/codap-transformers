@@ -199,6 +199,23 @@ const titleFromComponent = (
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
+/**
+ * Makes an italicized paragraph element from a ui component's title.
+ * This is used for displaying prompts for formulas.
+ */
+const displayExpressionPrompt = (
+  component: keyof TransformerTemplateInit,
+  init: TransformerTemplateInit
+): ReactElement => {
+  const tmp = init[component];
+  return tmp && tmp.title ? (
+    <p className="expression-prompt">
+      <i>{tmp.title}</i>
+    </p>
+  ) : (
+    <></>
+  );
+};
 export interface DatasetCreatorFunction {
   kind: "datasetCreator";
   func: (state: TransformerTemplateState) => Promise<TransformationOutput>;
@@ -572,7 +589,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         } else if (component === "expression1" || component === "expression2") {
           return (
             <div className="input-group">
-              {titleFromComponent(component, init)}
+              {displayExpressionPrompt(component, init)}
               <ExpressionEditor
                 value={state[component]}
                 onChange={(s) => setState({ [component]: s })}

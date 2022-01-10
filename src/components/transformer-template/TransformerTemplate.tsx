@@ -409,7 +409,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         }
       }
     } catch (e) {
-      setErrMsg(e.message, errorId);
+      setErrMsg((e as Error).message, errorId);
     }
   };
 

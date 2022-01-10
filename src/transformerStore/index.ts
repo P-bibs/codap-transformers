@@ -109,11 +109,11 @@ export function useActiveTransformations(
               );
             }
             setErrMsg(
-              `Error updating "${outputName}": ${e.message}`,
+              `Error updating "${outputName}": ${(e as Error).message}`,
               description.errorId
             );
           } else {
-            setErrMsg(e.message, description.errorId);
+            setErrMsg((e as Error).message, description.errorId);
           }
         }
       }

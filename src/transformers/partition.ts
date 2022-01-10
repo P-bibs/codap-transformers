@@ -220,7 +220,9 @@ export async function partitionUpdate(
   try {
     return await partitionUpdateInner(state, editedOutputs);
   } catch (e) {
-    throw new Error(`${t("errors:partition.errorUpdating")}: ${e.message}`);
+    throw new Error(
+      `${t("errors:partition.errorUpdating")}: ${(e as Error).message}`
+    );
   }
 }
 

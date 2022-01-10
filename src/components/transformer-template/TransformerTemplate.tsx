@@ -76,7 +76,7 @@ interface ExpressionInit extends ComponentInit {}
 interface TypeContractInit extends ComponentInit {
   inputTypes: string[] | string;
   inputTypeDisabled?: boolean;
-  outputTypes: string[] | string;
+  outputTypes: readonly string[] | string;
   outputTypeDisabled?: boolean;
 }
 export type TransformerTemplateInit = {

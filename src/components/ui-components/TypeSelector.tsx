@@ -6,7 +6,7 @@ interface TypeSelectorProps {
   selectedInputType: string;
   inputTypeOnChange?: React.ChangeEventHandler<HTMLSelectElement>;
   inputTypeDisabled?: boolean;
-  outputTypes: string[] | string;
+  outputTypes: readonly string[] | string;
   selectedOutputType: string;
   outputTypeOnChange?: React.ChangeEventHandler<HTMLSelectElement>;
   outputTypeDisabled?: boolean;

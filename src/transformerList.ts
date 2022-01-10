@@ -185,7 +185,7 @@ const transformerList: TransformerList = {
         },
         expression1: {
           title:
-            "For each row, replace the value of the transformed attribute with the result of the expression:",
+            "For each row, replace the value of {attribute1} with the result of the expression:",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: transformAttribute },

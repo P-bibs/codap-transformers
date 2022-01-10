@@ -200,16 +200,36 @@ const titleFromComponent = (
  */
 const displayExpressionPrompt = (
   component: keyof TransformerTemplateInit,
-  init: TransformerTemplateInit
+  init: TransformerTemplateInit,
+  state: TransformerTemplateState
 ): ReactElement => {
   const tmp = init[component];
-  return tmp && tmp.title ? (
-    <p className="expression-prompt">
-      <i>{tmp.title}</i>
-    </p>
-  ) : (
-    <></>
-  );
+
+  if (tmp && tmp.title) {
+    let rawPrompt = tmp.title;
+
+    // Loop through each key of the state object to see if we need to splice
+    // one of these values into the expression prompt
+    let key: keyof typeof state;
+    for (key in state) {
+      const value = state[key];
+
+      // Replace substrings of the form {attribute1} eg. with the corresponding
+      // state value. If no state exists yet, use an underscore.
+      rawPrompt = rawPrompt.replace(
+        "{" + key + "}",
+        value === null ? "____" : value.toString()
+      );
+    }
+
+    const processedPrompt = rawPrompt;
+    return (
+      <p className="expression-prompt">
+        <i>{processedPrompt}</i>
+      </p>
+    );
+  }
+  return <></>;
 };
 export interface DatasetCreatorFunction {
   kind: "datasetCreator";
@@ -578,7 +598,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         } else if (component === "expression1" || component === "expression2") {
           return (
             <div className="input-group">
-              {displayExpressionPrompt(component, init)}
+              {displayExpressionPrompt(component, init, state)}
               <ExpressionEditor
                 value={state[component]}
                 onChange={(s) => setState({ [component]: s })}

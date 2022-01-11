@@ -231,30 +231,6 @@ const transformerList: TransformerList = {
       },
     },
   },
-  "Group By": {
-    group: "Constructing",
-    componentData: {
-      init: {
-        context1: {
-          title: "Dataset to Group",
-        },
-        attributeSet1: {
-          title: "Attributes to Group By",
-        },
-      },
-      transformerFunction: { kind: "datasetCreator", func: groupBy },
-      info: {
-        summary:
-          "Produces a new dataset that is grouped by combinations of the given \
-          attributes, by adding a new parent collection that contains copies of \
-          these attributes.",
-        consumes: "A dataset to group and a list of attributes to group by.",
-        produces:
-          "A copy of the input dataset whose cases are grouped by the given attributes.",
-        docLink: docLinkFromHeadingID("h.rdk3sh75yqxm"),
-      },
-    },
-  },
   Sort: {
     group: "Constructing",
     componentData: {
@@ -684,6 +660,30 @@ const transformerList: TransformerList = {
           original two attributes, their numeric difference, and a color \
           indicating whether the difference was negative, positive, or neutral.",
         docLink: docLinkFromHeadingID("h.2og7klit1lga"),
+      },
+    },
+  },
+  "Group By": {
+    group: "Restructuring",
+    componentData: {
+      init: {
+        context1: {
+          title: "Dataset to Group",
+        },
+        attributeSet1: {
+          title: "Attributes to Group By",
+        },
+      },
+      transformerFunction: { kind: "datasetCreator", func: groupBy },
+      info: {
+        summary:
+          "Produces a new dataset that is grouped by combinations of the given \
+          attributes, by adding a new parent collection that contains copies of \
+          these attributes.",
+        consumes: "A dataset to group and a list of attributes to group by.",
+        produces:
+          "A copy of the input dataset whose cases are grouped by the given attributes.",
+        docLink: docLinkFromHeadingID("h.rdk3sh75yqxm"),
       },
     },
   },

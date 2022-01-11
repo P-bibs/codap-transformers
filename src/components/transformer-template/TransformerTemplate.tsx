@@ -218,7 +218,7 @@ const displayExpressionPrompt = (
       // state value. If no state exists yet, use an underscore.
       rawPrompt = rawPrompt.replace(
         "{" + key + "}",
-        value === null ? "____" : value.toString()
+        value === null || value === "" ? "____" : value.toString()
       );
     }
 

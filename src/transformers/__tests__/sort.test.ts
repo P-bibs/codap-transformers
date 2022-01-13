@@ -39,7 +39,7 @@ test("no change to dataset with no records", async () => {
     await uncheckedSortWrapper(
       EMPTY_RECORDS,
       "A",
-      "any",
+      "Any",
       "ascending",
       jsEvalExpression
     )
@@ -57,7 +57,7 @@ test("sorts numbers", async () => {
     await uncheckedSortWrapper(
       DATASET_A,
       "A",
-      "any",
+      "Any",
       "ascending",
       jsEvalExpression
     )
@@ -73,7 +73,7 @@ test("sorts numbers", async () => {
     await uncheckedSortWrapper(
       DATASET_A,
       "A",
-      "any",
+      "Any",
       "descending",
       jsEvalExpression
     )
@@ -97,7 +97,7 @@ test("sorts booleans", async () => {
     await uncheckedSortWrapper(
       DATASET_A,
       "B",
-      "any",
+      "Any",
       "descending",
       jsEvalExpression
     )
@@ -119,7 +119,7 @@ test("sorts booleans", async () => {
     await uncheckedSortWrapper(
       DATASET_A,
       "B",
-      "any",
+      "Any",
       "ascending",
       jsEvalExpression
     )
@@ -146,7 +146,7 @@ test("sorts strings", async () => {
     await uncheckedSortWrapper(
       DATASET_B,
       "Name",
-      "any",
+      "Any",
       "ascending",
       jsEvalExpression
     )
@@ -161,7 +161,7 @@ test("sorts strings", async () => {
     await uncheckedSortWrapper(
       DATASET_B,
       "Name",
-      "any",
+      "Any",
       "descending",
       jsEvalExpression
     )
@@ -191,7 +191,7 @@ test("sorts objects", async () => {
     await uncheckedSortWrapper(
       withObjects,
       "Boundaries",
-      "any",
+      "Any",
       "ascending",
       jsEvalExpression
     )
@@ -205,7 +205,7 @@ test("sorts objects", async () => {
     await uncheckedSortWrapper(
       withObjects,
       "Boundaries",
-      "any",
+      "Any",
       "descending",
       jsEvalExpression
     )
@@ -216,7 +216,7 @@ test("sorts objects", async () => {
     await uncheckedSortWrapper(
       TYPES_DATASET,
       "Boundary",
-      "any",
+      "Any",
       "ascending",
       jsEvalExpression
     )
@@ -225,7 +225,7 @@ test("sorts objects", async () => {
     await uncheckedSortWrapper(
       TYPES_DATASET,
       "Boundary",
-      "any",
+      "Any",
       "descending",
       jsEvalExpression
     )
@@ -238,7 +238,7 @@ test("errors when key expression evaluates to multiple types", async () => {
     await uncheckedSortWrapper(
       FULLY_FEATURED_DATASET,
       "Attribute_3",
-      "any",
+      "Any",
       "ascending",
       jsEvalExpression
     );
@@ -250,7 +250,7 @@ test("errors when key expression evaluates to multiple types", async () => {
     await uncheckedSortWrapper(
       FULLY_FEATURED_DATASET,
       "Attribute_5",
-      "any",
+      "Any",
       "descending",
       jsEvalExpression
     );
@@ -279,7 +279,7 @@ test("sort is stable", async () => {
     await uncheckedSortWrapper(
       dataset,
       "Number",
-      "any",
+      "Any",
       "ascending",
       jsEvalExpression
     )

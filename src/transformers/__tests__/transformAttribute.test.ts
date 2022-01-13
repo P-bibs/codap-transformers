@@ -61,7 +61,7 @@ test("simple transform to constant", async () => {
       DATASET_A,
       "B",
       "10",
-      "any",
+      "Any",
       jsEvalExpression
     )
   ).toEqual(transformedA);
@@ -77,7 +77,7 @@ test("transform with formula dependent on transformed attribute", async () => {
       DATASET_B,
       "Birth_Year",
       "Birth_Year + 1",
-      "any",
+      "Any",
       jsEvalExpression
     )
   ).toEqual(transformedB);
@@ -95,7 +95,7 @@ test("transform with formula dependent on other attribute", async () => {
       CENSUS_DATASET,
       "sample",
       "Age > 30",
-      "any",
+      "Any",
       jsEvalExpression
     )
   ).toEqual(transformedCensus);
@@ -110,7 +110,7 @@ test("errors on invalid attribute", async () => {
       CENSUS_DATASET,
       "Unknown",
       "Year * 2",
-      "number",
+      "Number",
       jsEvalExpression
     );
   } catch (e) {
@@ -122,7 +122,7 @@ test("errors on invalid attribute", async () => {
       DATASET_A,
       "Z",
       "A + C",
-      "number",
+      "Number",
       jsEvalExpression
     );
   } catch (e) {
@@ -133,7 +133,7 @@ test("errors on invalid attribute", async () => {
       EMPTY_DATASET,
       "Anything",
       "0",
-      "number",
+      "Number",
       jsEvalExpression
     );
   } catch (e) {
@@ -150,7 +150,7 @@ test("metadata (besides formula/description of transformed attr) is copied", asy
       DATASET_WITH_META,
       "C",
       "true",
-      "boolean",
+      "Boolean",
       jsEvalExpression
     )
   ).toEqual(transformedMeta);

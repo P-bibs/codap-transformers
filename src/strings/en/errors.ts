@@ -75,7 +75,7 @@ const errors = {
   filter: {
     noExpression: "Please enter an expression by which to filter",
     nonBooleanResult:
-      "Please enter an expression that evaluates to a boolean. The one you entered evaluated to {{ value }} for case {{ caseNumber }}",
+      "Please enter an expression that evaluates to a Boolean. The one you entered evaluated to {{ value }} for case {{ caseNumber }}",
   },
   join: {
     noDataSetOrAttribute: "Please choose two datasets and two attributes",

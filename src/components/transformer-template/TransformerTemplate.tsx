@@ -73,7 +73,7 @@ interface ExpressionInit extends ComponentInit {}
 interface TypeContractInit extends ComponentInit {
   inputTypes: string[] | string;
   inputTypeDisabled?: boolean;
-  outputTypes: string[] | string;
+  outputTypes: readonly string[] | string;
   outputTypeDisabled?: boolean;
 }
 export type TransformerTemplateInit = {
@@ -141,8 +141,8 @@ const DEFAULT_STATE: TransformerTemplateState = {
   dropdown2: null,
   expression1: "",
   expression2: "",
-  typeContract1: { inputType: "any", outputType: "any" },
-  typeContract2: { inputType: "any", outputType: "any" },
+  typeContract1: { inputType: "Any", outputType: "Any" },
+  typeContract2: { inputType: "Any", outputType: "Any" },
 };
 
 const contextFromCollection = (

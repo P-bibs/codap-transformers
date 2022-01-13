@@ -11,12 +11,14 @@ export type DataSet = {
   editable?: boolean;
 };
 
-export type CodapLanguageType =
-  | "string"
-  | "any"
-  | "number"
-  | "boolean"
-  | "boundary";
+export const codapLanguageTypes = [
+  "Any",
+  "String",
+  "Number",
+  "Boolean",
+  "Boundary",
+] as const;
+export type CodapLanguageType = typeof codapLanguageTypes[number];
 
 /**
  * The properties of a CODAP boundary value that are necessary for

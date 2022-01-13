@@ -34,6 +34,7 @@ import { partitionOverride, partitionUpdate } from "./transformers/partition";
 import { editableCopyOverride } from "./transformers/editableCopy";
 import { transformAttribute } from "./transformers/transformAttribute";
 import { compare } from "./transformers/compare";
+import { codapLanguageTypes } from "./transformers/types";
 
 export type TransformersInteractiveState = {
   transformerREPL?: {
@@ -140,8 +141,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Formula for Attribute Values",
-          inputTypes: "row",
-          outputTypes: ["any", "string", "number", "boolean", "boundary"],
+          inputTypes: "Row",
+          outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
         },
         expression1: {
@@ -179,8 +180,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Formula for Transformed Values",
-          inputTypes: "row",
-          outputTypes: ["any", "string", "number", "boolean", "boundary"],
+          inputTypes: "Row",
+          outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
         },
         expression1: {
@@ -213,8 +214,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "How to Filter",
-          inputTypes: "row",
-          outputTypes: "boolean",
+          inputTypes: "Row",
+          outputTypes: "Boolean",
           inputTypeDisabled: true,
           outputTypeDisabled: true,
         },
@@ -242,8 +243,8 @@ const transformerList: TransformerList = {
         },
         typeContract1: {
           title: "Key expression",
-          inputTypes: "row",
-          outputTypes: ["any", "string", "number", "boolean", "boundary"],
+          inputTypes: "Row",
+          outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
         },
         expression1: {

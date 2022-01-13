@@ -144,7 +144,10 @@ const transformerList: TransformerList = {
           outputTypes: ["any", "string", "number", "boolean", "boundary"],
           inputTypeDisabled: true,
         },
-        expression1: { title: "" },
+        expression1: {
+          title:
+            "For each row, construct the attribute {textInput1} with the result of the expression:",
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: buildAttribute },
       info: {
@@ -180,7 +183,10 @@ const transformerList: TransformerList = {
           outputTypes: ["any", "string", "number", "boolean", "boundary"],
           inputTypeDisabled: true,
         },
-        expression1: { title: "" },
+        expression1: {
+          title:
+            "For each row, replace the value of attribute {attribute1} with the result of the expression:",
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: transformAttribute },
       info: {
@@ -212,11 +218,7 @@ const transformerList: TransformerList = {
           inputTypeDisabled: true,
           outputTypeDisabled: true,
         },
-        prompt1: {
-          title: "",
-          prompt: "Keep all rows that satisfy:",
-        },
-        expression1: { title: "" },
+        expression1: { title: "Keep all rows that satisfy:" },
       },
       transformerFunction: { kind: "datasetCreator", func: filter },
       info: {
@@ -244,7 +246,10 @@ const transformerList: TransformerList = {
           outputTypes: ["any", "string", "number", "boolean", "boundary"],
           inputTypeDisabled: true,
         },
-        expression1: { title: "" },
+        expression1: {
+          title:
+            "Sort the rows in this dataset by a value, which is computed by:",
+        },
         dropdown1: {
           title: "Direction",
           options: [
@@ -535,14 +540,14 @@ const transformerList: TransformerList = {
         textInput1: {
           title: "Result Attribute Name",
         },
-        expression1: {
-          title: "Starting Value",
-        },
         textInput2: {
           title: "Accumulator Name",
         },
+        expression1: {
+          title: "Starting with:",
+        },
         expression2: {
-          title: "Formula for Next Accumulator",
+          title: "Compute the next value for each row by:",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: genericFold },

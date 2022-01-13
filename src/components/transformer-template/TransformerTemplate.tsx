@@ -69,9 +69,6 @@ interface DropdownInit extends ComponentInit {
     value: string;
   }[];
 }
-interface PromptInit extends ComponentInit {
-  prompt: string;
-}
 interface ExpressionInit extends ComponentInit {}
 interface TypeContractInit extends ComponentInit {
   inputTypes: string[] | string;
@@ -92,8 +89,6 @@ export type TransformerTemplateInit = {
   textInput2?: TextInputInit;
   dropdown1?: DropdownInit;
   dropdown2?: DropdownInit;
-  prompt1?: PromptInit;
-  prompt2?: PromptInit;
   expression1?: ExpressionInit;
   expression2?: ExpressionInit;
   typeContract1?: TypeContractInit;
@@ -199,6 +194,43 @@ const titleFromComponent = (
   return tmp && tmp.title ? <h3>{tmp.title}</h3> : <></>;
 };
 
+/**
+ * Makes an italicized paragraph element from a ui component's title.
+ * This is used for displaying prompts for formulas.
+ */
+const displayExpressionPrompt = (
+  component: keyof TransformerTemplateInit,
+  init: TransformerTemplateInit,
+  state: TransformerTemplateState
+): ReactElement => {
+  const tmp = init[component];
+
+  if (tmp && tmp.title) {
+    let rawPrompt = tmp.title;
+
+    // Loop through each key of the state object to see if we need to splice
+    // one of these values into the expression prompt
+    let key: keyof typeof state;
+    for (key in state) {
+      const value = state[key];
+
+      // Replace substrings of the form {attribute1} eg. with the corresponding
+      // state value. If no state exists yet, use an underscore.
+      rawPrompt = rawPrompt.replace(
+        "{" + key + "}",
+        value === null || value === "" ? "____" : value.toString()
+      );
+    }
+
+    const processedPrompt = rawPrompt;
+    return (
+      <p className="expression-prompt">
+        <i>{processedPrompt}</i>
+      </p>
+    );
+  }
+  return <></>;
+};
 export interface DatasetCreatorFunction {
   kind: "datasetCreator";
   func: (state: TransformerTemplateState) => Promise<TransformationOutput>;
@@ -563,16 +595,10 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
           ) : (
             `${component} used but undefined`
           );
-        } else if (component === "prompt1" || component === "prompt2") {
-          return (
-            <div className="input-group">
-              <span>{init[component]?.prompt}</span>
-            </div>
-          );
         } else if (component === "expression1" || component === "expression2") {
           return (
             <div className="input-group">
-              {titleFromComponent(component, init)}
+              {displayExpressionPrompt(component, init, state)}
               <ExpressionEditor
                 value={state[component]}
                 onChange={(s) => setState({ [component]: s })}

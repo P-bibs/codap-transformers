@@ -1,17 +1,7 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import { TextArea, TextInput } from "../ui-components";
+import React, { ReactElement, useState } from "react";
 import { BaseTransformerName } from "../../transformerList";
 import { SavedTransformerContent, TransformerSaveData } from "./types";
-import {
-  createDataInteractive,
-  getInteractiveFrame,
-  notifyInteractiveFrameIsDirty,
-} from "../../lib/codapPhone";
-import {
-  addInteractiveStateRequestListener,
-  removeInteractiveStateRequestListener,
-} from "../../lib/codapPhone/listeners";
-import { InteractiveState } from "../../lib/codapPhone/types";
+import { createDataInteractive } from "../../lib/codapPhone";
 import "./styles/DefinitionCreator.css";
 import ErrorDisplay from "../ui-components/Error";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
@@ -29,16 +19,12 @@ export default function DefinitionCreator({
   base,
   disabled,
 }: DefinitionCreatorProps): ReactElement {
-  const [currentName, setCurrentName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
   const [saveErr, setSaveErr] = useState<string | null>(null);
   const [saveUIShown, setSaveUIShown] = useState<boolean>(false);
 
-  function saveTransformer(
-    name: string,
-    description: string | undefined,
-    data: TransformerSaveData
-  ) {
+  function saveTransformer(data: TransformerSaveData) {
+    const { name, description } = data;
+
     if (name.trim() === "") {
       setSaveErr("Please give the transformer a name before saving.");
       return;
@@ -60,40 +46,7 @@ export default function DefinitionCreator({
     createDataInteractive(name, savedUrl.toString());
 
     // clear save inputs after successful save
-    setCurrentName("");
-    setDescription("");
     setSaveUIShown(false);
-  }
-
-  // Load saved state from CODAP memory
-  useEffect(() => {
-    async function fetchSavedState() {
-      const savedState = (await getInteractiveFrame()).savedState;
-      if (savedState && savedState.savedTransformation) {
-        setCurrentName(savedState.savedTransformation.name);
-        setDescription(savedState.savedTransformation.description);
-      }
-    }
-    fetchSavedState();
-  }, []);
-
-  // Register a listener to generate the plugins state
-  useEffect(() => {
-    const callback = (
-      previousInteractiveState: InteractiveState
-    ): InteractiveState => {
-      return {
-        ...previousInteractiveState,
-        savedTransformation: { name: currentName, description },
-      };
-    };
-
-    addInteractiveStateRequestListener(callback);
-    return () => removeInteractiveStateRequestListener(callback);
-  }, [currentName, description]);
-
-  function notifyStateIsDirty() {
-    notifyInteractiveFrameIsDirty();
   }
 
   function toggleSaveUI(): void {
@@ -130,34 +83,10 @@ export default function DefinitionCreator({
             marginTop: "2px",
           }}
         >
-          <TextInput
-            value={currentName}
-            onChange={(e) => {
-              setCurrentName(e.target.value);
-              setSaveErr(null);
-            }}
-            placeholder={"Transformer Name"}
-            className="saved-transformer-name"
-            onBlur={notifyStateIsDirty}
-          />
-          <TextArea
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-              setSaveErr(null);
-            }}
-            placeholder="Purpose Statement"
-            className="purpose-statement"
-            onBlur={notifyStateIsDirty}
-          />
           <button
             disabled={disabled}
             onClick={() => {
-              saveTransformer(
-                currentName,
-                description === "" ? undefined : description,
-                generateSaveData()
-              );
+              saveTransformer(generateSaveData());
             }}
             className="save-transformer-button"
           >

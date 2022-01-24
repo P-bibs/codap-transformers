@@ -22,6 +22,7 @@ import {
   CollectionSelector,
   MultiAttributeSelector,
   TextInput,
+  TextArea,
   TypeSelector,
   ExpressionEditor,
 } from "../ui-components";
@@ -108,6 +109,8 @@ type TypeContractState = {
   outputType: CodapLanguageType;
 };
 export type TransformerTemplateState = {
+  name: string;
+  description: string;
   context1: ContextState;
   context2: ContextState;
   collection1: CollectionState;
@@ -127,6 +130,8 @@ export type TransformerTemplateState = {
 };
 
 const DEFAULT_STATE: TransformerTemplateState = {
+  name: "",
+  description: "",
   context1: null,
   context2: null,
   collection1: null,
@@ -231,6 +236,7 @@ const displayExpressionPrompt = (
   }
   return <></>;
 };
+
 export interface DatasetCreatorFunction {
   kind: "datasetCreator";
   func: (state: TransformerTemplateState) => Promise<TransformationOutput>;
@@ -327,6 +333,19 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     notifyInteractiveFrameIsDirty();
   }
 
+  // Place description after formula expression if there is one. If there is
+  // not, place it at the end.
+  function placeDescription(order: string[]) {
+    const firstIndex = order.findIndex((comp) => comp.startsWith("expression"));
+
+    // Insert purpose statement input before the expression.
+    if (firstIndex === -1) {
+      order.push("description");
+    } else {
+      order.splice(firstIndex - 1, 0, "description");
+    }
+  }
+
   // Make sure we reset state if the underlying transformer changes (but only
   // if there isn't any save data)
   useEffect(() => {
@@ -340,6 +359,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   // The order here is guaranteed to be stable since ES2015 as long as we don't
   // use numeric keys
   const order = Object.keys(init);
+  placeDescription(order);
 
   // Use these attributes to facilitate auto-fill in expression editor
   const attributes = {
@@ -447,6 +467,20 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
 
   return (
     <>
+      {saveData === undefined && (
+        <div className="input-group">
+          <h3>Transformer Name</h3>
+          <TextInput
+            value={state.name}
+            onChange={(e) => {
+              setState({ name: e.target.value });
+            }}
+            placeholder={"Transformer Name"}
+            className="saved-transformer-name"
+            onBlur={notifyStateIsDirty}
+          />
+        </div>
+      )}
       {order.map((component) => {
         if (component === "context1" || component === "context2") {
           return (
@@ -611,6 +645,23 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
                 onBlur={notifyStateIsDirty}
               />
             </div>
+          );
+        } else if (component === "description") {
+          return (
+            saveData === undefined && (
+              <div className="input-group">
+                <h3>Purpose Statement</h3>
+                <TextArea
+                  value={state.description}
+                  onChange={(e) => {
+                    setState({ description: e.target.value });
+                  }}
+                  placeholder="Purpose Statement"
+                  className="purpose-statement"
+                  onBlur={notifyStateIsDirty}
+                />
+              </div>
+            )
           );
         } else {
           return "UNRECOGNIZED COMPONENT";

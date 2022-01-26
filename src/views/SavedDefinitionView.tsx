@@ -60,13 +60,17 @@ function SavedDefinitionView({
       if (savedState === undefined) {
         return;
       }
-      if (savedState.savedTransformation) {
-        setSavedTransformer({
-          ...savedTransformer,
-          name: savedState.savedTransformation.name,
-          description: savedState.savedTransformation.description,
-        });
-      }
+      setSavedTransformer((oldSavedTransformer) => {
+        if (savedState.savedTransformation !== undefined) {
+          return {
+            ...oldSavedTransformer,
+            name: savedState.savedTransformation.name,
+            description: savedState.savedTransformation.description,
+          };
+        } else {
+          return oldSavedTransformer;
+        }
+      });
       if (savedState.activeTransformations) {
         activeTransformationsDispatch({
           type: ActionTypes.SET,
@@ -81,8 +85,10 @@ function SavedDefinitionView({
     }
     fetchSavedState();
 
-    // Identity of dispatch is stable since it came from useReducer
-  }, [activeTransformationsDispatch, savedTransformer, setEditedOutputs]);
+    // Identity of dispatch is stable since it came from useReducer, same with
+    // setEditedOutputs. Fetching saved state should only run once.
+    // eslint-disable-next-line
+  }, []);
 
   // Register a listener to generate the plugin's state
   useEffect(() => {

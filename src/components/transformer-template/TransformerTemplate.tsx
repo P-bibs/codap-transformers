@@ -70,6 +70,16 @@ interface DropdownInit extends ComponentInit {
     value: string;
   }[];
 }
+interface ToggleDropdownInit extends ComponentInit {
+  defaultValue: string;
+  options: Record<
+    string,
+    {
+      title: string;
+      componentsHidden: string[];
+    }
+  >;
+}
 interface ExpressionInit extends ComponentInit {}
 interface TypeContractInit extends ComponentInit {
   inputTypes: string[] | string;
@@ -78,6 +88,7 @@ interface TypeContractInit extends ComponentInit {
   outputTypeDisabled?: boolean;
 }
 export type TransformerTemplateInit = {
+  toggle?: ToggleDropdownInit;
   context1?: ContextInit;
   context2?: ContextInit;
   collection1?: CollectionInit;
@@ -103,6 +114,7 @@ type AttributeState = string | null;
 type AttributeSetState = string[];
 type TextInputState = string;
 type DropdownState = string | null;
+type ToggleDropdownState = string | null;
 type ExpressionState = string;
 type TypeContractState = {
   inputType: CodapLanguageType;
@@ -111,6 +123,7 @@ type TypeContractState = {
 export type TransformerTemplateState = {
   name: string;
   description: string;
+  toggle: ToggleDropdownState;
   context1: ContextState;
   context2: ContextState;
   collection1: CollectionState;
@@ -132,6 +145,7 @@ export type TransformerTemplateState = {
 const DEFAULT_STATE: TransformerTemplateState = {
   name: "",
   description: "",
+  toggle: null,
   context1: null,
   context2: null,
   collection1: null,
@@ -482,6 +496,14 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         </div>
       )}
       {order.map((component) => {
+        if (
+          init.toggle &&
+          init.toggle.options[
+            state.toggle || init.toggle.defaultValue
+          ].componentsHidden.includes(component)
+        ) {
+          return <></>;
+        }
         if (component === "context1" || component === "context2") {
           return (
             <div className="input-group">
@@ -567,6 +589,29 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
                 onBlur={notifyStateIsDirty}
               />
             </div>
+          );
+        } else if (component === "toggle") {
+          const tmp = init[component];
+          return tmp ? (
+            <div className="input-group">
+              {titleFromComponent(component, init)}
+              <Select
+                onChange={(e) => {
+                  notifyStateIsDirty();
+                  setState({ [component]: e.target.value });
+                }}
+                options={Object.entries(tmp.options).map(([key, values]) => ({
+                  title: values.title,
+                  value: key,
+                }))}
+                value={state[component]}
+                defaultValue={tmp.defaultValue}
+                defaultTitle={tmp.options[tmp.defaultValue].title}
+                disabled={!editable}
+              />
+            </div>
+          ) : (
+            `${component} used but undefined`
           );
         } else if (component === "dropdown1" || component === "dropdown2") {
           const tmp = init[component];

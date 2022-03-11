@@ -241,6 +241,23 @@ const transformerList: TransformerList = {
         context1: {
           title: "Dataset to sort",
         },
+        toggle: {
+          title: "Sort method",
+          options: {
+            byAttribute: {
+              title: "by attribute",
+              componentsHidden: ["typeContract1", "expression1", "description"],
+            },
+            byExpression: {
+              title: "by expression",
+              componentsHidden: ["dropdown1"],
+            },
+          },
+          defaultValue: "byAttribute",
+        },
+        attribute1: {
+          title: "Attribute to sort",
+        },
         typeContract1: {
           title: "Key expression",
           inputTypes: "Row",

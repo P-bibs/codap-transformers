@@ -125,6 +125,8 @@ const errors = {
       "Please provide a key expression that evaluates to the same type for all cases. Got keys of different types {{ value1 }} and {{ value2 }}",
     noKeyExpression: "Please enter a key expression",
     noSortDirection: "Please select a sort direction",
+    noSortMethod: "Please select a sort method",
+    noSortAttribute: "Please select an attribute by which to sort",
   },
   sumProduct: {
     noAttribute:

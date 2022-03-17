@@ -8,12 +8,22 @@ import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
 import { codapValueToString, isMissing, addToMVR } from "./util";
 import { tryTitle } from "../transformers/util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
+import {
+  reportTypeErrorsForRecords,
+  inferType,
+} from "../lib/utils/typeChecking";
 import { t } from "../strings";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
   return s === "ascending" || s === "descending";
+}
+
+function toBool(b: unknown) {
+  if (typeof b === "boolean") {
+    return b;
+  }
+  return b === "true";
 }
 
 function numCompareFn(a: number, b: number) {
@@ -209,6 +219,16 @@ export async function uncheckedSortByAttribute(
     missingValues: [],
   };
 
+  if (records.length === 0) {
+    return [
+      {
+        collections: dataset.collections,
+        records,
+      },
+      mvr,
+    ];
+  }
+
   // Note rows for which the key expression evaluated to a missing value
   records.forEach((row, i) => {
     if (isMissing(row[attribute])) {
@@ -216,11 +236,54 @@ export async function uncheckedSortByAttribute(
     }
   });
 
-  const sorted = records.sort((r1, r2) => {
-    return sortDirection === "ascending"
-      ? compareFn(r1[attribute], r2[attribute])
-      : compareFn(r2[attribute], r1[attribute]);
-  });
+  const recordType = inferType(records.map((r) => r[attribute]));
+  if (recordType === "Any") {
+      throw new Error(t("errors:sort.attributeTypeAny"));
+  }
+
+  let sorted: Record<string, unknown>[] = [];
+  switch (recordType) {
+    case "Boolean":
+      sorted = records
+        .map(r => {
+          r[attribute] = toBool(r[attribute]);
+          return r;
+        })
+        .sort((r1, r2) => {
+          return sortDirection === "ascending"
+            ? boolCompareFn(r1[attribute] as boolean, r2[attribute] as boolean)
+            : boolCompareFn(r2[attribute] as boolean, r1[attribute] as boolean);
+        });
+      break;
+    case "Number":
+      sorted = records
+        .map(r => {
+          r[attribute] = Number(r[attribute]);
+          return r;
+        })
+        .sort((r1, r2) => {
+          return sortDirection === "ascending"
+            ? numCompareFn(r1[attribute] as number, r2[attribute] as number)
+            : numCompareFn(r2[attribute] as number, r1[attribute] as number);
+        });
+      break;
+    case "String":
+      sorted = records
+        .sort((r1, r2) => {
+          return sortDirection === "ascending"
+            ? stringCompareFn(r1[attribute] as string, r2[attribute] as string)
+            : stringCompareFn(r2[attribute] as string, r1[attribute] as string);
+        });
+      break;
+    case "Boundary":
+      sorted = records
+        .sort((r1, r2) => {
+          return sortDirection === "ascending"
+            ? objectCompareFn(r1[attribute], r2[attribute])
+            : objectCompareFn(r2[attribute], r1[attribute]);
+        });
+      break;
+  }
 
   return [
     {

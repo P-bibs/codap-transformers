@@ -127,6 +127,7 @@ const errors = {
     noSortDirection: "Please select a sort direction",
     noSortMethod: "Please select a sort method",
     noSortAttribute: "Please select an attribute by which to sort",
+    attributeTypeAny: "Cannot sort an attribute with mixed type",
   },
   sumProduct: {
     noAttribute:

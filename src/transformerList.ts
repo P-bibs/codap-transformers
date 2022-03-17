@@ -250,7 +250,7 @@ const transformerList: TransformerList = {
             },
             byExpression: {
               title: "by expression",
-              componentsHidden: ["dropdown1"],
+              componentsHidden: ["attribute1"],
             },
           },
           defaultValue: "byAttribute",

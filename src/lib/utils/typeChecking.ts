@@ -103,3 +103,55 @@ export async function checkTypeOfValues(
 
   return failingIndices;
 }
+
+/**
+ * Infer the most precise type for a list of values.
+ * @param values - list of values of which to infer the type
+ * @returns the inferred type
+ */
+export function inferType(values: unknown[]): CodapLanguageType {
+  if (values.length == 0) {
+    return "Any";
+  }
+  const first = values[0];
+  const firstActualType = typeof first;
+  let candidateType = inferTypeSingle(first);
+  for (const value of values) {
+    const actualType = typeof value;
+    const valueType = inferTypeSingle(value);
+    if (valueType !== candidateType) {
+      if (firstActualType === "string" && actualType === "string") {
+        candidateType = "String"
+      } else {
+        return "Any";
+      }
+    }
+  }
+  return candidateType;
+}
+
+export function inferTypeSingle(value: unknown): CodapLanguageType {
+  if (typeof value === "number") {
+    return "Number";
+  }
+  if (typeof value === "boolean") {
+    return "Boolean";
+  }
+  if (typeof value === "object") {
+    return "Boundary";
+  }
+
+  // calling `Number` on whitespace will give '0', which might lead us to
+  // incorrectly infer the type to be number
+  if (typeof value === "string" && value.trim() === "") {
+    return "String";
+  }
+  // calling `Number` on "true" and "false" will give number outputs.
+  if (value === "true" || value === "false") {
+    return "Boolean";
+  }
+  if (!isNaN(Number(value))) {
+    return "Number";
+  }
+  return "String";
+}

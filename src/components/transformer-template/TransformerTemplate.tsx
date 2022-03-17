@@ -364,7 +364,16 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   // if there isn't any save data)
   useEffect(() => {
     if (saveData === undefined) {
-      setState(DEFAULT_STATE);
+      const defaultState = { ...DEFAULT_STATE };
+
+      // Must initialize toggle. The transformer must be in one of the toggle
+      // states at a time, and if no options are chosen, the transformer will be
+      // in an impossible state. E.g. both sorting by attribute and sorting by
+      // expression.
+      if (init.toggle) {
+        defaultState.toggle = init.toggle.defaultValue;
+      }
+      setState(defaultState);
       setErrMsg(null, errorId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -498,9 +507,8 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
       {order.map((component) => {
         if (
           init.toggle &&
-          init.toggle.options[
-            state.toggle || init.toggle.defaultValue
-          ].componentsHidden.includes(component)
+          state.toggle &&
+          init.toggle.options[state.toggle].componentsHidden.includes(component)
         ) {
           return <></>;
         }

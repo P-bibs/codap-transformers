@@ -333,16 +333,16 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     notifyInteractiveFrameIsDirty();
   }
 
-  // Place description after formula expression if there is one. If there is
-  // not, place it at the end.
+  // Place purpose statement between the type contract and the formula if there
+  // is one. If there is not, place it at the end.
   function placeDescription(order: string[]) {
     const firstIndex = order.findIndex((comp) => comp.startsWith("expression"));
 
-    // Insert purpose statement input before the expression.
     if (firstIndex === -1) {
       order.push("description");
     } else {
-      order.splice(firstIndex - 1, 0, "description");
+      // Insert purpose statement input before the expression.
+      order.splice(firstIndex, 0, "description");
     }
   }
 

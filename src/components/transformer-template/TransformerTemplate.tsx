@@ -603,20 +603,22 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
           return tmp ? (
             <div className="input-group">
               {titleFromComponent(component, init)}
-              <Select
+              <select
                 onChange={(e) => {
                   notifyStateIsDirty();
                   setState({ [component]: e.target.value });
                 }}
-                options={Object.entries(tmp.options).map(([key, values]) => ({
-                  title: values.title,
-                  value: key,
-                }))}
-                value={state[component]}
-                defaultValue={tmp.defaultValue}
-                defaultTitle={tmp.options[tmp.defaultValue].title}
+                // Safe cast, since we ensure that toggle state is initialized.
+                // Otherwise, the component exists in an impossible state.
+                value={state[component] as string}
                 disabled={!editable}
-              />
+              >
+                {Object.entries(tmp.options).map(([key, values]) => (
+                  <option key={key} value={key}>
+                    {values.title}
+                  </option>
+                ))}
+              </select>
             </div>
           ) : (
             `${component} used but undefined`

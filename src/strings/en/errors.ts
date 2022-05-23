@@ -139,6 +139,8 @@ const errors = {
     noOutputType: "Please enter an output type",
     invalidAttribute:
       'Please select a valid attribute to transform: "{{ name }}" was not found',
+    noTransformedAttributeName:
+      "Please enter a name for the transformed attribute",
   },
   codapPhone: {
     updateInteractiveFrame: {

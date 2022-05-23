@@ -21,6 +21,7 @@ export async function transformAttribute({
   attribute1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
+  textInput1: transformedAttributeName,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -34,6 +35,10 @@ export async function transformAttribute({
   if (outputType === null) {
     throw new Error(t("errors:transformAttribute.noOutputType"));
   }
+  transformedAttributeName = transformedAttributeName.trim();
+  if (transformedAttributeName === "") {
+    throw new Error(t("errors:transformAttribute.noTransformedAttributeName"));
+  }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
@@ -41,6 +46,7 @@ export async function transformAttribute({
   const [transformed, mvr] = await uncheckedTransformAttribute(
     dataset,
     attributeName,
+    transformedAttributeName,
     expression,
     outputType
   );
@@ -50,8 +56,8 @@ export async function transformAttribute({
   return [
     transformed,
     `TransformAttribute(${ctxtName}, ...)`,
-    `A copy of ${ctxtName}, with the ${attributeName} attribute's values ` +
-      `determined by the formula \`${expression}\`.`,
+    `A copy of ${ctxtName}, with the ${attributeName} attribute transformed into ` +
+      `${transformedAttributeName}, with its values determined by the formula \`${expression}\`.`,
     mvr,
   ];
 }
@@ -59,6 +65,7 @@ export async function transformAttribute({
 export async function uncheckedTransformAttribute(
   dataset: DataSet,
   attributeName: string,
+  transformedAttributeName: string,
   expression: string,
   outputType: CodapLanguageType,
   evalFormula = evalExpression
@@ -68,6 +75,20 @@ export async function uncheckedTransformAttribute(
     attributeName,
     t("errors:transformAttribute.invalidAttribute", { name: attributeName })
   );
+
+  // If they are *changing* the transformed attribute name, ensure no duplicate attr names
+  if (
+    transformedAttributeName != attributeName &&
+    dataset.collections.find((coll) =>
+      coll.attrs?.find((attr) => attr.name === transformedAttributeName)
+    )
+  ) {
+    throw new Error(
+      t("errors:validation.duplicateAttribute", {
+        name: transformedAttributeName,
+      })
+    );
+  }
 
   const records = dataset.records.map(shallowCopy);
   const exprValues = await evalFormula(expression, records);
@@ -91,15 +112,22 @@ export async function uncheckedTransformAttribute(
       mvr.missingValues.push(i + 1);
     }
 
-    records[i][attributeName] = value;
+    // Remove the previous attribute from the record, and then compute the
+    // transformed attribute value. NOTE: This needs to happen in this order,
+    // to prevent deleting of the transformed attribute in the case where
+    // they keep the same name as the original.
+    delete records[i][attributeName];
+    records[i][transformedAttributeName] = value;
   });
 
   const collections = dataset.collections.map(cloneCollection);
   for (const coll of collections) {
+    // Attempt to find the original attribute in this collection
     const attr = coll.attrs?.find((attr) => attr.name === attributeName);
 
-    // erase the transformed attribute's formula and set description
+    // Erase the transformed attribute's formula and set description and name
     if (attr !== undefined) {
+      attr.name = transformedAttributeName;
       attr.formula = undefined;
       attr.description = `The ${attributeName} attribute, transformed by the formula \`${expression}\``;
       break;

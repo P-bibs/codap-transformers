@@ -238,14 +238,14 @@ export async function uncheckedSortByAttribute(
 
   const recordType = inferType(records.map((r) => r[attribute]));
   if (recordType === "Any") {
-      throw new Error(t("errors:sort.attributeTypeAny"));
+    throw new Error(t("errors:sort.attributeTypeAny"));
   }
 
   let sorted: Record<string, unknown>[] = [];
   switch (recordType) {
     case "Boolean":
       sorted = records
-        .map(r => {
+        .map((r) => {
           r[attribute] = toBool(r[attribute]);
           return r;
         })
@@ -257,7 +257,7 @@ export async function uncheckedSortByAttribute(
       break;
     case "Number":
       sorted = records
-        .map(r => {
+        .map((r) => {
           r[attribute] = Number(r[attribute]);
           return r;
         })
@@ -268,20 +268,18 @@ export async function uncheckedSortByAttribute(
         });
       break;
     case "String":
-      sorted = records
-        .sort((r1, r2) => {
-          return sortDirection === "ascending"
-            ? stringCompareFn(r1[attribute] as string, r2[attribute] as string)
-            : stringCompareFn(r2[attribute] as string, r1[attribute] as string);
-        });
+      sorted = records.sort((r1, r2) => {
+        return sortDirection === "ascending"
+          ? stringCompareFn(r1[attribute] as string, r2[attribute] as string)
+          : stringCompareFn(r2[attribute] as string, r1[attribute] as string);
+      });
       break;
     case "Boundary":
-      sorted = records
-        .sort((r1, r2) => {
-          return sortDirection === "ascending"
-            ? objectCompareFn(r1[attribute], r2[attribute])
-            : objectCompareFn(r2[attribute], r1[attribute]);
-        });
+      sorted = records.sort((r1, r2) => {
+        return sortDirection === "ascending"
+          ? objectCompareFn(r1[attribute], r2[attribute])
+          : objectCompareFn(r2[attribute], r1[attribute]);
+      });
       break;
   }
 

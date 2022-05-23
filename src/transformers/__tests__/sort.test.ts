@@ -354,7 +354,7 @@ test("sorts objects by attribute", async () => {
       "",
       "Boundaries",
       withObjects,
-      "ascending",
+      "ascending"
     )
   ).toEqual(sortedWithObjectsAsc);
 
@@ -367,7 +367,7 @@ test("sorts objects by attribute", async () => {
       "",
       "Boundaries",
       withObjects,
-      "descending",
+      "descending"
     )
   ).toEqual(sortedWithObjectsDesc);
 
@@ -377,7 +377,7 @@ test("sorts objects by attribute", async () => {
       "",
       "Boundary",
       TYPES_DATASET,
-      "ascending",
+      "ascending"
     )
   ).toEqual(TYPES_DATASET);
   expect(
@@ -385,7 +385,7 @@ test("sorts objects by attribute", async () => {
       "",
       "Boundary",
       TYPES_DATASET,
-      "descending",
+      "descending"
     )
   ).toEqual(TYPES_DATASET);
 });
@@ -474,12 +474,7 @@ test("sort is stable by attribute", async () => {
   };
 
   expect(
-    await uncheckedSortByAttributeWrapper(
-      "",
-      "Number",
-      dataset,
-      "ascending",
-    )
+    await uncheckedSortByAttributeWrapper("", "Number", dataset, "ascending")
   ).toEqual({
     collections: dataset.collections,
     records: makeRecords(

@@ -121,7 +121,7 @@ export function inferType(values: unknown[]): CodapLanguageType {
     const valueType = inferTypeSingle(value);
     if (valueType !== candidateType) {
       if (firstActualType === "string" && actualType === "string") {
-        candidateType = "String"
+        candidateType = "String";
       } else {
         return "Any";
       }

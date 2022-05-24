@@ -140,7 +140,7 @@ const transformerList: TransformerList = {
           title: "Collection to Add To",
         },
         typeContract1: {
-          title: "Formula for Attribute Values",
+          title: "Formula for New Attribute Values",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
@@ -179,7 +179,7 @@ const transformerList: TransformerList = {
           title: "Attribute to Transform",
         },
         typeContract1: {
-          title: "Formula for Transformed Values",
+          title: "Formula for Transformed Attribute Values",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,

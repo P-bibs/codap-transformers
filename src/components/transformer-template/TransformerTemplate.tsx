@@ -69,7 +69,9 @@ interface DropdownInit extends ComponentInit {
     value: string;
   }[];
 }
-interface ExpressionInit extends ComponentInit {}
+interface ExpressionInit extends ComponentInit {
+  placeholder?: string;
+}
 interface TypeContractInit extends ComponentInit {
   inputTypes: string[] | string;
   inputTypeDisabled?: boolean;
@@ -601,6 +603,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
               {displayExpressionPrompt(component, init, state)}
               <ExpressionEditor
                 value={state[component]}
+                placeholder={init[component]?.placeholder || "Expression"}
                 onChange={(s) => setState({ [component]: s })}
                 attributeNames={attributes[
                   attributeSetFromExpression(component) as

@@ -148,6 +148,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "For each row, construct the attribute {textInput1} with the result of the expression:",
+          placeholder: "e.g. Age + 10",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: buildAttribute },
@@ -187,6 +188,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "For each row, replace the value of attribute {attribute1} with the result of the expression:",
+          placeholder: "e.g. Height * 2",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: transformAttribute },
@@ -219,7 +221,10 @@ const transformerList: TransformerList = {
           inputTypeDisabled: true,
           outputTypeDisabled: true,
         },
-        expression1: { title: "Keep all rows that satisfy:" },
+        expression1: {
+          title: "Keep all rows that satisfy:",
+          placeholder: "e.g. Year > 1990",
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: filter },
       info: {
@@ -250,6 +255,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "Sort the rows in this dataset by a value, which is computed by:",
+          placeholder: "e.g. stringLength(Name)",
         },
         dropdown1: {
           title: "Direction",
@@ -546,9 +552,11 @@ const transformerList: TransformerList = {
         },
         expression1: {
           title: "Starting with:",
+          placeholder: "e.g. 0",
         },
         expression2: {
           title: "Compute the next value for each row by:",
+          placeholder: "e.g. Age + Accumulator",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: genericFold },

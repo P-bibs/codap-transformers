@@ -178,6 +178,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Transform",
         },
+        textInput1: {
+          title: "New Name for Transformed Attribute",
+        },
         typeContract1: {
           title: "Formula for Transformed Values",
           inputTypes: "Row",
@@ -187,9 +190,6 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "For each row, replace the value of attribute {attribute1} with the result of the expression:",
-        },
-        textInput1: {
-          title: "New Name for Transformed Attribute",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: transformAttribute },

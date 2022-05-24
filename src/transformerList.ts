@@ -280,14 +280,17 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: sort },
       info: {
         summary:
-          "Takes a dataset and orders it, using the value of a formula to \
-          determine how cases should appear in order.",
+          'Takes a dataset and orders its cases, either by the values from a \
+          particular attribute (the "By Attribute" method), or the values \
+          produced by a formula (the "By Expression" method).',
         consumes:
-          "A dataset to sort, a formula ('key expression'), an indication of the \
-          type the formula evaluates to, and a sort direction (ascending or descending).",
+          "By Attribute: A dataset to sort, an attribute to sort by, and a sort \
+          direction (ascending or descending).\n\
+          By Expression: A dataset to sort, a formula, an indication of the type \
+          the formula evaluates to, and a sort direction (ascending or descending).",
         produces:
-          "A copy of the input dataset, with cases sorted by the value of the \
-          key expression.",
+          "A copy of the input dataset, with cases sorted according to the \
+          indicated method and direction.",
         docLink: docLinkFromHeadingID("h.9swamcujp916"),
       },
     },

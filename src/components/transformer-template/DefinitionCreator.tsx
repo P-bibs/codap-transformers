@@ -4,9 +4,6 @@ import { SavedTransformerContent, TransformerSaveData } from "./types";
 import { createDataInteractive } from "../../lib/codapPhone";
 import "./styles/DefinitionCreator.css";
 import ErrorDisplay from "../ui-components/Error";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
-import ArrowDropUpIcon from "@material-ui/icons/ArrowDropUp";
-import { IconButton } from "@material-ui/core";
 
 interface DefinitionCreatorProps {
   generateSaveData: () => TransformerSaveData;
@@ -20,7 +17,6 @@ export default function DefinitionCreator({
   disabled,
 }: DefinitionCreatorProps): ReactElement {
   const [saveErr, setSaveErr] = useState<string | null>(null);
-  const [saveUIShown, setSaveUIShown] = useState<boolean>(false);
 
   function saveTransformer(data: TransformerSaveData) {
     const { name, description } = data;
@@ -44,41 +40,12 @@ export default function DefinitionCreator({
     savedUrl.searchParams.append("transform", encoded);
 
     createDataInteractive(name, savedUrl.toString());
-
-    // clear save inputs after successful save
-    setSaveUIShown(false);
-  }
-
-  function toggleSaveUI(): void {
-    setSaveUIShown(!saveUIShown);
-    setSaveErr(null);
   }
 
   return (
     <div style={{ marginTop: "5px" }}>
-      <hr style={{ marginTop: "15px" }} />
       <div className="input-group">
-        <h3>
-          Save This Transformer
-          <IconButton
-            style={{
-              marginLeft: "5px",
-              padding: "0",
-              background: "var(--blue-green)",
-              color: "white",
-            }}
-            size="small"
-            onClick={toggleSaveUI}
-          >
-            {saveUIShown ? (
-              <ArrowDropUpIcon fontSize="inherit" />
-            ) : (
-              <ArrowDropDownIcon fontSize="inherit" />
-            )}
-          </IconButton>
-        </h3>
         <div
-          hidden={!saveUIShown}
           style={{
             marginTop: "2px",
           }}
@@ -90,7 +57,7 @@ export default function DefinitionCreator({
             }}
             className="save-transformer-button"
           >
-            Save
+            Save Transformer
           </button>
           <ErrorDisplay
             setErrMsg={(err, _id) => setSaveErr(err)}

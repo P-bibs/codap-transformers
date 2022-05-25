@@ -149,26 +149,6 @@ function SavedDefinitionView({
           </IconButton>
         </div>
       )}
-      {editable ? (
-        <>
-          <TextArea
-            value={savedTransformer.description || ""}
-            onChange={(e) => {
-              setSavedTransformer({
-                ...savedTransformer,
-                description: e.target.value,
-              });
-              setSaveErr(null);
-            }}
-            placeholder="Purpose Statement"
-            className="purpose-statement"
-            onBlur={notifyStateIsDirty}
-          />
-          <hr className="divider" />
-        </>
-      ) : (
-        savedTransformer.description && <p>{savedTransformer.description}</p>
-      )}
       <TransformerRenderer
         setErrMsg={setErrMsg}
         errorDisplay={<ErrorDisplay setErrMsg={setErrMsg} store={errorStore} />}

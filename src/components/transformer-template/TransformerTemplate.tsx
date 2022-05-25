@@ -648,20 +648,19 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
           );
         } else if (component === "description") {
           return (
-            saveData === undefined && (
-              <div className="input-group">
-                <h3>Purpose Statement</h3>
-                <TextArea
-                  value={state.description}
-                  onChange={(e) => {
-                    setState({ description: e.target.value });
-                  }}
-                  placeholder="Purpose Statement"
-                  className="purpose-statement"
-                  onBlur={notifyStateIsDirty}
-                />
-              </div>
-            )
+            <div className="input-group">
+              <h3>Purpose Statement</h3>
+              <TextArea
+                value={state.description}
+                onChange={(e) => {
+                  setState({ description: e.target.value });
+                }}
+                placeholder="Purpose Statement"
+                className="purpose-statement"
+                onBlur={notifyStateIsDirty}
+                disabled={!editable}
+              />
+            </div>
           );
         } else {
           return "UNRECOGNIZED COMPONENT";

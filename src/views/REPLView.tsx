@@ -81,7 +81,7 @@ function REPLView(): ReactElement {
 
   // activeTransformations (first element of tuple) can be used to draw a diagram
   const [
-    activeTransformations,
+    _activeTransformations,
     activeTransformationsDispatch,
     wrappedDispatch,
   ] = useActiveTransformations(setErrMsg, editedOutputs, addEditedOutput);
@@ -163,7 +163,7 @@ function REPLView(): ReactElement {
               padding: "0",
             }}
             size="medium"
-            onClick={() => closePlugin(activeTransformations)}
+            onClick={() => closePlugin(false)}
             title="Close plugin"
           >
             <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />

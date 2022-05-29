@@ -237,6 +237,24 @@ const displayExpressionPrompt = (
   return <></>;
 };
 
+// Place purpose statement between the type contract and the formula if there
+// is one. If there is not, place it at the end.
+function placeDescription(order: string[]) {
+  const firstIndex = order.findIndex((comp) => comp.startsWith("expression"));
+  if (firstIndex === -1) {
+    order.push("description");
+  } else {
+    // formula-description has a different placeholder. A better way to do this
+    // might be to include a purpose statement with the formula itself. However,
+    // the reduce transformer has two formulas, one of which is the initial
+    // value, which might not need its own purpose statement.
+    //
+    // We could investigate making purpose statements more configurable via
+    // `transformerList`.
+    order.splice(firstIndex, 0, "formula-description");
+  }
+}
+
 export interface DatasetCreatorFunction {
   kind: "datasetCreator";
   func: (state: TransformerTemplateState) => Promise<TransformationOutput>;
@@ -331,19 +349,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
 
   function notifyStateIsDirty() {
     notifyInteractiveFrameIsDirty();
-  }
-
-  // Place purpose statement between the type contract and the formula if there
-  // is one. If there is not, place it at the end.
-  function placeDescription(order: string[]) {
-    const firstIndex = order.findIndex((comp) => comp.startsWith("expression"));
-
-    if (firstIndex === -1) {
-      order.push("description");
-    } else {
-      // Insert purpose statement input before the expression.
-      order.splice(firstIndex, 0, "description");
-    }
   }
 
   // Make sure we reset state if the underlying transformer changes (but only
@@ -464,6 +469,22 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
       setErrMsg((e as Error).message, errorId);
     }
   };
+
+  function makePurposeStatement(placeholder: string) {
+    return (
+      <div className="input-group">
+        <h3>Purpose Statement</h3>
+        <TextArea
+          value={state.description}
+          onChange={(e) => setState({ description: e.target.value })}
+          placeholder={placeholder}
+          className="purpose-statement"
+          onBlur={notifyStateIsDirty}
+          disabled={!editable}
+        />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -647,20 +668,12 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
             </div>
           );
         } else if (component === "description") {
-          return (
-            <div className="input-group">
-              <h3>Purpose Statement</h3>
-              <TextArea
-                value={state.description}
-                onChange={(e) => {
-                  setState({ description: e.target.value });
-                }}
-                placeholder="Purpose Statement"
-                className="purpose-statement"
-                onBlur={notifyStateIsDirty}
-                disabled={!editable}
-              />
-            </div>
+          return makePurposeStatement(
+            "What does the transformer do to its inputs?"
+          );
+        } else if (component === "formula-description") {
+          return makePurposeStatement(
+            "What does the expression do to each row?"
           );
         } else {
           return "UNRECOGNIZED COMPONENT";

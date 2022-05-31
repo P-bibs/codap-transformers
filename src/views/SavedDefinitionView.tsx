@@ -6,7 +6,7 @@ import ErrorDisplay, {
   useErrorStore,
 } from "../components/ui-components/Error";
 import { SavedTransformer } from "../components/transformer-template/types";
-import { TextArea, TextInput } from "../components/ui-components";
+import { TextInput } from "../components/ui-components";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,

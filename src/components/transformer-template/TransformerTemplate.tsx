@@ -126,7 +126,6 @@ type TypeContractState = {
 };
 export type TransformerTemplateState = {
   name: string;
-  description: string;
   toggle: ToggleDropdownState;
   purposeStatement: string;
   context1: ContextState;
@@ -149,7 +148,6 @@ export type TransformerTemplateState = {
 
 const DEFAULT_STATE: TransformerTemplateState = {
   name: "",
-  description: "",
   toggle: null,
   purposeStatement: "",
   context1: null,

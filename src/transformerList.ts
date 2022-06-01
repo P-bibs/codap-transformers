@@ -178,6 +178,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Transform",
         },
+        textInput1: {
+          title: "New Name for Transformed Attribute",
+        },
         typeContract1: {
           title: "Formula for Transformed Values",
           inputTypes: "Row",
@@ -197,10 +200,11 @@ const transformerList: TransformerList = {
           indicate what type of value you expect the formula to evaluate to.",
         consumes:
           "A dataset, an attribute to transform, a formula that will determine \
-          the new values of the given attribute, and the type that the formula \
-          should evaluate to.",
+          the new values of the given attribute, the type that the formula \
+          should evaluate to, and a new name for the attribute being transformed.",
         produces:
-          "A copy of the input dataset with transformed values for the given attribute.",
+          "A copy of the input dataset with transformed values for the given \
+          attribute (which has been renamed).",
         docLink: docLinkFromHeadingID("h.dksm7abmovmg"),
       },
     },

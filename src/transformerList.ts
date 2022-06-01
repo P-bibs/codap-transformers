@@ -140,7 +140,7 @@ const transformerList: TransformerList = {
           title: "Collection to Add To",
         },
         typeContract1: {
-          title: "Formula for Attribute Values",
+          title: "Formula for New Attribute Values",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
@@ -179,7 +179,7 @@ const transformerList: TransformerList = {
           title: "Attribute to Transform",
         },
         typeContract1: {
-          title: "Formula for Transformed Values",
+          title: "Formula for Transformed Attribute Values",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
@@ -213,7 +213,7 @@ const transformerList: TransformerList = {
           title: "Dataset to Filter",
         },
         typeContract1: {
-          title: "How to Filter",
+          title: "Formula to Filter By",
           inputTypes: "Row",
           outputTypes: "Boolean",
           inputTypeDisabled: true,
@@ -242,24 +242,24 @@ const transformerList: TransformerList = {
           title: "Dataset to sort",
         },
         toggle: {
-          title: "Sort method",
+          title: "Sort Method",
           options: {
             byAttribute: {
-              title: "by attribute",
+              title: "By Attribute",
               componentsHidden: ["typeContract1", "expression1", "description"],
             },
             byExpression: {
-              title: "by expression",
+              title: "By Expression",
               componentsHidden: ["attribute1"],
             },
           },
           defaultValue: "byAttribute",
         },
         attribute1: {
-          title: "Attribute to sort",
+          title: "Attribute to Sort By",
         },
         typeContract1: {
-          title: "Key expression",
+          title: "Formula to Sort By",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,

@@ -48,7 +48,7 @@ function SavedDefinitionView({
   const [saveErr, setSaveErr] = useState<string | null>(null);
   const [editedOutputs, addEditedOutput, setEditedOutputs] = useEditedOutputs();
   const [
-    activeTransformations,
+    _activeTransformations,
     activeTransformationsDispatch,
     wrappedDispatch,
   ] = useActiveTransformations(setErrMsg, editedOutputs, addEditedOutput);
@@ -136,7 +136,7 @@ function SavedDefinitionView({
               marginLeft: "auto",
             }}
             size="medium"
-            onClick={() => closePlugin(activeTransformations)}
+            onClick={() => closePlugin(true)}
             title="Close definition"
           >
             <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />

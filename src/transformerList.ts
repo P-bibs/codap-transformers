@@ -125,6 +125,10 @@ function docLinkFromHeadingID(headingID: string): string {
   return `https://docs.google.com/document/d/1NZA9gxtu6jD3M-5SQyx0tvV2N5qYKMgRm1XUwMnLgJU/edit#heading=${headingID}`;
 }
 
+// Placeholder text for purpose statements
+const EXPRESSION_PLACEHOLDER = "What does the expression do to each row?";
+const TRANSFORMER_PLACEHOLDER = "What does the transformer do to its inputs?";
+
 const transformerList: TransformerList = {
   "Build Attribute": {
     group: "Constructing",
@@ -144,6 +148,9 @@ const transformerList: TransformerList = {
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
+        },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
         },
         expression1: {
           title:
@@ -184,6 +191,9 @@ const transformerList: TransformerList = {
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
         },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
+        },
         expression1: {
           title:
             "For each row, replace the value of attribute {attribute1} with the result of the expression:",
@@ -218,6 +228,9 @@ const transformerList: TransformerList = {
           outputTypes: "Boolean",
           inputTypeDisabled: true,
           outputTypeDisabled: true,
+        },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
         },
         expression1: { title: "Keep all rows that satisfy:" },
       },
@@ -264,6 +277,9 @@ const transformerList: TransformerList = {
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
         },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
+        },
         expression1: {
           title:
             "Sort the rows in this dataset by a value, which is computed by:",
@@ -305,6 +321,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Find Mean of",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: mean },
       info: {
@@ -327,6 +346,9 @@ const transformerList: TransformerList = {
         },
         attribute1: {
           title: "Attribute to Find Median of",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: median },
@@ -353,6 +375,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Find Mode of",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: mode },
       info: {
@@ -376,6 +401,9 @@ const transformerList: TransformerList = {
         },
         attribute1: {
           title: "Attribute to Find Standard Deviation of",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: standardDeviation },
@@ -401,6 +429,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Aggregate",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: runningSum },
       info: {
@@ -425,6 +456,9 @@ const transformerList: TransformerList = {
         },
         attribute1: {
           title: "Attribute to Aggregate",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: runningMean },
@@ -452,6 +486,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Aggregate",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: runningMin },
       info: {
@@ -477,6 +514,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Aggregate",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: runningMax },
       info: {
@@ -501,6 +541,9 @@ const transformerList: TransformerList = {
         },
         attribute1: {
           title: "Attribute to Aggregate",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: difference },
@@ -530,6 +573,9 @@ const transformerList: TransformerList = {
         },
         textInput2: {
           title: "Starting value for difference",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: {
@@ -563,6 +609,9 @@ const transformerList: TransformerList = {
         },
         textInput2: {
           title: "Accumulator Name",
+        },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
         },
         expression1: {
           title: "Starting with:",
@@ -602,6 +651,9 @@ const transformerList: TransformerList = {
         attributeSet1: {
           title: "Attributes to Take Sum Product of",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: sumProduct },
       info: {
@@ -628,6 +680,9 @@ const transformerList: TransformerList = {
         },
         attributeSet1: {
           title: "Attributes to Count",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: count },
@@ -668,6 +723,9 @@ const transformerList: TransformerList = {
           ],
           defaultValue: "Select a type",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: compare },
       info: {
@@ -698,6 +756,9 @@ const transformerList: TransformerList = {
         },
         attributeSet1: {
           title: "Attributes to Group By",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: groupBy },
@@ -737,6 +798,9 @@ const transformerList: TransformerList = {
         attributeSet1: {
           title: "Attributes",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: {
         kind: "datasetCreator",
@@ -768,6 +832,9 @@ const transformerList: TransformerList = {
         context2: {
           title: "Combining Dataset",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: {
         kind: "datasetCreator",
@@ -798,6 +865,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Partition By",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: {
         kind: "fullOverride",
@@ -823,6 +893,9 @@ const transformerList: TransformerList = {
       init: {
         context1: {
           title: "Dataset to Flatten",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: flatten },
@@ -851,6 +924,9 @@ const transformerList: TransformerList = {
         },
         attribute2: {
           title: "Joining Attribute",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: innerJoin },
@@ -900,6 +976,9 @@ const transformerList: TransformerList = {
             { value: "full", title: "Full Outer Join" },
           ],
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: outerJoin },
       info: {
@@ -944,6 +1023,9 @@ const transformerList: TransformerList = {
         textInput2: {
           title: "Values To",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: pivotLonger },
       info: {
@@ -979,6 +1061,9 @@ const transformerList: TransformerList = {
           title: "Values From",
           context: "context1",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: pivotWider },
       info: {
@@ -1005,6 +1090,9 @@ const transformerList: TransformerList = {
         context1: {
           title: "Dataset to Copy",
         },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: copy },
       info: {
@@ -1023,6 +1111,9 @@ const transformerList: TransformerList = {
       init: {
         context1: {
           title: "Dataset to Copy",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: {
@@ -1046,6 +1137,9 @@ const transformerList: TransformerList = {
       init: {
         context1: {
           title: "Dataset to Copy",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: copyStructure },

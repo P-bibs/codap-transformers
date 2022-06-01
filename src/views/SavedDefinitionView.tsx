@@ -6,7 +6,7 @@ import ErrorDisplay, {
   useErrorStore,
 } from "../components/ui-components/Error";
 import { SavedTransformer } from "../components/transformer-template/types";
-import { TextArea, TextInput } from "../components/ui-components";
+import { TextInput } from "../components/ui-components";
 import {
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
@@ -148,26 +148,6 @@ function SavedDefinitionView({
             <Cancel htmlColor="var(--blue-green)" fontSize="inherit" />
           </IconButton>
         </div>
-      )}
-      {editable ? (
-        <>
-          <TextArea
-            value={savedTransformer.description || ""}
-            onChange={(e) => {
-              setSavedTransformer({
-                ...savedTransformer,
-                description: e.target.value,
-              });
-              setSaveErr(null);
-            }}
-            placeholder="Purpose Statement"
-            className="purpose-statement"
-            onBlur={notifyStateIsDirty}
-          />
-          <hr className="divider" />
-        </>
-      ) : (
-        savedTransformer.description && <p>{savedTransformer.description}</p>
       )}
       <TransformerRenderer
         setErrMsg={setErrMsg}

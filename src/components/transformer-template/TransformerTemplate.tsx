@@ -87,6 +87,9 @@ interface TypeContractInit extends ComponentInit {
   outputTypes: readonly string[] | string;
   outputTypeDisabled?: boolean;
 }
+interface PurposeStatementInit {
+  placeholder: string;
+}
 export type TransformerTemplateInit = {
   toggle?: ToggleDropdownInit;
   context1?: ContextInit;
@@ -105,6 +108,7 @@ export type TransformerTemplateInit = {
   expression2?: ExpressionInit;
   typeContract1?: TypeContractInit;
   typeContract2?: TypeContractInit;
+  purposeStatement?: PurposeStatementInit;
 };
 
 // All the state types for different UI elements
@@ -124,6 +128,7 @@ export type TransformerTemplateState = {
   name: string;
   description: string;
   toggle: ToggleDropdownState;
+  purposeStatement: string;
   context1: ContextState;
   context2: ContextState;
   collection1: CollectionState;
@@ -146,6 +151,7 @@ const DEFAULT_STATE: TransformerTemplateState = {
   name: "",
   description: "",
   toggle: null,
+  purposeStatement: "",
   context1: null,
   context2: null,
   collection1: null,
@@ -206,7 +212,7 @@ const convertNames = (
  * Makes a header from a ui component's title
  */
 const titleFromComponent = (
-  component: keyof TransformerTemplateInit,
+  component: Exclude<keyof TransformerTemplateInit, "purposeStatement">,
   init: TransformerTemplateInit
 ): ReactElement => {
   const tmp = init[component];
@@ -218,7 +224,7 @@ const titleFromComponent = (
  * This is used for displaying prompts for formulas.
  */
 const displayExpressionPrompt = (
-  component: keyof TransformerTemplateInit,
+  component: Exclude<keyof TransformerTemplateInit, "purposeStatement">,
   init: TransformerTemplateInit,
   state: TransformerTemplateState
 ): ReactElement => {
@@ -347,19 +353,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
     notifyInteractiveFrameIsDirty();
   }
 
-  // Place description after formula expression if there is one. If there is
-  // not, place it at the end.
-  function placeDescription(order: string[]) {
-    const firstIndex = order.findIndex((comp) => comp.startsWith("expression"));
-
-    // Insert purpose statement input before the expression.
-    if (firstIndex === -1) {
-      order.push("description");
-    } else {
-      order.splice(firstIndex - 1, 0, "description");
-    }
-  }
-
   // Make sure we reset state if the underlying transformer changes (but only
   // if there isn't any save data)
   useEffect(() => {
@@ -382,7 +375,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   // The order here is guaranteed to be stable since ES2015 as long as we don't
   // use numeric keys
   const order = Object.keys(init);
-  placeDescription(order);
 
   // Use these attributes to facilitate auto-fill in expression editor
   const attributes = {
@@ -701,22 +693,20 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
               />
             </div>
           );
-        } else if (component === "description") {
+        } else if (component === "purposeStatement") {
           return (
-            saveData === undefined && (
-              <div className="input-group">
-                <h3>Purpose Statement</h3>
-                <TextArea
-                  value={state.description}
-                  onChange={(e) => {
-                    setState({ description: e.target.value });
-                  }}
-                  placeholder="Purpose Statement"
-                  className="purpose-statement"
-                  onBlur={notifyStateIsDirty}
-                />
-              </div>
-            )
+            <div className="input-group">
+              <h3>Purpose Statement</h3>
+              <TextArea
+                value={state.purposeStatement}
+                onChange={(e) => setState({ purposeStatement: e.target.value })}
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                placeholder={init.purposeStatement!.placeholder}
+                className="purpose-statement"
+                onBlur={notifyStateIsDirty}
+                disabled={!editable}
+              />
+            </div>
           );
         } else {
           return "UNRECOGNIZED COMPONENT";

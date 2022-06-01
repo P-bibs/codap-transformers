@@ -19,7 +19,7 @@ export default function DefinitionCreator({
   const [saveErr, setSaveErr] = useState<string | null>(null);
 
   function saveTransformer(data: TransformerSaveData) {
-    const { name, description } = data;
+    const { name, purposeStatement } = data;
 
     if (name.trim() === "") {
       setSaveErr("Please give the transformer a name before saving.");
@@ -33,7 +33,7 @@ export default function DefinitionCreator({
       data,
     } as SavedTransformerContent;
 
-    const savedTransformer = { name, description, content };
+    const savedTransformer = { name, purposeStatement, content };
     const encoded = encodeURIComponent(JSON.stringify(savedTransformer));
 
     const savedUrl = new URL(window.location.toString());

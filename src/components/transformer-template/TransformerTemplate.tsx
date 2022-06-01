@@ -77,6 +77,9 @@ interface TypeContractInit extends ComponentInit {
   outputTypes: readonly string[] | string;
   outputTypeDisabled?: boolean;
 }
+interface PurposeStatementInit {
+  placeholder: string;
+}
 export type TransformerTemplateInit = {
   context1?: ContextInit;
   context2?: ContextInit;
@@ -94,6 +97,7 @@ export type TransformerTemplateInit = {
   expression2?: ExpressionInit;
   typeContract1?: TypeContractInit;
   typeContract2?: TypeContractInit;
+  purposeStatement?: PurposeStatementInit;
 };
 
 // All the state types for different UI elements
@@ -110,7 +114,7 @@ type TypeContractState = {
 };
 export type TransformerTemplateState = {
   name: string;
-  description: string;
+  purposeStatement: string;
   context1: ContextState;
   context2: ContextState;
   collection1: CollectionState;
@@ -131,7 +135,7 @@ export type TransformerTemplateState = {
 
 const DEFAULT_STATE: TransformerTemplateState = {
   name: "",
-  description: "",
+  purposeStatement: "",
   context1: null,
   context2: null,
   collection1: null,
@@ -192,7 +196,7 @@ const convertNames = (
  * Makes a header from a ui component's title
  */
 const titleFromComponent = (
-  component: keyof TransformerTemplateInit,
+  component: Exclude<keyof TransformerTemplateInit, "purposeStatement">,
   init: TransformerTemplateInit
 ): ReactElement => {
   const tmp = init[component];
@@ -204,7 +208,7 @@ const titleFromComponent = (
  * This is used for displaying prompts for formulas.
  */
 const displayExpressionPrompt = (
-  component: keyof TransformerTemplateInit,
+  component: Exclude<keyof TransformerTemplateInit, "purposeStatement">,
   init: TransformerTemplateInit,
   state: TransformerTemplateState
 ): ReactElement => {
@@ -236,24 +240,6 @@ const displayExpressionPrompt = (
   }
   return <></>;
 };
-
-// Place purpose statement between the type contract and the formula if there
-// is one. If there is not, place it at the end.
-function placeDescription(order: string[]) {
-  const firstIndex = order.findIndex((comp) => comp.startsWith("expression"));
-  if (firstIndex === -1) {
-    order.push("description");
-  } else {
-    // formula-description has a different placeholder. A better way to do this
-    // might be to include a purpose statement with the formula itself. However,
-    // the reduce transformer has two formulas, one of which is the initial
-    // value, which might not need its own purpose statement.
-    //
-    // We could investigate making purpose statements more configurable via
-    // `transformerList`.
-    order.splice(firstIndex, 0, "formula-description");
-  }
-}
 
 export interface DatasetCreatorFunction {
   kind: "datasetCreator";
@@ -364,7 +350,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   // The order here is guaranteed to be stable since ES2015 as long as we don't
   // use numeric keys
   const order = Object.keys(init);
-  placeDescription(order);
 
   // Use these attributes to facilitate auto-fill in expression editor
   const attributes = {
@@ -469,22 +454,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
       setErrMsg((e as Error).message, errorId);
     }
   };
-
-  function makePurposeStatement(placeholder: string) {
-    return (
-      <div className="input-group">
-        <h3>Purpose Statement</h3>
-        <TextArea
-          value={state.description}
-          onChange={(e) => setState({ description: e.target.value })}
-          placeholder={placeholder}
-          className="purpose-statement"
-          onBlur={notifyStateIsDirty}
-          disabled={!editable}
-        />
-      </div>
-    );
-  }
 
   return (
     <>
@@ -667,13 +636,20 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
               />
             </div>
           );
-        } else if (component === "description") {
-          return makePurposeStatement(
-            "What does the transformer do to its inputs?"
-          );
-        } else if (component === "formula-description") {
-          return makePurposeStatement(
-            "What does the expression do to each row?"
+        } else if (component === "purposeStatement") {
+          return (
+            <div className="input-group">
+              <h3>Purpose Statement</h3>
+              <TextArea
+                value={state.purposeStatement}
+                onChange={(e) => setState({ purposeStatement: e.target.value })}
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                placeholder={init.purposeStatement!.placeholder}
+                className="purpose-statement"
+                onBlur={notifyStateIsDirty}
+                disabled={!editable}
+              />
+            </div>
           );
         } else {
           return "UNRECOGNIZED COMPONENT";

@@ -85,8 +85,8 @@ const phone: CodapPhone = new IframePhoneRpcEndpoint(
 );
 
 const DEFAULT_PLUGIN_WIDTH = 350;
-const DEFAULT_PLUGIN_HEIGHT = 465;
-const DEFAULT_SAVED_TRANSFORMER_HEIGHT = 370;
+const DEFAULT_PLUGIN_HEIGHT = 585;
+const DEFAULT_SAVED_TRANSFORMER_HEIGHT = 470;
 
 // Initialize the interactive frame with a given title.
 export async function initPhone(title: string, saved: boolean): Promise<void> {

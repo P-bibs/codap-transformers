@@ -46,7 +46,7 @@ export default function DefinitionCreator({
 
     const savedUrl = new URL(window.location.toString());
     savedUrl.searchParams.append("transform", encoded);
-    console.log(name);
+
     createDataInteractive(name, savedUrl.toString());
   }
 

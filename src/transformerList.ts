@@ -129,11 +129,17 @@ function docLinkFromHeadingID(headingID: string): string {
 const EXPRESSION_PLACEHOLDER = "What does the expression do to each row?";
 const TRANSFORMER_PLACEHOLDER = "What does the transformer do to its inputs?";
 
+const TRANSFORMER_NAME_TITLE = "Transformer Name";
+
 const transformerList: TransformerList = {
   "Build Attribute": {
     group: "Constructing",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. with-new-attribute",
+        },
         context1: {
           title: "Dataset to Add Attribute To",
         },
@@ -179,6 +185,10 @@ const transformerList: TransformerList = {
     group: "Constructing",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. feet-to-inches",
+        },
         context1: {
           title: "Dataset to Transform Attribute Of",
         },
@@ -219,6 +229,10 @@ const transformerList: TransformerList = {
     group: "Constructing",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. older-than-50",
+        },
         context1: {
           title: "Dataset to Filter",
         },
@@ -251,6 +265,10 @@ const transformerList: TransformerList = {
     group: "Constructing",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. sort-by-height",
+        },
         context1: {
           title: "Dataset to sort",
         },
@@ -315,6 +333,10 @@ const transformerList: TransformerList = {
     group: "Measuring the Center",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. average-height",
+        },
         context1: {
           title: "Dataset to Compute Mean Over",
         },
@@ -341,6 +363,10 @@ const transformerList: TransformerList = {
     group: "Measuring the Center",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. median-shoe-size",
+        },
         context1: {
           title: "Dataset to Compute Median Over",
         },
@@ -369,6 +395,10 @@ const transformerList: TransformerList = {
     group: "Measuring the Center",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. mode-height",
+        },
         context1: {
           title: "Dataset to Compute Mode Over",
         },
@@ -396,6 +426,10 @@ const transformerList: TransformerList = {
     group: "Measuring the Center",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. std-dev-of-age",
+        },
         context1: {
           title: "Dataset to Compute Standard Deviation Over",
         },
@@ -423,6 +457,10 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. running-age",
+        },
         context1: {
           title: "Dataset to calculate running sum on",
         },
@@ -451,6 +489,10 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. running-mean-age",
+        },
         context1: {
           title: "Dataset to calculate running mean on",
         },
@@ -480,6 +522,10 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. running-min-age",
+        },
         context1: {
           title: "Dataset to calculate running min on",
         },
@@ -508,6 +554,10 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. running-max-age",
+        },
         context1: {
           title: "Dataset to calculate running max on",
         },
@@ -536,6 +586,10 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. height-differences",
+        },
         context1: {
           title: "Dataset to calculate difference on",
         },
@@ -565,6 +619,10 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. difference-from-max",
+        },
         context1: {
           title: "Dataset to calculate difference on",
         },
@@ -601,6 +659,10 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. weighted-avg-height",
+        },
         context1: {
           title: "Dataset to Reduce",
         },
@@ -645,6 +707,10 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. compute-final-grade",
+        },
         context1: {
           title: "Dataset to Take Sum Product of",
         },
@@ -675,6 +741,10 @@ const transformerList: TransformerList = {
     group: "Summarizing",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. count-colors",
+        },
         context1: {
           title: "Dataset to Count",
         },
@@ -705,6 +775,10 @@ const transformerList: TransformerList = {
     group: "Summarizing",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. compare-scores",
+        },
         context1: {
           title: "Dataset to Compare",
         },
@@ -751,6 +825,10 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. group-by-state",
+        },
         context1: {
           title: "Dataset to Group",
         },
@@ -778,6 +856,10 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. select-height-and-age",
+        },
         context1: {
           title: "Dataset to Select Attributes From",
         },
@@ -826,6 +908,10 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. combine-people-datasets",
+        },
         context1: {
           title: "Base Dataset",
         },
@@ -859,6 +945,10 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. partition-by-state",
+        },
         context1: {
           title: "Dataset to Partition",
         },
@@ -891,6 +981,10 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. flatten",
+        },
         context1: {
           title: "Dataset to Flatten",
         },
@@ -913,6 +1007,10 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. join-on-id",
+        },
         context1: {
           title: "Base Dataset",
         },
@@ -956,6 +1054,10 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. join-on-id",
+        },
         context1: {
           title: "Base Dataset",
         },
@@ -1011,6 +1113,10 @@ const transformerList: TransformerList = {
     group: "Tidying Data",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. pivot-longer-assessments",
+        },
         context1: {
           title: "Dataset to Pivot",
         },
@@ -1051,6 +1157,10 @@ const transformerList: TransformerList = {
     group: "Tidying Data",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. pivot-wider-assessments",
+        },
         context1: {
           title: "Dataset to Pivot",
         },
@@ -1087,6 +1197,10 @@ const transformerList: TransformerList = {
     group: "Copying",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. uneditable-copy",
+        },
         context1: {
           title: "Dataset to Copy",
         },
@@ -1109,6 +1223,10 @@ const transformerList: TransformerList = {
     group: "Copying",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. editable-copy",
+        },
         context1: {
           title: "Dataset to Copy",
         },
@@ -1135,6 +1253,10 @@ const transformerList: TransformerList = {
     group: "Copying",
     componentData: {
       init: {
+        name: {
+          title: TRANSFORMER_NAME_TITLE,
+          placeholder: "e.g. copy-structure",
+        },
         context1: {
           title: "Dataset to Copy",
         },

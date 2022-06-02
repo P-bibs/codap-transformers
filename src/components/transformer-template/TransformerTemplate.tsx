@@ -80,6 +80,9 @@ interface ToggleDropdownInit extends ComponentInit {
     }
   >;
 }
+interface NameInit extends ComponentInit {
+  placeholder?: string;
+}
 interface ExpressionInit extends ComponentInit {}
 interface TypeContractInit extends ComponentInit {
   inputTypes: string[] | string;
@@ -92,6 +95,7 @@ interface PurposeStatementInit {
 }
 export type TransformerTemplateInit = {
   toggle?: ToggleDropdownInit;
+  name?: NameInit;
   context1?: ContextInit;
   context2?: ContextInit;
   collection1?: CollectionInit;
@@ -480,20 +484,6 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
 
   return (
     <>
-      {saveData === undefined && (
-        <div className="input-group">
-          <h3>Transformer Name</h3>
-          <TextInput
-            value={state.name}
-            onChange={(e) => {
-              setState({ name: e.target.value });
-            }}
-            placeholder={"Transformer Name"}
-            className="saved-transformer-name"
-            onBlur={notifyStateIsDirty}
-          />
-        </div>
-      )}
       {order.map((component) => {
         if (
           init.toggle &&
@@ -502,7 +492,22 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         ) {
           return <></>;
         }
-        if (component === "context1" || component === "context2") {
+        if (component === "name" && saveData === undefined) {
+          return (
+            <div className="input-group">
+              <h3>Transformer Name</h3>
+              <TextInput
+                value={state.name}
+                onChange={(e) => {
+                  setState({ name: e.target.value });
+                }}
+                placeholder={init[component]?.placeholder || "Transformer Name"}
+                className="saved-transformer-name"
+                onBlur={notifyStateIsDirty}
+              />
+            </div>
+          );
+        } else if (component === "context1" || component === "context2") {
           return (
             <div className="input-group">
               {titleFromComponent(component, init)}

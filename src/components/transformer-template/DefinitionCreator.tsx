@@ -19,9 +19,11 @@ export default function DefinitionCreator({
   const [saveErr, setSaveErr] = useState<string | null>(null);
 
   async function saveTransformer(data: TransformerSaveData) {
-    const { name, purposeStatement } = data;
+    let { name, purposeStatement } = data;
 
-    if (name.trim() === "") {
+    name = name.trim();
+
+    if (name === "") {
       setSaveErr("Please give the transformer a name before saving.");
       return;
     }

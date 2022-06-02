@@ -163,13 +163,15 @@ function SavedDefinitionView({
           // clear the transformer application error message
           setErrMsg(null, errorId);
 
+          const new_name = savedTransformer.name.trim();
+
           // if going to non-editable (saving) and name is blank
-          if (editable && savedTransformer.name.trim() === "") {
+          if (editable && new_name === "") {
             setSaveErr("Please choose a name for the transformer");
             return;
           }
 
-          const full_name = `Transformer: ${savedTransformer.name}`;
+          const full_name = `Transformer: ${new_name}`;
 
           // check if trying to save with a name that another transformer already uses
           if (editable) {

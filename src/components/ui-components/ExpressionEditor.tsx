@@ -44,6 +44,7 @@ CodeMirror.defineSimpleMode("codapFormula", {
 
 interface ExpressionEditorProps {
   value: string;
+  placeholder: string;
   onChange: (value: string) => void;
   attributeNames?: string[];
   disabled?: boolean;
@@ -92,6 +93,7 @@ const LOOKUP_FUNCTIONS_CATEGORY = "Lookup Functions";
 
 export default function ExpressionEditor({
   value,
+  placeholder,
   onChange,
   attributeNames = [],
   disabled,
@@ -170,7 +172,7 @@ export default function ExpressionEditor({
             hint: codapFormulaHints,
           },
           readOnly: disabled,
-          placeholder: "Expression",
+          placeholder,
         }}
         onInputRead={(editor) => {
           editor.showHint();

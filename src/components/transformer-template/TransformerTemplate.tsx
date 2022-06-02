@@ -70,6 +70,16 @@ interface DropdownInit extends ComponentInit {
     value: string;
   }[];
 }
+interface ToggleDropdownInit extends ComponentInit {
+  defaultValue: string;
+  options: Record<
+    string,
+    {
+      title: string;
+      componentsHidden: string[];
+    }
+  >;
+}
 interface ExpressionInit extends ComponentInit {}
 interface TypeContractInit extends ComponentInit {
   inputTypes: string[] | string;
@@ -81,6 +91,7 @@ interface PurposeStatementInit {
   placeholder: string;
 }
 export type TransformerTemplateInit = {
+  toggle?: ToggleDropdownInit;
   context1?: ContextInit;
   context2?: ContextInit;
   collection1?: CollectionInit;
@@ -107,6 +118,7 @@ type AttributeState = string | null;
 type AttributeSetState = string[];
 type TextInputState = string;
 type DropdownState = string | null;
+type ToggleDropdownState = string | null;
 type ExpressionState = string;
 type TypeContractState = {
   inputType: CodapLanguageType;
@@ -114,6 +126,7 @@ type TypeContractState = {
 };
 export type TransformerTemplateState = {
   name: string;
+  toggle: ToggleDropdownState;
   purposeStatement: string;
   context1: ContextState;
   context2: ContextState;
@@ -135,6 +148,7 @@ export type TransformerTemplateState = {
 
 const DEFAULT_STATE: TransformerTemplateState = {
   name: "",
+  toggle: null,
   purposeStatement: "",
   context1: null,
   context2: null,
@@ -341,7 +355,16 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
   // if there isn't any save data)
   useEffect(() => {
     if (saveData === undefined) {
-      setState(DEFAULT_STATE);
+      const defaultState = { ...DEFAULT_STATE };
+
+      // Must initialize toggle. The transformer must be in one of the toggle
+      // states at a time, and if no options are chosen, the transformer will be
+      // in an impossible state. E.g. both sorting by attribute and sorting by
+      // expression.
+      if (init.toggle) {
+        defaultState.toggle = init.toggle.defaultValue;
+      }
+      setState(defaultState);
       setErrMsg(null, errorId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -472,6 +495,13 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         </div>
       )}
       {order.map((component) => {
+        if (
+          init.toggle &&
+          state.toggle &&
+          init.toggle.options[state.toggle].componentsHidden.includes(component)
+        ) {
+          return <></>;
+        }
         if (component === "context1" || component === "context2") {
           return (
             <div className="input-group">
@@ -557,6 +587,31 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
                 onBlur={notifyStateIsDirty}
               />
             </div>
+          );
+        } else if (component === "toggle") {
+          const tmp = init[component];
+          return tmp ? (
+            <div className="input-group">
+              {titleFromComponent(component, init)}
+              <select
+                onChange={(e) => {
+                  notifyStateIsDirty();
+                  setState({ [component]: e.target.value });
+                }}
+                // Safe cast, since we ensure that toggle state is initialized.
+                // Otherwise, the component exists in an impossible state.
+                value={state[component] as string}
+                disabled={!editable}
+              >
+                {Object.entries(tmp.options).map(([key, values]) => (
+                  <option key={key} value={key}>
+                    {values.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            `${component} used but undefined`
           );
         } else if (component === "dropdown1" || component === "dropdown2") {
           const tmp = init[component];

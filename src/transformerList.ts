@@ -144,7 +144,7 @@ const transformerList: TransformerList = {
           title: "Collection to Add To",
         },
         typeContract1: {
-          title: "Formula for Attribute Values",
+          title: "Formula for New Attribute Values",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
@@ -186,7 +186,7 @@ const transformerList: TransformerList = {
           title: "Attribute to Transform",
         },
         typeContract1: {
-          title: "Formula for Transformed Values",
+          title: "Formula for Transformed Attribute Values",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
@@ -223,7 +223,7 @@ const transformerList: TransformerList = {
           title: "Dataset to Filter",
         },
         typeContract1: {
-          title: "How to Filter",
+          title: "Formula to Filter By",
           inputTypes: "Row",
           outputTypes: "Boolean",
           inputTypeDisabled: true,
@@ -254,8 +254,25 @@ const transformerList: TransformerList = {
         context1: {
           title: "Dataset to sort",
         },
+        toggle: {
+          title: "Sort Method",
+          options: {
+            byAttribute: {
+              title: "By Attribute",
+              componentsHidden: ["typeContract1", "expression1", "description"],
+            },
+            byExpression: {
+              title: "By Expression",
+              componentsHidden: ["attribute1"],
+            },
+          },
+          defaultValue: "byAttribute",
+        },
+        attribute1: {
+          title: "Attribute to Sort By",
+        },
         typeContract1: {
-          title: "Key expression",
+          title: "Formula to Sort By",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
@@ -279,14 +296,17 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: sort },
       info: {
         summary:
-          "Takes a dataset and orders it, using the value of a formula to \
-          determine how cases should appear in order.",
+          'Takes a dataset and orders its cases, either by the values from a \
+          particular attribute (the "By Attribute" method), or the values \
+          produced by a formula (the "By Expression" method).',
         consumes:
-          "A dataset to sort, a formula ('key expression'), an indication of the \
-          type the formula evaluates to, and a sort direction (ascending or descending).",
+          "By Attribute: A dataset to sort, an attribute to sort by, and a sort \
+          direction (ascending or descending).\n\
+          By Expression: A dataset to sort, a formula, an indication of the type \
+          the formula evaluates to, and a sort direction (ascending or descending).",
         produces:
-          "A copy of the input dataset, with cases sorted by the value of the \
-          key expression.",
+          "A copy of the input dataset, with cases sorted according to the \
+          indicated method and direction.",
         docLink: docLinkFromHeadingID("h.9swamcujp916"),
       },
     },

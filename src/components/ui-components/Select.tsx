@@ -3,6 +3,7 @@ import React, { ReactElement } from "react";
 interface SelectProps<T extends string | number> {
   onChange?: React.ChangeEventHandler<HTMLSelectElement>;
   defaultValue: T;
+  defaultTitle?: T;
   value: T | null;
   options: {
     value: T;
@@ -16,6 +17,7 @@ export default function Select<T extends string | number>({
   onChange,
   value,
   defaultValue,
+  defaultTitle,
   options,
   disabled,
   tooltip,
@@ -35,7 +37,7 @@ export default function Select<T extends string | number>({
       title={tooltip}
     >
       <option disabled value={defaultValue}>
-        {defaultValue}
+        {defaultTitle || defaultValue}
       </option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>

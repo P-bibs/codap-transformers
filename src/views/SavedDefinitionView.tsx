@@ -197,6 +197,9 @@ function SavedDefinitionView({
             });
           }
 
+          // ensure that whitespace trimming is reflected in textbox
+          setSavedTransformer({ ...savedTransformer, name: new_name });
+
           setEditable(!editable);
         }}
         title={

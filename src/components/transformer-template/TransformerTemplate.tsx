@@ -80,7 +80,7 @@ interface ToggleDropdownInit extends ComponentInit {
     }
   >;
 }
-interface NameInit extends ComponentInit {
+interface NameInit {
   placeholder?: string;
 }
 interface ExpressionInit extends ComponentInit {}
@@ -210,11 +210,16 @@ const convertNames = (
   destinationNameRoot: string
 ) => destinationNameRoot + sourceName.slice(sourceNameRoot.length);
 
+type ComponentWithTitle = Exclude<
+  keyof TransformerTemplateInit,
+  "purposeStatement" | "name"
+>;
+
 /**
  * Makes a header from a ui component's title
  */
 const titleFromComponent = (
-  component: Exclude<keyof TransformerTemplateInit, "purposeStatement">,
+  component: ComponentWithTitle,
   init: TransformerTemplateInit
 ): ReactElement => {
   const tmp = init[component];
@@ -226,7 +231,7 @@ const titleFromComponent = (
  * This is used for displaying prompts for formulas.
  */
 const displayExpressionPrompt = (
-  component: Exclude<keyof TransformerTemplateInit, "purposeStatement">,
+  component: ComponentWithTitle,
   init: TransformerTemplateInit,
   state: TransformerTemplateState
 ): ReactElement => {

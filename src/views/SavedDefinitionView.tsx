@@ -6,8 +6,9 @@ import ErrorDisplay, {
   useErrorStore,
 } from "../components/ui-components/Error";
 import { SavedTransformer } from "../components/transformer-template/types";
-import { TextArea, TextInput } from "../components/ui-components";
+import { TextInput } from "../components/ui-components";
 import {
+  getAllComponents,
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
   updateInteractiveFrame,
@@ -60,13 +61,17 @@ function SavedDefinitionView({
       if (savedState === undefined) {
         return;
       }
-      if (savedState.savedTransformation) {
-        setSavedTransformer({
-          ...savedTransformer,
-          name: savedState.savedTransformation.name,
-          description: savedState.savedTransformation.description,
-        });
-      }
+      setSavedTransformer((oldSavedTransformer) => {
+        if (savedState.savedTransformation !== undefined) {
+          return {
+            ...oldSavedTransformer,
+            name: savedState.savedTransformation.name,
+            description: savedState.savedTransformation.description,
+          };
+        } else {
+          return oldSavedTransformer;
+        }
+      });
       if (savedState.activeTransformations) {
         activeTransformationsDispatch({
           type: ActionTypes.SET,
@@ -81,8 +86,10 @@ function SavedDefinitionView({
     }
     fetchSavedState();
 
-    // Identity of dispatch is stable since it came from useReducer
-  }, [activeTransformationsDispatch, savedTransformer, setEditedOutputs]);
+    // Identity of dispatch is stable since it came from useReducer, same with
+    // setEditedOutputs. Fetching saved state should only run once.
+    // eslint-disable-next-line
+  }, []);
 
   // Register a listener to generate the plugin's state
   useEffect(() => {
@@ -143,26 +150,6 @@ function SavedDefinitionView({
           </IconButton>
         </div>
       )}
-      {editable ? (
-        <>
-          <TextArea
-            value={savedTransformer.description || ""}
-            onChange={(e) => {
-              setSavedTransformer({
-                ...savedTransformer,
-                description: e.target.value,
-              });
-              setSaveErr(null);
-            }}
-            placeholder="Purpose Statement"
-            className="purpose-statement"
-            onBlur={notifyStateIsDirty}
-          />
-          <hr className="divider" />
-        </>
-      ) : (
-        savedTransformer.description && <p>{savedTransformer.description}</p>
-      )}
       <TransformerRenderer
         setErrMsg={setErrMsg}
         errorDisplay={<ErrorDisplay setErrMsg={setErrMsg} store={errorStore} />}
@@ -172,22 +159,46 @@ function SavedDefinitionView({
       />
       <button
         id="edit-button"
-        onClick={() => {
+        onClick={async () => {
           // clear the transformer application error message
           setErrMsg(null, errorId);
 
+          const new_name = savedTransformer.name.trim();
+
           // if going to non-editable (saving) and name is blank
-          if (editable && savedTransformer.name.trim() === "") {
+          if (editable && new_name === "") {
             setSaveErr("Please choose a name for the transformer");
             return;
+          }
+
+          const full_name = `Transformer: ${new_name}`;
+
+          // check if trying to save with a name that another transformer already uses
+          if (editable) {
+            const components = await getAllComponents();
+            const currentName = (await getInteractiveFrame()).title;
+
+            // Add an extra clause to the conditional to allow a duplicate name if
+            // we're just saving this transformer with the name it already had
+            if (
+              components.find(
+                (c) => c.title === full_name && c.title !== currentName
+              )
+            ) {
+              setSaveErr("A transformer with that name already exists");
+              return;
+            }
           }
 
           // if saving, update the interactive frame to use the new transformer name
           if (editable) {
             updateInteractiveFrame({
-              title: `Transformer: ${savedTransformer.name}`,
+              title: full_name,
             });
           }
+
+          // ensure that whitespace trimming is reflected in textbox
+          setSavedTransformer({ ...savedTransformer, name: new_name });
 
           setEditable(!editable);
         }}

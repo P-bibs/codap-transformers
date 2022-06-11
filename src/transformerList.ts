@@ -125,11 +125,18 @@ function docLinkFromHeadingID(headingID: string): string {
   return `https://docs.google.com/document/d/1NZA9gxtu6jD3M-5SQyx0tvV2N5qYKMgRm1XUwMnLgJU/edit#heading=${headingID}`;
 }
 
+// Placeholder text for purpose statements
+const EXPRESSION_PLACEHOLDER = "What does the expression do to each row?";
+const TRANSFORMER_PLACEHOLDER = "What does the transformer do to its inputs?";
+
 const transformerList: TransformerList = {
   "Build Attribute": {
     group: "Constructing",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. build-kilos",
+        },
         context1: {
           title: "Dataset to Add Attribute To",
         },
@@ -140,10 +147,13 @@ const transformerList: TransformerList = {
           title: "Collection to Add To",
         },
         typeContract1: {
-          title: "Formula for Attribute Values",
+          title: "Formula for New Attribute Values",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
+        },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
         },
         expression1: {
           title:
@@ -173,6 +183,9 @@ const transformerList: TransformerList = {
     group: "Constructing",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. lbs-to-kg",
+        },
         context1: {
           title: "Dataset to Transform Attribute Of",
         },
@@ -183,10 +196,13 @@ const transformerList: TransformerList = {
           title: "New Name for Transformed Attribute",
         },
         typeContract1: {
-          title: "Formula for Transformed Values",
+          title: "Formula for Transformed Attribute Values",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
+        },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
         },
         expression1: {
           title:
@@ -215,15 +231,21 @@ const transformerList: TransformerList = {
     group: "Constructing",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. filter-is-heavy",
+        },
         context1: {
           title: "Dataset to Filter",
         },
         typeContract1: {
-          title: "How to Filter",
+          title: "Formula to Filter By",
           inputTypes: "Row",
           outputTypes: "Boolean",
           inputTypeDisabled: true,
           outputTypeDisabled: true,
+        },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
         },
         expression1: {
           title: "Keep all rows that satisfy:",
@@ -247,14 +269,37 @@ const transformerList: TransformerList = {
     group: "Constructing",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. order-by-pounds",
+        },
         context1: {
           title: "Dataset to sort",
         },
+        toggle: {
+          title: "Sort Method",
+          options: {
+            byAttribute: {
+              title: "By Attribute",
+              componentsHidden: ["typeContract1", "expression1", "description"],
+            },
+            byExpression: {
+              title: "By Expression",
+              componentsHidden: ["attribute1"],
+            },
+          },
+          defaultValue: "byAttribute",
+        },
+        attribute1: {
+          title: "Attribute to Sort By",
+        },
         typeContract1: {
-          title: "Key expression",
+          title: "Formula to Sort By",
           inputTypes: "Row",
           outputTypes: codapLanguageTypes,
           inputTypeDisabled: true,
+        },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
         },
         expression1: {
           title:
@@ -273,14 +318,17 @@ const transformerList: TransformerList = {
       transformerFunction: { kind: "datasetCreator", func: sort },
       info: {
         summary:
-          "Takes a dataset and orders it, using the value of a formula to \
-          determine how cases should appear in order.",
+          'Takes a dataset and orders its cases, either by the values from a \
+          particular attribute (the "By Attribute" method), or the values \
+          produced by a formula (the "By Expression" method).',
         consumes:
-          "A dataset to sort, a formula ('key expression'), an indication of the \
-          type the formula evaluates to, and a sort direction (ascending or descending).",
+          "By Attribute: A dataset to sort, an attribute to sort by, and a sort \
+          direction (ascending or descending).\n\
+          By Expression: A dataset to sort, a formula, an indication of the type \
+          the formula evaluates to, and a sort direction (ascending or descending).",
         produces:
-          "A copy of the input dataset, with cases sorted by the value of the \
-          key expression.",
+          "A copy of the input dataset, with cases sorted according to the \
+          indicated method and direction.",
         docLink: docLinkFromHeadingID("h.9swamcujp916"),
       },
     },
@@ -289,11 +337,17 @@ const transformerList: TransformerList = {
     group: "Measuring the Center",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. average-weight",
+        },
         context1: {
           title: "Dataset to Compute Mean Over",
         },
         attribute1: {
           title: "Attribute to Find Mean of",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: mean },
@@ -312,11 +366,17 @@ const transformerList: TransformerList = {
     group: "Measuring the Center",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. median-time-to-adopt",
+        },
         context1: {
           title: "Dataset to Compute Median Over",
         },
         attribute1: {
           title: "Attribute to Find Median of",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: median },
@@ -337,11 +397,17 @@ const transformerList: TransformerList = {
     group: "Measuring the Center",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. mode-num-legs",
+        },
         context1: {
           title: "Dataset to Compute Mode Over",
         },
         attribute1: {
           title: "Attribute to Find Mode of",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: mode },
@@ -361,11 +427,17 @@ const transformerList: TransformerList = {
     group: "Measuring the Center",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. std-dev-of-age",
+        },
         context1: {
           title: "Dataset to Compute Standard Deviation Over",
         },
         attribute1: {
           title: "Attribute to Find Standard Deviation of",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: standardDeviation },
@@ -385,11 +457,17 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. running-sum-age",
+        },
         context1: {
           title: "Dataset to calculate running sum on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: runningSum },
@@ -410,11 +488,17 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. running-mean-age",
+        },
         context1: {
           title: "Dataset to calculate running mean on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: runningMean },
@@ -436,11 +520,17 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. running-min-age",
+        },
         context1: {
           title: "Dataset to calculate running min on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: runningMin },
@@ -461,11 +551,17 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. running-max-age",
+        },
         context1: {
           title: "Dataset to calculate running max on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: runningMax },
@@ -486,11 +582,17 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. weight-differences",
+        },
         context1: {
           title: "Dataset to calculate difference on",
         },
         attribute1: {
           title: "Attribute to Aggregate",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: difference },
@@ -512,6 +614,9 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. diff-from-max-age",
+        },
         context1: {
           title: "Dataset to calculate difference on",
         },
@@ -520,6 +625,9 @@ const transformerList: TransformerList = {
         },
         textInput2: {
           title: "Starting value for difference",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: {
@@ -545,6 +653,9 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. total-number-of-toes",
+        },
         context1: {
           title: "Dataset to Reduce",
         },
@@ -553,6 +664,9 @@ const transformerList: TransformerList = {
         },
         textInput2: {
           title: "Accumulator Name",
+        },
+        purposeStatement: {
+          placeholder: EXPRESSION_PLACEHOLDER,
         },
         expression1: {
           title: "Starting with:",
@@ -588,11 +702,17 @@ const transformerList: TransformerList = {
     group: "Aggregating",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. compute-weighted-avg",
+        },
         context1: {
           title: "Dataset to Take Sum Product of",
         },
         attributeSet1: {
           title: "Attributes to Take Sum Product of",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: sumProduct },
@@ -615,11 +735,17 @@ const transformerList: TransformerList = {
     group: "Summarizing",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. count-species",
+        },
         context1: {
           title: "Dataset to Count",
         },
         attributeSet1: {
           title: "Attributes to Count",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: count },
@@ -642,6 +768,9 @@ const transformerList: TransformerList = {
     group: "Summarizing",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. compare-change-in-weight",
+        },
         context1: {
           title: "Dataset to Compare",
         },
@@ -659,6 +788,9 @@ const transformerList: TransformerList = {
             { value: "numeric", title: "Numeric" },
           ],
           defaultValue: "Select a type",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: compare },
@@ -685,11 +817,17 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. group-by-species",
+        },
         context1: {
           title: "Dataset to Group",
         },
         attributeSet1: {
           title: "Attributes to Group By",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: groupBy },
@@ -709,6 +847,9 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. select-name-and-weight",
+        },
         context1: {
           title: "Dataset to Select Attributes From",
         },
@@ -728,6 +869,9 @@ const transformerList: TransformerList = {
         },
         attributeSet1: {
           title: "Attributes",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: {
@@ -754,11 +898,17 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. combine-animal-datasets",
+        },
         context1: {
           title: "Base Dataset",
         },
         context2: {
           title: "Combining Dataset",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: {
@@ -784,11 +934,17 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. partition-by-species",
+        },
         context1: {
           title: "Dataset to Partition",
         },
         attribute1: {
           title: "Attribute to Partition By",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: {
@@ -813,8 +969,14 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. flatten",
+        },
         context1: {
           title: "Dataset to Flatten",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: flatten },
@@ -832,6 +994,9 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. inner-join-on-name",
+        },
         context1: {
           title: "Base Dataset",
         },
@@ -843,6 +1008,9 @@ const transformerList: TransformerList = {
         },
         attribute2: {
           title: "Joining Attribute",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: innerJoin },
@@ -872,6 +1040,9 @@ const transformerList: TransformerList = {
     group: "Restructuring",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. outer-join-on-name",
+        },
         context1: {
           title: "Base Dataset",
         },
@@ -891,6 +1062,9 @@ const transformerList: TransformerList = {
             { value: "left", title: "Left Outer Join" },
             { value: "full", title: "Full Outer Join" },
           ],
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: outerJoin },
@@ -924,6 +1098,9 @@ const transformerList: TransformerList = {
     group: "Tidying Data",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. pivot-longer-assessments",
+        },
         context1: {
           title: "Dataset to Pivot",
         },
@@ -935,6 +1112,9 @@ const transformerList: TransformerList = {
         },
         textInput2: {
           title: "Values To",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: pivotLonger },
@@ -961,6 +1141,9 @@ const transformerList: TransformerList = {
     group: "Tidying Data",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. pivot-wider-assessments",
+        },
         context1: {
           title: "Dataset to Pivot",
         },
@@ -970,6 +1153,9 @@ const transformerList: TransformerList = {
         attribute2: {
           title: "Values From",
           context: "context1",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: pivotWider },
@@ -994,8 +1180,14 @@ const transformerList: TransformerList = {
     group: "Copying",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. uneditable-copy",
+        },
         context1: {
           title: "Dataset to Copy",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: copy },
@@ -1013,8 +1205,14 @@ const transformerList: TransformerList = {
     group: "Copying",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. editable-copy",
+        },
         context1: {
           title: "Dataset to Copy",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: {
@@ -1036,8 +1234,14 @@ const transformerList: TransformerList = {
     group: "Copying",
     componentData: {
       init: {
+        name: {
+          placeholder: "e.g. copy-structure",
+        },
         context1: {
           title: "Dataset to Copy",
+        },
+        purposeStatement: {
+          placeholder: TRANSFORMER_PLACEHOLDER,
         },
       },
       transformerFunction: { kind: "datasetCreator", func: copyStructure },

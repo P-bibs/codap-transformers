@@ -5,15 +5,25 @@ import {
   TransformationOutput,
 } from "./types";
 import { evalExpression, getContextAndDataSet } from "../lib/codapPhone";
-import { codapValueToString, isMissing } from "./util";
+import { codapValueToString, isMissing, addToMVR } from "./util";
 import { tryTitle } from "../transformers/util";
 import { TransformerTemplateState } from "../components/transformer-template/TransformerTemplate";
-import { reportTypeErrorsForRecords } from "../lib/utils/typeChecking";
+import {
+  reportTypeErrorsForRecords,
+  inferType,
+} from "../lib/utils/typeChecking";
 import { t } from "../strings";
 
 export type SortDirection = "ascending" | "descending";
 function isSortDirection(s: unknown): s is SortDirection {
   return s === "ascending" || s === "descending";
+}
+
+function toBool(b: unknown) {
+  if (typeof b === "boolean") {
+    return b;
+  }
+  return b === "true";
 }
 
 function numCompareFn(a: number, b: number) {
@@ -66,6 +76,8 @@ function compareFn(a: unknown, b: unknown): number {
  */
 export async function sort({
   context1: contextName,
+  toggle,
+  attribute1: attribute,
   expression1: expression,
   dropdown1: sortDirection,
   typeContract1: { outputType },
@@ -73,17 +85,37 @@ export async function sort({
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
   }
-  if (expression.trim() === "") {
-    throw new Error(t("errors:sort.noKeyExpression"));
-  }
   if (!isSortDirection(sortDirection)) {
     throw new Error(t("errors:sort.noSortDirection"));
+  }
+  if (toggle === "byAttribute") {
+    return await sortByAttribute(contextName, attribute, sortDirection);
+  }
+  if (toggle === "byExpression") {
+    return await sortbyExpression(
+      contextName,
+      expression,
+      sortDirection,
+      outputType
+    );
+  }
+  throw new Error(t("errors:sort.noSortMethod"));
+}
+
+export async function sortbyExpression(
+  contextName: string,
+  expression: string,
+  sortDirection: SortDirection,
+  outputType: CodapLanguageType
+): Promise<TransformationOutput> {
+  if (expression.trim() === "") {
+    throw new Error(t("errors:sort.noKeyExpression"));
   }
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
 
-  const [sorted, mvr] = await uncheckedSort(
+  const [sorted, mvr] = await uncheckedSortByExpression(
     dataset,
     expression,
     outputType,
@@ -100,7 +132,7 @@ export async function sort({
   ];
 }
 
-export async function uncheckedSort(
+export async function uncheckedSortByExpression(
   dataset: DataSet,
   keyExpr: string,
   outputType: CodapLanguageType,
@@ -135,6 +167,121 @@ export async function uncheckedSort(
         : compareFn(keyValues[i2], keyValues[i1]);
     })
     .map(({ record }) => record);
+
+  return [
+    {
+      collections: dataset.collections,
+      records: sorted,
+    },
+    mvr,
+  ];
+}
+
+export async function sortByAttribute(
+  contextName: string,
+  attribute: string | null,
+  sortDirection: SortDirection
+): Promise<TransformationOutput> {
+  if (attribute === null) {
+    throw new Error(t("errors:sort.noSortAttribute"));
+  }
+
+  const { context, dataset } = await getContextAndDataSet(contextName);
+  const ctxtName = tryTitle(context);
+
+  const [sorted, mvr] = await uncheckedSortByAttribute(
+    ctxtName,
+    dataset,
+    attribute,
+    sortDirection
+  );
+
+  mvr.extraInfo = `The key expression formula evaluated to a missing value for ${mvr.missingValues.length} rows.`;
+
+  return [
+    sorted,
+    `Sort(${ctxtName}, ...)`,
+    `A copy of ${ctxtName}, sorted by the attribute: \`${attribute}\`.`,
+    mvr,
+  ];
+}
+
+export async function uncheckedSortByAttribute(
+  contextName: string,
+  dataset: DataSet,
+  attribute: string,
+  sortDirection: SortDirection
+): Promise<[DataSet, MissingValueReport]> {
+  const records = dataset.records;
+
+  const mvr: MissingValueReport = {
+    kind: "input",
+    missingValues: [],
+  };
+
+  if (records.length === 0) {
+    return [
+      {
+        collections: dataset.collections,
+        records,
+      },
+      mvr,
+    ];
+  }
+
+  // Note rows for which the key expression evaluated to a missing value
+  records.forEach((row, i) => {
+    if (isMissing(row[attribute])) {
+      addToMVR(mvr, dataset, contextName, attribute, i + 1);
+    }
+  });
+
+  const recordType = inferType(records.map((r) => r[attribute]));
+  if (recordType === "Any") {
+    throw new Error(t("errors:sort.attributeTypeAny"));
+  }
+
+  let sorted: Record<string, unknown>[] = [];
+  switch (recordType) {
+    case "Boolean":
+      sorted = records
+        .map((r) => {
+          r[attribute] = toBool(r[attribute]);
+          return r;
+        })
+        .sort((r1, r2) => {
+          return sortDirection === "ascending"
+            ? boolCompareFn(r1[attribute] as boolean, r2[attribute] as boolean)
+            : boolCompareFn(r2[attribute] as boolean, r1[attribute] as boolean);
+        });
+      break;
+    case "Number":
+      sorted = records
+        .map((r) => {
+          r[attribute] = Number(r[attribute]);
+          return r;
+        })
+        .sort((r1, r2) => {
+          return sortDirection === "ascending"
+            ? numCompareFn(r1[attribute] as number, r2[attribute] as number)
+            : numCompareFn(r2[attribute] as number, r1[attribute] as number);
+        });
+      break;
+    case "String":
+      sorted = records.sort((r1, r2) => {
+        return sortDirection === "ascending"
+          ? stringCompareFn(r1[attribute] as string, r2[attribute] as string)
+          : stringCompareFn(r2[attribute] as string, r1[attribute] as string);
+      });
+      break;
+    case "Boundary":
+      sorted = records.sort((r1, r2) => {
+        return sortDirection === "ascending"
+          ? objectCompareFn(r1[attribute], r2[attribute])
+          : objectCompareFn(r2[attribute], r1[attribute]);
+      });
+      break;
+  }
 
   return [
     {

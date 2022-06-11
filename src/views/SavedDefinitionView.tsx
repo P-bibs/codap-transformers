@@ -8,6 +8,7 @@ import ErrorDisplay, {
 import { SavedTransformer } from "../components/transformer-template/types";
 import { TextInput } from "../components/ui-components";
 import {
+  getAllComponents,
   getInteractiveFrame,
   notifyInteractiveFrameIsDirty,
   updateInteractiveFrame,
@@ -158,22 +159,46 @@ function SavedDefinitionView({
       />
       <button
         id="edit-button"
-        onClick={() => {
+        onClick={async () => {
           // clear the transformer application error message
           setErrMsg(null, errorId);
 
+          const new_name = savedTransformer.name.trim();
+
           // if going to non-editable (saving) and name is blank
-          if (editable && savedTransformer.name.trim() === "") {
+          if (editable && new_name === "") {
             setSaveErr("Please choose a name for the transformer");
             return;
+          }
+
+          const full_name = `Transformer: ${new_name}`;
+
+          // check if trying to save with a name that another transformer already uses
+          if (editable) {
+            const components = await getAllComponents();
+            const currentName = (await getInteractiveFrame()).title;
+
+            // Add an extra clause to the conditional to allow a duplicate name if
+            // we're just saving this transformer with the name it already had
+            if (
+              components.find(
+                (c) => c.title === full_name && c.title !== currentName
+              )
+            ) {
+              setSaveErr("A transformer with that name already exists");
+              return;
+            }
           }
 
           // if saving, update the interactive frame to use the new transformer name
           if (editable) {
             updateInteractiveFrame({
-              title: `Transformer: ${savedTransformer.name}`,
+              title: full_name,
             });
           }
+
+          // ensure that whitespace trimming is reflected in textbox
+          setSavedTransformer({ ...savedTransformer, name: new_name });
 
           setEditable(!editable);
         }}

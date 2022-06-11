@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from "react";
 import { BaseTransformerName } from "../../transformerList";
 import { SavedTransformerContent, TransformerSaveData } from "./types";
-import { createDataInteractive } from "../../lib/codapPhone";
+import { createDataInteractive, getAllComponents } from "../../lib/codapPhone";
 import "./styles/DefinitionCreator.css";
 import ErrorDisplay from "../ui-components/Error";
 
@@ -18,11 +18,21 @@ export default function DefinitionCreator({
 }: DefinitionCreatorProps): ReactElement {
   const [saveErr, setSaveErr] = useState<string | null>(null);
 
-  function saveTransformer(data: TransformerSaveData) {
-    const { name, purposeStatement } = data;
+  async function saveTransformer(data: TransformerSaveData) {
+    let { name, purposeStatement } = data;
 
-    if (name.trim() === "") {
+    name = name.trim();
+
+    if (name === "") {
       setSaveErr("Please give the transformer a name before saving.");
+      return;
+    }
+
+    // Make sure a transformer with this name doesn't exist already
+    const components = await getAllComponents();
+    const full_name = `Transformer: ${name}`;
+    if (components.find((c) => c.title === full_name)) {
+      setSaveErr("A transformer with that name already exists");
       return;
     }
 

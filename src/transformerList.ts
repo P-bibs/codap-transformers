@@ -135,7 +135,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. with-new-attribute",
+          placeholder: "e.g. build-kilos",
         },
         context1: {
           title: "Dataset to Add Attribute To",
@@ -183,7 +183,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. feet-to-inches",
+          placeholder: "e.g. lbs-to-kg",
         },
         context1: {
           title: "Dataset to Transform Attribute Of",
@@ -226,7 +226,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. older-than-50",
+          placeholder: "e.g. filter-is-heavy",
         },
         context1: {
           title: "Dataset to Filter",
@@ -261,7 +261,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. sort-by-height",
+          placeholder: "e.g. order-by-pounds",
         },
         context1: {
           title: "Dataset to sort",
@@ -328,7 +328,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. average-height",
+          placeholder: "e.g. average-weight",
         },
         context1: {
           title: "Dataset to Compute Mean Over",
@@ -357,7 +357,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. median-shoe-size",
+          placeholder: "e.g. median-time-to-adopt",
         },
         context1: {
           title: "Dataset to Compute Median Over",
@@ -388,7 +388,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. mode-height",
+          placeholder: "e.g. mode-num-legs",
         },
         context1: {
           title: "Dataset to Compute Mode Over",
@@ -448,7 +448,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. running-age",
+          placeholder: "e.g. running-sum-age",
         },
         context1: {
           title: "Dataset to calculate running sum on",
@@ -573,7 +573,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. height-differences",
+          placeholder: "e.g. weight-differences",
         },
         context1: {
           title: "Dataset to calculate difference on",
@@ -605,7 +605,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. difference-from-max",
+          placeholder: "e.g. diff-from-max-age",
         },
         context1: {
           title: "Dataset to calculate difference on",
@@ -644,7 +644,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. weighted-avg-height",
+          placeholder: "e.g. total-number-of-toes",
         },
         context1: {
           title: "Dataset to Reduce",
@@ -691,7 +691,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. compute-final-grade",
+          placeholder: "e.g. compute-weighted-avg",
         },
         context1: {
           title: "Dataset to Take Sum Product of",
@@ -724,7 +724,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. count-colors",
+          placeholder: "e.g. count-species",
         },
         context1: {
           title: "Dataset to Count",
@@ -757,7 +757,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. compare-scores",
+          placeholder: "e.g. compare-change-in-weight",
         },
         context1: {
           title: "Dataset to Compare",
@@ -806,7 +806,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. group-by-state",
+          placeholder: "e.g. group-by-species",
         },
         context1: {
           title: "Dataset to Group",
@@ -836,7 +836,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. select-height-and-age",
+          placeholder: "e.g. select-name-and-weight",
         },
         context1: {
           title: "Dataset to Select Attributes From",
@@ -887,7 +887,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. combine-people-datasets",
+          placeholder: "e.g. combine-animal-datasets",
         },
         context1: {
           title: "Base Dataset",
@@ -923,7 +923,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. partition-by-state",
+          placeholder: "e.g. partition-by-species",
         },
         context1: {
           title: "Dataset to Partition",
@@ -983,7 +983,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. join-on-id",
+          placeholder: "e.g. inner-join-on-name",
         },
         context1: {
           title: "Base Dataset",
@@ -1029,7 +1029,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. join-on-id",
+          placeholder: "e.g. outer-join-on-name",
         },
         context1: {
           title: "Base Dataset",

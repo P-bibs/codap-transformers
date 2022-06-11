@@ -1,15 +1,14 @@
 import { deleteComponent, getInteractiveFrame } from "../lib/codapPhone";
-import { TransformationDescription } from "../transformerStore/types";
 
-export async function closePlugin(
-  activeTransformations: Record<string, TransformationDescription[]>
-): Promise<void> {
+export async function closePlugin(isSavedTransformer: boolean): Promise<void> {
+  const customMessage = isSavedTransformer
+    ? `Closing this Transformer will delete it permanently and stop any datasets it produced from updating.`
+    : `Closing the Transformers plugin will stop any transformed datasets from updating.`;
+
   if (
-    // If there aren't any active transformers then we don't need to confirm
-    Object.keys(activeTransformations).length === 0 ||
-    !Object.values(activeTransformations).some((a) => a.length > 0) ||
     confirm(
-      `Closing the transformers plugin will stop transformed datasets from updating. Are you sure you'd like to proceed?`
+      `${customMessage} If you'd like to temporarily hide it, consider using ` +
+        `the minimize button instead.\n\nAre you sure you'd like to proceed?`
     )
   ) {
     const id = (await getInteractiveFrame()).id;

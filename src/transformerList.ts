@@ -158,6 +158,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "For each row, construct the attribute {textInput1} with the result of the expression:",
+          placeholder: "e.g. Age + 10",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: buildAttribute },
@@ -191,6 +192,9 @@ const transformerList: TransformerList = {
         attribute1: {
           title: "Attribute to Transform",
         },
+        textInput1: {
+          title: "New Name for Transformed Attribute",
+        },
         typeContract1: {
           title: "Formula for Transformed Attribute Values",
           inputTypes: "Row",
@@ -203,6 +207,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "For each row, replace the value of attribute {attribute1} with the result of the expression:",
+          placeholder: "e.g. Height * 2",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: transformAttribute },
@@ -213,10 +218,11 @@ const transformerList: TransformerList = {
           indicate what type of value you expect the formula to evaluate to.",
         consumes:
           "A dataset, an attribute to transform, a formula that will determine \
-          the new values of the given attribute, and the type that the formula \
-          should evaluate to.",
+          the new values of the given attribute, the type that the formula \
+          should evaluate to, and a new name for the attribute being transformed.",
         produces:
-          "A copy of the input dataset with transformed values for the given attribute.",
+          "A copy of the input dataset with transformed values for the given \
+          attribute (which has been renamed).",
         docLink: docLinkFromHeadingID("h.dksm7abmovmg"),
       },
     },
@@ -241,7 +247,10 @@ const transformerList: TransformerList = {
         purposeStatement: {
           placeholder: EXPRESSION_PLACEHOLDER,
         },
-        expression1: { title: "Keep all rows that satisfy:" },
+        expression1: {
+          title: "Keep all rows that satisfy:",
+          placeholder: "e.g. Year > 1990",
+        },
       },
       transformerFunction: { kind: "datasetCreator", func: filter },
       info: {
@@ -295,6 +304,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "Sort the rows in this dataset by a value, which is computed by:",
+          placeholder: "e.g. stringLength(Name)",
         },
         dropdown1: {
           title: "Direction",
@@ -660,9 +670,11 @@ const transformerList: TransformerList = {
         },
         expression1: {
           title: "Starting with:",
+          placeholder: "e.g. 0",
         },
         expression2: {
           title: "Compute the next value for each row by:",
+          placeholder: "e.g. Age + Accumulator",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: genericFold },

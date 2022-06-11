@@ -30,7 +30,7 @@ module.exports = {
   rules: {
     "dot-notation": "off",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     "no-constant-condition": ["error", { checkLoops: false }],
     "prefer-const": [
       "error",

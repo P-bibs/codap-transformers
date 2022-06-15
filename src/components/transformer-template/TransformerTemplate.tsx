@@ -503,7 +503,12 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
         ) {
           return <></>;
         }
-        if (component === "name" && saveData === undefined) {
+        if (component === "name") {
+          if (saveData !== undefined) {
+            // Saved transformers have custom name displays. No need to render
+            // this.
+            return <></>;
+          }
           return (
             <div className="input-group">
               <h3>Transformer Name</h3>

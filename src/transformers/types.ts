@@ -88,7 +88,7 @@ export const MISSING_VALUE_SCARE_SYMBOL = "\u{1F409}";
 export const MISSING_VALUE_WARNING =
   `Missing values were encountered in this computation. Proceed anyway? ` +
   `Proceeding will produce a missing value report, a table of missing values, ` +
-  `and the transformer's output.`;
+  `and the Transformer's output.`;
 
 /**
  * The format for output for most transformations contains three parts:

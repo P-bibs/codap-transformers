@@ -117,7 +117,7 @@ function SavedDefinitionView({
     <div className="transformer-view">
       {editable && (
         <div className="editing-indicator">
-          <p>You are editing this transformer</p>
+          <p>You are editing this Transformer</p>
         </div>
       )}
       {editable ? (
@@ -167,7 +167,7 @@ function SavedDefinitionView({
 
           // if going to non-editable (saving) and name is blank
           if (editable && new_name === "") {
-            setSaveErr("Please choose a name for the transformer");
+            setSaveErr("Please choose a name for the Transformer");
             return;
           }
 
@@ -185,7 +185,7 @@ function SavedDefinitionView({
                 (c) => c.title === full_name && c.title !== currentName
               )
             ) {
-              setSaveErr("A transformer with that name already exists");
+              setSaveErr("A Transformer with that name already exists");
               return;
             }
           }
@@ -204,8 +204,8 @@ function SavedDefinitionView({
         }}
         title={
           editable
-            ? "Save changes made to this transformer"
-            : "Make changes to this transformer"
+            ? "Save changes made to this Transformer"
+            : "Make changes to this Transformer"
         }
       >
         {editable ? "Save" : "Edit"}

@@ -127,7 +127,7 @@ function docLinkFromHeadingID(headingID: string): string {
 
 // Placeholder text for purpose statements
 const EXPRESSION_PLACEHOLDER = "What does the expression do to each row?";
-const TRANSFORMER_PLACEHOLDER = "What does the transformer do to its inputs?";
+const TRANSFORMER_PLACEHOLDER = "What does the Transformer do to its inputs?";
 
 const transformerList: TransformerList = {
   "Build Attribute": {
@@ -135,16 +135,16 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. build-kilos",
+          placeholder: "e.g., build-age-in-ten",
         },
         context1: {
-          title: "Dataset to Add Attribute To",
+          title: "Dataset to Add Attribute to",
         },
         textInput1: {
           title: "Name of New Attribute",
         },
         collection1: {
-          title: "Collection to Add To",
+          title: "Collection to Add to",
         },
         typeContract1: {
           title: "Formula for New Attribute Values",
@@ -158,7 +158,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "For each row, construct the attribute {textInput1} with the result of the expression:",
-          placeholder: "e.g. Age + 10",
+          placeholder: "e.g., Age + 10",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: buildAttribute },
@@ -184,7 +184,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. lbs-to-kg",
+          placeholder: "e.g., double-weight",
         },
         context1: {
           title: "Dataset to Transform Attribute Of",
@@ -207,7 +207,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "For each row, replace the value of attribute {attribute1} with the result of the expression:",
-          placeholder: "e.g. Height * 2",
+          placeholder: "e.g., Weight * 2",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: transformAttribute },
@@ -232,7 +232,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. filter-is-heavy",
+          placeholder: "e.g., filter-is-cat",
         },
         context1: {
           title: "Dataset to Filter",
@@ -249,7 +249,7 @@ const transformerList: TransformerList = {
         },
         expression1: {
           title: "Keep all rows that satisfy:",
-          placeholder: "e.g. Year > 1990",
+          placeholder: 'e.g., Species = "cat"',
         },
       },
       transformerFunction: { kind: "datasetCreator", func: filter },
@@ -270,7 +270,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. order-by-pounds",
+          placeholder: "e.g., order-by-pounds",
         },
         context1: {
           title: "Dataset to sort",
@@ -304,7 +304,7 @@ const transformerList: TransformerList = {
         expression1: {
           title:
             "Sort the rows in this dataset by a value, which is computed by:",
-          placeholder: "e.g. stringLength(Name)",
+          placeholder: "e.g., stringLength(Name)",
         },
         dropdown1: {
           title: "Direction",
@@ -338,7 +338,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. average-weight",
+          placeholder: "e.g., average-weight",
         },
         context1: {
           title: "Dataset to Compute Mean Over",
@@ -367,7 +367,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. median-time-to-adopt",
+          placeholder: "e.g., median-time-to-adopt",
         },
         context1: {
           title: "Dataset to Compute Median Over",
@@ -398,7 +398,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. mode-num-legs",
+          placeholder: "e.g., mode-num-legs",
         },
         context1: {
           title: "Dataset to Compute Mode Over",
@@ -428,7 +428,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. std-dev-of-age",
+          placeholder: "e.g., std-dev-of-age",
         },
         context1: {
           title: "Dataset to Compute Standard Deviation Over",
@@ -458,7 +458,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. running-sum-age",
+          placeholder: "e.g., running-sum-age",
         },
         context1: {
           title: "Dataset to calculate running sum on",
@@ -489,7 +489,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. running-mean-age",
+          placeholder: "e.g., running-mean-age",
         },
         context1: {
           title: "Dataset to calculate running mean on",
@@ -521,7 +521,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. running-min-age",
+          placeholder: "e.g., running-min-age",
         },
         context1: {
           title: "Dataset to calculate running min on",
@@ -552,7 +552,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. running-max-age",
+          placeholder: "e.g., running-max-age",
         },
         context1: {
           title: "Dataset to calculate running max on",
@@ -583,7 +583,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. weight-differences",
+          placeholder: "e.g., weight-differences",
         },
         context1: {
           title: "Dataset to calculate difference on",
@@ -615,7 +615,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. diff-from-max-age",
+          placeholder: "e.g., diff-from-max-age",
         },
         context1: {
           title: "Dataset to calculate difference on",
@@ -636,7 +636,7 @@ const transformerList: TransformerList = {
       },
       info: {
         summary:
-          "Identical to the Difference transformer, but allows you to choose the \
+          "Identical to the Difference Transformer, but allows you to choose the \
           starting value that will be subtracted from the first case. See info \
           for Difference for more information.",
         consumes:
@@ -654,7 +654,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. total-number-of-toes",
+          placeholder: "e.g., total-number-of-toes",
         },
         context1: {
           title: "Dataset to Reduce",
@@ -670,11 +670,11 @@ const transformerList: TransformerList = {
         },
         expression1: {
           title: "Starting with:",
-          placeholder: "e.g. 0",
+          placeholder: "e.g., 0",
         },
         expression2: {
           title: "Compute the next value for each row by:",
-          placeholder: "e.g. Age + Accumulator",
+          placeholder: "e.g., Age + Accumulator",
         },
       },
       transformerFunction: { kind: "datasetCreator", func: genericFold },
@@ -703,7 +703,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. compute-weighted-avg",
+          placeholder: "e.g., compute-weighted-avg",
         },
         context1: {
           title: "Dataset to Take Sum Product of",
@@ -736,7 +736,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. count-species",
+          placeholder: "e.g., count-species",
         },
         context1: {
           title: "Dataset to Count",
@@ -769,25 +769,25 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. compare-change-in-weight",
+          placeholder: "e.g., compare-change-in-weight",
         },
         context1: {
           title: "Dataset to Compare",
         },
         attribute1: {
-          title: "First attribute to Compare",
+          title: "First Attribute to Compare",
         },
         attribute2: {
-          title: "Second attribute to Compare",
+          title: "Second Attribute to Compare",
           context: "context1",
         },
         dropdown1: {
-          title: "What kind of Comparison?",
+          title: "Comparison Type",
           options: [
             { value: "categorical", title: "Categorical" },
             { value: "numeric", title: "Numeric" },
           ],
-          defaultValue: "Select a type",
+          defaultValue: "Select a comparison type",
         },
         purposeStatement: {
           placeholder: TRANSFORMER_PLACEHOLDER,
@@ -818,7 +818,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. group-by-species",
+          placeholder: "e.g., group-by-species",
         },
         context1: {
           title: "Dataset to Group",
@@ -848,7 +848,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. select-name-and-weight",
+          placeholder: "e.g., select-name-and-weight",
         },
         context1: {
           title: "Dataset to Select Attributes From",
@@ -899,7 +899,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. combine-animal-datasets",
+          placeholder: "e.g., combine-animal-datasets",
         },
         context1: {
           title: "Base Dataset",
@@ -935,7 +935,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. partition-by-species",
+          placeholder: "e.g., partition-by-species",
         },
         context1: {
           title: "Dataset to Partition",
@@ -970,7 +970,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. flatten",
+          placeholder: "e.g., flatten",
         },
         context1: {
           title: "Dataset to Flatten",
@@ -995,7 +995,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. inner-join-on-name",
+          placeholder: "e.g., inner-join-on-name",
         },
         context1: {
           title: "Base Dataset",
@@ -1041,7 +1041,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. outer-join-on-name",
+          placeholder: "e.g., outer-join-on-name",
         },
         context1: {
           title: "Base Dataset",
@@ -1099,7 +1099,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. pivot-longer-assessments",
+          placeholder: "e.g., pivot-longer-assessments",
         },
         context1: {
           title: "Dataset to Pivot",
@@ -1108,10 +1108,10 @@ const transformerList: TransformerList = {
           title: "Attributes to Pivot",
         },
         textInput1: {
-          title: "Names To",
+          title: "Names to",
         },
         textInput2: {
-          title: "Values To",
+          title: "Values to",
         },
         purposeStatement: {
           placeholder: TRANSFORMER_PLACEHOLDER,
@@ -1129,8 +1129,8 @@ const transformerList: TransformerList = {
         consumes:
           "A dataset to pivot, a list of attributes that should become values, \
           and names for both the attribute that will contain the former attribute \
-          names ('Names To') and the attribute that will contain the values that \
-          were under those attributes ('Values To').",
+          names ('Names to') and the attribute that will contain the values that \
+          were under those attributes ('Values to').",
         produces:
           "A pivoted copy of the input, usually with more cases and fewer attributes.",
         docLink: docLinkFromHeadingID("h.3ag94ew1tob2"),
@@ -1142,7 +1142,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. pivot-wider-assessments",
+          placeholder: "e.g., pivot-wider-assessments",
         },
         context1: {
           title: "Dataset to Pivot",
@@ -1181,7 +1181,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. uneditable-copy",
+          placeholder: "e.g., uneditable-copy",
         },
         context1: {
           title: "Dataset to Copy",
@@ -1206,7 +1206,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. editable-copy",
+          placeholder: "e.g., editable-copy",
         },
         context1: {
           title: "Dataset to Copy",
@@ -1235,7 +1235,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g. copy-structure",
+          placeholder: "e.g., copy-structure",
         },
         context1: {
           title: "Dataset to Copy",

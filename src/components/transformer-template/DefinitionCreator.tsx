@@ -24,7 +24,7 @@ export default function DefinitionCreator({
     name = name.trim();
 
     if (name === "") {
-      setSaveErr("Please give the transformer a name before saving.");
+      setSaveErr("Please give the Transformer a name before saving.");
       return;
     }
 
@@ -32,7 +32,7 @@ export default function DefinitionCreator({
     const components = await getAllComponents();
     const full_name = `Transformer: ${name}`;
     if (components.find((c) => c.title === full_name)) {
-      setSaveErr("A transformer with that name already exists");
+      setSaveErr("A Transformer with that name already exists");
       return;
     }
 

@@ -464,7 +464,7 @@ const TransformerTemplate = (props: TransformerTemplateProps): ReactElement => {
 
         // Add action to undo stack
         pushToUndoStack(
-          `Undo ${base} transformer`,
+          `Undo ${base} Transformer`,
           () => deleteDataContext(newContextName),
           transform
         );

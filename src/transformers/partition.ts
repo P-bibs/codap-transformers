@@ -169,7 +169,7 @@ export const partitionOverride = async (
 
   // Register undo action for partition transformer
   pushToUndoStack(
-    "Apply partition transformer",
+    "Apply Partition Transformer",
     () => outputContexts.forEach((context) => deleteDataContext(context)),
     () =>
       partitionOverride(

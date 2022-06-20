@@ -654,7 +654,7 @@ const transformerList: TransformerList = {
     componentData: {
       init: {
         name: {
-          placeholder: "e.g., total-number-of-toes",
+          placeholder: "e.g., total-age",
         },
         context1: {
           title: "Dataset to Reduce",

@@ -305,8 +305,8 @@ const transformerList: TransformerList = {
         dropdown1: {
           title: "Direction",
           options: [
-            { value: "descending", title: "descending" },
             { value: "ascending", title: "ascending" },
+            { value: "descending", title: "descending" },
           ],
           defaultValue: "Select a sort direction",
         },

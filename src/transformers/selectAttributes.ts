@@ -20,6 +20,7 @@ export async function selectAttributes({
   context1: contextName,
   attributeSet1: attributes,
   dropdown1: mode,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -35,9 +36,11 @@ export async function selectAttributes({
   const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
 
+  name = name || "SelectAttributes";
+
   return [
     await uncheckedSelectAttributes(dataset, attributes, allBut),
-    `SelectAttributes(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with ${
       allBut ? "all but" : "only"
     } the ${pluralSuffix("attribute", attributes)} ${attributeNames} included.`,

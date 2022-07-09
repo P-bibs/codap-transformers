@@ -34,6 +34,7 @@ function makeFoldWrapper(
   return async ({
     context1: contextName,
     attribute1: inputAttributeName,
+    name,
   }: TransformerTemplateState): Promise<TransformationOutput> => {
     if (contextName === null) {
       throw new Error(t("errors:validation.noDataSet"));
@@ -65,12 +66,10 @@ function makeFoldWrapper(
       attributeDescription
     );
 
-    return [
-      folded,
-      `${label.replace(/\s+/, "")}(${contextTitle}, ...)`,
-      datasetDescription,
-      mvr,
-    ];
+    const defaultName = label.replace(/\s+/, "");
+    name = name || defaultName;
+
+    return [folded, `${name}(${contextTitle}, ...)`, datasetDescription, mvr];
   };
 }
 
@@ -147,6 +146,7 @@ export async function genericFold({
   expression1: base,
   textInput2: accumulatorName,
   expression2: expression,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -180,9 +180,11 @@ export async function genericFold({
 
   mvr.extraInfo = `The reduce formula evaluated to a missing value for ${mvr.missingValues.length} rows.`;
 
+  name = name || "Reduce";
+
   return [
     reduced,
-    `Reduce(${contextTitle}, ...)`,
+    `${name}(${contextTitle}, ...)`,
     `A reduce of the ${contextTitle} dataset, with an attribute ${resultColumnName} ` +
       `whose values are determined by the formula \`${expression}\`. ` +
       `The accumulator is named ${accumulatorName} and its initial value is \`${base}\`.`,
@@ -339,6 +341,7 @@ export async function differenceFrom({
   context1: contextName,
   attribute1: inputAttributeName,
   textInput2: startingValue,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -373,9 +376,11 @@ export async function differenceFrom({
     Number(startingValue)
   );
 
+  name = name || "DifferenceFrom";
+
   return [
     diffFrom,
-    `DifferenceFrom(${contextTitle}, ...)`,
+    `${name}(${contextTitle}, ...)`,
     `A copy of ${contextTitle} with a new column whose values are the difference between ` +
       `the value of ${inputAttributeName} in the current case and the value of ${inputAttributeName} ` +
       `in the case above. The first case subtracts ${startingValue} from itself.`,

@@ -81,6 +81,7 @@ export async function sort({
   expression1: expression,
   dropdown1: sortDirection,
   typeContract1: { outputType },
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -88,15 +89,19 @@ export async function sort({
   if (!isSortDirection(sortDirection)) {
     throw new Error(t("errors:sort.noSortDirection"));
   }
+
+  name = name || "Sort";
+
   if (toggle === "byAttribute") {
-    return await sortByAttribute(contextName, attribute, sortDirection);
+    return await sortByAttribute(contextName, attribute, sortDirection, name);
   }
   if (toggle === "byExpression") {
     return await sortbyExpression(
       contextName,
       expression,
       sortDirection,
-      outputType
+      outputType,
+      name
     );
   }
   throw new Error(t("errors:sort.noSortMethod"));
@@ -106,7 +111,8 @@ export async function sortbyExpression(
   contextName: string,
   expression: string,
   sortDirection: SortDirection,
-  outputType: CodapLanguageType
+  outputType: CodapLanguageType,
+  name: string
 ): Promise<TransformationOutput> {
   if (expression.trim() === "") {
     throw new Error(t("errors:sort.noKeyExpression"));
@@ -126,7 +132,7 @@ export async function sortbyExpression(
 
   return [
     sorted,
-    `Sort(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, sorted by the value of the key formula: \`${expression}\`.`,
     mvr,
   ];
@@ -180,7 +186,8 @@ export async function uncheckedSortByExpression(
 export async function sortByAttribute(
   contextName: string,
   attribute: string | null,
-  sortDirection: SortDirection
+  sortDirection: SortDirection,
+  name: string
 ): Promise<TransformationOutput> {
   if (attribute === null) {
     throw new Error(t("errors:sort.noSortAttribute"));
@@ -200,7 +207,7 @@ export async function sortByAttribute(
 
   return [
     sorted,
-    `Sort(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, sorted by the attribute: \`${attribute}\`.`,
     mvr,
   ];

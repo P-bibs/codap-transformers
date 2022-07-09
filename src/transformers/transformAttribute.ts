@@ -22,6 +22,7 @@ export async function transformAttribute({
   expression1: expression,
   typeContract1: { outputType },
   textInput1: transformedAttributeName,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -53,9 +54,11 @@ export async function transformAttribute({
 
   mvr.extraInfo = `The formula for the transformed column evaluated to a missing value for ${mvr.missingValues.length} rows.`;
 
+  name = name || "TransformAttribute";
+
   return [
     transformed,
-    `TransformAttribute(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName}, with the ${attributeName} attribute transformed into ` +
       `${transformedAttributeName}, with its values determined by the formula \`${expression}\`.`,
     mvr,

@@ -16,6 +16,7 @@ import { t } from "../strings";
 export async function sumProduct({
   context1: contextName,
   attributeSet1: attributes,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -35,12 +36,14 @@ export async function sumProduct({
     `${mvr.missingValues.length} missing values were encountered while computing ` +
     `the sum product. Any row which contained missing values was ignored.`;
 
+  name = name || "SumProduct";
+
   // NOTE: The output name uses {} instead of [] to show the list of attributes
   // below because [] causes problems in data context names and (through MVR)
   // the name of this sum product may appear in a data context.
   return [
     sumProd,
-    `SumProduct(${ctxtName}, {${attributes.join(", ")}})`,
+    `${name}(${ctxtName}, {${attributes.join(", ")}})`,
     `The sum across all cases in ${ctxtName} of the product ` +
       `of the ${pluralSuffix("attribute", attributes)} ${attributeNames}.`,
     mvr,

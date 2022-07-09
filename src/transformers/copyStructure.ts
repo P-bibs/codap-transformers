@@ -10,6 +10,7 @@ import { t } from "../strings";
  */
 export async function copyStructure({
   context1: contextName,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -17,10 +18,11 @@ export async function copyStructure({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
+  name = name || "CopyStructure";
 
   return [
     await uncheckedCopyStructure(dataset),
-    `CopyStructure(${ctxtName})`,
+    `${name}(${ctxtName})`,
     `A copy of the collections and attributes of the ${ctxtName} dataset, but with no cases.`,
     EMPTY_MVR,
   ];

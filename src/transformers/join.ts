@@ -25,6 +25,7 @@ export async function innerJoin({
   context2: inputDataContext2,
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (
     !inputDataContext1 ||
@@ -58,9 +59,11 @@ export async function innerJoin({
     `attribute. The copied attributes from the joining dataset were left missing ` +
     `for such rows with missing values.`;
 
+  name = name || "InnerJoin";
+
   return [
     joined,
-    `InnerJoin(${ctxtName1}, ${ctxtName2}, ...)`,
+    `${name}(${ctxtName1}, ${ctxtName2}, ...)`,
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
       `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +
       `containing ${inputAttribute1} in ${ctxtName1}.`,
@@ -153,6 +156,7 @@ export async function outerJoin({
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
   dropdown1: kind,
+  name: transformerName,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (
     !inputDataContext1 ||
@@ -179,7 +183,8 @@ export async function outerJoin({
   const ctxtName1 = tryTitle(context1);
   const ctxtName2 = tryTitle(context2);
 
-  const name = `OuterJoin(${ctxtName1}, ${ctxtName2}, ...)`;
+  transformerName = transformerName || "OuterJoin";
+  const name = `${transformerName}(${ctxtName1}, ${ctxtName2}, ...)`;
   const description =
     `A copy of ${ctxtName1}, with all the attributes/values from the collection ` +
     `containing ${inputAttribute2} in ${ctxtName2} added into the collection ` +

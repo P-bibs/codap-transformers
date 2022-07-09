@@ -11,6 +11,7 @@ import { t } from "../strings";
 export async function standardDeviation({
   context1: contextName,
   attribute1: attribute,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -34,9 +35,11 @@ export async function standardDeviation({
     `the standard deviation, and were ignored. The standard deviation you see is ` +
     `the standard deviation of the non-missing values.`;
 
+  name = name || "StandardDeviation";
+
   return [
     stdDev,
-    `StandardDeviation(${ctxtName}, ${attribute})`,
+    `${name}(${ctxtName}, ${attribute})`,
     `The standard deviation of the ${attribute} attribute in the ${ctxtName} dataset.`,
     mvr,
   ];

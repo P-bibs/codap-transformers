@@ -75,7 +75,8 @@ function partitionDatasetDescription(
 
 async function doTransform(
   inputDataCtxt: string,
-  attributeName: string
+  attributeName: string,
+  name: string
 ): Promise<[[PartitionDataset, string][], MissingValueReport]> {
   const { context, dataset } = await getContextAndDataSet(inputDataCtxt);
   const readableContext = tryTitle(context);
@@ -87,11 +88,13 @@ async function doTransform(
     `attribute. One of the output datasets will contain only rows that had missing ` +
     `values for this attribute.`;
 
+  name = name || "Partition";
+
   // return both the datasets and their names
   return [
     partitioned.map((pd) => [
       { ...pd, dataset: makeDatasetImmutable(pd.dataset) },
-      `Partition(${attributeName} = ${codapValueToString(
+      `${name}(${attributeName} = ${codapValueToString(
         pd.distinctValue
       )}, ${readableContext})`,
     ]),
@@ -107,6 +110,7 @@ export const partitionOverride = async (
   {
     context1: inputDataCtxt,
     attribute1: attributeName,
+    name,
   }: TransformerTemplateState,
   errorId: number
 ): Promise<void> => {
@@ -119,7 +123,11 @@ export const partitionOverride = async (
     return;
   }
 
-  let [transformed, mvr] = await doTransform(inputDataCtxt, attributeName);
+  let [transformed, mvr] = await doTransform(
+    inputDataCtxt,
+    attributeName,
+    name
+  );
 
   // Ensure user wants to go through with computation if MVR non-empty
   if (mvr.missingValues.length > 0 && !confirm(MISSING_VALUE_WARNING)) {
@@ -193,6 +201,7 @@ export const partitionOverride = async (
         attributeName,
         outputContexts,
         valueToContext,
+        name,
       },
       errorId,
     },
@@ -208,6 +217,7 @@ export interface PartitionSaveState {
   attributeName: string;
   outputContexts: string[];
   valueToContext: Record<string, string>;
+  name: string;
 }
 
 export async function partitionUpdate(
@@ -232,13 +242,14 @@ async function partitionUpdateInner(
     attributeName,
     outputContexts,
     valueToContext,
+    name,
   }: PartitionSaveState,
   editedOutputs: Set<string>
 ): Promise<{
   extraDependencies?: string[];
   state?: Partial<PartitionSaveState>;
 }> {
-  const [transformed] = await doTransform(inputDataCtxt, attributeName);
+  const [transformed] = await doTransform(inputDataCtxt, attributeName, name);
 
   const { context: inputContext } = await getContextAndDataSet(inputDataCtxt);
   const inputDataCtxtName = tryTitle(inputContext);

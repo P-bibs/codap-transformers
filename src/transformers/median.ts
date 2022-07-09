@@ -11,6 +11,7 @@ import { t } from "../strings";
 export async function median({
   context1: contextName,
   attribute1: attribute,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -30,9 +31,11 @@ export async function median({
     `while computing the median, and were ignored. The median you see is the median ` +
     `of the non-missing values.`;
 
+  name = name || "Median";
+
   return [
     medianValue,
-    `Median(${ctxtName}, ${attribute})`,
+    `${name}(${ctxtName}, ${attribute})`,
     `The median value of the ${attribute} attribute in the ${ctxtName} dataset.`,
     mvr,
   ];

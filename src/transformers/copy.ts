@@ -9,6 +9,7 @@ import { t } from "../strings";
  */
 export async function copy({
   context1: contextName,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -16,10 +17,11 @@ export async function copy({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
+  name = name || "UneditableCopy";
 
   return [
     await uncheckedCopy(dataset),
-    `UneditableCopy(${ctxtName})`,
+    `${name}(${ctxtName})`,
     `An uneditable copy of the ${ctxtName} dataset.`,
     EMPTY_MVR,
   ];

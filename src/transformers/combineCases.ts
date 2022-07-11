@@ -18,6 +18,7 @@ import { t } from "../strings";
 export async function combineCases({
   context1: inputDataContext1,
   context2: inputDataContext2,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1 || !inputDataContext2) {
     throw new Error(t("errors:combineCases.noDataSet"));
@@ -32,9 +33,11 @@ export async function combineCases({
   const ctxtName1 = tryTitle(context1);
   const ctxtName2 = tryTitle(context2);
 
+  name = name || "CombinedCases";
+
   return [
     await uncheckedCombineCases(dataset1, dataset2),
-    `CombinedCases(${ctxtName1}, ${ctxtName2})`,
+    `${name}(${ctxtName1}, ${ctxtName2})`,
     `A copy of ${ctxtName1}, containing all of the cases from both ${ctxtName1} and ${ctxtName2}.`,
     EMPTY_MVR,
   ];

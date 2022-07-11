@@ -21,6 +21,7 @@ export async function buildAttribute({
   textInput1: attributeName,
   expression1: expression,
   typeContract1: { outputType },
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -51,9 +52,11 @@ export async function buildAttribute({
 
   mvr.extraInfo = `The formula for the new column evaluated to a missing value for ${mvr.missingValues.length} rows.`;
 
+  name = name || "BuildAttribute";
+
   return [
     withColumn,
-    `BuildAttribute(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new attribute (${attributeName}) added to ` +
       `the ${collectionName} collection, whose value is determined by the formula \`${expression}\`.`,
     mvr,

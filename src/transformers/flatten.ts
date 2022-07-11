@@ -11,6 +11,7 @@ import { t } from "../strings";
  */
 export async function flatten({
   context1: contextName,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -18,10 +19,11 @@ export async function flatten({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
+  name = name || "Flatten";
 
   return [
     await uncheckedFlatten(dataset),
-    `Flatten(${ctxtName})`,
+    `${name}(${ctxtName})`,
     `A copy of ${ctxtName} in which all collections have been flattened into one collection.`,
     EMPTY_MVR,
   ];

@@ -27,6 +27,7 @@ import { t } from "../strings";
 export async function count({
   context1: contextName,
   attributeSet1: attributes,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -43,9 +44,11 @@ export async function count({
 
   mvr.extraInfo = `${mvr.missingValues.length} missing values were encountered in the counted attributes.`;
 
+  name = name || "Count";
+
   return [
     counted,
-    `Count(${contextTitle}, ...)`,
+    `${name}(${contextTitle}, ...)`,
     `A summary of the frequency of all tuples of the ${pluralSuffix(
       "attribute",
       attributes

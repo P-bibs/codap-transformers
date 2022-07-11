@@ -23,6 +23,7 @@ export async function pivotLonger({
   attributeSet1: attributes,
   textInput1: namesTo,
   textInput2: valuesTo,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -40,10 +41,11 @@ export async function pivotLonger({
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
   const attributeNames = listAsString(attributes);
+  name = name || "PivotLonger";
 
   return [
     uncheckedPivotLonger(dataset, attributes, namesTo, valuesTo),
-    `PivotLonger(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the ${pluralSuffix(
       "attribute",
       attributes
@@ -148,6 +150,7 @@ export async function pivotWider({
   context1: contextName,
   attribute1: namesFrom,
   attribute2: valuesFrom,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -161,9 +164,10 @@ export async function pivotWider({
 
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
+  name = name || "PivotWider";
   return [
     uncheckedPivotWider(dataset, namesFrom, valuesFrom),
-    `PivotWider(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with the values in attribute ${namesFrom} converted ` +
       `into new attributes, which get their values from the attribute ${valuesFrom}.`,
     EMPTY_MVR,

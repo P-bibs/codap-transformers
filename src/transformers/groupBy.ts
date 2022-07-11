@@ -25,6 +25,7 @@ import { t } from "../strings";
 export async function groupBy({
   context1: contextName,
   attributeSet1: attributes,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -54,9 +55,11 @@ export async function groupBy({
 
   mvr.extraInfo = `${mvr.missingValues.length} missing values were encountered in the grouped attributes.`;
 
+  name = name || "GroupBy";
+
   return [
     grouped,
-    `GroupBy(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName} with a new parent collection added ` +
       `which contains a copy of the ${pluralSuffix(
         "attribute",

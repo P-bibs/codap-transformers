@@ -33,6 +33,7 @@ export async function compare({
   attribute1: inputAttribute1,
   attribute2: inputAttribute2,
   dropdown1: kind,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (!inputDataContext1) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -80,9 +81,11 @@ export async function compare({
       `attributes. Rows with missing values were ignored in the comparison and left ` +
       `with a missing difference value.`;
 
+    name = name || "Compare";
+
     return [
       numeric,
-      `Compare(${contextTitle}, ...)`,
+      `${name}(${contextTitle}, ...)`,
       `A numeric comparison of the attributes ${inputAttribute1} and ${inputAttribute2} (from ${contextTitle})`,
       mvr,
     ];

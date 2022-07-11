@@ -12,6 +12,7 @@ import { t } from "../strings";
 export async function filter({
   context1: contextName,
   expression1: predicate,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -23,9 +24,11 @@ export async function filter({
   const { context, dataset } = await getContextAndDataSet(contextName);
   const ctxtName = tryTitle(context);
 
+  name = name || "Filter";
+
   return [
     await uncheckedFilter(dataset, predicate),
-    `Filter(${ctxtName}, ...)`,
+    `${name}(${ctxtName}, ...)`,
     `A copy of ${ctxtName} that only includes the cases for which the predicate \`${predicate}\` is true.`,
     // TODO: MVR? requires analysis of formula
     EMPTY_MVR,

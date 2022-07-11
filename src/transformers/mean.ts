@@ -11,6 +11,7 @@ import { t } from "../strings";
 export async function mean({
   context1: contextName,
   attribute1: attribute,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -30,9 +31,11 @@ export async function mean({
     `while computing the mean, and were ignored. The mean you see is the mean ` +
     `of the non-missing values.`;
 
+  name = name || "Mean";
+
   return [
     meanValue,
-    `Mean(${ctxtName}, ${attribute})`,
+    `${name}(${ctxtName}, ${attribute})`,
     `The mean value of the ${attribute} attribute in the ${ctxtName} dataset.`,
     mvr,
   ];

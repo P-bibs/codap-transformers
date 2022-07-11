@@ -11,6 +11,7 @@ import { t } from "../strings";
 export async function mode({
   context1: contextName,
   attribute1: attribute,
+  name,
 }: TransformerTemplateState): Promise<TransformationOutput> {
   if (contextName === null) {
     throw new Error(t("errors:validation.noDataSet"));
@@ -30,9 +31,11 @@ export async function mode({
     `while computing the mode, and were ignored. The mode values you see are the modes ` +
     `of the non-missing values.`;
 
+  name = name || "Mode";
+
   return [
     modes,
-    `Mode(${ctxtName}, ${attribute})`,
+    `${name}(${ctxtName}, ${attribute})`,
     `The mode value of the ${attribute} attribute in the ${ctxtName} dataset.`,
     mvr,
   ];
